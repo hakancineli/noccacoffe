@@ -287,35 +287,28 @@ const MenuItems = () => {
               }`}>
                 {item.image ? (
                   <div className={`relative w-full h-full ${
-                    item.name === 'Espresso Macchiato' ? 'pt-8' : 
                     item.name === 'Caffé Mocha' ? 'p-4' :
                     item.name === 'White Chocolate Mocha' ? 'p-6' :
                     item.name === 'Iced Spanish Latte' ? 'p-0 overflow-hidden' : ''
                   }`}>
                   <div className="relative w-full h-full">
-                    <Image 
-                      src={item.image} 
+                    <Image
+                      src={item.image}
                       alt={item.name}
                       fill
+                      quality={95}
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                       className={`${
-                        item.name === 'Espresso Macchiato' ? 'top-8' : 
-                        item.name === 'Caffé Mocha' ? 'object-contain' : 
-                        item.name === 'Iced Spanish Latte' ? 'object-contain scale-140' : 'object-cover'
+                        item.name === 'Caffé Mocha' ? 'object-contain' :
+                        item.name === 'Iced Spanish Latte' ? 'object-contain scale-125' :
+                        item.name === 'Buzlu Caffè Latte' || item.name === 'Buzlu Caffé Mocha' || item.name === 'Buzlu White Chocolate Mocha' ||
+                        item.name === 'Iced Americano' || item.name === 'Iced Spanish Latte' || item.name === 'Iced Matcha Latte'
+                          ? 'object-cover scale-110' : 'object-cover'
                       }`}
-                      style={item.name === 'Iced Spanish Latte' ? { position: 'absolute' } : 
-                             item.name === 'Espresso Macchiato' ? { position: 'absolute' } : {}}
+                      style={item.name === 'Iced Spanish Latte' ? { position: 'absolute' } : {}}
+                      priority={item.id <= 6 || item.name.includes('Buzlu') || item.name.includes('Iced')}
+                      unoptimized={item.name.includes('Buzlu') || item.name.includes('Iced')}
                     />
-                    {item.isIced && (
-                      <div className="absolute inset-0 bg-white/40 backdrop-blur-md">
-                        <div className="absolute top-2 right-2 bg-blue-100 text-blue-700 text-xs font-bold px-2 py-1 rounded-full flex items-center">
-                          <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M9.75 2a.75.75 0 01.75.75V4h3.5a.75.75 0 010 1.5H10.5v1.25a.75.75 0 01-1.5 0V5.5H5.5a.75.75 0 010-1.5H9V2.75A.75.75 0 019.75 2z" />
-                            <path fillRule="evenodd" d="M3.5 9.5a.75.75 0 00-.75.75v6.75c0 .414.336.75.75.75h12.5a.75.75 0 00.75-.75v-6.75a.75.75 0 00-.75-.75H3.5zm-2.25.75c0-1.24 1.01-2.25 2.25-2.25h12.5c1.24 0 2.25 1.01 2.25 2.25v6.75c0 1.24-1.01 2.25-2.25 2.25H3.5c-1.24 0-2.25-1.01-2.25-2.25v-6.75z" clipRule="evenodd" />
-                          </svg>
-                          BUZLU
-                        </div>
-                      </div>
-                    )}
                   </div>
                 </div>
                 ) : (
