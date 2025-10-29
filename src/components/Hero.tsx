@@ -25,36 +25,36 @@ const Hero = () => {
           ))}
         </div>
         
-        {/* Mobile: Stack vertically */}
+        {/* Mobile: Three images side by side */}
         <div className="md:hidden">
-          <div className="w-full h-[50vh] min-h-[300px]">
-            <Image
-              src="/images/hero/part1.jpg"
-              alt="NOCCA COFFEE 1. Bölüm"
-              width={400}
-              height={300}
-              className="object-cover w-full h-full"
-              quality={90}
-              priority
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <div className="w-full h-[25vh] min-h-[150px]">
+          <div className="grid grid-cols-3 gap-1 h-[50vh] min-h-[300px]">
+            <div className="w-full h-full">
+              <Image
+                src="/images/hero/part1.jpg"
+                alt="NOCCA COFFEE 1. Bölüm"
+                width={133}
+                height={300}
+                className="object-cover w-full h-full"
+                quality={90}
+                priority
+              />
+            </div>
+            <div className="w-full h-full">
               <Image
                 src="/images/hero/part2.jpg"
                 alt="NOCCA COFFEE 2. Bölüm"
-                width={200}
-                height={150}
+                width={133}
+                height={300}
                 className="object-cover w-full h-full"
                 quality={90}
               />
             </div>
-            <div className="w-full h-[25vh] min-h-[150px]">
+            <div className="w-full h-full">
               <Image
                 src="/images/hero/part3.jpg"
                 alt="NOCCA COFFEE 3. Bölüm"
-                width={200}
-                height={150}
+                width={134}
+                height={300}
                 className="object-cover w-full h-full"
                 quality={90}
               />

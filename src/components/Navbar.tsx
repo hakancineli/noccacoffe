@@ -1,12 +1,28 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { FaBars, FaTimes, FaShoppingBag, FaMapMarkerAlt, FaUser } from 'react-icons/fa';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
+
+  // Dropdown dışına tıklandığında kapatma
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+        setIsProfileOpen(false);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, []);
 
   const menuItems = [
     { name: 'MENÜ', href: '/menu' },
@@ -62,13 +78,102 @@ const Navbar = () => {
             >
               <FaMapMarkerAlt className="h-6 w-6" />
             </a>
-            <button 
-              className="p-2 text-gray-700 hover:text-nocca-green transition-colors duration-200"
-              aria-label="Hesabım"
-              title="Hesabım"
-            >
-              <FaUser className="h-6 w-6" />
-            </button>
+            <div className="relative" ref={profileRef}>
+              <button
+                onClick={() => setIsProfileOpen(!isProfileOpen)}
+                className="p-2 text-gray-700 hover:text-nocca-green transition-colors duration-200"
+                aria-label="Hesabım"
+                title="Hesabım"
+              >
+                <FaUser className="h-6 w-6" />
+              </button>
+              
+              {/* Profil Dropdown */}
+              {isProfileOpen && (
+                <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                  <div className="p-4 border-b border-gray-200">
+                    <div className="flex items-center space-x-3">
+                      <div className="relative w-12 h-12">
+                        <Image
+                          src="/images/logo/noccacoffee.jpeg"
+                          alt="Profil"
+                          fill
+                          className="rounded-full object-cover"
+                        />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-gray-800">hakancineli@gmail.com</p>
+                        <p className="text-sm text-gray-600">Gümüş Seviye</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="p-2" onClick={(e) => e.stopPropagation()}>
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setIsProfileOpen(false);
+                        console.log('Navigating to profile');
+                        window.location.href = '/profile';
+                      }}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+                    >
+                      Profilim
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setIsProfileOpen(false);
+                        console.log('Navigating to rewards');
+                        window.location.href = '/rewards';
+                      }}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+                    >
+                      NOCCA REWARDS
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setIsProfileOpen(false);
+                        console.log('Navigating to orders');
+                        window.location.href = '/orders';
+                      }}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+                    >
+                      Siparişlerim
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setIsProfileOpen(false);
+                        console.log('Navigating to settings');
+                        window.location.href = '/settings';
+                      }}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+                    >
+                      Ayarlar
+                    </button>
+                    <hr className="my-2" />
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setIsProfileOpen(false);
+                        console.log('Logout clicked');
+                        // Çıkış yapma logic
+                      }}
+                      className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 rounded-md transition-colors"
+                    >
+                      Çıkış Yap
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
             <button 
               className="p-2 text-gray-700 hover:text-nocca-green relative transition-colors duration-200"
               aria-label="Sepetim"
@@ -86,7 +191,6 @@ const Navbar = () => {
               className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-nocca-green hover:bg-gray-100 focus:outline-none transition-colors duration-200"
               aria-label={isOpen ? 'Menüyü Kapat' : 'Menüyü Aç'}
               title={isOpen ? 'Menüyü Kapat' : 'Menüyü Aç'}
-              aria-expanded={isOpen}
             >
               {isOpen ? (
                 <FaTimes className="block h-7 w-7" />
