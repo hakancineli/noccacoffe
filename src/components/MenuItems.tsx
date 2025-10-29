@@ -243,8 +243,8 @@ const MenuItems = () => {
                   setIsMobileMenuOpen(false);
                 }}
                 className={`w-full text-left px-4 py-2 rounded-md ${
-                  activeCategory === category.id 
-                    ? 'bg-starbucks-green text-white' 
+                  activeCategory === category.id
+                    ? 'bg-nocca-green text-white'
                     : 'text-gray-700 hover:bg-gray-100'
                 }`}
               >
@@ -264,7 +264,7 @@ const MenuItems = () => {
               onClick={() => setActiveCategory(category.id)}
               className={`px-6 py-2 rounded-full whitespace-nowrap font-medium text-sm transition-colors ${
                 activeCategory === category.id
-                  ? 'bg-starbucks-green text-white'
+                  ? 'bg-nocca-green text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
@@ -317,7 +317,7 @@ const MenuItems = () => {
                   </div>
                 )}
                 {item.isNew && (
-                  <div className="absolute top-2 right-2 bg-starbucks-green text-white text-xs font-bold px-2 py-1 rounded-full">
+                  <div className="absolute top-2 right-2 bg-nocca-green text-white text-xs font-bold px-2 py-1 rounded-full">
                     YENİ
                   </div>
                 )}
@@ -325,7 +325,7 @@ const MenuItems = () => {
               <div className="p-4">
                 <div className="flex justify-between items-start">
                   <h3 className="text-lg font-semibold text-gray-900">{item.name}</h3>
-                  <span className="text-starbucks-green font-bold">{item.price}</span>
+                  <span className="text-nocca-green font-bold">{item.price}</span>
                 </div>
                 <p className="mt-1 text-sm text-gray-600">{item.description}</p>
                 <div className="mt-4 flex justify-between items-center">
@@ -333,7 +333,7 @@ const MenuItems = () => {
                     {menuCategories.find(cat => cat.items.some(i => i.id === item.id))?.name}
                   </span>
                   <button 
-                    className="bg-starbucks-green text-white p-2 rounded-full hover:bg-starbucks-light-green transition-colors"
+                    className="bg-nocca-green text-white p-2 rounded-full hover:bg-nocca-light-green transition-colors"
                     aria-label={`${item.name} sepete ekle`}
                   >
                     <FaPlus className="h-4 w-4" />

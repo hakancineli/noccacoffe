@@ -42,7 +42,7 @@ const Navbar = () => {
                 <Link 
                   key={item.name} 
                   href={item.href}
-                  className="text-gray-700 hover:text-starbucks-green px-4 py-2 text-base font-medium transition-colors duration-200"
+                  className="text-gray-700 hover:text-nocca-green px-4 py-2 text-base font-medium transition-colors duration-200"
                 >
                   {item.name}
                 </Link>
@@ -52,27 +52,30 @@ const Navbar = () => {
           
           {/* Right Side Icons */}
           <div className="flex items-center space-x-4">
-            <button 
-              className="p-2 text-gray-700 hover:text-starbucks-green transition-colors duration-200"
+            <a
+              href="https://www.google.com/maps/search/?api=1&query=Fevzi+çakmak+mahallesi,Yıldırım+Beyazıt+Caddesi,+no:+84+Bahçelievler,+Istanbul,+Turkey"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2 text-gray-700 hover:text-nocca-green transition-colors duration-200"
               aria-label="Mağaza Bul"
               title="Mağaza Bul"
             >
               <FaMapMarkerAlt className="h-6 w-6" />
-            </button>
+            </a>
             <button 
-              className="p-2 text-gray-700 hover:text-starbucks-green transition-colors duration-200"
+              className="p-2 text-gray-700 hover:text-nocca-green transition-colors duration-200"
               aria-label="Hesabım"
               title="Hesabım"
             >
               <FaUser className="h-6 w-6" />
             </button>
             <button 
-              className="p-2 text-gray-700 hover:text-starbucks-green relative transition-colors duration-200"
+              className="p-2 text-gray-700 hover:text-nocca-green relative transition-colors duration-200"
               aria-label="Sepetim"
               title="Sepetim"
             >
               <FaShoppingBag className="h-6 w-6" />
-              <span className="absolute -top-1 -right-1 bg-starbucks-green text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
+              <span className="absolute -top-1 -right-1 bg-nocca-green text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
             </button>
           </div>
           
@@ -80,10 +83,10 @@ const Navbar = () => {
           <div className="md:hidden">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-starbucks-green hover:bg-gray-100 focus:outline-none transition-colors duration-200"
+              className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-nocca-green hover:bg-gray-100 focus:outline-none transition-colors duration-200"
               aria-label={isOpen ? 'Menüyü Kapat' : 'Menüyü Aç'}
               title={isOpen ? 'Menüyü Kapat' : 'Menüyü Aç'}
-              aria-expanded={isOpen ? 'true' : 'false'}
+              aria-expanded={isOpen}
             >
               {isOpen ? (
                 <FaTimes className="block h-7 w-7" />
@@ -104,7 +107,7 @@ const Navbar = () => {
                 key={item.name}
                 href={item.href}
                 onClick={() => setIsOpen(false)}
-                className="block px-4 py-3 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-starbucks-green rounded-md transition-colors duration-200"
+                className="block px-4 py-3 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-nocca-green rounded-md transition-colors duration-200"
               >
                 {item.name}
               </Link>

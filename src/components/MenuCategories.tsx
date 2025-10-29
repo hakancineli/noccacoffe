@@ -37,7 +37,7 @@ const MenuCategories = () => {
                   setSelectedCategory(category);
                   setIsOpen(false);
                 }}
-                className={`w-full text-left px-4 py-2 hover:bg-gray-100 ${selectedCategory === category ? 'bg-starbucks-green text-white hover:bg-starbucks-light-green' : ''}`}
+                className={`w-full text-left px-4 py-2 hover:bg-gray-100 ${selectedCategory === category ? 'bg-nocca-green text-white hover:bg-nocca-light-green' : ''}`}
               >
                 {category}
               </button>
@@ -52,7 +52,7 @@ const MenuCategories = () => {
           <button
             key={category}
             onClick={() => setSelectedCategory(category)}
-            className={`px-6 py-2 rounded-full whitespace-nowrap ${selectedCategory === category ? 'bg-starbucks-green text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+            className={`px-6 py-2 rounded-full whitespace-nowrap ${selectedCategory === category ? 'bg-nocca-green text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
           >
             {category}
           </button>

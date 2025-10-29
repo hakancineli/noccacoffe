@@ -8,9 +8,10 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        'starbucks-green': '#00704A',
-        'starbucks-light-green': '#1E3932',
-        'starbucks-gold': '#C4A484',
+        'nocca-green': '#00704A',
+        'nocca-light-green': '#1E3932',
+        'nocca-dark-green': '#005537',
+        'nocca-gold': '#C4A484',
       },
       fontFamily: {
         sans: ['var(--font-inter)'],

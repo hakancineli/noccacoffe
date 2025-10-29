@@ -1,47 +1,26 @@
 {
   "pages": {
-    "/_not-found": [
-      "static/chunks/webpack-35438eae6f96e718.js",
-      "static/chunks/fd9d1056-1ef41f7a1ac0bce5.js",
-      "static/chunks/472-20611258aa943c57.js",
-      "static/chunks/main-app-edfbfd7937041de6.js",
-      "static/chunks/app/_not-found-9bb118e57125e705.js"
+    "/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/page.css",
+      "static/chunks/app/page.js"
     ],
     "/layout": [
-      "static/chunks/webpack-35438eae6f96e718.js",
-      "static/chunks/fd9d1056-1ef41f7a1ac0bce5.js",
-      "static/chunks/472-20611258aa943c57.js",
-      "static/chunks/main-app-edfbfd7937041de6.js",
-      "static/css/c0366beef8176b82.css",
-      "static/chunks/app/layout-65cf50510b232a91.js"
-    ],
-    "/rewards/page": [
-      "static/chunks/webpack-35438eae6f96e718.js",
-      "static/chunks/fd9d1056-1ef41f7a1ac0bce5.js",
-      "static/chunks/472-20611258aa943c57.js",
-      "static/chunks/main-app-edfbfd7937041de6.js",
-      "static/chunks/986-fcea1af568ada708.js",
-      "static/chunks/app/rewards/page-4ef81b99f5a4ab3b.js"
-    ],
-    "/page": [
-      "static/chunks/webpack-35438eae6f96e718.js",
-      "static/chunks/fd9d1056-1ef41f7a1ac0bce5.js",
-      "static/chunks/472-20611258aa943c57.js",
-      "static/chunks/main-app-edfbfd7937041de6.js",
-      "static/chunks/9081a741-77af97386f30816c.js",
-      "static/chunks/986-fcea1af568ada708.js",
-      "static/chunks/777-133c56472511a2d2.js",
-      "static/css/e96b658c5c44acbe.css",
-      "static/chunks/app/page-302b6c7f49e7eda4.js"
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/layout.css",
+      "static/chunks/app/layout.js"
     ],
     "/menu/page": [
-      "static/chunks/webpack-35438eae6f96e718.js",
-      "static/chunks/fd9d1056-1ef41f7a1ac0bce5.js",
-      "static/chunks/472-20611258aa943c57.js",
-      "static/chunks/main-app-edfbfd7937041de6.js",
-      "static/chunks/9081a741-77af97386f30816c.js",
-      "static/chunks/986-fcea1af568ada708.js",
-      "static/chunks/app/menu/page-549129a0249546b5.js"
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/menu/page.js"
+    ],
+    "/rewards/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/rewards/page.js"
     ]
   }
 }

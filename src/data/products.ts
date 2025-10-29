@@ -45,7 +45,7 @@ export const productCategories = [
         id: "SBUX-238",
         name: "Starbucks® Kapsül Smooth Caramel",
         image: "https://api.mircate.com/5p1hp1d2t/CALL/PIMAPI/getImage/1j19r3y78mj?filename=1j19r3y78mj-2aad63f93d514780b5a22c7b81895d4a.png",
-        slug: "starbucks-kapsul-smooth-caramel"
+        slug: "nocca-kapsul-smooth-caramel"
       },
       // Add more coffee at home items as needed
     ]

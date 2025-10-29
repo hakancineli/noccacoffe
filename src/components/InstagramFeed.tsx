@@ -49,55 +49,49 @@ const InstagramFeed = () => {
     setIsModalOpen(false);
     document.body.style.overflow = 'auto';
   };
-  // Static Instagram posts data
+  // Static Instagram posts data with placeholder images
   const posts: InstagramPost[] = [
     {
-      id: 'coffee_brewing',
-      media_url: '/images/instagram/coffee_brewing_thumb.jpg',
-      video_url: '/videos/instagram/coffee_brewing.mp4',
-      permalink: 'https://www.instagram.com/p/coffee_brewing/',
-      media_type: 'VIDEO',
-      caption: 'Özel kahve demleme sürecimiz',
-      thumbnail_url: '/images/instagram/coffee_brewing_thumb.jpg'
-    },
-    {
-      id: 'coffee_art',
-      media_url: '/images/instagram/coffee_art_thumb.jpg',
-      video_url: '/videos/instagram/coffee_art.mp4',
-      permalink: 'https://www.instagram.com/p/coffee_art/',
-      media_type: 'VIDEO',
-      caption: 'Usta baristalarımızdan kahve sanatı',
-      thumbnail_url: '/images/instagram/coffee_art_thumb.jpg'
+      id: '1',
+      media_url: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=800&q=80',
+      permalink: 'https://www.instagram.com/p/coffee1/',
+      caption: 'Özel Kahve Demleme',
+      media_type: 'IMAGE'
     },
     {
       id: '2',
-      media_url: '/images/instagram/post2.jpg',
-      permalink: 'https://www.instagram.com/p/example2',
-      caption: 'Yeni Ürünlerimiz'
+      media_url: 'https://images.unsplash.com/photo-1517701604599-877b87a14795?w=800&q=80',
+      permalink: 'https://www.instagram.com/p/coffee2/',
+      caption: 'Taze Çekirdekler',
+      media_type: 'IMAGE'
     },
     {
       id: '3',
-      media_url: '/images/instagram/post3.jpg',
-      permalink: 'https://www.instagram.com/p/example3',
-      caption: 'Kahve Keyfi'
+      media_url: 'https://images.unsplash.com/photo-1511920170033-f8396924c348?w=800&q=80',
+      permalink: 'https://www.instagram.com/p/coffee3/',
+      caption: 'Kahve Keyfi',
+      media_type: 'IMAGE'
     },
     {
       id: '4',
-      media_url: '/images/instagram/post4.jpg',
-      permalink: 'https://www.instagram.com/p/example4',
-      caption: 'Lezzetli Atıştırmalıklar'
+      media_url: 'https://images.unsplash.com/photo-1495474475677-df769e5d9f0b?w=800&q=80',
+      permalink: 'https://www.instagram.com/p/coffee4/',
+      caption: 'Lezzetli Atıştırmalıklar',
+      media_type: 'IMAGE'
     },
     {
       id: '5',
-      media_url: '/images/instagram/post5.jpg',
-      permalink: 'https://www.instagram.com/p/example5',
-      caption: 'Özel Karışımlarımız'
+      media_url: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=800&q=80',
+      permalink: 'https://www.instagram.com/p/coffee5/',
+      caption: 'Özel Karışımlarımız',
+      media_type: 'IMAGE'
     },
     {
       id: '6',
-      media_url: '/images/instagram/post6.jpg',
-      permalink: 'https://www.instagram.com/p/example6',
-      caption: 'Mekanımız'
+      media_url: 'https://images.unsplash.com/photo-1511920170033-f8396924c348?w=800&q=80',
+      permalink: 'https://www.instagram.com/p/coffee6/',
+      caption: 'Mekanımız',
+      media_type: 'IMAGE'
     },
     {
       id: '7',
@@ -211,7 +205,7 @@ const InstagramFeed = () => {
                   href={selectedPost.permalink} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-starbucks-green hover:underline flex items-center justify-center"
+                  className="text-nocca-green hover:underline flex items-center justify-center"
                   onClick={(e) => e.stopPropagation()}
                 >
                   Instagram'da Görüntüle
@@ -234,7 +228,7 @@ const InstagramFeed = () => {
             href="https://www.instagram.com/noccacoffee/" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="text-starbucks-green hover:underline flex items-center"
+            className="text-nocca-green hover:underline flex items-center"
           >
             @noccacoffee
             <svg 
@@ -252,20 +246,24 @@ const InstagramFeed = () => {
           {posts.map((post) => (
             <div
               key={post.id}
-              className="w-full block group relative overflow-hidden rounded-lg aspect-square focus:outline-none focus:ring-2 focus:ring-starbucks-green focus:ring-opacity-50"
+              className="w-full block group relative overflow-hidden rounded-lg aspect-square focus:outline-none focus:ring-2 focus:ring-nocca-green focus:ring-opacity-50"
             >
               <div className="relative w-full h-full">
+                {post.media_type === 'VIDEO' ? (
                   <div className="relative w-full h-full">
                     <Image
                       src={post.thumbnail_url || post.media_url}
                       alt={post.caption || 'Instagram gönderisi'}
                       fill
-                      className="object-cover transition-transform duration-300 group-hover:scale-105"
+                      className="object-cover"
+                      sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+                      quality={100}
+                      priority={post.id === '1'}
                     />
-                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
-                      <div className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="text-white">
                         <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4z" />
+                          <path d="M6.3 2.84A1.5 1.5 0 004 4.11v11.78a1.5 1.5 0 002.3 1.27l9.344-5.89a1.5 1.5 0 000-2.54L6.3 2.84z" />
                         </svg>
                       </div>
                     </div>
@@ -287,18 +285,15 @@ const InstagramFeed = () => {
                   <div className="relative w-full h-full">
                     <Image
                       src={post.media_url}
-                      alt={post.caption || 'Instagram gönderisi'}
+                      alt={post.caption || 'Gönderi'}
                       fill
-                      className="object-cover transition-transform duration-300 group-hover:scale-105"
+                      className="object-cover"
+                      sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+                      quality={100}
+                      priority={post.id === '1'}
                     />
-                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
-                      <div className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4z" />
-                        </svg>
-                      </div>
-                    </div>
                   </div>
+                )}
               </div>
             </div>
           ))}
@@ -309,7 +304,7 @@ const InstagramFeed = () => {
             href="https://www.instagram.com/noccacoffee/"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-starbucks-green hover:bg-starbucks-dark-green transition-colors duration-300"
+            className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-nocca-green hover:bg-nocca-dark-green transition-colors duration-300"
           >
             Tümünü Gör
             <svg className="ml-2 -mr-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20">

@@ -33,7 +33,7 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="bg-starbucks-light-green text-white">
+    <footer className="bg-nocca-light-green text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {footerLinks.map((section, index) => (
@@ -54,16 +54,16 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">Bizi Takip Edin</h3>
             <div className="flex space-x-4">
-              <a href="https://facebook.com/starbucksturkiye" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
+              <a href="https://facebook.com/noccacoffee" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
                 <FaFacebook className="h-6 w-6" />
               </a>
               <a href="https://twitter.com/StarbucksTR" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
                 <FaTwitter className="h-6 w-6" />
               </a>
-              <a href="https://instagram.com/starbucksturkiye" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
+              <a href="https://instagram.com/noccacoffee" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
                 <FaInstagram className="h-6 w-6" />
               </a>
-              <a href="https://youtube.com/starbucksturkiye" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
+              <a href="https://youtube.com/noccacoffee" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
                 <FaYoutube className="h-6 w-6" />
               </a>
             </div>

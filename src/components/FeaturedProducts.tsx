@@ -42,8 +42,9 @@ const FeaturedProducts = () => {
               // Filter out duplicate items (like iced versions when hot version exists)
               // But keep Buzlu Caffè Latte and show Caramel Macchiato (not iced version)
               .filter((product, index, self) => {
-                // Always include Buzlu Caffè Latte
+                // Always include Buzlu Caffè Latte and Buzlu Caffé Mocha
                 if (product.name === 'Buzlu Caffè Latte') return true;
+                if (product.name === 'Buzlu Caffé Mocha') return true;
                 
                 // Exclude Iced Caramel Macchiato to show only the regular version
                 if (product.name === 'Iced Caramel Macchiato') return false;
