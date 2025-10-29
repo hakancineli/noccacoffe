@@ -15,6 +15,7 @@ export const allMenuItems = [
     price: '₺48.90',
     category: 'Soğuk İçecekler',
     image: '/images/products/Buzlu Caffè Latte.jpeg',
+    isIced: true,
   },
   {
     id: 3,
@@ -71,6 +72,7 @@ export const allMenuItems = [
     price: '₺54.90',
     category: 'Soğuk İçecekler',
     image: '/images/products/Buzlu Caffé Mocha.jpeg',
+    isIced: true,
   },
   {
     id: 10,
@@ -87,6 +89,7 @@ export const allMenuItems = [
     price: '₺56.90',
     category: 'Soğuk İçecekler',
     image: '/images/products/Buzlu White Chocolate Mocha.jpeg',
+    isIced: true,
   },
   {
     id: 12,
@@ -112,6 +115,7 @@ export const allMenuItems = [
     price: '₺52.90',
     category: 'Soğuk İçecekler',
     image: '/images/products/Iced Spanish Latte.jpeg',
+    isIced: true,
   },
   {
     id: 15,
@@ -120,6 +124,7 @@ export const allMenuItems = [
     price: '₺48.90',
     category: 'Soğuk İçecekler',
     image: '/images/products/Iced Matcha Latte.jpeg',
+    isIced: true,
   },
   // Tatlılar
   {

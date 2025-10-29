@@ -36,20 +36,20 @@ export default function VideoBanner() {
   };
 
   return (
-    <section className="relative w-full min-h-[60vh] bg-black">
+    <section className="relative w-full min-h-[60vh] bg-black overflow-hidden">
       <div className="w-full h-full flex items-center justify-center">
         <video
           ref={videoRef}
-          className="w-full h-auto max-h-[90vh] object-contain"
+          className="w-full h-full min-h-[60vh] object-cover"
         loop
         muted
         playsInline
         onClick={togglePlay}
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}
-      >
-        <source src="/videos/instagram/coffee-video.mp4" type="video/mp4" />
-        Tarayıcınız video etiketini desteklemiyor.
+        >
+          <source src="/videos/instagram/coffee-video.mp4" type="video/mp4" />
+          Tarayıcınız video etiketini desteklemiyor.
         </video>
       </div>
       
