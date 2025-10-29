@@ -8,7 +8,8 @@ const Hero = () => {
     <div className="relative">
       {/* Full-width image gallery without gaps */}
       <div className="w-full">
-        <div className="flex">
+        {/* Desktop: 3 columns side by side */}
+        <div className="hidden md:flex">
           {[1, 2, 3].map((num) => (
             <div key={num} className="relative w-1/3 h-[60vh] min-h-[400px]">
               <Image
@@ -21,6 +22,40 @@ const Hero = () => {
               />
             </div>
           ))}
+        </div>
+        
+        {/* Mobile: Stack vertically or show as slider */}
+        <div className="md:hidden">
+          <div className="relative h-[50vh] min-h-[300px]">
+            <Image
+              src="/images/hero/part1.jpg"
+              alt="NOCCA COFFEE 1. Bölüm"
+              fill
+              className="object-cover w-full h-full"
+              quality={90}
+              priority
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-2 mt-2">
+            <div className="relative h-[25vh] min-h-[150px]">
+              <Image
+                src="/images/hero/part2.jpg"
+                alt="NOCCA COFFEE 2. Bölüm"
+                fill
+                className="object-cover w-full h-full"
+                quality={90}
+              />
+            </div>
+            <div className="relative h-[25vh] min-h-[150px]">
+              <Image
+                src="/images/hero/part3.jpg"
+                alt="NOCCA COFFEE 3. Bölüm"
+                fill
+                className="object-cover w-full h-full"
+                quality={90}
+              />
+            </div>
+          </div>
         </div>
       </div>
       
