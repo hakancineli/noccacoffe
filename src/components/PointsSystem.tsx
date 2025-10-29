@@ -5,7 +5,7 @@ import Image from 'next/image';
 
 interface PointsTransaction {
   id: string;
-  type: 'earned' | 'spent' | 'bonus';
+  type: 'EARNED' | 'REDEEMED' | 'BONUS';
   amount: number;
   description: string;
   date: string;
@@ -22,55 +22,63 @@ interface LoyaltyLevel {
 }
 
 const PointsSystem = () => {
-  const [transactions, setTransactions] = useState<PointsTransaction[]>([
-    {
-      id: '1',
-      type: 'earned',
-      amount: 50,
-      description: 'Caffè Latte alımı',
-      date: '29.10.2024 14:30',
-      relatedProduct: 'Caffè Latte'
-    },
-    {
-      id: '2',
-      type: 'spent',
-      amount: -500,
-      description: 'Ücretsiz Latte',
-      date: '28.10.2024 10:15',
-      relatedProduct: 'Caffè Latte'
-    },
-    {
-      id: '3',
-      type: 'earned',
-      amount: 75,
-      description: 'Brownie alımı',
-      date: '27.10.2024 16:45',
-      relatedProduct: 'Brownie'
-    },
-    {
-      id: '4',
-      type: 'bonus',
-      amount: 100,
-      description: 'Seviye yükseltme bonusu',
-      date: '25.10.2024 09:00'
-    },
-    {
-      id: '5',
-      type: 'earned',
-      amount: 45,
-      description: 'Espresso alımı',
-      date: '26.10.2024 11:20',
-      relatedProduct: 'Espresso'
-    }
-  ]);
+  const [transactions, setTransactions] = useState<PointsTransaction[]>([]);
+  const [currentPoints, setCurrentPoints] = useState(0);
+  const [currentTier, setCurrentTier] = useState<'BRONZE' | 'SILVER' | 'GOLD' | 'PLATINUM'>('BRONZE');
+  const [pointsToNextLevel, setPointsToNextLevel] = useState(0);
+  const [loading, setLoading] = useState(true);
 
-  const [currentPoints, setCurrentPoints] = useState(2450);
-  const [currentLevel, setCurrentLevel] = useState('Gümüş');
-  const [pointsToNextLevel, setPointsToNextLevel] = useState(2550);
+  // Fetch user points and transactions from API
+  useEffect(() => {
+    fetchUserData();
+  }, []);
+
+  const fetchUserData = async () => {
+    try {
+      // Fetch user points
+      const pointsResponse = await fetch('/api/points');
+      if (pointsResponse.ok) {
+        const pointsData = await pointsResponse.json();
+        setCurrentPoints(pointsData.points);
+        setCurrentTier(pointsData.tier);
+
+        // Calculate points to next level
+        const tierThresholds = {
+          BRONZE: { min: 0, max: 999, next: 1000 },
+          SILVER: { min: 1000, max: 4999, next: 5000 },
+          GOLD: { min: 5000, max: 9999, next: 10000 },
+          PLATINUM: { min: 10000, max: Infinity, next: 10000 }
+        };
+
+        const currentTierData = tierThresholds[pointsData.tier as keyof typeof tierThresholds];
+        const pointsToNext = currentTierData ? currentTierData.next - pointsData.points : 0;
+        setPointsToNextLevel(Math.max(0, pointsToNext));
+      }
+
+      // Fetch user transactions
+      const meResponse = await fetch('/api/auth/me');
+      if (meResponse.ok) {
+        const meData = await meResponse.json();
+        const formattedTransactions = meData.user.pointTransactions.map((transaction: any) => ({
+          id: transaction.id,
+          type: transaction.transactionType,
+          amount: transaction.points,
+          description: transaction.description || '',
+          date: new Date(transaction.createdAt).toLocaleString('tr-TR'),
+          relatedProduct: transaction.referenceId
+        }));
+        setTransactions(formattedTransactions);
+      }
+    } catch (error) {
+      console.error('Failed to fetch user data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const loyaltyLevels: LoyaltyLevel[] = [
     {
-      name: 'Bronz',
+      name: 'BRONZE',
       minPoints: 0,
       maxPoints: 999,
       color: 'bg-orange-500',
@@ -78,7 +86,7 @@ const PointsSystem = () => {
       icon: '🥉'
     },
     {
-      name: 'Gümüş',
+      name: 'SILVER',
       minPoints: 1000,
       maxPoints: 4999,
       color: 'bg-gray-400',
@@ -86,7 +94,7 @@ const PointsSystem = () => {
       icon: '🥈'
     },
     {
-      name: 'Altın',
+      name: 'GOLD',
       minPoints: 5000,
       maxPoints: 9999,
       color: 'bg-yellow-500',
@@ -94,7 +102,7 @@ const PointsSystem = () => {
       icon: '🥇'
     },
     {
-      name: 'Platin',
+      name: 'PLATINUM',
       minPoints: 10000,
       maxPoints: Infinity,
       color: 'bg-purple-500',
@@ -103,54 +111,94 @@ const PointsSystem = () => {
     }
   ];
 
+  // Update current level based on tier
   useEffect(() => {
-    // Mevcut puana göre seviyeyi belirle
-    const level = loyaltyLevels.find(l => 
-      currentPoints >= l.minPoints && currentPoints <= l.maxPoints
-    );
-    
+    const level = loyaltyLevels.find(l => l.name === currentTier);
     if (level) {
-      setCurrentLevel(level.name);
-      const nextLevelIndex = loyaltyLevels.findIndex(l => l.name === level.name) + 1;
+      const nextLevelIndex = loyaltyLevels.findIndex(l => l.name === currentTier) + 1;
       if (nextLevelIndex < loyaltyLevels.length) {
         const nextLevel = loyaltyLevels[nextLevelIndex];
-        setPointsToNextLevel(nextLevel.minPoints - currentPoints);
+        setPointsToNextLevel(Math.max(0, nextLevel.minPoints - currentPoints));
       } else {
         setPointsToNextLevel(0); // Platin seviyesinde
       }
     }
-  }, [currentPoints]);
+  }, [currentTier]);
 
   const calculatePointsForPurchase = (amount: number) => {
     return Math.floor(amount * 0.1); // Her 1 TL için 1 puan
   };
 
-  const simulatePurchase = (productName: string, price: number) => {
+  const simulatePurchase = async (productName: string, price: number) => {
     const pointsEarned = calculatePointsForPurchase(price);
-    const newTransaction: PointsTransaction = {
-      id: Date.now().toString(),
-      type: 'earned',
-      amount: pointsEarned,
-      description: `${productName} alımı`,
-      date: new Date().toLocaleString('tr-TR'),
-      relatedProduct: productName
-    };
     
-    setTransactions([newTransaction, ...transactions]);
-    setCurrentPoints(prev => prev + pointsEarned);
+    try {
+      const response = await fetch('/api/points', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          points: pointsEarned,
+          transactionType: 'EARNED',
+          description: `${productName} alımı`,
+          referenceId: productName
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setCurrentPoints(data.points);
+        // Refresh transactions
+        fetchUserData();
+      } else {
+        const errorData = await response.json();
+        alert(`Hata: ${errorData.error}`);
+      }
+    } catch (error) {
+      console.error('Purchase simulation error:', error);
+      alert('İşlem sırasında bir hata oluştu');
+    }
   };
 
-  const simulateRewardRedemption = (rewardName: string, pointsCost: number) => {
-    const newTransaction: PointsTransaction = {
-      id: Date.now().toString(),
-      type: 'spent',
-      amount: -pointsCost,
-      description: rewardName,
-      date: new Date().toLocaleString('tr-TR')
-    };
-    
-    setTransactions([newTransaction, ...transactions]);
-    setCurrentPoints(prev => Math.max(0, prev - pointsCost));
+  const simulateRewardRedemption = async (rewardName: string, pointsCost: number) => {
+    try {
+      // First, get available rewards to find the correct reward ID
+      const rewardsResponse = await fetch('/api/rewards');
+      if (rewardsResponse.ok) {
+        const rewardsData = await rewardsResponse.json();
+        const reward = rewardsData.rewards.find((r: any) => r.name === rewardName);
+        
+        if (!reward) {
+          alert('Ödül bulunamadı');
+          return;
+        }
+
+        const response = await fetch('/api/rewards', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            rewardId: reward.id
+          }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setCurrentPoints(data.remainingPoints);
+          // Refresh transactions
+          fetchUserData();
+          alert(`${rewardName} başarıyla kullanıldı!`);
+        } else {
+          const errorData = await response.json();
+          alert(`Hata: ${errorData.error}`);
+        }
+      }
+    } catch (error) {
+      console.error('Reward redemption error:', error);
+      alert('Ödül kullanılırken bir hata oluştu');
+    }
   };
 
   return (
@@ -169,7 +217,7 @@ const PointsSystem = () => {
           
           <div className="text-center">
             <div className="text-2xl font-bold text-gray-800 mb-2">
-              {currentLevel}
+              {currentTier}
             </div>
             <p className="text-gray-600">Seviye</p>
           </div>
@@ -192,7 +240,7 @@ const PointsSystem = () => {
             <div 
               key={level.name}
               className={`p-4 rounded-lg border-2 transition-all ${
-                currentLevel === level.name 
+                currentTier === level.name
                   ? `${level.color} text-white border-white shadow-lg transform scale-105` 
                   : 'bg-gray-50 border-gray-200 hover:border-nocca-light-green'
               }`}
@@ -252,12 +300,12 @@ const PointsSystem = () => {
                   <td className="p-3 text-sm">{transaction.date}</td>
                   <td className="p-3 text-sm">
                     <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                      transaction.type === 'earned' ? 'bg-green-100 text-green-800' :
-                      transaction.type === 'spent' ? 'bg-red-100 text-red-800' :
+                      transaction.type === 'EARNED' ? 'bg-green-100 text-green-800' :
+                      transaction.type === 'REDEEMED' ? 'bg-red-100 text-red-800' :
                       'bg-blue-100 text-blue-800'
                     }`}>
-                      {transaction.type === 'earned' ? 'Kazanılan' :
-                       transaction.type === 'spent' ? 'Harcanılan' : 'Bonus'}
+                      {transaction.type === 'EARNED' ? 'Kazanılan' :
+                       transaction.type === 'REDEEMED' ? 'Harcanılan' : 'Bonus'}
                     </span>
                   </td>
                   <td className="p-3 text-sm">

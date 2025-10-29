@@ -71,7 +71,7 @@ const Hero = () => {
               Yeni Lezzetler Sizi Bekliyor
             </h1>
             <p className="text-xl mb-8 max-w-2xl mx-auto">
-              NOCCA COFFEE'nin özel lezzetlerini keşfedin ve favori içeceğinizi bulun.
+              NOCCA Coffee'nin özel lezzetlerini keşfedin ve favori içeceğinizi bulun.
             </p>
             <button className="bg-white text-[#704d39] font-semibold py-3 px-8 rounded-full hover:bg-gray-100 transition duration-300 flex items-center mx-auto">
               Hemen Keşfet <FaArrowRight className="ml-2" />

@@ -2,31 +2,74 @@
 
 import { useState } from 'react';
 import { FaTimes, FaGoogle, FaApple } from 'react-icons/fa';
+import { RegisterCredentials, LoginCredentials } from '@/lib/auth';
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onAuthSuccess: (user: any, token: string) => void;
   mode: 'login' | 'register';
 }
 
-const AuthModal = ({ isOpen, onClose, mode }: AuthModalProps) => {
+const AuthModal = ({ isOpen, onClose, onAuthSuccess, mode }: AuthModalProps) => {
   const [isLogin, setIsLogin] = useState(mode === 'login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [phone, setPhone] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Burada authentication logic olacak
-    console.log('Form submitted:', { email, password, name, phone, rememberMe, isLogin });
-    // Başarılı olursa onClose() çağrılacak
+    setLoading(true);
+    setError('');
+
+    try {
+      const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
+      const payload: LoginCredentials | RegisterCredentials = isLogin
+        ? { email, password }
+        : { email, password, firstName, lastName, phone };
+
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || 'Bir hata oluştu');
+        setLoading(false);
+        return;
+      }
+
+      // Başarılı olursa
+      onAuthSuccess(data.user, data.token);
+      // Reset form
+      setEmail('');
+      setPassword('');
+      setFirstName('');
+      setLastName('');
+      setPhone('');
+      setRememberMe(false);
+      setError('');
+      onClose();
+    } catch (err) {
+      setError('Bağlantı hatası. Lütfen tekrar deneyin.');
+      setLoading(false);
+    }
   };
 
   const handleSocialLogin = (provider: 'google' | 'apple') => {
     console.log(`Social login with ${provider}`);
-    // Sosyal medya login logic
+    // Sosyal medya login logic (ileride implement edilecek)
+    setError('Sosyal medya girişi yakında eklenecek');
   };
 
   if (!isOpen) return null;
@@ -61,14 +104,27 @@ const AuthModal = ({ isOpen, onClose, mode }: AuthModalProps) => {
           {!isLogin && (
             <>
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                  Ad Soyad
+                <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
+                  Ad
                 </label>
                 <input
                   type="text"
-                  id="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  id="firstName"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-nocca-light-green focus:border-transparent"
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
+                  Soyad
+                </label>
+                <input
+                  type="text"
+                  id="lastName"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-nocca-light-green focus:border-transparent"
                   required
                 />
@@ -131,11 +187,28 @@ const AuthModal = ({ isOpen, onClose, mode }: AuthModalProps) => {
             </div>
           )}
 
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-md text-sm">
+              {error}
+            </div>
+          )}
+
           <button
             type="submit"
-            className="w-full bg-nocca-light-green text-white py-3 px-4 rounded-md hover:bg-nocca-green transition-colors font-semibold"
+            disabled={loading}
+            className="w-full bg-nocca-light-green text-white py-3 px-4 rounded-md hover:bg-nocca-green transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isLogin ? 'Giriş Yap' : 'Üye Ol'}
+            {loading ? (
+              <span className="flex items-center justify-center">
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                İşleniyor...
+              </span>
+            ) : (
+              isLogin ? 'Giriş Yap' : 'Üye Ol'
+            )}
           </button>
         </form>
 

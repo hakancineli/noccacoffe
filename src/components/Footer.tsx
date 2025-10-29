@@ -57,7 +57,7 @@ const Footer = () => {
               <a href="https://facebook.com/noccacoffee" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
                 <FaFacebook className="h-6 w-6" />
               </a>
-              <a href="https://twitter.com/StarbucksTR" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
+              <a href="https://twitter.com/noccacoffee" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
                 <FaTwitter className="h-6 w-6" />
               </a>
               <a href="https://instagram.com/noccacoffee" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
@@ -93,7 +93,7 @@ const Footer = () => {
         <div className="border-t border-gray-700 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="text-sm text-gray-400 mb-4 md:mb-0">
-              © {new Date().getFullYear()} Starbucks Coffee Company. Tüm hakları saklıdır.
+              © {new Date().getFullYear()} NOCCA Coffee Company. Tüm hakları saklıdır.
             </div>
             <div className="flex space-x-6">
               <Link href="/privacy" className="text-sm text-gray-400 hover:text-white">Gizlilik Politikası</Link>

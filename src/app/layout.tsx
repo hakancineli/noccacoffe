@@ -4,8 +4,8 @@ import { Inter } from 'next/font/google';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
-  title: 'Starbucks Türkiye',
-  description: 'Starbucks Türkiye Resmi Web Sitesi',
+  title: 'NOCCA Coffee',
+  description: 'NOCCA Coffee - Kaliteli Kahve Deneyimi',
 };
 
 export default function RootLayout({

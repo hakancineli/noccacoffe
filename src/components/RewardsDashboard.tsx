@@ -1,17 +1,19 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import AuthModal from './AuthModal';
 import PointsSystem from './PointsSystem';
 import RewardManager from './RewardManager';
 import MobileIntegration from './MobileIntegration';
+import UserProfile from './UserProfile';
 
 interface UserProfile {
+  id: string;
   name: string;
   email: string;
   points: number;
-  level: string;
+  tier: 'BRONZE' | 'SILVER' | 'GOLD' | 'PLATINUM';
   nextLevelPoints: number;
   currentLevelProgress: number;
 }
@@ -20,13 +22,74 @@ const RewardsDashboard = () => {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
-  const [activeSection, setActiveSection] = useState<'dashboard' | 'points' | 'rewards' | 'mobile'>('dashboard');
+  const [activeSection, setActiveSection] = useState<'dashboard' | 'profile' | 'points' | 'rewards' | 'mobile'>('dashboard');
+  const [loading, setLoading] = useState(true);
+
+  // Check if user is logged in on component mount
+  useEffect(() => {
+    checkAuthStatus();
+  }, []);
+
+  const checkAuthStatus = async () => {
+    try {
+      // Get token from localStorage or cookies
+      const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+      
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
+      const response = await fetch('/api/auth/me', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        const userPoints = data.user.userPoints;
+        
+        // Calculate next level and progress
+        const tierThresholds = {
+          BRONZE: { min: 0, max: 999, next: 1000 },
+          SILVER: { min: 1000, max: 4999, next: 5000 },
+          GOLD: { min: 5000, max: 9999, next: 10000 },
+          PLATINUM: { min: 10000, max: Infinity, next: 10000 }
+        };
+
+        const currentTier = tierThresholds[userPoints.tier as keyof typeof tierThresholds];
+        const progress = currentTier ? ((userPoints.points - currentTier.min) / (currentTier.next - currentTier.min)) * 100 : 0;
+
+        setUserProfile({
+          id: data.user.id,
+          name: `${data.user.firstName || ''} ${data.user.lastName || ''}`.trim() || data.user.email,
+          email: data.user.email,
+          points: userPoints.points,
+          tier: userPoints.tier,
+          nextLevelPoints: currentTier?.next || 0,
+          currentLevelProgress: Math.min(progress, 100)
+        });
+      }
+    } catch (error) {
+      console.error('Auth check failed:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const levelColors = {
-    'Bronz': 'bg-orange-500',
-    'Gümüş': 'bg-gray-400',
-    'Altın': 'bg-yellow-500',
-    'Platin': 'bg-purple-500'
+    'BRONZE': 'bg-orange-500',
+    'SILVER': 'bg-gray-400',
+    'GOLD': 'bg-yellow-500',
+    'PLATINUM': 'bg-purple-500'
+  };
+
+  const levelNames = {
+    'BRONZE': 'Bronz',
+    'SILVER': 'Gümüş',
+    'GOLD': 'Altın',
+    'PLATINUM': 'Platin'
   };
 
   const rewards = [
@@ -62,10 +125,11 @@ const RewardsDashboard = () => {
 
   // Mock kullanıcı verisi - gerçek uygulamada bu context/API'den gelecek
   const mockUserProfile: UserProfile = {
+    id: 'mock-user-id',
     name: 'Ahmet Yılmaz',
     email: 'ahmet.yilmaz@example.com',
     points: 2450,
-    level: 'Gümüş',
+    tier: 'SILVER',
     nextLevelPoints: 5000,
     currentLevelProgress: 49
   };
@@ -80,14 +144,49 @@ const RewardsDashboard = () => {
     setShowAuthModal(true);
   };
 
-  const handleAuthSuccess = () => {
+  const handleAuthSuccess = (user: any, token: string) => {
     setShowAuthModal(false);
-    setUserProfile(mockUserProfile);
+    // Save token to localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('authToken', token);
+    }
+    checkAuthStatus(); // Refresh user data after login
   };
 
-  const handleLogout = () => {
-    setUserProfile(null);
+  const handleLogout = async () => {
+    try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+      
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+      });
+      
+      // Remove token from localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('authToken');
+      }
+      
+      setUserProfile(null);
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+        <div className="flex items-center justify-center">
+          <svg className="animate-spin h-8 w-8 text-nocca-light-green" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span className="ml-2 text-gray-600">Yükleniyor...</span>
+        </div>
+      </div>
+    );
+  }
 
   // Eğer kullanıcı giriş yapmamışsa, login/register formunu göster
   if (!userProfile) {
@@ -160,6 +259,7 @@ const RewardsDashboard = () => {
         <AuthModal
           isOpen={showAuthModal}
           onClose={() => setShowAuthModal(false)}
+          onAuthSuccess={handleAuthSuccess}
           mode={authMode}
         />
       </>
@@ -196,8 +296,8 @@ const RewardsDashboard = () => {
               </div>
               <div className="text-right">
                 <p className="text-sm opacity-90">Seviye</p>
-                <div className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${levelColors[userProfile.level as keyof typeof levelColors]}`}>
-                  {userProfile.level}
+                <div className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${levelColors[userProfile.tier]}`}>
+                  {levelNames[userProfile.tier]}
                 </div>
               </div>
             </div>
@@ -323,6 +423,16 @@ const RewardsDashboard = () => {
           Dashboard
         </button>
         <button
+          onClick={() => setActiveSection('profile')}
+          className={`px-4 py-2 font-medium transition-colors border-b-2 ${
+            activeSection === 'profile'
+              ? 'text-nocca-light-green border-nocca-light-green'
+              : 'text-gray-600 border-transparent hover:text-nocca-light-green'
+          }`}
+        >
+          Profil
+        </button>
+        <button
           onClick={() => setActiveSection('points')}
           className={`px-4 py-2 font-medium transition-colors border-b-2 ${
             activeSection === 'points'
@@ -374,8 +484,8 @@ const RewardsDashboard = () => {
                 </div>
                 <div className="text-right">
                   <p className="text-sm opacity-90">Seviye</p>
-                  <div className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${levelColors[userProfile.level as keyof typeof levelColors]}`}>
-                    {userProfile.level}
+                  <div className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${levelColors[userProfile.tier]}`}>
+                    {levelNames[userProfile.tier]}
                   </div>
                 </div>
               </div>
@@ -489,16 +599,23 @@ const RewardsDashboard = () => {
         </div>
       )}
 
+      {/* Profile Section */}
+      {activeSection === 'profile' && <UserProfile />}
+
       {/* Points System Section */}
       {activeSection === 'points' && <PointsSystem />}
 
       {/* Rewards Management Section */}
       {activeSection === 'rewards' && <RewardManager />}
 
+      {/* Mobile Integration Section */}
+      {activeSection === 'mobile' && <MobileIntegration />}
+
       {/* Auth Modal */}
       <AuthModal
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
+        onAuthSuccess={handleAuthSuccess}
         mode={authMode}
       />
     </>
