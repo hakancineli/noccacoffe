@@ -36,11 +36,11 @@ export default function VideoBanner() {
   };
 
   return (
-    <section className="relative w-full min-h-[60vh] bg-black overflow-hidden">
-      <div className="w-full h-full flex items-center justify-center">
+    <section className="relative w-full h-[400px] bg-black">
+      <div className="w-full h-full flex items-center justify-center overflow-hidden">
         <video
           ref={videoRef}
-          className="w-full h-full min-h-[60vh] object-cover"
+          className="w-full h-auto max-h-[400px] object-contain scale-[1.3]"
         loop
         muted
         playsInline

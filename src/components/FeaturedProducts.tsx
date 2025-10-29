@@ -39,6 +39,24 @@ const FeaturedProducts = () => {
             className="pb-2"
           >
             {allMenuItems
+              // Filter out duplicate items (like iced versions when hot version exists)
+              // But keep Buzlu Caffè Latte and show Caramel Macchiato (not iced version)
+              .filter((product, index, self) => {
+                // Always include Buzlu Caffè Latte
+                if (product.name === 'Buzlu Caffè Latte') return true;
+                
+                // Exclude Iced Caramel Macchiato to show only the regular version
+                if (product.name === 'Iced Caramel Macchiato') return false;
+                
+                // If it's an iced drink, check if there's a non-iced version
+                if (product.name.startsWith('Iced ')) {
+                  const hotVersion = product.name.replace('Iced ', '');
+                  return !self.some(p => p.name === hotVersion);
+                }
+                // If it's a hot drink, check if there's an iced version
+                const icedVersion = `Iced ${product.name}`;
+                return !self.some(p => p.name === icedVersion);
+              })
               .map((product) => (
               <SwiperSlide key={product.id} className="h-auto">
                 <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 h-full flex flex-col border border-gray-100 flex justify-between">

@@ -12,7 +12,7 @@ const Hero = () => {
           {[1, 2, 3].map((num) => (
             <div key={num} className="relative w-1/3 h-[60vh] min-h-[400px]">
               <Image
-                src={`/images/hero/ part${num}.jpg`}
+                src={`/images/hero/part${num}.jpg`}
                 alt={`NOCCA COFFEE ${num}. Bölüm`}
                 fill
                 className="object-cover w-full h-full"
@@ -47,10 +47,10 @@ const Hero = () => {
           <h2 className="text-2xl font-bold text-starbucks-light-green mb-6">Öne Çıkan Ürünler</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { name: 'Pumpkin Spice Latte', price: '₺65,90', image: '/images/product1.jpg' },
-              { name: 'Caramel Macchiato', price: '₺59,90', image: '/images/product2.jpg' },
-              { name: 'Cold Brew', price: '₺49,90', image: '/images/product3.jpg' },
-              { name: 'Matcha Latte', price: '₺55,90', image: '/images/product4.jpg' },
+              { name: 'Caramel Macchiato', price: '₺59,90', image: '/images/products/caramel-macchiato.jpg' },
+              { name: 'Cold Brew', price: '₺49,90', image: '/images/products/cold-brew.jpg' },
+              { name: 'Caffe Latte', price: '₺55,90', image: '/images/products/CaffeLatte.jpeg' },
+              { name: 'Iced Matcha Latte', price: '₺65,90', image: '/images/products/Iced Matcha Latte.jpeg' },
             ].map((product, index) => (
               <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
                 <div className="relative h-48">
