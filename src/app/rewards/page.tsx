@@ -12,7 +12,7 @@ export default function RewardsPage() {
   const slides = [
     '/images/instagram/bir yudum estetik.jpeg',
     '/images/instagram/brownie.jpg',
-    '/images/instagram/mevsim değişir.jpeg',
+    '/images/instagram/mevsim-degisir.jpeg',
     '/images/instagram/siparişiniz hazır.jpg',
     '/images/instagram/zamansız tatlar.jpg',
     '/images/instagram/🍰Bazı Tatlar Zamanı Durdurur…Her Yudumda Zamansız Bir Keyif☕📍Yenibosna Yıldırım Beyazıt Cad. 8.jpg'
