@@ -1,11 +1,34 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
+import MenuHero from '@/components/MenuHero';
 
 export default function RewardsPage() {
   const [isCopied, setIsCopied] = useState(false);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  
+  const slides = [
+    '/images/instagram/bir yudum estetik.jpeg',
+    '/images/instagram/brownie.jpg',
+    '/images/instagram/mevsim değişir.jpeg',
+    '/images/instagram/siparişiniz hazır.jpg',
+    '/images/instagram/zamansız tatlar.jpg',
+    '/images/instagram/🍰Bazı Tatlar Zamanı Durdurur…Her Yudumda Zamansız Bir Keyif☕📍Yenibosna Yıldırım Beyazıt Cad. 8.jpg'
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 3000); // Her 3 saniyede bir geçiş
+
+    return () => clearInterval(interval);
+  }, [slides.length]);
+
+  const goToSlide = (index: number) => {
+    setCurrentSlide(index);
+  };
 
   const handleCopyCode = () => {
     navigator.clipboard.writeText('KAHVE5');
@@ -15,19 +38,7 @@ export default function RewardsPage() {
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
-      {/* Hero Section */}
-      <div className="relative h-[400px] w-full">
-        <Image
-          src="/images/rewards-hero.jpg"
-          alt="NOCCA REWARDS"
-          fill
-          className="object-cover"
-          priority
-        />
-        <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-          <h1 className="text-5xl font-bold text-white text-center">NOCCA REWARDS</h1>
-        </div>
-      </div>
+      <MenuHero />
 
       {/* Campaign Section */}
       <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
@@ -39,9 +50,8 @@ export default function RewardsPage() {
               </h2>
               <div className="space-y-4 text-lg text-gray-700 mb-6">
                 <p>🎉 <span className="font-semibold">6. Kahve Hediye!</span></p>
-                <p>☕ 6 kahve alana 5. kahvede %20 indirim</p>
-                <p>🍰 5. kahve ile birlikte alınan tatlılarda %20 indirim</p>
-                <p>🎁 6. kahve tamamen ücretsiz!</p>
+                <p>☕ 5 kahve alana 6. kahve ücretsiz</p>
+                <p>🍰 5. kahve + tatlı %20 indirim</p>
                 <p className="text-sm text-gray-500 mt-2">Kampanya 31 Aralık 2024 tarihine kadar geçerlidir.</p>
               </div>
               <div className="bg-white p-4 rounded-lg mb-6">
@@ -62,14 +72,37 @@ KAHVE5
                 Kampanyayı Gör
               </button>
             </div>
-            <div className="md:w-1/2 bg-[#d4e9e2] flex items-center justify-center p-8">
+            <div className="md:w-1/2 bg-[#d4e9e2] p-8">
               <div className="relative w-full h-64 md:h-full">
-                <Image
-                  src="/images/new-year-coffee.jpg"
-                  alt="Yeni Yıla Özel Kahve"
-                  fill
-                  className="object-contain"
-                />
+                {slides.map((slide, index) => (
+                  <div
+                    key={index}
+                    className={`absolute inset-0 transition-opacity duration-1000 ${
+                      index === currentSlide ? 'opacity-100' : 'opacity-0'
+                    }`}
+                  >
+                    <Image
+                      src={slide}
+                      alt={`Instagram Görsel ${index + 1}`}
+                      fill
+                      className="object-contain rounded-lg"
+                    />
+                  </div>
+                ))}
+                
+                {/* Slayt İndikatörleri */}
+                <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+                  {slides.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => goToSlide(index)}
+                      className={`w-3 h-3 rounded-full transition-colors duration-200 ${
+                        index === currentSlide ? 'bg-white' : 'bg-white/50'
+                      }`}
+                      aria-label={`Slayt ${index + 1}'e git`}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
           </div>
