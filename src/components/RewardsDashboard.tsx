@@ -126,8 +126,8 @@ const RewardsDashboard = () => {
   // Mock kullanıcı verisi - gerçek uygulamada bu context/API'den gelecek
   const mockUserProfile: UserProfile = {
     id: 'mock-user-id',
-    name: 'Ahmet Yılmaz',
-    email: 'ahmet.yilmaz@example.com',
+    name: 'hakancineli@gmail.com',
+    email: 'hakancineli@gmail.com',
     points: 2450,
     tier: 'SILVER',
     nextLevelPoints: 5000,
