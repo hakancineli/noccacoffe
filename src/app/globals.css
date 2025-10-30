@@ -35,3 +35,20 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #1E3932;
 }
+
+/* Progress bar styles for rewards dashboard */
+.progress-bar {
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background-color: white;
+  border-radius: 9999px;
+  transition: width 0.3s ease;
+  width: var(--progress-width, 0%);
+}

@@ -8,57 +8,33 @@ const Hero = () => {
     <div>
       {/* Hero Images Section - Full width, no overlap */}
       <div className="w-full block">
-        {/* Desktop: 3 columns side by side */}
-        <div className="hidden md:flex">
-          {[1, 2, 3].map((num) => (
-            <div key={num} className="w-1/3 h-[60vh] min-h-[400px]">
-              <Image
-                src={`/images/hero/part${num}.jpg`}
-                alt={`NOCCA COFFEE ${num}. Bölüm`}
-                width={400}
-                height={600}
-                className="object-cover w-full h-full"
-                quality={90}
-                priority={num === 1}
-              />
-            </div>
-          ))}
+        {/* Desktop: Single banner image */}
+        <div className="hidden md:block">
+          <div className="w-full h-[60vh] min-h-[400px]">
+            <Image
+              src="/images/hero/banner.png"
+              alt="NOCCA COFFEE Banner"
+              width={1200}
+              height={600}
+              className="object-cover w-full h-full"
+              quality={90}
+              priority
+            />
+          </div>
         </div>
         
-        {/* Mobile: Three images side by side */}
+        {/* Mobile: Single banner image */}
         <div className="md:hidden">
-          <div className="grid grid-cols-3 gap-1 h-[50vh] min-h-[300px]">
-            <div className="w-full h-full">
-              <Image
-                src="/images/hero/part1.jpg"
-                alt="NOCCA COFFEE 1. Bölüm"
-                width={133}
-                height={300}
-                className="object-cover w-full h-full"
-                quality={90}
-                priority
-              />
-            </div>
-            <div className="w-full h-full">
-              <Image
-                src="/images/hero/part2.jpg"
-                alt="NOCCA COFFEE 2. Bölüm"
-                width={133}
-                height={300}
-                className="object-cover w-full h-full"
-                quality={90}
-              />
-            </div>
-            <div className="w-full h-full">
-              <Image
-                src="/images/hero/part3.jpg"
-                alt="NOCCA COFFEE 3. Bölüm"
-                width={134}
-                height={300}
-                className="object-cover w-full h-full"
-                quality={90}
-              />
-            </div>
+          <div className="w-full h-[50vh] min-h-[300px]">
+            <Image
+              src="/images/hero/banner.png"
+              alt="NOCCA COFFEE Banner"
+              width={400}
+              height={300}
+              className="object-cover w-full h-full"
+              quality={90}
+              priority
+            />
           </div>
         </div>
       </div>

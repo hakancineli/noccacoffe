@@ -307,9 +307,8 @@ const RewardsDashboard = () => {
                 <span>{userProfile.nextLevelPoints.toLocaleString('tr-TR')} puan</span>
               </div>
               <div className="w-full bg-white/20 rounded-full h-2">
-                <div 
-                  className="bg-white rounded-full h-2 transition-all duration-300"
-                  style={{ width: `${userProfile.currentLevelProgress}%` }}
+                <div
+                  className={`bg-white rounded-full h-2 transition-all duration-300 w-[${userProfile.currentLevelProgress}%]`}
                 ></div>
               </div>
             </div>
@@ -496,8 +495,7 @@ const RewardsDashboard = () => {
                 </div>
                 <div className="w-full bg-white/20 rounded-full h-2">
                   <div
-                    className="bg-white rounded-full h-2 transition-all duration-300"
-                    style={{ width: `${userProfile.currentLevelProgress}%` }}
+                    className={`bg-white rounded-full h-2 transition-all duration-300 w-[${userProfile.currentLevelProgress}%]`}
                   ></div>
                 </div>
               </div>

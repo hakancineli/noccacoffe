@@ -54,16 +54,16 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">Bizi Takip Edin</h3>
             <div className="flex space-x-4">
-              <a href="https://facebook.com/noccacoffee" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
+              <a href="https://facebook.com/noccacoffee" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors" aria-label="NOCCA Coffee Facebook sayfası">
                 <FaFacebook className="h-6 w-6" />
               </a>
-              <a href="https://twitter.com/noccacoffee" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
+              <a href="https://twitter.com/noccacoffee" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors" aria-label="NOCCA Coffee Twitter sayfası">
                 <FaTwitter className="h-6 w-6" />
               </a>
-              <a href="https://instagram.com/noccacoffee" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
+              <a href="https://instagram.com/noccacoffee" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors" aria-label="NOCCA Coffee Instagram sayfası">
                 <FaInstagram className="h-6 w-6" />
               </a>
-              <a href="https://youtube.com/noccacoffee" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
+              <a href="https://youtube.com/noccacoffee" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors" aria-label="NOCCA Coffee YouTube kanalı">
                 <FaYoutube className="h-6 w-6" />
               </a>
             </div>
