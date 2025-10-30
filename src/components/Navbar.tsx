@@ -3,12 +3,14 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { FaBars, FaTimes, FaShoppingBag, FaMapMarkerAlt, FaUser } from 'react-icons/fa';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   // Dropdown dışına tıklandığında kapatma
   useEffect(() => {
@@ -117,7 +119,7 @@ const Navbar = () => {
                         e.stopPropagation();
                         setIsProfileOpen(false);
                         console.log('Navigating to profile');
-                        window.location.href = '/profile';
+                        router.push('/profile');
                       }}
                       className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
                     >
@@ -129,7 +131,7 @@ const Navbar = () => {
                         e.stopPropagation();
                         setIsProfileOpen(false);
                         console.log('Navigating to rewards');
-                        window.location.href = '/rewards';
+                        router.push('/rewards');
                       }}
                       className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
                     >
@@ -141,7 +143,7 @@ const Navbar = () => {
                         e.stopPropagation();
                         setIsProfileOpen(false);
                         console.log('Navigating to orders');
-                        window.location.href = '/orders';
+                        router.push('/orders');
                       }}
                       className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
                     >
@@ -153,7 +155,7 @@ const Navbar = () => {
                         e.stopPropagation();
                         setIsProfileOpen(false);
                         console.log('Navigating to settings');
-                        window.location.href = '/settings';
+                        router.push('/settings');
                       }}
                       className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
                     >
