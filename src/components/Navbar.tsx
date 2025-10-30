@@ -9,6 +9,7 @@ import { FaBars, FaTimes, FaShoppingBag, FaMapMarkerAlt, FaUser } from 'react-ic
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
@@ -24,6 +25,30 @@ const Navbar = () => {
     return () => {
       document.removeEventListener('click', handleClickOutside);
     };
+  }, []);
+
+  // Check if user is admin
+  useEffect(() => {
+    const checkAdmin = async () => {
+      try {
+        const token = localStorage.getItem('authToken');
+        if (!token) return;
+        
+        const response = await fetch('/api/auth/me', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setIsAdmin(data.email === 'admin@noccacoffee.com');
+        }
+      } catch (error) {
+        console.error('Admin check error:', error);
+      }
+    };
+    
+    checkAdmin();
   }, []);
 
   const menuItems = [
@@ -161,7 +186,23 @@ const Navbar = () => {
                     >
                       Ayarlar
                     </button>
-                    <hr className="my-2" />
+                    {isAdmin && (
+                      <>
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setIsProfileOpen(false);
+                            console.log('Navigating to admin');
+                            router.push('/admin');
+                          }}
+                          className="block w-full text-left px-4 py-2 text-sm text-green-600 hover:bg-gray-100 rounded-md transition-colors font-medium"
+                        >
+                          🛠️ Admin Paneli
+                        </button>
+                        <hr className="my-2" />
+                      </>
+                    )}
                     <button
                       onClick={(e) => {
                         e.preventDefault();

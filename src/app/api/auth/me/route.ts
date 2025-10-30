@@ -4,8 +4,15 @@ import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
-    // Get token from cookie
-    const token = request.cookies.get('auth-token')?.value;
+    // Get token from cookie first, then from authorization header
+    let token = request.cookies.get('auth-token')?.value;
+    
+    if (!token) {
+      const authHeader = request.headers.get('authorization');
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7);
+      }
+    }
 
     if (!token) {
       return NextResponse.json(
@@ -50,9 +57,7 @@ export async function GET(request: NextRequest) {
     // Remove sensitive data
     const { passwordHash, ...userWithoutPassword } = user;
 
-    return NextResponse.json({
-      user: userWithoutPassword
-    });
+    return NextResponse.json(userWithoutPassword);
 
   } catch (error) {
     console.error('Auth me error:', error);

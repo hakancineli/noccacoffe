@@ -51,23 +51,67 @@ async function main() {
 
   console.log('Created rewards:', rewards);
 
-  // Create sample user with points
-  const user = await prisma.user.create({
-    data: {
-      email: 'demo@noccacoffee.com',
-      firstName: 'Demo',
-      lastName: 'Kullanıcı',
-      passwordHash: '$2b$10$K8Y8Z8Z8Z8Z8Z8Z8Z8Z8ZO8Z8Z8Z8Z8Z8Z8Z8Z8Z8Z8Z8Z8Z8Z8Z8O', // hashed 'password'
-      userPoints: {
-        create: {
-          points: 250,
-          tier: 'BRONZE',
-        },
-      },
-    },
+  // Check if admin user already exists
+  const existingAdmin = await prisma.user.findUnique({
+    where: { email: 'admin@noccacoffee.com' }
   });
 
-  console.log('Created user:', user);
+  let adminUser;
+  if (!existingAdmin) {
+    // Create admin user
+    adminUser = await prisma.user.create({
+      data: {
+        email: 'admin@noccacoffee.com',
+        firstName: 'Admin',
+        lastName: 'User',
+        passwordHash: '$2b$10$sk1Ybq5cfuaDynhiufcVmeMsuidqs3pwhd8f3q5tjWvt1B/AZ.uhO', // hashed 'password'
+        userPoints: {
+          create: {
+            points: 0,
+            tier: 'BRONZE',
+          },
+        },
+      },
+    });
+    console.log('Created admin user:', adminUser);
+  } else {
+    // Update admin user password to correct hash
+    adminUser = await prisma.user.update({
+      where: { email: 'admin@noccacoffee.com' },
+      data: {
+        passwordHash: '$2b$10$sk1Ybq5cfuaDynhiufcVmeMsuidqs3pwhd8f3q5tjWvt1B/AZ.uhO' // hashed 'password'
+      }
+    });
+    console.log('Updated admin user password:', adminUser);
+  }
+
+  // Check if demo user already exists
+  const existingUser = await prisma.user.findUnique({
+    where: { email: 'demo@noccacoffee.com' }
+  });
+
+  let user;
+  if (!existingUser) {
+    // Create sample user with points
+    user = await prisma.user.create({
+      data: {
+        email: 'demo@noccacoffee.com',
+        firstName: 'Demo',
+        lastName: 'Kullanıcı',
+        passwordHash: '$2b$10$K8Y8Z8Z8Z8Z8Z8Z8Z8Z8ZO8Z8Z8Z8Z8Z8Z8Z8Z8Z8Z8Z8Z8Z8Z8Z8O', // hashed 'password'
+        userPoints: {
+          create: {
+            points: 250,
+            tier: 'BRONZE',
+          },
+        },
+      },
+    });
+    console.log('Created user:', user);
+  } else {
+    user = existingUser;
+    console.log('Demo user already exists:', user);
+  }
 
   // Create sample point transactions
   const transactions = await Promise.all([
