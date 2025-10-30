@@ -52,12 +52,12 @@ const LoginPage = () => {
         // Cookie'nin set olması için kısa bir bekleme
         setTimeout(() => {
           window.location.href = '/admin';
-        }, 200);
+        }, 500);
       } else {
         // Normal kullanıcı için ana sayfaya yönlendir
         setTimeout(() => {
           window.location.href = '/';
-        }, 200);
+        }, 500);
       }
     } catch (err) {
       setError('Bağlantı hatası. Lütfen tekrar deneyin.');
