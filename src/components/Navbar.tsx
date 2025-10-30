@@ -68,120 +68,130 @@ const Navbar = () => {
           
           {/* Right Side Icons */}
           <div className="flex items-center space-x-4">
-            <a
-              href="https://www.google.com/maps/search/?api=1&query=Fevzi+çakmak+mahallesi,Yıldırım+Beyazıt+Caddesi,+no:+84+Bahçelievler,+Istanbul,+Turkey"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-2 text-gray-700 hover:text-nocca-green transition-colors duration-200"
-              aria-label="Mağaza Bul"
-              title="Mağaza Bul"
-            >
-              <FaMapMarkerAlt className="h-6 w-6" />
-            </a>
-            <div className="relative" ref={profileRef}>
-              <button
-                onClick={() => setIsProfileOpen(!isProfileOpen)}
+            {/* Mobile: Show banner instead of icons */}
+            <div className="md:hidden flex items-center space-x-4">
+              <div className="w-full h-12 bg-gradient-to-r from-nocca-light-green to-nocca-green rounded-lg flex items-center justify-center px-4">
+                <span className="text-white font-semibold text-sm">NOCCA COFFEE</span>
+              </div>
+            </div>
+            
+            {/* Desktop: Show original icons */}
+            <div className="hidden md:flex items-center space-x-4">
+              <a
+                href="https://www.google.com/maps/search/?api=1&query=Fevzi+çakmak+mahallesi,Yıldırım+Beyazıt+Caddesi,+no:+84+Bahçelievler,+Istanbul,+Turkey"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="p-2 text-gray-700 hover:text-nocca-green transition-colors duration-200"
-                aria-label="Hesabım"
-                title="Hesabım"
+                aria-label="Mağaza Bul"
+                title="Mağaza Bul"
               >
-                <FaUser className="h-6 w-6" />
-              </button>
-              
-              {/* Profil Dropdown */}
-              {isProfileOpen && (
-                <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
-                  <div className="p-4 border-b border-gray-200">
-                    <div className="flex items-center space-x-3">
-                      <div className="relative w-12 h-12">
-                        <Image
-                          src="/images/logo/noccacoffee.jpeg"
-                          alt="Profil"
-                          fill
-                          className="rounded-full object-cover"
-                        />
-                      </div>
-                      <div>
-                        <p className="font-semibold text-gray-800">hakancineli@gmail.com</p>
-                        <p className="text-sm text-gray-600">Gümüş Seviye</p>
+                <FaMapMarkerAlt className="h-6 w-6" />
+              </a>
+              <div className="relative" ref={profileRef}>
+                <button
+                  onClick={() => setIsProfileOpen(!isProfileOpen)}
+                  className="p-2 text-gray-700 hover:text-nocca-green transition-colors duration-200"
+                  aria-label="Hesabım"
+                  title="Hesabım"
+                >
+                  <FaUser className="h-6 w-6" />
+                </button>
+                
+                {/* Profil Dropdown */}
+                {isProfileOpen && (
+                  <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                    <div className="p-4 border-b border-gray-200">
+                      <div className="flex items-center space-x-3">
+                        <div className="relative w-12 h-12">
+                          <Image
+                            src="/images/logo/noccacoffee.jpeg"
+                            alt="Profil"
+                            fill
+                            className="rounded-full object-cover"
+                          />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-gray-800">hakancineli@gmail.com</p>
+                          <p className="text-sm text-gray-600">Gümüş Seviye</p>
+                        </div>
                       </div>
                     </div>
+                    
+                    <div className="p-2" onClick={(e) => e.stopPropagation()}>
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setIsProfileOpen(false);
+                          console.log('Navigating to profile');
+                          window.location.href = '/profile';
+                        }}
+                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+                      >
+                        Profilim
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setIsProfileOpen(false);
+                          console.log('Navigating to rewards');
+                          window.location.href = '/rewards';
+                        }}
+                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+                      >
+                        NOCCA REWARDS
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setIsProfileOpen(false);
+                          console.log('Navigating to orders');
+                          window.location.href = '/orders';
+                        }}
+                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+                      >
+                        Siparişlerim
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setIsProfileOpen(false);
+                          console.log('Navigating to settings');
+                          window.location.href = '/settings';
+                        }}
+                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+                      >
+                        Ayarlar
+                      </button>
+                      <hr className="my-2" />
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setIsProfileOpen(false);
+                          console.log('Logout clicked');
+                          // Çıkış yapma logic
+                        }}
+                        className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 rounded-md transition-colors"
+                      >
+                        Çıkış Yap
+                      </button>
+                    </div>
                   </div>
-                  
-                  <div className="p-2" onClick={(e) => e.stopPropagation()}>
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setIsProfileOpen(false);
-                        console.log('Navigating to profile');
-                        window.location.href = '/profile';
-                      }}
-                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
-                    >
-                      Profilim
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setIsProfileOpen(false);
-                        console.log('Navigating to rewards');
-                        window.location.href = '/rewards';
-                      }}
-                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
-                    >
-                      NOCCA REWARDS
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setIsProfileOpen(false);
-                        console.log('Navigating to orders');
-                        window.location.href = '/orders';
-                      }}
-                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
-                    >
-                      Siparişlerim
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setIsProfileOpen(false);
-                        console.log('Navigating to settings');
-                        window.location.href = '/settings';
-                      }}
-                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
-                    >
-                      Ayarlar
-                    </button>
-                    <hr className="my-2" />
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setIsProfileOpen(false);
-                        console.log('Logout clicked');
-                        // Çıkış yapma logic
-                      }}
-                      className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 rounded-md transition-colors"
-                    >
-                      Çıkış Yap
-                    </button>
-                  </div>
-                </div>
-              )}
+                )}
+              </div>
+              <button
+                className="p-2 text-gray-700 hover:text-nocca-green relative transition-colors duration-200"
+                aria-label="Sepetim"
+                title="Sepetim"
+              >
+                <FaShoppingBag className="h-6 w-6" />
+                <span className="absolute -top-1 -right-1 bg-nocca-green text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
+              </button>
             </div>
-            <button 
-              className="p-2 text-gray-700 hover:text-nocca-green relative transition-colors duration-200"
-              aria-label="Sepetim"
-              title="Sepetim"
-            >
-              <FaShoppingBag className="h-6 w-6" />
-              <span className="absolute -top-1 -right-1 bg-nocca-green text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
-            </button>
           </div>
           
           {/* Mobile menu button */}

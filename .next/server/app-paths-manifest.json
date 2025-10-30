@@ -1,12 +1,3 @@
 {
-  "/_not-found": "app/_not-found.js",
-  "/api/auth/login/route": "app/api/auth/login/route.js",
-  "/api/auth/logout/route": "app/api/auth/logout/route.js",
-  "/api/auth/me/route": "app/api/auth/me/route.js",
-  "/api/auth/register/route": "app/api/auth/register/route.js",
-  "/api/points/route": "app/api/points/route.js",
-  "/api/rewards/route": "app/api/rewards/route.js",
-  "/menu/page": "app/menu/page.js",
-  "/page": "app/page.js",
-  "/rewards/page": "app/rewards/page.js"
+  "/page": "app/page.js"
 }
