@@ -172,7 +172,6 @@ export default function AdminDashboard() {
         <div className="bg-white shadow rounded-lg mb-8">
           <div className="px-4 py-5 sm:p-6">
             <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">Hızlı İşlemler</h3>
-            {/* ... lines 173-194 unchanged ... */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Link href="/admin/orders" className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -199,6 +198,16 @@ export default function AdminDashboard() {
                 <span className="mr-2 text-lg">🖥️</span>
                 Kasa Modu (POS)
               </Link>
+
+              <Link href="/admin/accounting" className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                <span className="mr-2 text-lg">💰</span>
+                Muhasebe & Gider
+              </Link>
+
+              <Link href="/admin/staff" className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500">
+                <span className="mr-2 text-lg">👔</span>
+                Personel
+              </Link>
             </div>
           </div>
         </div>
@@ -222,7 +231,7 @@ export default function AdminDashboard() {
             </div>
           </div>
         </div>
-      </main>
-    </div>
+      </main >
+    </div >
   );
 }

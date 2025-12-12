@@ -240,12 +240,28 @@ model Barista {
   id          String   @id @default(cuid())
   name        String
   email       String   @unique
+  phone       String?
+  role        StaffRole @default(BARISTA)
+  salary      Float    @default(0)
+  startDate   DateTime @default(now()) @map("start_date")
   passwordHash String  @map("password_hash")
   isActive    Boolean  @default(true) @map("is_active")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
   
   @@map("baristas")
+}
+
+model Expense {
+  id          String   @id @default(cuid())
+  description String
+  amount      Float
+  category    ExpenseCategory
+  date        DateTime @default(now())
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("expenses")
 }
 
 // Enums for order management
@@ -271,4 +287,21 @@ enum PaymentStatus {
   COMPLETED
   FAILED
   REFUNDED
+}
+
+enum StaffRole {
+  MANAGER
+  BARISTA
+  WAITER
+  CLEANER
+  KITCHEN
+}
+
+enum ExpenseCategory {
+  RENT
+  UTILITIES
+  SUPPLIES
+  SALARY
+  MAINTENANCE
+  OTHER
 }
