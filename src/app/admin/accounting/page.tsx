@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { FaMoneyBillWave, FaArrowDown, FaArrowUp, FaPlus, FaChartLine } from 'react-icons/fa';
+import { FaMoneyBillWave, FaArrowDown, FaArrowUp, FaPlus, FaChartLine, FaTrash, FaUsersCog } from 'react-icons/fa';
 
 interface Expense {
     id: string;
@@ -39,18 +39,15 @@ export default function AccountingPage() {
             const expRes = await fetch('/api/admin/expenses');
             const expData = await expRes.json();
 
-            // 2. Get Revenue (Sales) - Reuse daily sales or dashboard stats logic
-            // Ideally we should have a dedicated financial endpoint, but let's grab from dashboard stats for now
-            // Or better, fetch daily sales total from orders API. 
-            // Let's use the dashboard/stats API we saw earlier in AdminDashboard
+            // 2. Get Revenue (Sales)
             const revRes = await fetch('/api/admin/dashboard/stats');
             const revData = await revRes.json();
 
             if (expRes.ok && revRes.ok) {
                 setExpenses(expData.expenses);
 
-                const totalRevenue = revData.totalRevenue; // Assumes totalRevenue is available
-                const totalExpenses = expData.summary.totalAmount;
+                const totalRevenue = revData.totalRevenue || 0;
+                const totalExpenses = expData.summary.totalAmount || 0;
 
                 setStats({
                     revenue: totalRevenue,
@@ -85,12 +82,45 @@ export default function AccountingPage() {
                 await fetchData(); // Refresh data
                 setDescription('');
                 setAmount('');
-                // Alert?
             } else {
                 alert('Gider eklenemedi.');
             }
         } catch (error) {
             console.error(error);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleDeleteExpense = async (id: string) => {
+        if (!confirm('Bu gider kaydını silmek istediğinize emin misiniz?')) return;
+
+        try {
+            const res = await fetch(`/api/admin/expenses/${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                await fetchData(); // Refresh stats
+            } else {
+                alert('Silinemedi');
+            }
+        } catch (e) { console.error(e); }
+    };
+
+    const handleProcessSalaries = async () => {
+        if (!confirm('Tüm aktif personellerin maaşları bugünün giderlerine eklenecek. Onaylıyor musunuz?')) return;
+
+        setIsSubmitting(true);
+        try {
+            const res = await fetch('/api/admin/accounting/process-salaries', { method: 'POST' });
+            const data = await res.json();
+
+            if (res.ok) {
+                alert(data.message);
+                await fetchData();
+            } else {
+                alert('İşlem başarısız.');
+            }
+        } catch (e) {
+            console.error(e);
         } finally {
             setIsSubmitting(false);
         }
@@ -151,10 +181,34 @@ export default function AccountingPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Add Expense Form */}
                 <div className="bg-white rounded-lg shadow p-6">
-                    <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                        <FaPlus className="mr-2 text-sm" />
-                        Gider Ekle
-                    </h2>
+                    <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-xl font-bold text-gray-800 flex items-center">
+                            <FaPlus className="mr-2 text-sm" />
+                            Gider Ekle
+                        </h2>
+                    </div>
+
+                    {/* Salary Processing Shortcut */}
+                    <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
+                        <h3 className="text-sm font-bold text-blue-800 mb-2 flex items-center">
+                            <FaUsersCog className="mr-2" />
+                            Personel Maaşları
+                        </h3>
+                        <p className="text-xs text-blue-600 mb-3">
+                            Ay sonlarında tek tıkla tüm personel maaşlarını gidere ekleyebilirsiniz.
+                        </p>
+                        <button
+                            type="button"
+                            onClick={handleProcessSalaries}
+                            disabled={isSubmitting}
+                            className="w-full bg-blue-600 text-white text-sm py-2 rounded hover:bg-blue-700 transition"
+                        >
+                            Maaşları Giderleştir
+                        </button>
+                    </div>
+
+                    <hr className="my-6 border-gray-200" />
+
                     <form onSubmit={handleAddExpense} className="space-y-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Açıklama</label>
@@ -230,7 +284,7 @@ export default function AccountingPage() {
                                     </tr>
                                 ) : (
                                     expenses.map((expense) => (
-                                        <tr key={expense.id} className="hover:bg-gray-50">
+                                        <tr key={expense.id} className="hover:bg-gray-50 group">
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {new Date(expense.date).toLocaleDateString('tr-TR')}
                                             </td>
@@ -242,8 +296,14 @@ export default function AccountingPage() {
                                                     {expense.category}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-bold text-right">
-                                                -₺{expense.amount.toLocaleString()}
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-bold text-right flex justify-end items-center space-x-4">
+                                                <span>-₺{expense.amount.toLocaleString()}</span>
+                                                <button
+                                                    onClick={() => handleDeleteExpense(expense.id)}
+                                                    className="text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                >
+                                                    <FaTrash />
+                                                </button>
                                             </td>
                                         </tr>
                                     ))

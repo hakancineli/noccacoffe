@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { FaUserPlus, FaUserTie, FaPhone, FaEnvelope, FaMoneyBillWave } from 'react-icons/fa';
+import { FaUserPlus, FaUserTie, FaPhone, FaEnvelope, FaMoneyBillWave, FaTrash } from 'react-icons/fa';
 
 interface Staff {
     id: string;
@@ -46,6 +46,24 @@ export default function StaffPage() {
             console.error('Staff fetch error:', error);
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const handleDelete = async (id: string, name: string) => {
+        if (!confirm(`${name} isimli personeli silmek istediğinize emin misiniz?`)) return;
+
+        try {
+            const res = await fetch(`/api/admin/staff/${id}`, {
+                method: 'DELETE',
+            });
+
+            if (res.ok) {
+                setStaffList(prev => prev.filter(s => s.id !== id));
+            } else {
+                alert('Silme işlemi başarısız oldu.');
+            }
+        } catch (error) {
+            console.error('Delete error:', error);
         }
     };
 
@@ -101,7 +119,16 @@ export default function StaffPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {staffList.map((staff) => (
-                    <div key={staff.id} className="bg-white rounded-lg shadow-md p-6 border-l-4 border-l-blue-500 hover:shadow-lg transition">
+                    <div key={staff.id} className="bg-white rounded-lg shadow-md p-6 border-l-4 border-l-blue-500 hover:shadow-lg transition relative group">
+                        {/* Delete Button - Top Right */}
+                        <button
+                            onClick={() => handleDelete(staff.id, staff.name)}
+                            className="absolute top-4 right-4 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                            title="Personeli Sil"
+                        >
+                            <FaTrash />
+                        </button>
+
                         <div className="flex justify-between items-start mb-4">
                             <div>
                                 <h3 className="text-xl font-bold text-gray-900">{staff.name}</h3>
