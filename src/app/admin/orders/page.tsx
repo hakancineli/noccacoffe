@@ -119,6 +119,7 @@ export default function OrdersManagement() {
   // Audio Alarm Logic
   const [audio] = useState(typeof window !== 'undefined' ? new Audio('https://codeskulptor-demos.commondatastorage.googleapis.com/pang/pop.mp3') : null);
   const [hasPending, setHasPending] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
 
   // Poll for new orders every 30 seconds
   useEffect(() => {
@@ -133,17 +134,18 @@ export default function OrdersManagement() {
     const pendingCount = orders.filter(o => o.status === 'PENDING').length;
     if (pendingCount > 0) {
       setHasPending(true);
-      playAlarm();
+      if (!isMuted) {
+        playAlarm();
+      }
     } else {
       setHasPending(false);
+      stopAlarm(); // Fix: Stop alarm when no pending orders
     }
-  }, [orders]);
+  }, [orders, isMuted]);
 
   const playAlarm = () => {
     if (audio) {
-      audio.loop = true; // Loop until acknowledged? Or just play once? User said "her zaman alarm versin". Loop might be annoying. Let's loop until interaction.
-      // Actually, looping might be too aggressive. Let's play it repeatedly or loop.
-      // "Sipariş Yönetiminde hazırlanmamış ürünler her zaman alarm versin" implies continuous alert.
+      audio.loop = true;
       audio.play().catch(e => console.log('Audio autoplay blocked:', e));
     }
   };
@@ -153,8 +155,16 @@ export default function OrdersManagement() {
       audio.pause();
       audio.currentTime = 0;
     }
-    // We don't setHasPending(false) here because they still need to process it.
-    // The alarm sound stops, but visual alert likely stays.
+  };
+
+  const toggleMute = () => {
+    if (isMuted) {
+      setIsMuted(false);
+      if (hasPending) playAlarm();
+    } else {
+      setIsMuted(true);
+      stopAlarm();
+    }
   };
 
   return (
@@ -167,10 +177,10 @@ export default function OrdersManagement() {
             <span className="font-bold text-lg">DİKKAT: Bekleyen Siparişler Var!</span>
           </div>
           <button
-            onClick={stopAlarm}
+            onClick={toggleMute}
             className="bg-white text-red-600 px-4 py-1 rounded font-bold hover:bg-gray-100"
           >
-            Sesi Durdur
+            {isMuted ? 'Sesi Aç' : 'Sesi Durdur'}
           </button>
         </div>
       )}
@@ -183,6 +193,13 @@ export default function OrdersManagement() {
               <h1 className="text-2xl font-bold text-gray-900">Sipariş Yönetimi</h1>
             </div>
             <nav className="flex space-x-4 items-center">
+              <button
+                onClick={toggleMute}
+                className="mr-4 p-2 text-gray-500 hover:text-gray-900 focus:outline-none"
+                title={isMuted ? "Sesi Aç" : "Sesi Kapat"}
+              >
+                {isMuted ? '🔇' : '🔊'}
+              </button>
               <span className="text-xs text-gray-500 mr-2">
                 {hasPending ? '⚠️ Bekleyen Sipariş' : '✅ Her şey yolunda'}
               </span>
