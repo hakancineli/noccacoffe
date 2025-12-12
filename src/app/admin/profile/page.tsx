@@ -22,7 +22,7 @@ export default function AdminProfile() {
                     // Basic check, middleware handles security usually
                     // But good to double check role if available
                 }
-                setAdmin(data.user);
+                setAdmin(data);
             } else {
                 router.push('/login');
             }
