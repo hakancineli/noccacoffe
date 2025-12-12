@@ -56,6 +56,52 @@ export async function POST(request: Request) {
             }
         });
 
+        // Award Points if User is Registered
+        if (userId) {
+            const pointsEarned = Math.floor(totalAmount * 2); // 1 TL = 2 Points (Buy 5 Get 1 Free logic)
+
+            try {
+                // Get current user points
+                const userPoints = await prisma.userPoints.findUnique({
+                    where: { userId }
+                });
+
+                if (userPoints) {
+                    let newPoints = userPoints.points + pointsEarned;
+
+                    // Determine new tier
+                    let newTier = userPoints.tier;
+                    if (newPoints >= 10000) newTier = 'PLATINUM';
+                    else if (newPoints >= 5000) newTier = 'GOLD';
+                    else if (newPoints >= 1000) newTier = 'SILVER';
+                    else newTier = 'BRONZE';
+
+                    // Update UserPoints
+                    await prisma.userPoints.update({
+                        where: { userId },
+                        data: {
+                            points: newPoints,
+                            tier: newTier
+                        }
+                    });
+
+                    // Create PointTransaction
+                    await prisma.pointTransaction.create({
+                        data: {
+                            userId,
+                            points: pointsEarned,
+                            transactionType: 'EARNED',
+                            description: `Sipariş Kazancı #${orderNumber}`,
+                            referenceId: order.id
+                        }
+                    });
+                }
+            } catch (pointError) {
+                console.error('Failed to award points for order:', pointError);
+                // Don't fail the order if points fail
+            }
+        }
+
         return NextResponse.json({ success: true, orderId: order.id, orderNumber });
     } catch (error) {
         console.error('Order creation error:', error);

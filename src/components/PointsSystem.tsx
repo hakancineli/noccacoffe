@@ -126,12 +126,12 @@ const PointsSystem = () => {
   }, [currentTier]);
 
   const calculatePointsForPurchase = (amount: number) => {
-    return Math.floor(amount * 0.1); // Her 1 TL için 1 puan
+    return Math.floor(amount * 2); // Her 1 TL için 2 puan (5 kahve = 1 bedava mantığı)
   };
 
   const simulatePurchase = async (productName: string, price: number) => {
     const pointsEarned = calculatePointsForPurchase(price);
-    
+
     try {
       const response = await fetch('/api/points', {
         method: 'POST',
@@ -168,7 +168,7 @@ const PointsSystem = () => {
       if (rewardsResponse.ok) {
         const rewardsData = await rewardsResponse.json();
         const reward = rewardsData.rewards.find((r: any) => r.name === rewardName);
-        
+
         if (!reward) {
           alert('Ödül bulunamadı');
           return;
@@ -206,7 +206,7 @@ const PointsSystem = () => {
       {/* Puan Özeti */}
       <div className="bg-white rounded-lg shadow-lg p-6">
         <h3 className="text-xl font-bold text-gray-800 mb-6">Puan Sistemi</h3>
-        
+
         <div className="grid md:grid-cols-3 gap-6">
           <div className="text-center">
             <div className="text-4xl font-bold text-nocca-green mb-2">
@@ -214,14 +214,14 @@ const PointsSystem = () => {
             </div>
             <p className="text-gray-600">Mevcut Puan</p>
           </div>
-          
+
           <div className="text-center">
             <div className="text-2xl font-bold text-gray-800 mb-2">
               {currentTier}
             </div>
             <p className="text-gray-600">Seviye</p>
           </div>
-          
+
           <div className="text-center">
             <div className="text-2xl font-bold text-orange-500 mb-2">
               {pointsToNextLevel.toLocaleString('tr-TR')}
@@ -234,16 +234,15 @@ const PointsSystem = () => {
       {/* Sadakat Seviyeleri */}
       <div className="bg-white rounded-lg shadow-lg p-6">
         <h3 className="text-xl font-bold text-gray-800 mb-6">Sadakat Seviyeleri</h3>
-        
+
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
           {loyaltyLevels.map((level, index) => (
-            <div 
+            <div
               key={level.name}
-              className={`p-4 rounded-lg border-2 transition-all ${
-                currentTier === level.name
-                  ? `${level.color} text-white border-white shadow-lg transform scale-105` 
+              className={`p-4 rounded-lg border-2 transition-all ${currentTier === level.name
+                  ? `${level.color} text-white border-white shadow-lg transform scale-105`
                   : 'bg-gray-50 border-gray-200 hover:border-nocca-light-green'
-              }`}
+                }`}
             >
               <div className="text-center">
                 <div className="text-3xl mb-2">{level.icon}</div>
@@ -251,7 +250,7 @@ const PointsSystem = () => {
                 <p className="text-sm mb-3 opacity-90">
                   {level.minPoints.toLocaleString('tr-TR')} - {level.maxPoints === Infinity ? '∞' : level.maxPoints.toLocaleString('tr-TR')} puan
                 </p>
-                
+
                 <div className="text-xs space-y-1">
                   <p className="font-semibold">Avantajlar:</p>
                   {level.benefits.map((benefit, benefitIndex) => (
@@ -283,7 +282,7 @@ const PointsSystem = () => {
             </button>
           </div>
         </div>
-        
+
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-100">
@@ -299,13 +298,12 @@ const PointsSystem = () => {
                 <tr key={transaction.id} className="border-t border-gray-200 hover:bg-gray-50">
                   <td className="p-3 text-sm">{transaction.date}</td>
                   <td className="p-3 text-sm">
-                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                      transaction.type === 'EARNED' ? 'bg-green-100 text-green-800' :
-                      transaction.type === 'REDEEMED' ? 'bg-red-100 text-red-800' :
-                      'bg-blue-100 text-blue-800'
-                    }`}>
+                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${transaction.type === 'EARNED' ? 'bg-green-100 text-green-800' :
+                        transaction.type === 'REDEEMED' ? 'bg-red-100 text-red-800' :
+                          'bg-blue-100 text-blue-800'
+                      }`}>
                       {transaction.type === 'EARNED' ? 'Kazanılan' :
-                       transaction.type === 'REDEEMED' ? 'Harcanılan' : 'Bonus'}
+                        transaction.type === 'REDEEMED' ? 'Harcanılan' : 'Bonus'}
                     </span>
                   </td>
                   <td className="p-3 text-sm">
@@ -316,9 +314,8 @@ const PointsSystem = () => {
                       </span>
                     )}
                   </td>
-                  <td className={`p-3 text-sm text-right font-semibold ${
-                    transaction.amount > 0 ? 'text-green-600' : 'text-red-600'
-                  }`}>
+                  <td className={`p-3 text-sm text-right font-semibold ${transaction.amount > 0 ? 'text-green-600' : 'text-red-600'
+                    }`}>
                     {transaction.amount > 0 ? '+' : ''}{transaction.amount}
                   </td>
                 </tr>
@@ -331,7 +328,7 @@ const PointsSystem = () => {
       {/* Simülasyon Butonları */}
       <div className="bg-white rounded-lg shadow-lg p-6">
         <h3 className="text-xl font-bold text-gray-800 mb-6">Puan Simülasyonu</h3>
-        
+
         <div className="grid md:grid-cols-2 gap-6">
           <div>
             <h4 className="font-semibold mb-4">Alışveriş Simülasyonu</h4>
@@ -354,7 +351,7 @@ const PointsSystem = () => {
                   </div>
                 </div>
               </button>
-              
+
               <button
                 onClick={() => simulatePurchase('Caramel Macchiato', 54.90)}
                 className="w-full bg-gray-100 hover:bg-gray-200 p-3 rounded-lg text-left transition-colors"
@@ -375,7 +372,7 @@ const PointsSystem = () => {
               </button>
             </div>
           </div>
-          
+
           <div>
             <h4 className="font-semibold mb-4">Ödül Simülasyonu</h4>
             <div className="space-y-3">
@@ -396,7 +393,7 @@ const PointsSystem = () => {
                   )}
                 </div>
               </button>
-              
+
               <button
                 onClick={() => simulateRewardRedemption('%20 İndirim Kuponu', 1000)}
                 className="w-full bg-nocca-light-green hover:bg-nocca-green text-white p-3 rounded-lg text-left transition-colors"
