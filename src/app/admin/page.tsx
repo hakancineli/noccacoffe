@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import DailySalesStats from '@/components/admin/DailySalesStats';
 
 export default function AdminDashboard() {
   const [isLoading, setIsLoading] = useState(true);
@@ -26,7 +27,7 @@ export default function AdminDashboard() {
       // Önce cookie'yi kontrol et
       const response = await fetch('/api/auth/me');
       const data = await response.json();
-      
+
       if (!response.ok || data.email !== 'admin@noccacoffee.com') {
         router.push('/login');
         return;
@@ -167,9 +168,11 @@ export default function AdminDashboard() {
         </div>
 
         {/* Quick Actions */}
+
         <div className="bg-white shadow rounded-lg mb-8">
           <div className="px-4 py-5 sm:p-6">
             <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">Hızlı İşlemler</h3>
+            {/* ... lines 173-194 unchanged ... */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Link href="/admin/orders" className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -177,14 +180,14 @@ export default function AdminDashboard() {
                 </svg>
                 Sipariş Yönetimi
               </Link>
-              
+
               <Link href="/admin/products" className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                 </svg>
                 Ürün Yönetimi
               </Link>
-              
+
               <Link href="/admin/customers" className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -194,6 +197,9 @@ export default function AdminDashboard() {
             </div>
           </div>
         </div>
+
+        {/* Daily Stats Section */}
+        <DailySalesStats />
 
         {/* Recent Orders */}
         <div className="bg-white shadow rounded-lg">
