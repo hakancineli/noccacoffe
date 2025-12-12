@@ -144,7 +144,7 @@ export default function POSPage() {
                     size: item.size
                 })),
                 totalAmount: cartTotal,
-                status: 'COMPLETED',
+                status: 'PENDING', // Start as PENDING to show in Kitchen/Order Management
                 paymentMethod,
                 userId: selectedCustomer?.id || null, // Assign to customer if selected
                 customerName: selectedCustomer ? `${selectedCustomer.firstName} ${selectedCustomer.lastName}` : 'Misafir',

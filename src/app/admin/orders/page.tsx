@@ -121,11 +121,11 @@ export default function OrdersManagement() {
   const [hasPending, setHasPending] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
 
-  // Poll for new orders every 30 seconds
+  // Poll for new orders every 5 seconds (simulated live sync)
   useEffect(() => {
     const interval = setInterval(() => {
       fetchOrders();
-    }, 30000);
+    }, 5000);
     return () => clearInterval(interval);
   }, [filter, pagination]);
 
