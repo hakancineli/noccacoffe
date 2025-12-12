@@ -41,7 +41,25 @@ export default function AdminProfile() {
         );
     }
 
-    if (!admin) return null;
+    if (!admin) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+                <div className="text-center">
+                    <h2 className="text-xl font-semibold text-gray-800 mb-2">Profil Yüklenemedi</h2>
+                    <p className="text-gray-600 mb-4">Kullanıcı bilgileri alınamadı veya yetkiniz yok.</p>
+                    <button
+                        onClick={() => router.push('/login')}
+                        className="text-blue-600 hover:text-blue-800 underline"
+                    >
+                        Giriş Sayfasına Dön
+                    </button>
+                    <div className="mt-4 text-xs text-gray-400">
+                        Debug: Admin state is null. Loading is {loading.toString()}.
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gray-50">
