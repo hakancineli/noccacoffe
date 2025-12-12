@@ -45,10 +45,10 @@ const FeaturedProducts = () => {
                 // Always include Buzlu Caffè Latte and Buzlu Caffé Mocha
                 if (product.name === 'Buzlu Caffè Latte') return true;
                 if (product.name === 'Buzlu Caffé Mocha') return true;
-                
+
                 // Exclude Iced Caramel Macchiato to show only the regular version
                 if (product.name === 'Iced Caramel Macchiato') return false;
-                
+
                 // If it's an iced drink, check if there's a non-iced version
                 if (product.name.startsWith('Iced ')) {
                   const hotVersion = product.name.replace('Iced ', '');
@@ -59,28 +59,28 @@ const FeaturedProducts = () => {
                 return !self.some(p => p.name === icedVersion);
               })
               .map((product) => (
-              <SwiperSlide key={product.id} className="h-auto">
-                <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 h-full flex flex-col border border-gray-100 flex justify-between">
-                  <div className="relative h-48 w-full flex-shrink-0">
-                    <Image
-                      src={product.image}
-                      alt={product.name}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                      priority
-                    />
-                  </div>
-                  <div className="p-4 flex-1 flex flex-col">
-                    <h3 className="text-lg font-semibold text-gray-800 line-clamp-1">{product.name}</h3>
-                    <p className="text-gray-600 text-sm mt-1 line-clamp-2 min-h-[40px]">{product.description}</p>
-                    <div className="mt-auto pt-3 border-t border-gray-100">
-                      <span className="text-starbucks-green font-bold text-lg">{product.price}</span>
+                <SwiperSlide key={product.id} className="h-auto">
+                  <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 h-full flex flex-col border border-gray-100 flex justify-between">
+                    <div className="relative h-48 w-full flex-shrink-0">
+                      <Image
+                        src={product.image || '/images/logo/noccacoffee.jpeg'}
+                        alt={product.name}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                        priority
+                      />
+                    </div>
+                    <div className="p-4 flex-1 flex flex-col">
+                      <h3 className="text-lg font-semibold text-gray-800 line-clamp-1">{product.name}</h3>
+                      <p className="text-gray-600 text-sm mt-1 line-clamp-2 min-h-[40px]">{product.description}</p>
+                      <div className="mt-auto pt-3 border-t border-gray-100">
+                        <span className="text-starbucks-green font-bold text-lg">{product.price}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </SwiperSlide>
-            ))}
+                </SwiperSlide>
+              ))}
           </Swiper>
         </div>
       </div>
