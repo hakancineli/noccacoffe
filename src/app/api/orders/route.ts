@@ -11,10 +11,31 @@ export async function POST(request: Request) {
         const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
         const orderNumber = `NC-${timestamp}-${random}`;
 
+        // Extract User ID from Token (if available)
+        let userId: string | null = null;
+        try {
+            const cookieHeader = request.headers.get('cookie') || '';
+            const cookies = Object.fromEntries(cookieHeader.split('; ').map(c => c.split('=')));
+            const token = cookies['auth-token'];
+
+            if (token) {
+                // We need to import jwt. 
+                // Note: 'jose' is better for Edge but this file uses 'prisma' so it's Node runtime. 
+                // We can use 'jsonwebtoken' or 'jose'. Let's use 'jsonwebtoken' as used in other API routes.
+                const jwt = require('jsonwebtoken');
+                const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret') as { userId: string };
+                userId = decoded.userId;
+            }
+        } catch (error) {
+            console.log("Token verification failed during order creation (ignoring):", error);
+            // Ignore token error, proceed as guest
+        }
+
         // Create Order with Items
         const order = await prisma.order.create({
             data: {
                 orderNumber,
+                userId, // Add Relation
                 customerName,
                 customerPhone,
                 customerEmail,

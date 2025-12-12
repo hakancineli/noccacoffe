@@ -30,68 +30,36 @@ const OrdersPage = () => {
   const router = useRouter();
 
   useEffect(() => {
-    // Kullanıcının giriş yapmış olup olmadığını kontrol et
-    const token = localStorage.getItem('authToken');
-    if (token) {
+    // Check login status and fetch orders
+    const fetchOrders = async () => {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        router.push('/login');
+        return;
+      }
+
       setIsLoggedIn(true);
-      // Mock sipariş verileri
-      const mockOrders: Order[] = [
-        {
-          id: '1',
-          orderNumber: 'NOCCA-2024-001',
-          date: '28.10.2024 14:30',
-          status: 'completed',
-          total: 142.70,
-          items: [
-            {
-              id: '1',
-              name: 'Caffè Latte',
-              quantity: 2,
-              price: 45.90,
-              image: '/images/products/CaffeLatte.jpeg'
-            },
-            {
-              id: '2',
-              name: 'Brownie',
-              quantity: 1,
-              price: 42.90,
-              image: '/images/products/brownie.jpg'
-            },
-            {
-              id: '3',
-              name: 'Caramel Macchiato',
-              quantity: 1,
-              price: 54.90,
-              image: '/images/products/caramel-macchiato.jpg'
-            }
-          ],
-          paymentMethod: 'Kredi Kartı',
-          storeLocation: 'Yenibosna Yıldırım Beyazıt Cad. 84/A'
-        },
-        {
-          id: '2',
-          orderNumber: 'NOCCA-2024-002',
-          date: '29.10.2024 09:15',
-          status: 'preparing',
-          total: 91.80,
-          items: [
-            {
-              id: '1',
-              name: 'Caffè Latte',
-              quantity: 2,
-              price: 45.90,
-              image: '/images/products/CaffeLatte.jpeg'
-            }
-          ],
-          paymentMethod: 'NOCCA REWARDS',
-          storeLocation: 'Yenibosna Yıldırım Beyazıt Cad. 84/A'
+
+      try {
+        const response = await fetch('/api/orders/user', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setOrders(data);
+        } else {
+          console.error('Failed to fetch orders');
+          // Optionally handle error state
         }
-      ];
-      setOrders(mockOrders);
-    } else {
-      // Giriş yapmamışsa login sayfasına yönlendir
-      router.push('/login');
-    }
+      } catch (error) {
+        console.error('Error fetching orders:', error);
+      }
+    };
+
+    fetchOrders();
   }, [router]);
 
   const getStatusColor = (status: Order['status']) => {
@@ -124,8 +92,8 @@ const OrdersPage = () => {
     }
   };
 
-  const filteredOrders = filter === 'all' 
-    ? orders 
+  const filteredOrders = filter === 'all'
+    ? orders
     : orders.filter(order => order.status === filter);
 
   if (!isLoggedIn) {
@@ -162,11 +130,10 @@ const OrdersPage = () => {
                 <button
                   key={item.value}
                   onClick={() => setFilter(item.value as any)}
-                  className={`px-4 py-2 rounded-md font-medium transition-colors ${
-                    filter === item.value
+                  className={`px-4 py-2 rounded-md font-medium transition-colors ${filter === item.value
                       ? 'bg-nocca-light-green text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
+                    }`}
                 >
                   {item.label}
                 </button>

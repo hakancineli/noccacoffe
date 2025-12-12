@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
 
     // Build where clause
     const where: any = {};
-    
+
     if (search) {
       where.OR = [
         { firstName: { contains: search, mode: 'insensitive' } },
@@ -40,6 +40,9 @@ export async function GET(request: NextRequest) {
             orderBy: { createdAt: 'desc' },
             take: 5, // Last 5 orders
           },
+          _count: {
+            select: { orders: true }
+          },
           pointTransactions: {
             orderBy: { createdAt: 'desc' },
             take: 10, // Last 10 transactions
@@ -55,7 +58,7 @@ export async function GET(request: NextRequest) {
     // Calculate additional stats
     const usersWithStats = users.map((user: any) => ({
       ...user,
-      totalOrders: user.orders.length,
+      totalOrders: user._count.orders, // Use the count from aggregation
       totalSpent: user.orders.reduce((sum: number, order: any) => sum + order.totalAmount, 0),
       lastOrderDate: user.orders[0]?.createdAt || null,
       recentTransactions: user.pointTransactions.slice(0, 5),
