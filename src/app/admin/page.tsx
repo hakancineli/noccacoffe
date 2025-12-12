@@ -74,7 +74,7 @@ export default function AdminDashboard() {
               <Link href="/" className="text-gray-600 hover:text-gray-900">
                 Ana Sayfa
               </Link>
-              <Link href="/profile" className="text-gray-600 hover:text-gray-900">
+              <Link href="/admin/profile" className="text-gray-600 hover:text-gray-900">
                 Profil
               </Link>
             </nav>

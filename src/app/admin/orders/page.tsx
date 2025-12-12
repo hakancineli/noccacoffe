@@ -129,7 +129,7 @@ export default function OrdersManagement() {
               <Link href="/admin" className="text-gray-600 hover:text-gray-900">
                 Admin Panel
               </Link>
-              <Link href="/profile" className="text-gray-600 hover:text-gray-900">
+              <Link href="/admin/profile" className="text-gray-600 hover:text-gray-900">
                 Profil
               </Link>
             </nav>
