@@ -187,6 +187,7 @@ model OrderItem {
   orderId     String   @map("order_id")
   productId   String   @map("product_id")
   productName String   @map("product_name")
+  size        String?
   quantity    Int
   unitPrice   Float    @map("unit_price")
   totalPrice  Float    @map("total_price")

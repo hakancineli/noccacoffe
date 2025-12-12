@@ -27,6 +27,7 @@ interface OrderItem {
   unitPrice: number;
   totalPrice: number;
   notes?: string;
+  size?: string;
 }
 
 export default function OrdersManagement() {
@@ -369,6 +370,7 @@ export default function OrdersManagement() {
                       <div key={item.id} className="flex justify-between text-sm">
                         <div>
                           <span className="font-medium">{item.productName}</span>
+                          {item.size && <span className="text-gray-500 text-xs ml-2">({item.size})</span>}
                           <span className="text-gray-500"> x {item.quantity}</span>
                         </div>
                         <span className="font-medium">₺{item.totalPrice.toFixed(2)}</span>

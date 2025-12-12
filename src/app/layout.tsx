@@ -8,16 +8,20 @@ export const metadata = {
   description: 'NOCCA Coffee - Kaliteli Kahve Deneyimi',
 };
 
+import Providers from '@/components/Providers';
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="tr">
+    <html lang="tr" suppressHydrationWarning>
       <body className={inter.className}>
         <div className="min-h-screen bg-white">
-          {children}
+          <Providers>
+            {children}
+          </Providers>
         </div>
       </body>
     </html>

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { FaBars, FaTimes, FaShoppingBag, FaMapMarkerAlt, FaUser } from 'react-icons/fa';
+import { useCart } from '@/contexts/CartContext';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -12,6 +13,7 @@ const Navbar = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const { totalItems, setIsCartOpen } = useCart();
 
   // Dropdown dışına tıklandığında kapatma
   useEffect(() => {
@@ -33,7 +35,7 @@ const Navbar = () => {
       try {
         const token = localStorage.getItem('authToken');
         if (!token) return;
-        
+
         const response = await fetch('/api/auth/me', {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -47,9 +49,31 @@ const Navbar = () => {
         console.error('Admin check error:', error);
       }
     };
-    
+
     checkAdmin();
   }, []);
+
+  const handleLogout = async () => {
+    try {
+      // API call to clear cookie
+      await fetch('/api/auth/logout', { method: 'POST' });
+
+      // Clear local storage
+      localStorage.removeItem('authToken');
+
+      // Reset state
+      setIsAdmin(false);
+      setIsProfileOpen(false);
+
+      // Redirect
+      window.location.href = '/login';
+    } catch (error) {
+      console.error('Logout failed', error);
+      // Fallback
+      localStorage.removeItem('authToken');
+      window.location.href = '/login';
+    }
+  };
 
   const menuItems = [
     { name: 'MENÜ', href: '/menu' },
@@ -76,13 +100,13 @@ const Navbar = () => {
               <span className="ml-3 text-2xl font-bold text-[#704d39] hidden sm:block">NOCCA COFFEE</span>
             </Link>
           </div>
-          
+
           {/* Navigation Links */}
           <div className="hidden md:flex items-center justify-center flex-1 px-8">
             <div className="flex space-x-2">
               {menuItems.map((item) => (
-                <Link 
-                  key={item.name} 
+                <Link
+                  key={item.name}
                   href={item.href}
                   className="text-gray-700 hover:text-nocca-green px-4 py-2 text-base font-medium transition-colors duration-200"
                 >
@@ -91,7 +115,7 @@ const Navbar = () => {
               ))}
             </div>
           </div>
-          
+
           {/* Right Side Icons */}
           <div className="flex items-center space-x-4">
             {/* Store Location - Responsive */}
@@ -105,7 +129,7 @@ const Navbar = () => {
             >
               <FaMapMarkerAlt className="h-5 w-5 sm:h-6 sm:w-6" />
             </a>
-            
+
             {/* Profile - Responsive */}
             <div className="relative" ref={profileRef}>
               <button
@@ -116,7 +140,7 @@ const Navbar = () => {
               >
                 <FaUser className="h-5 w-5 sm:h-6 sm:w-6" />
               </button>
-              
+
               {/* Profil Dropdown */}
               {isProfileOpen && (
                 <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-50 md:right-0 md:left-auto left-1/2 md:left-auto transform md:transform-none -translate-x-1/2 md:-translate-x-0">
@@ -136,7 +160,7 @@ const Navbar = () => {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="p-2" onClick={(e) => e.stopPropagation()}>
                     <button
                       onClick={(e) => {
@@ -207,9 +231,7 @@ const Navbar = () => {
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        setIsProfileOpen(false);
-                        console.log('Logout clicked');
-                        // Çıkış yapma logic
+                        handleLogout();
                       }}
                       className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 rounded-md transition-colors"
                     >
@@ -219,18 +241,23 @@ const Navbar = () => {
                 </div>
               )}
             </div>
-            
+
             {/* Shopping Cart - Responsive */}
             <button
+              onClick={() => setIsCartOpen(true)}
               className="p-2 text-gray-700 hover:text-nocca-green relative transition-colors duration-200"
               aria-label="Sepetim"
               title="Sepetim"
             >
               <FaShoppingBag className="h-5 w-5 sm:h-6 sm:w-6" />
-              <span className="absolute -top-1 -right-1 bg-nocca-green text-white text-xs rounded-full h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center">0</span>
+              {totalItems > 0 && (
+                <span className="absolute -top-1 -right-1 bg-nocca-green text-white text-xs rounded-full h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center">
+                  {totalItems}
+                </span>
+              )}
             </button>
           </div>
-          
+
           {/* Mobile menu button */}
           <div className="md:hidden">
             <button

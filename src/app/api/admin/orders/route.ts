@@ -1,11 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
-
-// Type definitions
-type OrderStatus = 'PENDING' | 'PREPARING' | 'READY' | 'COMPLETED' | 'CANCELLED';
-type Order = any; // Will be properly typed after Prisma generation
+import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 
 export async function GET(request: NextRequest) {
   try {
@@ -18,12 +13,12 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
 
     // Build where clause
-    const where: any = {};
-    
+    const where: Prisma.OrderWhereInput = {};
+
     if (status && status !== 'all') {
-      where.status = status.toUpperCase() as OrderStatus;
+      where.status = status as any; // Cast status if enum mismatch occurs
     }
-    
+
     if (search) {
       where.OR = [
         { orderNumber: { contains: search, mode: 'insensitive' } },
@@ -35,7 +30,7 @@ export async function GET(request: NextRequest) {
 
     // Get orders with pagination
     const [orders, total] = await Promise.all([
-      (prisma as any).order.findMany({
+      prisma.order.findMany({
         where,
         include: {
           orderItems: true,
@@ -53,17 +48,11 @@ export async function GET(request: NextRequest) {
         skip,
         take: limit,
       }),
-      (prisma as any).order.count({ where }),
+      prisma.order.count({ where }),
     ]);
 
-    // Generate order numbers if they don't exist
-    const ordersWithNumbers = orders.map((order: Order, index: number) => ({
-      ...order,
-      orderNumber: order.orderNumber || `ORD-${String(total - skip - index).padStart(6, '0')}`,
-    }));
-
     return NextResponse.json({
-      orders: ordersWithNumbers,
+      orders,
       pagination: {
         page,
         limit,
@@ -80,6 +69,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
+// POST endpoint for manual order creation via Admin Panel (if needed)
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -92,7 +82,6 @@ export async function POST(request: NextRequest) {
       notes,
     } = body;
 
-    // Validate required fields
     if (!customerName || !items || items.length === 0) {
       return NextResponse.json(
         { error: 'Customer name and items are required' },
@@ -100,18 +89,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Calculate totals
     const totalAmount = items.reduce(
       (sum: number, item: any) => sum + item.quantity * item.unitPrice,
       0
     );
 
-    // Generate order number
-    const orderCount = await (prisma as any).order.count();
-    const orderNumber = `ORD-${String(orderCount + 1).padStart(6, '0')}`;
+    // Generate NC- format order number
+    const timestamp = Date.now().toString().slice(-6);
+    const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+    const orderNumber = `NC-${timestamp}-${random}`;
 
-    // Create order
-    const order = await (prisma as any).order.create({
+    const order = await prisma.order.create({
       data: {
         orderNumber,
         customerName,
@@ -121,11 +109,12 @@ export async function POST(request: NextRequest) {
         finalAmount: totalAmount,
         paymentMethod: paymentMethod || null,
         notes,
-        status: 'PENDING' as OrderStatus,
+        status: 'PENDING',
         orderItems: {
           create: items.map((item: any) => ({
             productId: item.productId,
             productName: item.productName,
+            size: item.size, // Included size
             quantity: item.quantity,
             unitPrice: item.unitPrice,
             totalPrice: item.quantity * item.unitPrice,

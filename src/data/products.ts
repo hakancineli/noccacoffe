@@ -1,71 +1,202 @@
 export const productCategories = [
   {
-    name: "Yiyecekler",
-    slug: "food",
+    name: "Soğuk Kahveler",
+    slug: "soguk-kahveler",
+    description: "Ferahlatıcı buzlu kahve çeşitlerimiz",
     products: [
       {
-        id: "SBUX-233",
-        name: "Balkabaklı Cheesecake",
-        image: "https://api.mircate.com/5p1hp1d2t/CALL/PIMAPI/getImage/1j19r3y78mj?filename=1j19r3y78mj-7c8d4031bd604794ad4d62d0ac00f68a.jpg",
-        slug: "balkabakli-cheesecake"
+        id: "NC-001",
+        name: "Iced Americano",
+        image: "/images/products/iced-americano.jpg",
+        slug: "iced-americano"
       },
       {
-        id: "SBUX-281",
-        name: "Tuzlu Mini Kruvasan",
-        image: "https://api.mircate.com/5p1hp1d2t/CALL/PIMAPI/getImage/1j19r3y78mj?filename=1j19r3y78mj-899dada5fccc435cab4a0d8c7dbc66eb.png",
-        slug: "tuzlu-mini-kruvasan"
+        id: "NC-002",
+        name: "Iced Latte",
+        image: "/images/products/Buzlu Caffè Latte.jpeg",
+        slug: "iced-latte"
       },
-      // Add more food items as needed
+      {
+        id: "NC-003",
+        name: "Iced Caramel Macchiato",
+        image: "/images/products/caramel-macchiato.jpg",
+        slug: "iced-caramel-macchiato"
+      },
+      {
+        id: "NC-004",
+        name: "Cold Brew",
+        image: "/images/products/cold-brew.jpg",
+        slug: "cold-brew"
+      },
     ]
   },
   {
-    name: "İçecekler",
-    slug: "drinks",
+    name: "Sıcak Kahveler",
+    slug: "sicak-kahveler",
+    description: "Klasik sıcak kahve çeşitlerimiz",
     products: [
       {
-        id: "SBUX-225",
-        name: "Pumpkin Spice Latte",
-        image: "https://api.mircate.com/5p1hp1d2t/CALL/PIMAPI/getImage/1j19r3y78mj?filename=1j19r3y78mj-f5df8da6d43c4972977547e161ad1396.jpg",
-        slug: "pumpkin-spice-latte"
+        id: "NC-014",
+        name: "Americano",
+        image: "/images/products/americano.jpg",
+        slug: "americano"
       },
       {
-        id: "SBUX-226",
-        name: "Iced Pumpkin Spice Latte",
-        image: "https://api.mircate.com/5p1hp1d2t/CALL/PIMAPI/getImage/1j19r3y78mj?filename=1j19r3y78mj-588c3c9cea9649cf898a26063abf2b9f.jpg",
-        slug: "iced-pumpkin-spice-latte"
+        id: "NC-016",
+        name: "Latte",
+        image: "/images/products/CaffeLatte.jpeg",
+        slug: "latte"
       },
-      // Add more drink items as needed
+      {
+        id: "NC-021",
+        name: "Caramel Macchiato",
+        image: "/images/products/caramel-macchiato.jpg",
+        slug: "caramel-macchiato"
+      },
+      {
+        id: "NC-022",
+        name: "Cappuccino",
+        image: "/images/products/cappuccino.jpg",
+        slug: "cappuccino"
+      },
     ]
   },
   {
-    name: "Evde Kahve Keyfi",
-    slug: "coffee-at-home",
+    name: "Frappeler",
+    slug: "frappeler",
+    description: "Buzlu kahve karışımlarımız",
     products: [
       {
-        id: "SBUX-238",
-        name: "Starbucks® Kapsül Smooth Caramel",
-        image: "https://api.mircate.com/5p1hp1d2t/CALL/PIMAPI/getImage/1j19r3y78mj?filename=1j19r3y78mj-2aad63f93d514780b5a22c7b81895d4a.png",
-        slug: "nocca-kapsul-smooth-caramel"
+        id: "NC-042",
+        name: "Caramel Frappuccino",
+        image: "/images/products/caramel-frappuccino.jpg",
+        slug: "caramel-frappuccino"
       },
-      // Add more coffee at home items as needed
+      {
+        id: "NC-043",
+        name: "Çikolata Frappuccino",
+        image: "/images/products/chocolate-frappuccino.jpg",
+        slug: "cikolata-frappuccino"
+      },
+      {
+        id: "NC-044",
+        name: "Vanilla Frappuccino",
+        image: "/images/products/vanilla-frappuccino.jpg",
+        slug: "vanilla-frappuccino"
+      },
+    ]
+  },
+  {
+    name: "Bubble Tea",
+    slug: "bubble-tea",
+    description: "Bubble tea çeşitlerimiz",
+    products: [
+      {
+        id: "NC-046",
+        name: "Quenn Style Fresh",
+        image: "/images/products/quenn-style-fresh.jpg",
+        slug: "quenn-style-fresh"
+      },
+      {
+        id: "NC-050",
+        name: "Chai Tea Coffee",
+        image: "/images/products/chai-tea-coffee.jpg",
+        slug: "chai-tea-coffee"
+      },
+      {
+        id: "NC-052",
+        name: "Coffee Caramel Macchiato Bubble",
+        image: "/images/products/coffee-caramel-macchiato-bubble.jpg",
+        slug: "coffee-caramel-macchiato-bubble"
+      },
+    ]
+  },
+  {
+    name: "Milkshake",
+    slug: "milkshake",
+    description: "Kremsi milkshake çeşitlerimiz",
+    products: [
+      {
+        id: "NC-038",
+        name: "Chocolate Milkshake",
+        image: "/images/products/chocolate-milkshake.jpg",
+        slug: "chocolate-milkshake"
+      },
+      {
+        id: "NC-039",
+        name: "Strawberry Milkshake",
+        image: "/images/products/strawberry-milkshake.jpg",
+        slug: "strawberry-milkshake"
+      },
+      {
+        id: "NC-040",
+        name: "Banana Milkshake",
+        image: "/images/products/banana-milkshake.jpg",
+        slug: "banana-milkshake"
+      },
+    ]
+  },
+  {
+    name: "Bitki Çayları",
+    slug: "bitki-caylari",
+    description: "Doğal bitki çaylarımız",
+    products: [
+      {
+        id: "NC-061",
+        name: "Papatya Çayı",
+        image: "/images/products/chamomile-tea.jpg",
+        slug: "papatya-cayi"
+      },
+      {
+        id: "NC-064",
+        name: "Yeşil Çay",
+        image: "/images/products/green-tea.jpg",
+        slug: "yesil-cay"
+      },
+      {
+        id: "NC-067",
+        name: "Ihlamur",
+        image: "/images/products/linden-tea.jpg",
+        slug: "ihlamur"
+      },
     ]
   }
 ];
 
 export const featuredProducts = [
   {
-    id: "SBUX-225",
-    name: "Pumpkin Spice Latte",
-    image: "https://api.mircate.com/5p1hp1d2t/CALL/PIMAPI/getImage/1j19r3y78mj?filename=1j19r3y78mj-f5df8da6d43c4972977547e161ad1396.jpg",
-    isNew: false,
-    slug: "pumpkin-spice-latte"
+    id: "NC-003",
+    name: "Iced Caramel Macchiato",
+    image: "/images/products/caramel-macchiato.jpg",
+    isNew: true,
+    slug: "iced-caramel-macchiato"
   },
   {
-    id: "SBUX-226",
-    name: "Iced Pumpkin Spice Latte",
-    image: "https://api.mircate.com/5p1hp1d2t/CALL/PIMAPI/getImage/1j19r3y78mj?filename=1j19r3y78mj-588c3c9cea9649cf898a26063abf2b9f.jpg",
+    id: "NC-042",
+    name: "Caramel Frappuccino",
+    image: "/images/products/caramel-frappuccino.jpg",
     isNew: false,
-    slug: "iced-pumpkin-spice-latte"
+    slug: "caramel-frappuccino"
   },
-  // Add more featured products as needed
+  {
+    id: "NC-052",
+    name: "Coffee Caramel Macchiato Bubble",
+    image: "/images/products/coffee-caramel-macchiato-bubble.jpg",
+    isNew: true,
+    slug: "coffee-caramel-macchiato-bubble"
+  },
+  {
+    id: "NC-004",
+    name: "Cold Brew",
+    image: "/images/products/cold-brew.jpg",
+    isNew: false,
+    slug: "cold-brew"
+  },
+  {
+    id: "NC-054",
+    name: "Matcha Latte",
+    image: "/images/products/Iced Matcha Latte.jpeg",
+    isNew: true,
+    slug: "matcha-latte"
+  },
 ];
