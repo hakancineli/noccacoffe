@@ -10,6 +10,7 @@ import { useCart } from '@/contexts/CartContext';
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [user, setUser] = useState<{ email: string; firstName?: string; lastName?: string } | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -29,28 +30,59 @@ const Navbar = () => {
     };
   }, []);
 
-  // Check if user is admin
+  // Fetch user profile
   useEffect(() => {
-    const checkAdmin = async () => {
+    const fetchUserProfile = async () => {
       try {
         const token = localStorage.getItem('authToken');
-        if (!token) return;
+        if (!token) {
+          setUser(null);
+          setIsAdmin(false);
+          return;
+        }
 
         const response = await fetch('/api/auth/me', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
         });
+
         if (response.ok) {
           const data = await response.json();
+          setUser({
+            email: data.email,
+            firstName: data.firstName,
+            lastName: data.lastName
+          });
           setIsAdmin(data.email === 'admin@noccacoffee.com');
+        } else {
+          // Token invalid or expired
+          localStorage.removeItem('authToken');
+          setUser(null);
+          setIsAdmin(false);
         }
       } catch (error) {
-        console.error('Admin check error:', error);
+        console.error('Profile fetch error:', error);
+        setUser(null);
+        setIsAdmin(false);
       }
     };
 
-    checkAdmin();
+    fetchUserProfile();
+
+    // Add event listener for storage changes to sync across tabs or login/logout events
+    const handleStorageChange = () => {
+      fetchUserProfile();
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    // Custom event for same-tab updates if needed (optional but good practice)
+    window.addEventListener('auth-change', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('auth-change', handleStorageChange);
+    };
   }, []);
 
   const handleLogout = async () => {
@@ -64,6 +96,10 @@ const Navbar = () => {
       // Reset state
       setIsAdmin(false);
       setIsProfileOpen(false);
+      setUser(null);
+
+      // Dispatch event to update other components if needed
+      window.dispatchEvent(new Event('auth-change'));
 
       // Redirect
       window.location.href = '/login';
@@ -155,7 +191,7 @@ const Navbar = () => {
                         />
                       </div>
                       <div>
-                        <p className="font-semibold text-gray-800">hakancineli@gmail.com</p>
+                        <p className="font-semibold text-gray-800">{user?.email || 'Giriş Yapılmadı'}</p>
                         <p className="text-sm text-gray-600">Gümüş Seviye</p>
                       </div>
                     </div>
