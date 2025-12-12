@@ -116,8 +116,65 @@ export default function OrdersManagement() {
     return texts[status as keyof typeof texts] || status;
   };
 
+  // Audio Alarm Logic
+  const [audio] = useState(typeof window !== 'undefined' ? new Audio('https://codeskulptor-demos.commondatastorage.googleapis.com/pang/pop.mp3') : null);
+  const [hasPending, setHasPending] = useState(false);
+
+  // Poll for new orders every 30 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchOrders();
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [filter, pagination]);
+
+  // Check for pending orders and trigger alarm
+  useEffect(() => {
+    const pendingCount = orders.filter(o => o.status === 'PENDING').length;
+    if (pendingCount > 0) {
+      setHasPending(true);
+      playAlarm();
+    } else {
+      setHasPending(false);
+    }
+  }, [orders]);
+
+  const playAlarm = () => {
+    if (audio) {
+      audio.loop = true; // Loop until acknowledged? Or just play once? User said "her zaman alarm versin". Loop might be annoying. Let's loop until interaction.
+      // Actually, looping might be too aggressive. Let's play it repeatedly or loop.
+      // "Sipariş Yönetiminde hazırlanmamış ürünler her zaman alarm versin" implies continuous alert.
+      audio.play().catch(e => console.log('Audio autoplay blocked:', e));
+    }
+  };
+
+  const stopAlarm = () => {
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+    }
+    // We don't setHasPending(false) here because they still need to process it.
+    // The alarm sound stops, but visual alert likely stays.
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Audio Control / Status */}
+      {hasPending && (
+        <div className="bg-red-600 text-white px-4 py-3 shadow-lg animate-pulse sticky top-0 z-50 flex justify-between items-center">
+          <div className="flex items-center">
+            <span className="text-2xl mr-2">🔔</span>
+            <span className="font-bold text-lg">DİKKAT: Bekleyen Siparişler Var!</span>
+          </div>
+          <button
+            onClick={stopAlarm}
+            className="bg-white text-red-600 px-4 py-1 rounded font-bold hover:bg-gray-100"
+          >
+            Sesi Durdur
+          </button>
+        </div>
+      )}
+
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -125,7 +182,10 @@ export default function OrdersManagement() {
             <div className="flex items-center">
               <h1 className="text-2xl font-bold text-gray-900">Sipariş Yönetimi</h1>
             </div>
-            <nav className="flex space-x-4">
+            <nav className="flex space-x-4 items-center">
+              <span className="text-xs text-gray-500 mr-2">
+                {hasPending ? '⚠️ Bekleyen Sipariş' : '✅ Her şey yolunda'}
+              </span>
               <Link href="/admin" className="text-gray-600 hover:text-gray-900">
                 Admin Panel
               </Link>
@@ -175,7 +235,7 @@ export default function OrdersManagement() {
         </div>
 
         {/* Orders Table */}
-        <div className="bg-white shadow rounded-lg overflow-hidden">
+        <div className={`bg-white shadow rounded-lg overflow-hidden border-2 ${hasPending ? 'border-red-500' : 'border-transparent'}`}>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
@@ -217,7 +277,7 @@ export default function OrdersManagement() {
                   </tr>
                 ) : (
                   orders.map((order) => (
-                    <tr key={order.id} className="hover:bg-gray-50">
+                    <tr key={order.id} className={`hover:bg-gray-50 ${order.status === 'PENDING' ? 'bg-red-50' : ''}`}>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                         {order.orderNumber}
                       </td>
@@ -230,7 +290,8 @@ export default function OrdersManagement() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(order.status)}`}>
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(order.status)} 
+                          ${order.status === 'PENDING' ? 'animate-pulse ring-2 ring-red-400' : ''}`}>
                           {getStatusText(order.status)}
                         </span>
                       </td>
@@ -254,7 +315,7 @@ export default function OrdersManagement() {
                           {order.status === 'PENDING' && (
                             <button
                               onClick={() => updateOrderStatus(order.id, 'PREPARING')}
-                              className="text-blue-600 hover:text-blue-900"
+                              className="text-blue-600 hover:text-blue-900 bg-blue-50 px-3 py-1 rounded border border-blue-200"
                             >
                               Hazırla
                             </button>
