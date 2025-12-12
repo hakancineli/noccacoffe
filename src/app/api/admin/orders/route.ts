@@ -109,7 +109,15 @@ export async function POST(request: NextRequest) {
         finalAmount: totalAmount,
         paymentMethod: paymentMethod || null,
         notes,
-        status: 'PENDING',
+        status: body.status || 'PENDING', // Allow status override (e.g. for POS)
+        paymentStatus: (body.status === 'COMPLETED') ? 'COMPLETED' : 'PENDING',
+        payment: {
+          create: {
+            amount: totalAmount,
+            method: paymentMethod || 'CASH',
+            status: (body.status === 'COMPLETED') ? 'COMPLETED' : 'PENDING',
+          }
+        },
         orderItems: {
           create: items.map((item: any) => ({
             productId: item.productId,

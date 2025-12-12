@@ -62,6 +62,13 @@ export async function POST(request: Request) {
                 status: orderStatus,
                 paymentMethod: method,
                 paymentStatus: orderStatus === 'COMPLETED' ? 'COMPLETED' : 'PENDING',
+                payment: {
+                    create: {
+                        amount: totalAmount,
+                        method: method,
+                        status: orderStatus === 'COMPLETED' ? 'COMPLETED' : 'PENDING',
+                    }
+                },
                 orderItems: {
                     create: items.map((item: any) => ({
                         productId: item.productId.toString(), // Ensure string ID to match seeded data

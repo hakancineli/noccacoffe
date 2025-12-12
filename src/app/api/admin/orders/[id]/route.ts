@@ -83,6 +83,35 @@ export async function PUT(
       },
     });
 
+    // Handle Payment Status Sync
+    if (status === 'COMPLETED') {
+      const existingPayment = await (prisma as any).payment.findUnique({
+        where: { orderId: params.id }
+      });
+
+      if (existingPayment) {
+        await (prisma as any).payment.update({
+          where: { id: existingPayment.id },
+          data: { status: 'COMPLETED' }
+        });
+      } else {
+        await (prisma as any).payment.create({
+          data: {
+            orderId: params.id,
+            amount: order.finalAmount,
+            method: order.paymentMethod || 'CASH',
+            status: 'COMPLETED'
+          }
+        });
+      }
+    } else if (status === 'CANCELLED') {
+      // Optionally refund or mark failed
+      await (prisma as any).payment.updateMany({
+        where: { orderId: params.id },
+        data: { status: 'FAILED' }
+      });
+    }
+
     return NextResponse.json(order);
   } catch (error) {
     console.error('Order update error:', error);
