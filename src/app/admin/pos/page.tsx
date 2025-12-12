@@ -36,12 +36,25 @@ export default function POSPage() {
     const [isSearching, setIsSearching] = useState(false);
     const [processingPayment, setProcessingPayment] = useState(false);
 
+    // Size Selection Modal State
+    const [selectedProductForSize, setSelectedProductForSize] = useState<MenuItem | null>(null);
+
     // Filter products
     const filteredProducts = activeCategory === 'Tümü'
         ? allMenuItems
         : allMenuItems.filter(item => item.category === activeCategory);
 
     // Cart Logic
+    const handleProductClick = (product: MenuItem) => {
+        // If product has sizes, open selection modal
+        if (product.sizes && product.sizes.length > 0) {
+            setSelectedProductForSize(product);
+        } else {
+            // Otherwise add directly
+            addToCart(product);
+        }
+    };
+
     const addToCart = (product: MenuItem, size?: string) => {
         let price = product.price || 0;
         if (size && product.sizes) {
@@ -69,6 +82,9 @@ export default function POSPage() {
                 size
             }];
         });
+
+        // Close modal if open
+        setSelectedProductForSize(null);
     };
 
     const removeFromCart = (cartItemId: string) => {
@@ -179,8 +195,8 @@ export default function POSPage() {
                                 key={cat}
                                 onClick={() => setActiveCategory(cat)}
                                 className={`px-4 py-2 rounded-full whitespace-nowrap font-medium text-sm transition-colors ${activeCategory === cat
-                                        ? 'bg-nocca-green text-white shadow-md'
-                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                    ? 'bg-nocca-green text-white shadow-md'
+                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                     }`}
                             >
                                 {cat}
