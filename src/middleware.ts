@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken';
+import { jwtVerify } from 'jose';
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Check if the path is admin route
@@ -13,17 +13,25 @@ export function middleware(request: NextRequest) {
     }
 
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret') as any;
-      
+      const secret = new TextEncoder().encode(
+        process.env.JWT_SECRET || 'fallback-secret'
+      );
+
+      const { payload } = await jwtVerify(token, secret);
+
       // Check if user is admin (admin@noccacoffee.com)
-      if (decoded.email !== 'admin@noccacoffee.com') {
+      if (payload.email !== 'admin@noccacoffee.com') {
         return NextResponse.redirect(new URL('/login', request.url));
       }
 
       // Add user info to headers for API routes
       const requestHeaders = new Headers(request.headers);
-      requestHeaders.set('x-user-id', decoded.userId);
-      requestHeaders.set('x-user-email', decoded.email);
+      if (payload.userId) {
+        requestHeaders.set('x-user-id', payload.userId as string);
+      }
+      if (payload.email) {
+        requestHeaders.set('x-user-email', payload.email as string);
+      }
 
       return NextResponse.next({
         request: {
@@ -31,6 +39,7 @@ export function middleware(request: NextRequest) {
         },
       });
     } catch (error) {
+      console.error('Middleware auth error:', error);
       return NextResponse.redirect(new URL('/login', request.url));
     }
   }
