@@ -194,6 +194,11 @@ export default function AdminDashboard() {
                 </svg>
                 Müşteri Yönetimi
               </Link>
+
+              <Link href="/admin/pos" className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <span className="mr-2 text-lg">🖥️</span>
+                Kasa Modu (POS)
+              </Link>
             </div>
           </div>
         </div>

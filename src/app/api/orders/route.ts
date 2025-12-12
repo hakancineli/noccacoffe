@@ -4,32 +4,49 @@ import { prisma } from '@/lib/prisma';
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const { customerName, customerPhone, customerEmail, notes, items, totalAmount } = body;
+        const { customerName, customerPhone, customerEmail, notes, items, totalAmount, status, paymentMethod } = body;
 
         // Generate Order Number
         const timestamp = Date.now().toString().slice(-6);
         const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
         const orderNumber = `NC-${timestamp}-${random}`;
 
-        // Extract User ID from Token (if available)
         let userId: string | null = null;
+        let isAdmin = false;
+
         try {
             const cookieHeader = request.headers.get('cookie') || '';
             const cookies = Object.fromEntries(cookieHeader.split('; ').map(c => c.split('=')));
             const token = cookies['auth-token'];
 
             if (token) {
-                // We need to import jwt. 
-                // Note: 'jose' is better for Edge but this file uses 'prisma' so it's Node runtime. 
-                // We can use 'jsonwebtoken' or 'jose'. Let's use 'jsonwebtoken' as used in other API routes.
-                const jwt = require('jsonwebtoken');
-                const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret') as { userId: string };
-                userId = decoded.userId;
+                const jwt = require('jsonwebtoken'); // Using require to avoid top-level import issues if any
+                const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret') as { userId: string, email: string, role?: string };
+
+                // If the user in token is NOT the one passed in body (or body has no userId), default to token user
+                // BUT, if admin is creating order for someone else, use body.userId
+
+                // Check if admin
+                if (decoded.email === 'admin@noccacoffee.com' || decoded.role === 'ADMIN') {
+                    isAdmin = true;
+                    // If Admin and body has userId, use it. Otherwise use Admin's ID? No, usually null or Admin's ID.
+                    // For POS, we want to assign to customer.
+                    if (body.userId) {
+                        userId = body.userId;
+                    } else {
+                        userId = decoded.userId;
+                    }
+                } else {
+                    userId = decoded.userId;
+                }
             }
         } catch (error) {
             console.log("Token verification failed during order creation (ignoring):", error);
-            // Ignore token error, proceed as guest
         }
+
+        // Determine Order Status: Admin can set it (e.g. 'COMPLETED'), others default to 'PENDING'
+        const orderStatus = (isAdmin && status) ? status : 'PENDING';
+        const method = (isAdmin && paymentMethod) ? paymentMethod : 'CREDIT_CARD';
 
         // Create Order with Items
         const order = await prisma.order.create({
@@ -42,7 +59,9 @@ export async function POST(request: Request) {
                 notes,
                 totalAmount,
                 finalAmount: totalAmount, // Discounts can be applied later
-                status: 'PENDING',
+                status: orderStatus,
+                paymentMethod: method,
+                paymentStatus: orderStatus === 'COMPLETED' ? 'COMPLETED' : 'PENDING',
                 orderItems: {
                     create: items.map((item: any) => ({
                         productId: item.productId.toString(), // Ensure string ID to match seeded data
