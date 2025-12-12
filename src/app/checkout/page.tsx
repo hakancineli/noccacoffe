@@ -191,18 +191,12 @@ export default function CheckoutPage() {
                         */}
 
                         {(formData.customerName && formData.customerPhone) ? (
-                            // Simplified view when verified
+                            // Verified User View: Only Note and Button
                             <div className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">E-posta (İsteğe bağlı)</label>
-                                    <input
-                                        type="email"
-                                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-nocca-green focus:border-transparent bg-gray-50"
-                                        value={formData.customerEmail}
-                                        onChange={e => setFormData({ ...formData, customerEmail: e.target.value })}
-                                        placeholder="ornek@email.com"
-                                    />
-                                </div>
+                                {/* Email is hidden as it's part of verified info. 
+                                    If they want to change email, they should edit profile or go back to edit mode. 
+                                */}
+
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Sipariş Notu</label>
                                     <textarea
@@ -227,9 +221,9 @@ export default function CheckoutPage() {
                                 </button>
                             </div>
                         ) : (
-                            // Full form continued for guest/incomplete profile
+                            // Guest / Unverified View: Full Form
                             <div className="space-y-4">
-                                {/* Email and Notes part of the form above */}
+                                {/* Email IS shown here for guests */}
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">E-posta (İsteğe bağlı)</label>
                                     <input
