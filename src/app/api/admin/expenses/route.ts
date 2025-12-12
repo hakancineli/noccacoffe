@@ -40,7 +40,7 @@ export async function GET(request: Request) {
         });
 
         // Calculate total expenses
-        const totalExpenses = expenses.reduce((sum, item) => sum + item.amount, 0);
+        const totalExpenses = expenses.reduce((sum: number, item: { amount: number }) => sum + item.amount, 0);
 
         // 2. Get Revenue (Sales) for the same period
         // We calculate revenue from COMPLETED payments
