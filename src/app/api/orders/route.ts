@@ -155,6 +155,14 @@ export async function POST(request: Request) {
                 });
 
                 if (recipe) {
+                    // Update Product: Increment soldCount
+                    await prisma.product.update({
+                        where: { id: item.productId.toString() },
+                        data: {
+                            soldCount: { increment: item.quantity }
+                        }
+                    });
+
                     // Deduct ingredients for each quantity ordered
                     for (const recipeItem of recipe.items) {
                         const totalQuantityNeeded = recipeItem.quantity * item.quantity;
@@ -170,10 +178,13 @@ export async function POST(request: Request) {
                     }
                     console.log(`Deducted ingredients for ${item.quantity}x ${item.productName} (${item.size})`);
                 } else {
-                    // Fallback: If no recipe found, just decrement product stock (old behavior)
+                    // Fallback: If no recipe found, decrement product stock AND increment soldCount
                     await prisma.product.update({
                         where: { id: item.productId.toString() },
-                        data: { stock: { decrement: item.quantity } }
+                        data: {
+                            stock: { decrement: item.quantity },
+                            soldCount: { increment: item.quantity }
+                        }
                     });
                     console.log(`No recipe found for ${item.productName}, using product stock`);
                 }

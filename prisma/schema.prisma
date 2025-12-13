@@ -210,6 +210,8 @@ model Product {
   imageUrl    String?     @map("image_url")
   isActive    Boolean     @default(true) @map("is_active")
   stock       Int         @default(0)
+  soldCount   Int         @default(0) @map("sold_count")
+
   createdAt   DateTime    @default(now()) @map("created_at")
   updatedAt   DateTime    @updatedAt @map("updated_at")
   

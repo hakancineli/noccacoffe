@@ -136,17 +136,56 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Decrement Stock
+    // Increment Sales & Decrement Ingredient/Product Stock
     try {
-      await Promise.all(items.map((item: any) =>
-        prisma.product.update({
-          where: { id: String(item.productId) },
-          data: { stock: { decrement: item.quantity } }
-        })
-      ));
+      for (const item of items) {
+        // Find recipe for this product + size combination
+        const recipe = await prisma.recipe.findUnique({
+          where: {
+            productId_size: {
+              productId: item.productId.toString(),
+              size: item.size || 'Medium'
+            }
+          },
+          include: {
+            items: {
+              include: {
+                ingredient: true
+              }
+            }
+          }
+        });
+
+        if (recipe) {
+          // Update Product: Increment soldCount
+          await prisma.product.update({
+            where: { id: item.productId.toString() },
+            data: { soldCount: { increment: item.quantity } }
+          });
+
+          // Deduct ingredients
+          for (const recipeItem of recipe.items) {
+            const totalQuantityNeeded = recipeItem.quantity * item.quantity;
+            await prisma.ingredient.update({
+              where: { id: recipeItem.ingredientId },
+              data: { stock: { decrement: totalQuantityNeeded } }
+            });
+          }
+        } else {
+          // Fallback: Decrement product stock AND increment soldCount
+          await prisma.product.update({
+            where: { id: item.productId.toString() },
+            data: {
+              stock: { decrement: item.quantity },
+              soldCount: { increment: item.quantity }
+            }
+          });
+        }
+      }
     } catch (stockError) {
       console.error('Failed to update stock:', stockError);
     }
+
 
     return NextResponse.json(order, { status: 201 });
   } catch (error) {

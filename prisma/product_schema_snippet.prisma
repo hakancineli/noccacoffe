@@ -1,0 +1,19 @@
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  price       Float
+  image       String?
+  category    String
+  stock       Int      @default(0) // Remaining Stock (for packaged items)
+  soldCount   Int      @default(0) @map("sold_count") // New field: Total Sales Count
+  isActive    Boolean  @default(true) @map("is_active")
+  
+  recipes     Recipe[] // Relation to Recipe
+  orderItems  OrderItem[]
+
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("products")
+}
