@@ -105,51 +105,51 @@ export default function KitchenPage() {
         }
     };
 
-    if (loading) return <div className="flex h-screen items-center justify-center bg-[#1a1c23] text-white text-2xl font-mono">Sistem Yükleniyor...</div>;
+    if (loading) return <div className="flex h-screen items-center justify-center bg-[#2C1A1D] text-[#EAD8C0] text-2xl font-mono">Sistem Yükleniyor...</div>;
 
     if (!hasInteracted) {
         return (
-            <div className="flex h-screen items-center justify-center bg-[#1a1c23] text-white" onClick={handleInteraction}>
-                <div className="text-center p-10 border border-gray-700 rounded-2xl bg-[#252836] shadow-2xl cursor-pointer animate-pulse">
+            <div className="flex h-screen items-center justify-center bg-[#2C1A1D] text-[#EAD8C0]" onClick={handleInteraction}>
+                <div className="text-center p-10 border border-[#5C4033] rounded-2xl bg-[#3E2723] shadow-2xl cursor-pointer animate-pulse">
                     <div className="text-6xl mb-4">🔇 ➔ 🔊</div>
                     <h1 className="text-3xl font-bold mb-2">Mutfak Ekranını Başlat</h1>
-                    <p className="text-gray-400">Sesli bildirimleri etkinleştirmek için ekrana dokunun.</p>
+                    <p className="text-[#A1887F]">Sesli bildirimleri etkinleştirmek için ekrana dokunun.</p>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-[#1a1c23] text-gray-100 p-6 font-sans">
+        <div className="min-h-screen bg-[#2C1A1D] text-[#EAD8C0] p-6 font-sans">
             {/* Header */}
-            <div className="flex justify-between items-center mb-8 bg-[#252836] p-4 rounded-2xl shadow-lg border border-gray-800">
+            <div className="flex justify-between items-center mb-8 bg-[#3E2723] p-4 rounded-2xl shadow-lg border border-[#5C4033]">
                 <div className="flex items-center">
-                    <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center text-2xl mr-4 shadow-orange-500/20 shadow-xl">
+                    <div className="w-12 h-12 bg-[#8D6E63] rounded-full flex items-center justify-center text-2xl mr-4 shadow-[#8D6E63]/20 shadow-xl text-[#3E2723]">
                         🍳
                     </div>
                     <div>
-                        <h1 className="text-2xl font-bold tracking-wide text-white">MUTFAK PANELİ</h1>
-                        <p className="text-gray-400 text-xs tracking-wider uppercase">Nocca Coffee KDS v1.0</p>
+                        <h1 className="text-2xl font-bold tracking-wide text-[#EAD8C0]">MUTFAK PANELİ</h1>
+                        <p className="text-[#A1887F] text-xs tracking-wider uppercase">Nocca Coffee KDS v1.0</p>
                     </div>
                 </div>
 
                 <div className="flex items-center space-x-6">
                     {/* Stats */}
                     <div className="flex space-x-4">
-                        <div className="flex flex-col items-center bg-[#2f3343] px-4 py-2 rounded-xl border border-gray-700">
-                            <span className="text-xs text-gray-500 uppercase font-bold">Bekleyen</span>
-                            <span className="text-2xl font-bold text-red-500">{orders.filter(o => o.status === 'PENDING').length}</span>
+                        <div className="flex flex-col items-center bg-[#4E342E] px-4 py-2 rounded-xl border border-[#5C4033]">
+                            <span className="text-xs text-[#A1887F] uppercase font-bold">Bekleyen</span>
+                            <span className="text-2xl font-bold text-[#FF8A65]">{orders.filter(o => o.status === 'PENDING').length}</span>
                         </div>
-                        <div className="flex flex-col items-center bg-[#2f3343] px-4 py-2 rounded-xl border border-gray-700">
-                            <span className="text-xs text-gray-500 uppercase font-bold">Hazırlanan</span>
-                            <span className="text-2xl font-bold text-blue-500">{orders.filter(o => o.status === 'PREPARING').length}</span>
+                        <div className="flex flex-col items-center bg-[#4E342E] px-4 py-2 rounded-xl border border-[#5C4033]">
+                            <span className="text-xs text-[#A1887F] uppercase font-bold">Hazırlanan</span>
+                            <span className="text-2xl font-bold text-[#81C784]">{orders.filter(o => o.status === 'PREPARING').length}</span>
                         </div>
                     </div>
 
                     {/* Mute Toggle */}
                     <button
                         onClick={toggleMute}
-                        className={`p-4 rounded-xl transition-all duration-300 ${isMuted ? 'bg-gray-700 text-gray-400' : 'bg-orange-500 text-white shadow-lg shadow-orange-500/30'}`}
+                        className={`p-4 rounded-xl transition-all duration-300 ${isMuted ? 'bg-[#4E342E] text-[#A1887F]' : 'bg-[#D7CCC8] text-[#3E2723] shadow-lg shadow-white/10'}`}
                     >
                         {isMuted ? <FaBellSlash className="text-xl" /> : <FaBell className="text-xl animate-wiggle" />}
                     </button>
@@ -157,7 +157,7 @@ export default function KitchenPage() {
             </div>
 
             {orders.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-[60vh] text-gray-600">
+                <div className="flex flex-col items-center justify-center h-[60vh] text-[#8D6E63]">
                     <div className="text-6xl mb-4 grayscale opacity-20">☕</div>
                     <h2 className="text-2xl font-light">Aktif sipariş bulunmuyor</h2>
                     <p className="text-sm mt-2">Yeni siparişler düştüğünde burada görünecek.</p>
@@ -168,81 +168,81 @@ export default function KitchenPage() {
                         <div
                             key={order.id}
                             className={`relative flex flex-col rounded-xl overflow-hidden shadow-2xl transition-all duration-300 transform hover:scale-[1.02] ${order.status === 'PENDING'
-                                ? 'bg-[#252836] border-l-4 border-red-500 ring-1 ring-red-500/20'
-                                : 'bg-[#2f3343] border-l-4 border-blue-500 opacity-90'
+                                ? 'bg-[#3E2723] border-l-4 border-[#FF8A65] ring-1 ring-[#FF8A65]/20'
+                                : 'bg-[#4E342E] border-l-4 border-[#81C784] opacity-90'
                                 }`}
                         >
                             {/* Urgency Strip (Animated for Pending) */}
                             {order.status === 'PENDING' && (
-                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-500 via-orange-500 to-red-500 animate-gradient-x"></div>
+                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF8A65] via-[#FFCCBC] to-[#FF8A65] animate-gradient-x"></div>
                             )}
 
                             {/* Card Header */}
-                            <div className="p-5 border-b border-dashed border-gray-700 flex justify-between items-start bg-opacity-50 bg-black/10">
+                            <div className="p-5 border-b border-dashed border-[#5C4033] flex justify-between items-start bg-black/10">
                                 <div>
                                     <div className="flex items-center space-x-2">
-                                        <span className={`text-2xl font-black tracking-tight ${order.status === 'PENDING' ? 'text-white' : 'text-gray-300'}`}>
+                                        <span className={`text-2xl font-black tracking-tight ${order.status === 'PENDING' ? 'text-[#EAD8C0]' : 'text-[#D7CCC8]'}`}>
                                             #{order.orderNumber.split('-').pop()}
                                         </span>
-                                        {order.status === 'PENDING' && <span className="animate-pulse text-red-500 text-xs font-bold px-2 py-0.5 rounded bg-red-500/10 border border-red-500/20">YENİ</span>}
+                                        {order.status === 'PENDING' && <span className="animate-pulse text-[#FF8A65] text-xs font-bold px-2 py-0.5 rounded bg-[#FF8A65]/10 border border-[#FF8A65]/20">YENİ</span>}
                                     </div>
-                                    <div className="text-gray-400 text-sm mt-1 flex items-center">
+                                    <div className="text-[#A1887F] text-sm mt-1 flex items-center">
                                         <FaClock className="mr-1 text-xs" />
                                         {new Date(order.createdAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
                                     </div>
                                 </div>
                                 <div className="text-right">
-                                    <div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Müşteri</div>
-                                    <div className="font-medium text-gray-300 truncate max-w-[120px]" title={order.customerName}>
+                                    <div className="text-xs font-bold text-[#8D6E63] uppercase tracking-wider mb-1">Müşteri</div>
+                                    <div className="font-medium text-[#D7CCC8] truncate max-w-[120px]" title={order.customerName}>
                                         {order.customerName}
                                     </div>
                                 </div>
                             </div>
 
                             {/* Card Body (Items) */}
-                            <div className="p-5 flex-1 overflow-y-auto max-h-[300px] scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
+                            <div className="p-5 flex-1 overflow-y-auto max-h-[300px] scrollbar-thin scrollbar-thumb-[#5C4033] scrollbar-track-transparent">
                                 <div className="space-y-4">
                                     {order.orderItems.map((item, idx) => (
                                         <div key={item.id} className="flex flex-col">
                                             <div className="flex items-start">
-                                                <span className={`text-xl font-bold w-8 text-right mr-3 ${order.status === 'PENDING' ? 'text-orange-400' : 'text-blue-400'}`}>
+                                                <span className={`text-xl font-bold w-8 text-right mr-3 ${order.status === 'PENDING' ? 'text-[#FF8A65]' : 'text-[#81C784]'}`}>
                                                     {item.quantity}x
                                                 </span>
                                                 <div className="flex-1">
-                                                    <span className="text-lg font-medium text-gray-200 leading-snug block">
+                                                    <span className="text-lg font-medium text-[#EAD8C0] leading-snug block">
                                                         {item.productName}
                                                     </span>
                                                     {item.size && (
-                                                        <span className="inline-block mt-1 px-2 py-0.5 rounded text-xs font-bold bg-gray-700 text-gray-300 border border-gray-600">
+                                                        <span className="inline-block mt-1 px-2 py-0.5 rounded text-xs font-bold bg-[#5D4037] text-[#D7CCC8] border border-[#795548]">
                                                             {item.size}
                                                         </span>
                                                     )}
                                                 </div>
                                             </div>
                                             {item.notes && (
-                                                <div className="ml-11 mt-1 text-sm text-red-300 italic bg-red-900/10 p-1 rounded border-l-2 border-red-800/50 pl-2">
+                                                <div className="ml-11 mt-1 text-sm text-[#FFCCBC] italic bg-[#FF8A65]/10 p-1 rounded border-l-2 border-[#FF8A65]/50 pl-2">
                                                     "{item.notes}"
                                                 </div>
                                             )}
-                                            {idx < order.orderItems.length - 1 && <div className="border-b border-dashed border-gray-800 my-2 ml-11"></div>}
+                                            {idx < order.orderItems.length - 1 && <div className="border-b border-dashed border-[#5C4033] my-2 ml-11"></div>}
                                         </div>
                                     ))}
                                 </div>
 
                                 {order.notes && (
-                                    <div className="mt-4 p-3 bg-yellow-900/10 border border-yellow-700/30 rounded-lg">
-                                        <span className="text-xs text-yellow-600 font-bold uppercase block mb-1">Sipariş Notu</span>
-                                        <p className="text-yellow-200 text-sm">{order.notes}</p>
+                                    <div className="mt-4 p-3 bg-[#FFF3E0]/5 border border-[#FFE0B2]/30 rounded-lg">
+                                        <span className="text-xs text-[#FFB74D] font-bold uppercase block mb-1">Sipariş Notu</span>
+                                        <p className="text-[#FFE0B2] text-sm">{order.notes}</p>
                                     </div>
                                 )}
                             </div>
 
                             {/* Card Footer (Actions) */}
-                            <div className="p-4 bg-black/20 border-t border-gray-800">
+                            <div className="p-4 bg-black/20 border-t border-[#5C4033]">
                                 {order.status === 'PENDING' ? (
                                     <button
                                         onClick={() => updateStatus(order.id, 'PREPARING')}
-                                        className="w-full group relative flex items-center justify-center py-3 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold rounded-lg shadow-lg shadow-blue-500/20 transition-all transform active:scale-95"
+                                        className="w-full group relative flex items-center justify-center py-3 bg-gradient-to-r from-[#8D6E63] to-[#795548] hover:from-[#795548] hover:to-[#6D4C41] text-[#EAD8C0] font-bold rounded-lg shadow-lg shadow-black/20 transition-all transform active:scale-95 border border-[#A1887F]/30"
                                     >
                                         <span className="mr-2 text-xl group-hover:rotate-12 transition-transform">🔥</span>
                                         HAZIRLA
@@ -250,7 +250,7 @@ export default function KitchenPage() {
                                 ) : (
                                     <button
                                         onClick={() => updateStatus(order.id, 'READY')}
-                                        className="w-full group relative flex items-center justify-center py-3 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white font-bold rounded-lg shadow-lg shadow-green-500/20 transition-all transform active:scale-95"
+                                        className="w-full group relative flex items-center justify-center py-3 bg-gradient-to-r from-[#388E3C] to-[#2E7D32] hover:from-[#2E7D32] hover:to-[#1B5E20] text-white font-bold rounded-lg shadow-lg shadow-green-900/40 transition-all transform active:scale-95 border border-green-700/50"
                                     >
                                         <span className="mr-2 text-xl group-hover:-rotate-12 transition-transform">✅</span>
                                         HAZIR
