@@ -316,11 +316,10 @@ export default function ProductsManagement() {
                         {product.stock}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          product.isActive
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-red-100 text-red-800'
-                        }`}>
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${product.isActive
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-red-100 text-red-800'
+                          }`}>
                           {product.isActive ? 'Aktif' : 'Pasif'}
                         </span>
                       </td>
@@ -337,11 +336,10 @@ export default function ProductsManagement() {
                           </button>
                           <button
                             onClick={() => toggleProductStatus(product.id, !product.isActive)}
-                            className={`${
-                              product.isActive
-                                ? 'text-yellow-600 hover:text-yellow-900'
-                                : 'text-green-600 hover:text-green-900'
-                            }`}
+                            className={`${product.isActive
+                              ? 'text-yellow-600 hover:text-yellow-900'
+                              : 'text-green-600 hover:text-green-900'
+                              }`}
                           >
                             {product.isActive ? 'Pasif Yap' : 'Aktif Yap'}
                           </button>
@@ -448,9 +446,30 @@ function ProductModal({
   onClose: () => void;
   categories: string[];
 }) {
+  const [formDataImageUrl, setFormDataImageUrl] = useState<string>('');
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 800 * 1024) { // 800KB Limit
+        alert("Dosya boyutu çok yüksek! Lütfen 800KB altı bir görsel seçin.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormDataImageUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget as HTMLFormElement);
+    // Explicitly set imageUrl from state if it changed, otherwise checking if the formData picked it up from hidden input
+    if (formDataImageUrl) {
+      formData.set('imageUrl', formDataImageUrl);
+    }
     onSubmit(formData);
   };
 
@@ -537,14 +556,43 @@ function ProductModal({
             </div>
 
             <div>
-              <label htmlFor="product-image-url" className="block text-sm font-medium text-gray-700">Görsel URL</label>
-              <input
-                type="url"
-                id="product-image-url"
-                name="imageUrl"
-                defaultValue={product?.imageUrl || ''}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
-              />
+              <label className="block text-sm font-medium text-gray-700">Ürün Görseli</label>
+              <div className="mt-1 flex items-center space-x-4">
+                <div className="flex-shrink-0 h-20 w-20 relative border rounded-lg overflow-hidden bg-gray-100">
+                  {(product?.imageUrl || formDataImageUrl) ? (
+                    <img
+                      src={product?.imageUrl || formDataImageUrl}
+                      alt="Preview"
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="h-full w-full flex items-center justify-center text-gray-400 text-xs">
+                      Görsel Yok
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1">
+                  <input
+                    type="file"
+                    id="product-image-upload"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="block w-full text-sm text-gray-500
+                        file:mr-4 file:py-2 file:px-4
+                        file:rounded-full file:border-0
+                        file:text-sm file:font-semibold
+                        file:bg-green-50 file:text-green-700
+                        hover:file:bg-green-100
+                      "
+                  />
+                  <p className="text-xs text-gray-500 mt-1">PNG, JPG, GIF (Max 500KB önerilir)</p>
+                  <input
+                    type="hidden"
+                    name="imageUrl"
+                    value={formDataImageUrl || product?.imageUrl || ''}
+                  />
+                </div>
+              </div>
             </div>
 
             {product && (
