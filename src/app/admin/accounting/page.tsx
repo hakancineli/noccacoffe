@@ -28,6 +28,20 @@ interface DailyStats {
     orderCount: number;
 }
 
+// Category translation helper
+const translateCategory = (category: string): string => {
+    const translations: { [key: string]: string } = {
+        'SALARY': 'Maaş',
+        'RENT': 'Kira',
+        'UTILITIES': 'Faturalar',
+        'SUPPLIES': 'Malzemeler',
+        'MAINTENANCE': 'Bakım',
+        'MARKETING': 'Pazarlama',
+        'OTHER': 'Diğer'
+    };
+    return translations[category] || category;
+};
+
 export default function AccountingPage() {
     const [expenses, setExpenses] = useState<Expense[]>([]);
     const [dailyStats, setDailyStats] = useState<DailyStats[]>([]);
@@ -331,7 +345,10 @@ export default function AccountingPage() {
                                 expenses.forEach(exp => {
                                     categoryTotals[exp.category] = (categoryTotals[exp.category] || 0) + exp.amount;
                                 });
-                                return Object.entries(categoryTotals).map(([name, value]) => ({ name, value }));
+                                return Object.entries(categoryTotals).map(([name, value]) => ({
+                                    name: translateCategory(name),
+                                    value
+                                }));
                             })()}
                             cx="50%"
                             cy="50%"
@@ -481,7 +498,8 @@ export default function AccountingPage() {
                                                     ${expense.category === 'SALARY' ? 'bg-blue-100 text-blue-800' :
                                                         expense.category === 'RENT' ? 'bg-orange-100 text-orange-800' :
                                                             'bg-gray-100 text-gray-800'}`}>
-                                                    {expense.category}
+                                                    {translateCategory(expense.category)}
+
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-bold text-right flex justify-end items-center space-x-4">
