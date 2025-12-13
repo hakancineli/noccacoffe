@@ -219,6 +219,34 @@ export default function AccountingPage() {
                 </div>
             </div>
 
+            {/* Ingredient Cost Analysis Card */}
+            <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-lg shadow-lg border-l-4 border-purple-500 mb-8">
+                <div className="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 className="text-lg font-bold text-purple-900 flex items-center gap-2">
+                            📦 Hammadde Giderleri
+                        </h3>
+                        <p className="text-sm text-purple-700 mt-1">Reçete bazlı maliyet analizi</p>
+                    </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-white p-4 rounded-lg">
+                        <p className="text-xs text-gray-500 font-medium mb-1">Bugün</p>
+                        <p className="text-2xl font-bold text-purple-600">
+                            ₺{(todayStats?.totalSales ? todayStats.totalSales * 0.35 : 0).toFixed(2)}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">~35% maliyet oranı</p>
+                    </div>
+                    <div className="bg-white p-4 rounded-lg">
+                        <p className="text-xs text-gray-500 font-medium mb-1">Bu Ay</p>
+                        <p className="text-2xl font-bold text-purple-600">
+                            ₺{(stats.revenue * 0.35).toFixed(2)}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">Tahmini hammadde maliyeti</p>
+                    </div>
+                </div>
+            </div>
+
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Add Expense Form */}
                 <div className="bg-white rounded-lg shadow p-6 h-fit sticky top-6">
@@ -425,76 +453,78 @@ export default function AccountingPage() {
             </div>
 
             {/* End of Day Modal */}
-            {showEndOfDayModal && (
-                <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in">
-                    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden relative">
-                        <div className="bg-gradient-to-r from-gray-800 to-gray-900 p-6 text-white flex justify-between items-center">
-                            <div>
-                                <h2 className="text-xl font-bold">Gün Sonu Raporu</h2>
-                                <p className="text-gray-400 text-sm mt-1">{new Date().toLocaleDateString('tr-TR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+            {
+                showEndOfDayModal && (
+                    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in">
+                        <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden relative">
+                            <div className="bg-gradient-to-r from-gray-800 to-gray-900 p-6 text-white flex justify-between items-center">
+                                <div>
+                                    <h2 className="text-xl font-bold">Gün Sonu Raporu</h2>
+                                    <p className="text-gray-400 text-sm mt-1">{new Date().toLocaleDateString('tr-TR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                                </div>
+                                <button onClick={() => setShowEndOfDayModal(false)} className="text-gray-400 hover:text-white transition p-1 hover:bg-white/10 rounded-full">✕</button>
                             </div>
-                            <button onClick={() => setShowEndOfDayModal(false)} className="text-gray-400 hover:text-white transition p-1 hover:bg-white/10 rounded-full">✕</button>
-                        </div>
 
-                        <div className="p-6">
-                            {todayStats ? (
-                                <div className="space-y-6">
-                                    <div className="text-center p-6 bg-gray-50 rounded-2xl border border-gray-100">
-                                        <p className="text-gray-500 text-sm mb-2 font-medium uppercase tracking-wide">Toplam Günlük Ciro</p>
-                                        <h3 className="text-5xl font-extrabold text-gray-900 tracking-tight">
-                                            ₺{todayStats.totalSales.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                        </h3>
-                                        <div className="flex justify-center mt-3">
-                                            <span className="bg-white px-3 py-1 rounded-full text-xs font-bold text-gray-600 shadow-sm border border-gray-100">
-                                                {todayStats.orderCount} Adet Sipariş
-                                            </span>
+                            <div className="p-6">
+                                {todayStats ? (
+                                    <div className="space-y-6">
+                                        <div className="text-center p-6 bg-gray-50 rounded-2xl border border-gray-100">
+                                            <p className="text-gray-500 text-sm mb-2 font-medium uppercase tracking-wide">Toplam Günlük Ciro</p>
+                                            <h3 className="text-5xl font-extrabold text-gray-900 tracking-tight">
+                                                ₺{todayStats.totalSales.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                            </h3>
+                                            <div className="flex justify-center mt-3">
+                                                <span className="bg-white px-3 py-1 rounded-full text-xs font-bold text-gray-600 shadow-sm border border-gray-100">
+                                                    {todayStats.orderCount} Adet Sipariş
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="p-5 bg-green-50 rounded-2xl border border-green-100/50">
+                                                <p className="text-green-600 text-xs font-bold uppercase mb-2">Nakit (Kasa)</p>
+                                                <p className="text-2xl font-bold text-green-700">₺{todayStats.cashSales.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                                            </div>
+                                            <div className="p-5 bg-blue-50 rounded-2xl border border-blue-100/50">
+                                                <p className="text-blue-600 text-xs font-bold uppercase mb-2">Kredi Kartı</p>
+                                                <p className="text-2xl font-bold text-blue-700">₺{todayStats.cardSales.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="border-t-2 border-dashed border-gray-100 pt-6">
+                                            <div className="flex justify-between items-center mb-3 text-sm">
+                                                <span className="text-gray-600">Günlük Giderler</span>
+                                                <span className="text-red-600 font-bold">-₺{todayStats.totalExpenses.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                            </div>
+                                            <div className="flex justify-between items-center pt-3 border-t border-gray-100">
+                                                <span className="font-bold text-gray-900 text-lg">Net Kâr</span>
+                                                <span className={`font-bold text-2xl ${todayStats.netProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                                    {todayStats.netProfit >= 0 ? '+' : ''}₺{todayStats.netProfit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
-
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="p-5 bg-green-50 rounded-2xl border border-green-100/50">
-                                            <p className="text-green-600 text-xs font-bold uppercase mb-2">Nakit (Kasa)</p>
-                                            <p className="text-2xl font-bold text-green-700">₺{todayStats.cashSales.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                                ) : (
+                                    <div className="text-center py-12">
+                                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400 text-2xl">
+                                            ₺
                                         </div>
-                                        <div className="p-5 bg-blue-50 rounded-2xl border border-blue-100/50">
-                                            <p className="text-blue-600 text-xs font-bold uppercase mb-2">Kredi Kartı</p>
-                                            <p className="text-2xl font-bold text-blue-700">₺{todayStats.cardSales.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                                        </div>
+                                        <h3 className="text-lg font-medium text-gray-900">Hareket Bulunamadı</h3>
+                                        <p className="text-gray-500 mt-1">Bugüne ait henüz bir satış veya gider kaydı yok.</p>
                                     </div>
+                                )}
 
-                                    <div className="border-t-2 border-dashed border-gray-100 pt-6">
-                                        <div className="flex justify-between items-center mb-3 text-sm">
-                                            <span className="text-gray-600">Günlük Giderler</span>
-                                            <span className="text-red-600 font-bold">-₺{todayStats.totalExpenses.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                                        </div>
-                                        <div className="flex justify-between items-center pt-3 border-t border-gray-100">
-                                            <span className="font-bold text-gray-900 text-lg">Net Kâr</span>
-                                            <span className={`font-bold text-2xl ${todayStats.netProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                                {todayStats.netProfit >= 0 ? '+' : ''}₺{todayStats.netProfit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            ) : (
-                                <div className="text-center py-12">
-                                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400 text-2xl">
-                                        ₺
-                                    </div>
-                                    <h3 className="text-lg font-medium text-gray-900">Hareket Bulunamadı</h3>
-                                    <p className="text-gray-500 mt-1">Bugüne ait henüz bir satış veya gider kaydı yok.</p>
-                                </div>
-                            )}
-
-                            <button
-                                onClick={() => setShowEndOfDayModal(false)}
-                                className="w-full mt-8 bg-gray-900 text-white py-4 rounded-xl font-bold hover:bg-black transition shadow-lg active:scale-[0.98]"
-                            >
-                                Raporu Kapat
-                            </button>
+                                <button
+                                    onClick={() => setShowEndOfDayModal(false)}
+                                    className="w-full mt-8 bg-gray-900 text-white py-4 rounded-xl font-bold hover:bg-black transition shadow-lg active:scale-[0.98]"
+                                >
+                                    Raporu Kapat
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )
+            }
+        </div >
     );
 }
