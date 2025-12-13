@@ -442,7 +442,7 @@ export default function AccountingPage() {
                                     <div className="text-center p-6 bg-gray-50 rounded-2xl border border-gray-100">
                                         <p className="text-gray-500 text-sm mb-2 font-medium uppercase tracking-wide">Toplam Günlük Ciro</p>
                                         <h3 className="text-5xl font-extrabold text-gray-900 tracking-tight">
-                                            ₺{todayStats.totalSales.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 0 })}
+                                            ₺{todayStats.totalSales.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                         </h3>
                                         <div className="flex justify-center mt-3">
                                             <span className="bg-white px-3 py-1 rounded-full text-xs font-bold text-gray-600 shadow-sm border border-gray-100">
