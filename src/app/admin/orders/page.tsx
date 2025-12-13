@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { FaPrint } from 'react-icons/fa';
 
 interface Order {
   id: string;
@@ -157,6 +158,8 @@ export default function OrdersManagement() {
     }
   };
 
+
+
   const toggleMute = () => {
     if (isMuted) {
       setIsMuted(false);
@@ -164,6 +167,56 @@ export default function OrdersManagement() {
     } else {
       setIsMuted(true);
       stopAlarm();
+    }
+  };
+
+  const printReceipt = (order: Order) => {
+    const receiptContent = `
+            <html>
+            <head>
+                <title>Fiş Yazdır</title>
+                <style>
+                    body { font-family: 'Courier New', monospace; width: 300px; margin: 0; padding: 10px; font-size: 12px; }
+                    .header { text-align: center; margin-bottom: 20px; border-bottom: 1px dashed black; padding-bottom: 10px; }
+                    .item { display: flex; justify-content: space-between; margin-bottom: 5px; }
+                    .total { border-top: 1px dashed black; margin-top: 10px; padding-top: 10px; display: flex; justify-content: space-between; font-weight: bold; font-size: 14px; }
+                    .footer { text-align: center; margin-top: 20px; font-size: 10px; }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h2>NOCCA COFFEE</h2>
+                    <p>Tarih: ${new Date().toLocaleString('tr-TR')}</p>
+                    <p>Sipariş No: #${order.orderNumber.split('-').pop()}</p>
+                    <p>Müşteri: ${order.customerName}</p>
+                </div>
+                <div>
+                   ${order.orderItems.map((item) => `
+                        <div class="item">
+                            <span>${item.quantity}x ${item.productName} ${item.size ? `(${item.size})` : ''}</span>
+                            <span>${(item.totalPrice).toFixed(2)}₺</span>
+                        </div>
+                   `).join('')}
+                </div>
+                <div class="total">
+                    <span>TOPLAM</span>
+                    <span>${order.finalAmount.toFixed(2)}₺</span>
+                </div>
+                <div class="footer">
+                    <p>Afiyet Olsun!</p>
+                    <p>Bizi tercih ettiğiniz için teşekkürler.</p>
+                </div>
+            </body>
+            </html>
+        `;
+
+    const printWindow = window.open('', '', 'width=400,height=600');
+    if (printWindow) {
+      printWindow.document.write(receiptContent);
+      printWindow.document.close();
+      printWindow.focus();
+      printWindow.print();
+      printWindow.close();
     }
   };
 
@@ -470,6 +523,16 @@ export default function OrdersManagement() {
                     <p className="text-sm text-gray-600">{selectedOrder.notes}</p>
                   </div>
                 )}
+
+                <div className="flex justify-end pt-4 mt-4 border-t gap-2">
+                  <button
+                    onClick={() => printReceipt(selectedOrder)}
+                    className="flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition"
+                  >
+                    <FaPrint className="mr-2" />
+                    Yazdır
+                  </button>
+                </div>
               </div>
             </div>
           </div>
