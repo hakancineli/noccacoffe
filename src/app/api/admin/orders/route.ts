@@ -158,12 +158,10 @@ export async function POST(request: NextRequest) {
 
         // If no specific recipe found, try generic recipe (size: null)
         if (!recipe) {
-          recipe = await prisma.recipe.findUnique({
+          recipe = await prisma.recipe.findFirst({
             where: {
-              productId_size: {
-                productId: item.productId.toString(),
-                size: null as any
-              }
+              productId: item.productId.toString(),
+              size: null
             },
             include: {
               items: {
