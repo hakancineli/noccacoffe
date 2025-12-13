@@ -58,7 +58,7 @@ export async function POST(request: Request) {
                 customerEmail,
                 notes,
                 totalAmount,
-                finalAmount: totalAmount, // Discounts can be applied later
+                finalAmount: body.finalAmount || totalAmount,
                 status: orderStatus,
                 paymentMethod: method,
                 paymentStatus: orderStatus === 'COMPLETED' ? 'COMPLETED' : 'PENDING',

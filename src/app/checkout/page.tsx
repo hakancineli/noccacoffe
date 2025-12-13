@@ -14,6 +14,8 @@ export default function CheckoutPage() {
     const [error, setError] = useState('');
     const [successOrder, setSuccessOrder] = useState<{ id: string, number: string } | null>(null);
 
+    const [birthdayDiscount, setBirthdayDiscount] = useState<{ itemId: string, amount: number } | null>(null);
+
     const [formData, setFormData] = useState({
         customerName: '',
         customerPhone: '',
@@ -21,7 +23,7 @@ export default function CheckoutPage() {
         notes: ''
     });
 
-    // Check for logged in user to auto-fill
+    // Check for logged in user to auto-fill AND logic for birthday
     useEffect(() => {
         const fetchUserProfile = async () => {
             const token = localStorage.getItem('authToken');
@@ -38,6 +40,38 @@ export default function CheckoutPage() {
                             customerEmail: user.email || '',
                             customerPhone: user.phone || ''
                         }));
+
+                        // Birthday Check
+                        if (user.birthDate) {
+                            const today = new Date();
+                            const birthDate = new Date(user.birthDate);
+                            if (today.getMonth() === birthDate.getMonth() && today.getDate() === birthDate.getDate()) {
+                                // It is birthday! Find cheapest item
+                                if (items.length > 0) {
+                                    // Find min price item
+                                    let minPrice = Infinity;
+                                    let minItemId = '';
+
+                                    items.forEach(item => {
+                                        if (item.finalPrice < minPrice) {
+                                            minPrice = item.finalPrice;
+                                            minItemId = `${item.id}-${item.selectedSize || ''}`; // Assuming this unique key construction for simplified tracking, though item.id is number usually. CartContext uses number id + string size to match. Let's use index or construct a unique key logic if CartContext doesn't expose one. 
+                                            // Actually CartContext doesn't expose a unique 'cartItemId'. 
+                                            // Let's rely on finding the first occurrence of the cheapest item.
+                                        }
+                                    });
+
+                                    // Let's just find the item object directly for simplicity in logic
+                                    const cheapestItem = [...items].sort((a, b) => a.finalPrice - b.finalPrice)[0];
+                                    if (cheapestItem) {
+                                        setBirthdayDiscount({
+                                            itemId: cheapestItem.id.toString(), // Store ID to match
+                                            amount: cheapestItem.finalPrice
+                                        });
+                                    }
+                                }
+                            }
+                        }
                     }
                 } catch (err) {
                     console.error('Failed to load user profile', err);
@@ -45,7 +79,7 @@ export default function CheckoutPage() {
             }
         };
         fetchUserProfile();
-    }, []);
+    }, [items]); // Re-run if items change to re-calc cheapest
 
     // Redirect if cart is empty
     useEffect(() => {
@@ -54,24 +88,49 @@ export default function CheckoutPage() {
         }
     }, [items, router, successOrder]);
 
+    const finalTotal = birthdayDiscount ? (totalPrice - birthdayDiscount.amount) : totalPrice;
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         setError('');
 
         try {
-            const orderData = {
-                ...formData,
-                items: items.map(item => ({
+            // Apply discount to items payload
+            // We need to pass the discount info to backend or adjust prices here.
+            // Best approach: Adjust the price of the discounted item in the payload specifically.
+
+            const orderItems = items.map(item => {
+                let unitPrice = item.finalPrice;
+                let totalLinePrice = item.finalPrice * item.quantity;
+
+                // If this is the discounted item type
+                // Note: user might have 2 of the same item. We only want to discount 1 of them. 
+                // This logic is slightly complex with quantity > 1.
+                // Simplification for MVP: If they have multiple of cheapest, we discount 1 unit of it.
+                // We'll calculate the total amount manually.
+
+                return {
                     productId: item.id,
                     productName: item.name,
                     quantity: item.quantity,
-                    unitPrice: item.finalPrice,
-                    totalPrice: item.finalPrice * item.quantity,
+                    unitPrice: unitPrice,
+                    totalPrice: totalLinePrice,
                     size: item.selectedSize
-                })),
-                totalAmount: totalPrice,
-                finalAmount: totalPrice
+                };
+            });
+
+            const orderData = {
+                ...formData,
+                items: orderItems,
+                totalAmount: totalPrice, // Original Total
+                finalAmount: finalTotal, // Discounted Total
+                discount: birthdayDiscount ? {
+                    type: 'BIRTHDAY',
+                    amount: birthdayDiscount.amount,
+                    description: 'Doğum Günü Hediyesi'
+                } : undefined,
+                notes: formData.notes + (birthdayDiscount ? ' (Doğum Günü Hediyesi Uygulandı)' : '')
             };
 
             const response = await fetch('/api/orders', {
@@ -342,9 +401,20 @@ export default function CheckoutPage() {
                                 <span>Ara Toplam</span>
                                 <span>₺{totalPrice.toFixed(2)}</span>
                             </div>
+
+                            {birthdayDiscount && (
+                                <div className="flex justify-between text-green-600 font-medium animate-pulse">
+                                    <span className="flex items-center">
+                                        <span className="mr-2">🎂</span>
+                                        Doğum Günü Hediyesi
+                                    </span>
+                                    <span>-₺{birthdayDiscount.amount.toFixed(2)}</span>
+                                </div>
+                            )}
+
                             <div className="flex justify-between text-xl font-bold text-gray-900 pt-2 border-t">
                                 <span>TOPLAM</span>
-                                <span>₺{totalPrice.toFixed(2)}</span>
+                                <span>₺{finalTotal.toFixed(2)}</span>
                             </div>
                         </div>
                     </div>
