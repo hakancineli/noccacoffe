@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
-import { FaCheckCircle, FaHome, FaReceipt } from 'react-icons/fa';
+import OrderTracker from './OrderTracker';
 
 interface PageProps {
     params: {
@@ -23,10 +23,6 @@ export default async function OrderConfirmationPage({ params }: PageProps) {
         );
     }
 
-    // Convert Decimals/Dates to plain objects if necessary for Client Component props
-    // Prisma returns Date objects and Decimal objects which might need serialization if passed directly to client component in some Next.js versions.
-    // However, usually it's fine in recent versions, or we map them.
-    // Let's map strictly to be safe.
     const serializedOrder = {
         ...order,
         totalAmount: Number(order.totalAmount),
