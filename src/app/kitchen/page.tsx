@@ -26,12 +26,12 @@ export default function KitchenPage() {
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
     const [isMuted, setIsMuted] = useState(false);
+    const [hasInteracted, setHasInteracted] = useState(false);
     const audioRef = useRef<HTMLAudioElement | null>(null);
-    const router = useRouter();
+    const prevPendingCountReq = useRef<number>(0);
 
-    // Initialize Audio (Bell Sound)
+    // Initialize Audio
     useEffect(() => {
-        // "Service Bell" sound - short and clear
         audioRef.current = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-reception-bell-2525.mp3');
     }, []);
 
@@ -41,13 +41,21 @@ export default function KitchenPage() {
         return () => clearInterval(interval);
     }, []);
 
-    // Alarm Check
+    // Alarm Check Logic
     useEffect(() => {
-        const pendingOrders = orders.filter(o => o.status === 'PENDING').length;
-        if (pendingOrders > 0 && audioRef.current && !isMuted) {
-            audioRef.current.play().catch(e => console.log("Audio block", e));
+        if (!orders) return;
+        const currentPendingCount = orders.filter(o => o.status === 'PENDING').length;
+
+        // Only play if count INCREASED and audio is enabled
+        if (currentPendingCount > prevPendingCountReq.current && currentPendingCount > 0) {
+            if (audioRef.current && !isMuted && hasInteracted) {
+                audioRef.current.currentTime = 0;
+                audioRef.current.play().catch(e => console.log("Audio block", e));
+            }
         }
-    }, [orders, isMuted]);
+
+        prevPendingCountReq.current = currentPendingCount;
+    }, [orders, isMuted, hasInteracted]);
 
     const fetchOrders = async () => {
         try {
@@ -57,7 +65,6 @@ export default function KitchenPage() {
                 const kitchenOrders = data.orders.filter((o: Order) =>
                     ['PENDING', 'PREPARING'].includes(o.status)
                 );
-                // Sort: Pending first, then by time
                 kitchenOrders.sort((a: Order, b: Order) => {
                     if (a.status === b.status) return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
                     return a.status === 'PENDING' ? -1 : 1;
@@ -78,17 +85,39 @@ export default function KitchenPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ status: newStatus })
             });
-            if (res.ok) {
-                fetchOrders();
-            }
+            if (res.ok) fetchOrders();
         } catch (e) { console.error(e); }
     };
 
-    const toggleMute = () => {
-        setIsMuted(!isMuted);
+    const toggleMute = () => setIsMuted(!isMuted);
+
+    // Interaction handler to unlock audio
+    const handleInteraction = () => {
+        if (!hasInteracted) {
+            setHasInteracted(true);
+            // Play silent sound to unlock iOS/Chrome audio
+            if (audioRef.current) {
+                audioRef.current.play().then(() => {
+                    audioRef.current?.pause();
+                    audioRef.current!.currentTime = 0;
+                }).catch(e => { });
+            }
+        }
     };
 
     if (loading) return <div className="flex h-screen items-center justify-center bg-[#1a1c23] text-white text-2xl font-mono">Sistem Yükleniyor...</div>;
+
+    if (!hasInteracted) {
+        return (
+            <div className="flex h-screen items-center justify-center bg-[#1a1c23] text-white" onClick={handleInteraction}>
+                <div className="text-center p-10 border border-gray-700 rounded-2xl bg-[#252836] shadow-2xl cursor-pointer animate-pulse">
+                    <div className="text-6xl mb-4">🔇 ➔ 🔊</div>
+                    <h1 className="text-3xl font-bold mb-2">Mutfak Ekranını Başlat</h1>
+                    <p className="text-gray-400">Sesli bildirimleri etkinleştirmek için ekrana dokunun.</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-[#1a1c23] text-gray-100 p-6 font-sans">
@@ -139,8 +168,8 @@ export default function KitchenPage() {
                         <div
                             key={order.id}
                             className={`relative flex flex-col rounded-xl overflow-hidden shadow-2xl transition-all duration-300 transform hover:scale-[1.02] ${order.status === 'PENDING'
-                                    ? 'bg-[#252836] border-l-4 border-red-500 ring-1 ring-red-500/20'
-                                    : 'bg-[#2f3343] border-l-4 border-blue-500 opacity-90'
+                                ? 'bg-[#252836] border-l-4 border-red-500 ring-1 ring-red-500/20'
+                                : 'bg-[#2f3343] border-l-4 border-blue-500 opacity-90'
                                 }`}
                         >
                             {/* Urgency Strip (Animated for Pending) */}

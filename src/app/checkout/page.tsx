@@ -204,7 +204,7 @@ export default function CheckoutPage() {
                                         rows={3}
                                         value={formData.notes}
                                         onChange={e => setFormData({ ...formData, notes: e.target.value })}
-                                        placeholder="Varsa özel istekleriniz..."
+                                        placeholder="Bardağa yazılacak İsim..."
                                     />
                                 </div>
                                 {error && (
@@ -241,7 +241,7 @@ export default function CheckoutPage() {
                                         rows={3}
                                         value={formData.notes}
                                         onChange={e => setFormData({ ...formData, notes: e.target.value })}
-                                        placeholder="Varsa özel istekleriniz..."
+                                        placeholder="Bardağa yazılacak İsim..."
                                     />
                                 </div>
                                 {error && (
