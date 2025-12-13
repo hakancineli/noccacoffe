@@ -10,10 +10,49 @@ import { FaArrowLeft } from 'react-icons/fa';
 export default function CheckoutPage() {
     const { items, totalPrice, clearCart } = useCart();
     const router = useRouter();
-    // Add Success State
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
     const [successOrder, setSuccessOrder] = useState<{ id: string, number: string } | null>(null);
 
-    // ... existing useEffects ...
+    const [formData, setFormData] = useState({
+        customerName: '',
+        customerPhone: '',
+        customerEmail: '',
+        notes: ''
+    });
+
+    // Check for logged in user to auto-fill
+    useEffect(() => {
+        const fetchUserProfile = async () => {
+            const token = localStorage.getItem('authToken');
+            if (token) {
+                try {
+                    const response = await fetch('/api/auth/me', {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (response.ok) {
+                        const user = await response.json();
+                        setFormData(prev => ({
+                            ...prev,
+                            customerName: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
+                            customerEmail: user.email || '',
+                            customerPhone: user.phone || ''
+                        }));
+                    }
+                } catch (err) {
+                    console.error('Failed to load user profile', err);
+                }
+            }
+        };
+        fetchUserProfile();
+    }, []);
+
+    // Redirect if cart is empty
+    useEffect(() => {
+        if (items.length === 0 && !successOrder) {
+            router.push('/menu');
+        }
+    }, [items, router, successOrder]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -47,10 +86,8 @@ export default function CheckoutPage() {
 
             const result = await response.json();
 
-            // Clear cart
+            // Clear cart logic without redirect
             clearCart();
-
-            // SHOW SUCCESS MODAL IMMEDIATELY
             setSuccessOrder({ id: result.orderId, number: result.orderNumber });
 
         } catch (err) {
