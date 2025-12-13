@@ -4,6 +4,27 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
+interface Ingredient {
+  id: string;
+  name: string;
+  unit: string;
+  costPerUnit: number;
+}
+
+interface RecipeItem {
+  id?: string;
+  ingredientId: string;
+  quantity: number;
+  ingredient?: Ingredient;
+}
+
+interface Recipe {
+  id: string;
+  productId: string;
+  size: string | null;
+  items: RecipeItem[];
+}
+
 interface Product {
   id: string;
   name: string;
@@ -15,6 +36,7 @@ interface Product {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  recipes?: Recipe[];
 }
 
 export default function ProductsManagement() {
@@ -23,6 +45,13 @@ export default function ProductsManagement() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isRecipeModalOpen, setIsRecipeModalOpen] = useState(false);
+  const [selectedProductForRecipe, setSelectedProductForRecipe] = useState<Product | null>(null);
+  const [ingredients, setIngredients] = useState<Ingredient[]>([]);
+  const [recipeFormData, setRecipeFormData] = useState<{
+    size: string;
+    items: { ingredientId: string; quantity: number }[];
+  }>({ size: '', items: [] });
   const [filter, setFilter] = useState({
     category: 'all',
     search: '',
@@ -132,6 +161,109 @@ export default function ProductsManagement() {
       console.error('Product deletion error:', error);
     }
   };
+
+  // Recipe Management Functions
+  const fetchIngredients = async () => {
+    try {
+      const res = await fetch('/api/admin/ingredients');
+      if (res.ok) {
+        const data = await res.json();
+        setIngredients(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch ingredients:', error);
+    }
+  };
+
+  const openRecipeModal = async (product: Product) => {
+    setSelectedProductForRecipe(product);
+    await fetchIngredients();
+
+    // Fetch existing recipes for this product
+    try {
+      const res = await fetch(`/api/admin/recipes?productId=${product.id}`);
+      if (res.ok) {
+        const recipes = await res.json();
+        if (recipes.length > 0) {
+          // Load first recipe (or you can let user select which size)
+          const recipe = recipes[0];
+          setRecipeFormData({
+            size: recipe.size || '',
+            items: recipe.items.map((item: RecipeItem) => ({
+              ingredientId: item.ingredientId,
+              quantity: item.quantity
+            }))
+          });
+        } else {
+          setRecipeFormData({ size: '', items: [] });
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch recipes:', error);
+    }
+
+    setIsRecipeModalOpen(true);
+  };
+
+  const saveRecipe = async () => {
+    if (!selectedProductForRecipe || recipeFormData.items.length === 0) {
+      alert('Lütfen en az bir hammadde ekleyin');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/admin/recipes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          productId: selectedProductForRecipe.id,
+          size: recipeFormData.size || null,
+          items: recipeFormData.items
+        })
+      });
+
+      if (res.ok) {
+        setIsRecipeModalOpen(false);
+        setRecipeFormData({ size: '', items: [] });
+        fetchProducts(); // Refresh to show updated recipe status
+      }
+    } catch (error) {
+      console.error('Failed to save recipe:', error);
+    }
+  };
+
+  const addIngredientToRecipe = () => {
+    if (ingredients.length === 0) return;
+    setRecipeFormData({
+      ...recipeFormData,
+      items: [...recipeFormData.items, { ingredientId: ingredients[0].id, quantity: 0 }]
+    });
+  };
+
+  const updateRecipeItem = (index: number, field: 'ingredientId' | 'quantity', value: string | number) => {
+    const newItems = [...recipeFormData.items];
+    newItems[index] = { ...newItems[index], [field]: value };
+    setRecipeFormData({ ...recipeFormData, items: newItems });
+  };
+
+  const removeRecipeItem = (index: number) => {
+    setRecipeFormData({
+      ...recipeFormData,
+      items: recipeFormData.items.filter((_, i) => i !== index)
+    });
+  };
+
+  const calculateRecipeCost = () => {
+    return recipeFormData.items.reduce((sum, item) => {
+      const ingredient = ingredients.find(i => i.id === item.ingredientId);
+      return sum + (ingredient ? ingredient.costPerUnit * item.quantity : 0);
+    }, 0);
+  };
+
+  const hasRecipe = (product: Product) => {
+    return product.recipes && product.recipes.length > 0;
+  };
+
 
   const toggleProductStatus = async (productId: string, isActive: boolean) => {
     try {
@@ -263,6 +395,9 @@ export default function ProductsManagement() {
                     Durum
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Reçete
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     İşlemler
                   </th>
                 </tr>
@@ -270,7 +405,7 @@ export default function ProductsManagement() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {loading ? (
                   <tr>
-                    <td colSpan={7} className="px-6 py-12 text-center">
+                    <td colSpan={8} className="px-6 py-12 text-center">
                       <div className="flex justify-center">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
                       </div>
@@ -278,7 +413,7 @@ export default function ProductsManagement() {
                   </tr>
                 ) : products.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
+                    <td colSpan={8} className="px-6 py-12 text-center text-gray-500">
                       Henüz ürün bulunmuyor
                     </td>
                   </tr>
@@ -322,6 +457,17 @@ export default function ProductsManagement() {
                           }`}>
                           {product.isActive ? 'Aktif' : 'Pasif'}
                         </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <button
+                          onClick={() => openRecipeModal(product)}
+                          className={`inline-flex items-center px-3 py-1 text-xs font-medium rounded-md ${hasRecipe(product)
+                            ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                            : 'bg-orange-100 text-orange-800 hover:bg-orange-200'
+                            }`}
+                        >
+                          {hasRecipe(product) ? '✅ Düzenle' : '➕ Reçete Ekle'}
+                        </button>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex space-x-2">
@@ -430,8 +576,28 @@ export default function ProductsManagement() {
           categories={categories}
         />
       )}
+
+      {/* Recipe Modal */}
+      <RecipeModal
+        isOpen={isRecipeModalOpen}
+        onClose={() => {
+          setIsRecipeModalOpen(false);
+          setSelectedProductForRecipe(null);
+          setRecipeFormData({ size: '', items: [] });
+        }}
+        product={selectedProductForRecipe}
+        ingredients={ingredients}
+        recipeFormData={recipeFormData}
+        setRecipeFormData={setRecipeFormData}
+        addIngredientToRecipe={addIngredientToRecipe}
+        updateRecipeItem={updateRecipeItem}
+        removeRecipeItem={removeRecipeItem}
+        calculateRecipeCost={calculateRecipeCost}
+        saveRecipe={saveRecipe}
+      />
     </div>
   );
+
 }
 
 // Product Modal Component
@@ -626,6 +792,137 @@ function ProductModal({
               </button>
             </div>
           </form>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Recipe Modal Component
+function RecipeModal({
+  isOpen,
+  onClose,
+  product,
+  ingredients,
+  recipeFormData,
+  setRecipeFormData,
+  addIngredientToRecipe,
+  updateRecipeItem,
+  removeRecipeItem,
+  calculateRecipeCost,
+  saveRecipe
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  product: any;
+  ingredients: any[];
+  recipeFormData: any;
+  setRecipeFormData: any;
+  addIngredientToRecipe: () => void;
+  updateRecipeItem: (index: number, field: 'ingredientId' | 'quantity', value: string | number) => void;
+  removeRecipeItem: (index: number) => void;
+  calculateRecipeCost: () => number;
+  saveRecipe: () => void;
+}) {
+  if (!isOpen || !product) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full p-6 my-8">
+        <h2 className="text-2xl font-bold mb-6">
+          {product.name} - Reçete Yönetimi
+        </h2>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Boyut (Opsiyonel)</label>
+            <select
+              value={recipeFormData.size}
+              onChange={(e) => setRecipeFormData({ ...recipeFormData, size: e.target.value })}
+              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
+            >
+              <option value="">Tüm boyutlar</option>
+              <option value="Small">Small</option>
+              <option value="Medium">Medium</option>
+              <option value="Large">Large</option>
+            </select>
+          </div>
+
+          <div className="border-t pt-4">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="font-semibold text-gray-900">Hammaddeler</h3>
+              <button
+                type="button"
+                onClick={addIngredientToRecipe}
+                className="text-green-600 hover:text-green-700 text-sm font-medium flex items-center gap-1"
+              >
+                ➕ Hammadde Ekle
+              </button>
+            </div>
+
+            <div className="space-y-3 max-h-64 overflow-y-auto">
+              {recipeFormData.items.map((item: any, index: number) => (
+                <div key={index} className="flex gap-3 items-center bg-gray-50 p-3 rounded-lg">
+                  <select
+                    value={item.ingredientId}
+                    onChange={(e) => updateRecipeItem(index, 'ingredientId', e.target.value)}
+                    className="flex-1 px-3 py-2 border rounded-lg text-sm"
+                  >
+                    {ingredients.map(ing => (
+                      <option key={ing.id} value={ing.id}>{ing.name}</option>
+                    ))}
+                  </select>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={item.quantity}
+                    onChange={(e) => updateRecipeItem(index, 'quantity', parseFloat(e.target.value))}
+                    className="w-24 px-3 py-2 border rounded-lg text-sm"
+                    placeholder="Miktar"
+                  />
+                  <span className="text-sm text-gray-600 w-12">
+                    {ingredients.find(i => i.id === item.ingredientId)?.unit}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => removeRecipeItem(index)}
+                    className="text-red-600 hover:text-red-800"
+                  >
+                    🗑️
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            {recipeFormData.items.length > 0 && (
+              <div className="mt-4 p-4 bg-green-50 rounded-lg flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-green-600">🧮</span>
+                  <span className="font-medium text-gray-700">Toplam Maliyet:</span>
+                </div>
+                <span className="text-2xl font-bold text-green-600">
+                  ₺{calculateRecipeCost().toFixed(2)}
+                </span>
+              </div>
+            )}
+          </div>
+
+          <div className="flex gap-3 pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 px-4 py-2 border rounded-lg hover:bg-gray-50"
+            >
+              İptal
+            </button>
+            <button
+              type="button"
+              onClick={saveRecipe}
+              className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+            >
+              Kaydet
+            </button>
+          </div>
         </div>
       </div>
     </div>
