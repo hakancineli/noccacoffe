@@ -24,15 +24,17 @@ export default async function OrderConfirmationPage({ params }: PageProps) {
     }
 
     const serializedOrder = {
-        ...order,
+        id: order.id,
+        orderNumber: order.orderNumber,
         customerName: order.customerName || 'Misafir',
+        status: order.status,
         totalAmount: Number(order.totalAmount),
-        finalAmount: Number(order.finalAmount),
         orderItems: order.orderItems.map(item => ({
-            ...item,
-            unitPrice: Number(item.unitPrice),
-            totalPrice: Number(item.totalPrice),
-            size: item.size || undefined
+            id: item.id,
+            productName: item.productName,
+            quantity: item.quantity,
+            size: item.size || undefined,
+            totalPrice: Number(item.totalPrice)
         }))
     };
 
