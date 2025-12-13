@@ -29,6 +29,7 @@ export default function KitchenPage() {
     const [hasInteracted, setHasInteracted] = useState(false);
     // Web Audio API Context
     const audioContextRef = useRef<AudioContext | null>(null);
+    const prevPendingCountReq = useRef<number>(0);
 
     // Initialize Audio Context on user interaction (to bypass autoplay policy)
     const initAudio = () => {
