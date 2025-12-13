@@ -27,13 +27,44 @@ export default function KitchenPage() {
     const [loading, setLoading] = useState(true);
     const [isMuted, setIsMuted] = useState(false);
     const [hasInteracted, setHasInteracted] = useState(false);
-    const audioRef = useRef<HTMLAudioElement | null>(null);
-    const prevPendingCountReq = useRef<number>(0);
+    // Web Audio API Context
+    const audioContextRef = useRef<AudioContext | null>(null);
 
-    // Initialize Audio
-    useEffect(() => {
-        audioRef.current = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-reception-bell-2525.mp3');
-    }, []);
+    // Initialize Audio Context on user interaction (to bypass autoplay policy)
+    const initAudio = () => {
+        if (!audioContextRef.current) {
+            const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+            audioContextRef.current = new AudioContext();
+        }
+        if (audioContextRef.current.state === 'suspended') {
+            audioContextRef.current.resume();
+        }
+    };
+
+    const playBellSound = () => {
+        if (!audioContextRef.current) initAudio();
+        const ctx = audioContextRef.current;
+        if (!ctx) return;
+
+        // Create a pleasant "Ding" sound (Sine wave with decay)
+        const oscillator = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(ctx.destination);
+
+        // Bell characteristics
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(660, ctx.currentTime); // E5 note
+        oscillator.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.1); // Slide up to A5
+
+        gainNode.gain.setValueAtTime(0.1, ctx.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.6, ctx.currentTime + 0.1); // Attack
+        gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2); // Decay
+
+        oscillator.start();
+        oscillator.stop(ctx.currentTime + 2);
+    };
 
     useEffect(() => {
         fetchOrders();
@@ -48,9 +79,8 @@ export default function KitchenPage() {
 
         // Only play if count INCREASED and audio is enabled
         if (currentPendingCount > prevPendingCountReq.current && currentPendingCount > 0) {
-            if (audioRef.current && !isMuted && hasInteracted) {
-                audioRef.current.currentTime = 0;
-                audioRef.current.play().catch(e => console.log("Audio block", e));
+            if (!isMuted && hasInteracted) {
+                playBellSound();
             }
         }
 
@@ -95,13 +125,8 @@ export default function KitchenPage() {
     const handleInteraction = () => {
         if (!hasInteracted) {
             setHasInteracted(true);
-            // Play silent sound to unlock iOS/Chrome audio
-            if (audioRef.current) {
-                audioRef.current.play().then(() => {
-                    audioRef.current?.pause();
-                    audioRef.current!.currentTime = 0;
-                }).catch(e => { });
-            }
+            initAudio();
+            playBellSound(); // Play test sound confirmation
         }
     };
 
