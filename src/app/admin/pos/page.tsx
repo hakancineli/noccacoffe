@@ -265,6 +265,43 @@ export default function POSPage() {
                 </div>
             )}
 
+            {/* Size Selection Modal */}
+            {selectedProductForSize && (
+                <div className="absolute inset-0 bg-black/50 z-50 flex items-center justify-center backdrop-blur-sm animate-fade-in">
+                    <div className="bg-white p-6 rounded-2xl shadow-2xl max-w-sm w-full relative">
+                        <button
+                            onClick={() => setSelectedProductForSize(null)}
+                            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+                        >
+                            <FaTimes />
+                        </button>
+
+                        <h3 className="text-xl font-bold text-gray-800 mb-4">{selectedProductForSize.name}</h3>
+                        <p className="text-gray-500 mb-6 text-sm">Lütfen boy seçiniz:</p>
+
+                        <div className="grid grid-cols-1 gap-3">
+                            {selectedProductForSize.sizes?.map((size) => (
+                                <button
+                                    key={size.size}
+                                    onClick={() => addToCart(selectedProductForSize, size.size)}
+                                    className="flex justify-between items-center p-4 rounded-xl border-2 border-gray-100 hover:border-nocca-green hover:bg-green-50 transition-all group"
+                                >
+                                    <div className="flex items-center">
+                                        <span className="w-8 h-8 rounded-full bg-gray-100 text-gray-600 font-bold flex items-center justify-center group-hover:bg-nocca-green group-hover:text-white transition-colors">
+                                            {size.size}
+                                        </span>
+                                        <span className="ml-3 font-medium text-gray-700 group-hover:text-nocca-green">
+                                            {size.size === 'S' ? 'Küçük Boy' : size.size === 'M' ? 'Orta Boy' : 'Büyük Boy'}
+                                        </span>
+                                    </div>
+                                    <span className="font-bold text-gray-900">₺{size.price.toFixed(2)}</span>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* LEFT: Product Grid */}
             <div className="flex-1 flex flex-col h-full overflow-hidden">
                 {/* Header / Categories */}
@@ -298,7 +335,7 @@ export default function POSPage() {
                         {filteredProducts.map(item => (
                             <button
                                 key={item.id}
-                                onClick={() => addToCart(item, item.sizes ? item.sizes[0].size : undefined)}
+                                onClick={() => handleProductClick(item)}
                                 className="bg-white p-3 rounded-lg shadow hover:shadow-md transition-all text-left flex flex-col h-full active:scale-95 border border-transparent hover:border-nocca-light-green"
                             >
                                 <div className="relative w-full h-32 mb-2 rounded-md overflow-hidden bg-gray-100">
