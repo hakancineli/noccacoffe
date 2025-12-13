@@ -16,11 +16,11 @@ export async function GET(request: NextRequest) {
 
     // Build where clause
     const where: any = {};
-    
+
     if (category && category !== 'all') {
       where.category = category;
     }
-    
+
     if (search) {
       where.OR = [
         { name: { contains: search, mode: 'insensitive' } },
@@ -36,6 +36,9 @@ export async function GET(request: NextRequest) {
     const [products, total] = await Promise.all([
       (prisma as any).product.findMany({
         where,
+        include: {
+          recipes: true
+        },
         orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
