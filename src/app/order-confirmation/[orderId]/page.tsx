@@ -36,15 +36,26 @@ export default async function OrderConfirmationPage({ params }: PageProps) {
                         Teşekkürler {order.customerName}. Siparişiniz başarıyla oluşturuldu.
                     </p>
 
+                    <div className="bg-green-50 rounded-xl p-8 mb-8 text-center border-2 border-green-100 border-dashed relative overflow-hidden">
+                        <p className="text-sm text-green-600 font-bold uppercase tracking-widest mb-2">Sipariş Numaranız</p>
+                        <p className="text-6xl font-black text-gray-900 tracking-tighter mb-2">
+                            #{order.orderNumber.split('-').pop()}
+                        </p>
+                        <p className="text-xs text-gray-400">Bu numarayı takip ediniz</p>
+
+                        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-green-400 to-green-600"></div>
+                        <div className="absolute bottom-0 left-0 w-full h-2 bg-gradient-to-r from-green-400 to-green-600"></div>
+                    </div>
+
                     <div className="bg-gray-50 rounded-lg p-6 mb-8 text-left">
                         <div className="flex justify-between items-center mb-4 border-b pb-4">
                             <div>
-                                <p className="text-sm text-gray-500">Sipariş Numarası</p>
-                                <p className="text-lg font-bold text-gray-900">{order.orderNumber}</p>
+                                <p className="text-sm text-gray-500">Tam Sipariş Kodu</p>
+                                <p className="text-sm font-mono text-gray-700">{order.orderNumber}</p>
                             </div>
                             <div className="text-right">
                                 <p className="text-sm text-gray-500">Durum</p>
-                                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+                                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800 animate-pulse">
                                     Beklemede
                                 </span>
                             </div>
