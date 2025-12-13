@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
     }
 }
 
-// POST - Create new recipe
+// POST - Create or update recipe
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
@@ -48,35 +48,74 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        const recipe = await prisma.recipe.create({
-            data: {
-                productId,
-                size: size || null,
-                items: {
-                    create: items.map((item: any) => ({
-                        ingredientId: item.ingredientId,
-                        quantity: item.quantity
-                    }))
-                }
-            },
-            include: {
-                items: {
-                    include: {
-                        ingredient: true
-                    }
+        // Check if recipe already exists
+        const existingRecipe = await prisma.recipe.findUnique({
+            where: {
+                productId_size: {
+                    productId,
+                    size: size || null
                 }
             }
         });
+
+        let recipe;
+        if (existingRecipe) {
+            // Update existing recipe
+            await prisma.recipeItem.deleteMany({
+                where: { recipeId: existingRecipe.id }
+            });
+
+            recipe = await prisma.recipe.update({
+                where: { id: existingRecipe.id },
+                data: {
+                    items: {
+                        create: items.map((item: any) => ({
+                            ingredientId: item.ingredientId,
+                            quantity: item.quantity
+                        }))
+                    }
+                },
+                include: {
+                    items: {
+                        include: {
+                            ingredient: true
+                        }
+                    }
+                }
+            });
+        } else {
+            // Create new recipe
+            recipe = await prisma.recipe.create({
+                data: {
+                    productId,
+                    size: size || null,
+                    items: {
+                        create: items.map((item: any) => ({
+                            ingredientId: item.ingredientId,
+                            quantity: item.quantity
+                        }))
+                    }
+                },
+                include: {
+                    items: {
+                        include: {
+                            ingredient: true
+                        }
+                    }
+                }
+            });
+        }
 
         return NextResponse.json(recipe, { status: 201 });
     } catch (error) {
         console.error('Recipe creation error:', error);
         return NextResponse.json(
-            { error: 'Failed to create recipe' },
+            { error: 'Failed to create recipe', details: error instanceof Error ? error.message : 'Unknown error' },
             { status: 500 }
         );
     }
 }
+
 
 // PUT - Update recipe
 export async function PUT(request: NextRequest) {
