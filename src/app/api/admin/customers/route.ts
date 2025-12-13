@@ -15,6 +15,11 @@ export async function GET(request: NextRequest) {
     // Build where clause
     const where: any = {};
 
+    // Exclude system accounts
+    where.email = {
+      notIn: ['admin@noccacoffee.com', 'kitchen@noccacoffee.com']
+    };
+
     if (search) {
       where.OR = [
         { firstName: { contains: search, mode: 'insensitive' } },
