@@ -1,4 +1,3 @@
-```javascript
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -46,13 +45,6 @@ export default function KitchenPage() {
     useEffect(() => {
         const pendingOrders = orders.filter(o => o.status === 'PENDING').length;
         if (pendingOrders > 0 && audioRef.current && !isMuted) {
-            // Loop or play once? Kitchen chime usually plays ONCE per refresh if new data, 
-            // but here we just check "has pending". 
-            // Let's play it if we haven't acknowledged it? 
-            // Simple version: Play if pending exists (every 5 seconds due to re-render? No, only on orders change)
-            // Better: only play if previous state had fewer orders? 
-            // For now, playing on every fetch with pending is annoying if loop. 
-            // Let's just play it once per 'batch' detection logic or keep it simple as requested "Zil sesi".
             audioRef.current.play().catch(e => console.log("Audio block", e));
         }
     }, [orders, isMuted]);
@@ -81,7 +73,7 @@ export default function KitchenPage() {
 
     const updateStatus = async (orderId: string, newStatus: string) => {
         try {
-            const res = await fetch(`/ api / admin / orders / ${ orderId } `, {
+            const res = await fetch(`/api/admin/orders/${orderId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ status: newStatus })
@@ -128,7 +120,7 @@ export default function KitchenPage() {
                     {/* Mute Toggle */}
                     <button
                         onClick={toggleMute}
-                        className={`p - 4 rounded - xl transition - all duration - 300 ${ isMuted ? 'bg-gray-700 text-gray-400' : 'bg-orange-500 text-white shadow-lg shadow-orange-500/30' } `}
+                        className={`p-4 rounded-xl transition-all duration-300 ${isMuted ? 'bg-gray-700 text-gray-400' : 'bg-orange-500 text-white shadow-lg shadow-orange-500/30'}`}
                     >
                         {isMuted ? <FaBellSlash className="text-xl" /> : <FaBell className="text-xl animate-wiggle" />}
                     </button>
@@ -146,11 +138,10 @@ export default function KitchenPage() {
                     {orders.map((order) => (
                         <div
                             key={order.id}
-                            className={`relative flex flex - col rounded - xl overflow - hidden shadow - 2xl transition - all duration - 300 transform hover: scale - [1.02] ${
-    order.status === 'PENDING'
-        ? 'bg-[#252836] border-l-4 border-red-500 ring-1 ring-red-500/20'
-        : 'bg-[#2f3343] border-l-4 border-blue-500 opacity-90'
-} `}
+                            className={`relative flex flex-col rounded-xl overflow-hidden shadow-2xl transition-all duration-300 transform hover:scale-[1.02] ${order.status === 'PENDING'
+                                    ? 'bg-[#252836] border-l-4 border-red-500 ring-1 ring-red-500/20'
+                                    : 'bg-[#2f3343] border-l-4 border-blue-500 opacity-90'
+                                }`}
                         >
                             {/* Urgency Strip (Animated for Pending) */}
                             {order.status === 'PENDING' && (
@@ -161,7 +152,7 @@ export default function KitchenPage() {
                             <div className="p-5 border-b border-dashed border-gray-700 flex justify-between items-start bg-opacity-50 bg-black/10">
                                 <div>
                                     <div className="flex items-center space-x-2">
-                                        <span className={`text - 2xl font - black tracking - tight ${ order.status === 'PENDING' ? 'text-white' : 'text-gray-300' } `}>
+                                        <span className={`text-2xl font-black tracking-tight ${order.status === 'PENDING' ? 'text-white' : 'text-gray-300'}`}>
                                             #{order.orderNumber.split('-').pop()}
                                         </span>
                                         {order.status === 'PENDING' && <span className="animate-pulse text-red-500 text-xs font-bold px-2 py-0.5 rounded bg-red-500/10 border border-red-500/20">YENİ</span>}
@@ -185,7 +176,7 @@ export default function KitchenPage() {
                                     {order.orderItems.map((item, idx) => (
                                         <div key={item.id} className="flex flex-col">
                                             <div className="flex items-start">
-                                                <span className={`text - xl font - bold w - 8 text - right mr - 3 ${ order.status === 'PENDING' ? 'text-orange-400' : 'text-blue-400' } `}>
+                                                <span className={`text-xl font-bold w-8 text-right mr-3 ${order.status === 'PENDING' ? 'text-orange-400' : 'text-blue-400'}`}>
                                                     {item.quantity}x
                                                 </span>
                                                 <div className="flex-1">
@@ -244,4 +235,3 @@ export default function KitchenPage() {
         </div>
     );
 }
-```
