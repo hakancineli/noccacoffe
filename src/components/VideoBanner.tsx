@@ -40,7 +40,7 @@ export default function VideoBanner() {
       <div className="w-full h-full flex items-center justify-center">
         <video
           ref={videoRef}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-contain"
           loop
           muted
           playsInline
