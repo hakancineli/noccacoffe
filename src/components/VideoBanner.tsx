@@ -36,7 +36,7 @@ export default function VideoBanner() {
   };
 
   return (
-    <section className="relative w-full h-[650px] md:h-[600px] lg:h-[700px] bg-gray-50 overflow-hidden">
+    <section className="relative w-full h-[750px] md:h-[600px] lg:h-[700px] bg-gray-50 overflow-hidden">
       <div className="w-full h-full flex items-center justify-center">
         <video
           ref={videoRef}
