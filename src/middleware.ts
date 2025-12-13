@@ -44,9 +44,34 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  // Check if the path is kitchen route
+  if (pathname.startsWith('/kitchen')) {
+    const token = request.cookies.get('auth-token')?.value;
+
+    if (!token) {
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
+
+    try {
+      const secret = new TextEncoder().encode(
+        process.env.JWT_SECRET || 'fallback-secret'
+      );
+      const { payload } = await jwtVerify(token, secret);
+
+      // Allow Kitchen and Admin
+      if (payload.email !== 'kitchen@noccacoffee.com' && payload.email !== 'admin@noccacoffee.com') {
+        return NextResponse.redirect(new URL('/login', request.url));
+      }
+
+      return NextResponse.next();
+    } catch (error) {
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
+  }
+
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/admin/:path*'],
+  matcher: ['/admin/:path*', '/kitchen/:path*'],
 };

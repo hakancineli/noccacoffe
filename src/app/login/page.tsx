@@ -60,7 +60,13 @@ const LoginPage = () => {
       console.log('Login successful');
       localStorage.setItem('authToken', data.token);
 
-      const targetUrl = data.user.email === 'admin@noccacoffee.com' ? '/admin/orders' : '/';
+      // Redirect Logic
+      let targetUrl = '/';
+      if (data.user.email === 'admin@noccacoffee.com') {
+        targetUrl = '/admin/orders';
+      } else if (data.user.email === 'kitchen@noccacoffee.com') {
+        targetUrl = '/kitchen';
+      }
       setSuccess(`Giriş başarılı! Yönlendiriliyorsunuz: ${targetUrl}`);
 
       setTimeout(() => {
