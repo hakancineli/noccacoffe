@@ -129,16 +129,52 @@ export async function POST(request: Request) {
 
         }
 
-        // Decrement Stock
+        // Decrement Ingredient Stock Based on Recipes
         try {
-            await Promise.all(items.map((item: any) =>
-                prisma.product.update({
-                    where: { id: item.productId.toString() },
-                    data: { stock: { decrement: item.quantity } }
-                })
-            ));
+            for (const item of items) {
+                // Find recipe for this product + size combination
+                const recipe = await prisma.recipe.findUnique({
+                    where: {
+                        productId_size: {
+                            productId: item.productId.toString(),
+                            size: item.size || 'Medium' // Default to Medium if no size specified
+                        }
+                    },
+                    include: {
+                        items: {
+                            include: {
+                                ingredient: true
+                            }
+                        }
+                    }
+                });
+
+                if (recipe) {
+                    // Deduct ingredients for each quantity ordered
+                    for (const recipeItem of recipe.items) {
+                        const totalQuantityNeeded = recipeItem.quantity * item.quantity;
+
+                        await prisma.ingredient.update({
+                            where: { id: recipeItem.ingredientId },
+                            data: {
+                                stock: {
+                                    decrement: totalQuantityNeeded
+                                }
+                            }
+                        });
+                    }
+                    console.log(`Deducted ingredients for ${item.quantity}x ${item.productName} (${item.size})`);
+                } else {
+                    // Fallback: If no recipe found, just decrement product stock (old behavior)
+                    await prisma.product.update({
+                        where: { id: item.productId.toString() },
+                        data: { stock: { decrement: item.quantity } }
+                    });
+                    console.log(`No recipe found for ${item.productName}, using product stock`);
+                }
+            }
         } catch (stockError) {
-            console.error('Failed to update stock:', stockError);
+            console.error('Failed to update ingredient stock:', stockError);
             // Don't fail order for stock error, but log it
         }
 

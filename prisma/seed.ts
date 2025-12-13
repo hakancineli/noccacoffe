@@ -100,6 +100,150 @@ async function main() {
   // I will skip them or use createMany with skipDuplicates if Prisma supported it for SQLite/Postgres widely, 
   // but better to leave them out if not critical for now, OR try to create if not exists.
 
+  // Seed Ingredients
+  console.log('Seeding ingredients...');
+
+  const espressoBeans = await prisma.ingredient.upsert({
+    where: { id: 'ingredient-espresso-beans' },
+    update: {},
+    create: {
+      id: 'ingredient-espresso-beans',
+      name: 'Espresso Çekirdeği',
+      unit: 'g',
+      stock: 5000, // 5kg initial stock
+      costPerUnit: 0.60, // 600 TL per kg = 0.60 TL per gram
+    }
+  });
+
+  const milk = await prisma.ingredient.upsert({
+    where: { id: 'ingredient-milk' },
+    update: {},
+    create: {
+      id: 'ingredient-milk',
+      name: 'Süt',
+      unit: 'ml',
+      stock: 10000, // 10 liters
+      costPerUnit: 0.04, // 40 TL per liter = 0.04 TL per ml
+    }
+  });
+
+  const cupSmall = await prisma.ingredient.upsert({
+    where: { id: 'ingredient-cup-small' },
+    update: {},
+    create: {
+      id: 'ingredient-cup-small',
+      name: 'Küçük Bardak (8oz)',
+      unit: 'adet',
+      stock: 500,
+      costPerUnit: 2.0,
+    }
+  });
+
+  const cupMedium = await prisma.ingredient.upsert({
+    where: { id: 'ingredient-cup-medium' },
+    update: {},
+    create: {
+      id: 'ingredient-cup-medium',
+      name: 'Orta Bardak (12oz)',
+      unit: 'adet',
+      stock: 500,
+      costPerUnit: 2.5,
+    }
+  });
+
+  const cupLarge = await prisma.ingredient.upsert({
+    where: { id: 'ingredient-cup-large' },
+    update: {},
+    create: {
+      id: 'ingredient-cup-large',
+      name: 'Büyük Bardak (16oz)',
+      unit: 'adet',
+      stock: 500,
+      costPerUnit: 3.0,
+    }
+  });
+
+  console.log('Seeded 5 ingredients.');
+
+  // Find Latte product (assuming it exists in menuItems)
+  const latteProduct = await prisma.product.findFirst({
+    where: { name: { contains: 'Latte', mode: 'insensitive' } }
+  });
+
+  if (latteProduct) {
+    console.log('Creating recipes for Latte...');
+
+    // Latte Small Recipe
+    const latteSmallRecipe = await prisma.recipe.upsert({
+      where: {
+        productId_size: {
+          productId: latteProduct.id,
+          size: 'Small'
+        }
+      },
+      update: {},
+      create: {
+        productId: latteProduct.id,
+        size: 'Small',
+        items: {
+          create: [
+            { ingredientId: espressoBeans.id, quantity: 9 },   // 9g coffee
+            { ingredientId: milk.id, quantity: 200 },          // 200ml milk
+            { ingredientId: cupSmall.id, quantity: 1 },        // 1 small cup
+          ]
+        }
+      }
+    });
+
+    // Latte Medium Recipe
+    const latteMediumRecipe = await prisma.recipe.upsert({
+      where: {
+        productId_size: {
+          productId: latteProduct.id,
+          size: 'Medium'
+        }
+      },
+      update: {},
+      create: {
+        productId: latteProduct.id,
+        size: 'Medium',
+        items: {
+          create: [
+            { ingredientId: espressoBeans.id, quantity: 18 },  // 18g coffee (double shot)
+            { ingredientId: milk.id, quantity: 300 },          // 300ml milk
+            { ingredientId: cupMedium.id, quantity: 1 },       // 1 medium cup
+          ]
+        }
+      }
+    });
+
+    // Latte Large Recipe
+    const latteLargeRecipe = await prisma.recipe.upsert({
+      where: {
+        productId_size: {
+          productId: latteProduct.id,
+          size: 'Large'
+        }
+      },
+      update: {},
+      create: {
+        productId: latteProduct.id,
+        size: 'Large',
+        items: {
+          create: [
+            { ingredientId: espressoBeans.id, quantity: 18 },  // 18g coffee
+            { ingredientId: milk.id, quantity: 400 },          // 400ml milk
+            { ingredientId: cupLarge.id, quantity: 1 },        // 1 large cup
+          ]
+        }
+      }
+    });
+
+    console.log('Created 3 Latte recipes (Small, Medium, Large).');
+  } else {
+    console.log('Latte product not found, skipping recipe creation.');
+  }
+
   console.log('Database seeded successfully!');
 }
 

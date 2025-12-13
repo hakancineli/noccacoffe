@@ -215,8 +215,53 @@ model Product {
   
   // Relations
   orderItems  OrderItem[]
+  recipes     Recipe[] // Relation to recipes
   
   @@map("products")
+}
+
+// Ingredients (Raw materials)
+model Ingredient {
+  id          String   @id @default(cuid())
+  name        String
+  unit        String   // g, ml, pcs
+  stock       Float    @default(0)
+  costPerUnit Float    @default(0) // Cost per unit (e.g., price per gram)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  
+  recipeItems RecipeItem[]
+
+  @@map("ingredients")
+}
+
+// Recipes (Linking Product + Size to Ingredients)
+model Recipe {
+  id        String   @id @default(cuid())
+  productId String   @map("product_id")
+  size      String?  // Small, Medium, Large (Optional, if null applies to all sizes)
+  
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  items     RecipeItem[]
+  
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([productId, size]) // One recipe per product size variant
+  @@map("recipes")
+}
+
+// Recipe Items (Ingredient + Quantity)
+model RecipeItem {
+  id           String     @id @default(cuid())
+  recipeId     String     @map("recipe_id")
+  ingredientId String     @map("ingredient_id")
+  quantity     Float      // Amount required (e.g., 18g, 250ml)
+  
+  recipe       Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+
+  @@map("recipe_items")
 }
 
 model Payment {
