@@ -10,48 +10,10 @@ import { FaArrowLeft } from 'react-icons/fa';
 export default function CheckoutPage() {
     const { items, totalPrice, clearCart } = useCart();
     const router = useRouter();
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
+    // Add Success State
+    const [successOrder, setSuccessOrder] = useState<{ id: string, number: string } | null>(null);
 
-    const [formData, setFormData] = useState({
-        customerName: '',
-        customerPhone: '',
-        customerEmail: '',
-        notes: ''
-    });
-
-    // Check for logged in user to auto-fill
-    useEffect(() => {
-        const fetchUserProfile = async () => {
-            const token = localStorage.getItem('authToken');
-            if (token) {
-                try {
-                    const response = await fetch('/api/auth/me', {
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-                    if (response.ok) {
-                        const user = await response.json();
-                        setFormData(prev => ({
-                            ...prev,
-                            customerName: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
-                            customerEmail: user.email || '',
-                            customerPhone: user.phone || ''
-                        }));
-                    }
-                } catch (err) {
-                    console.error('Failed to load user profile', err);
-                }
-            }
-        };
-        fetchUserProfile();
-    }, []);
-
-    // Redirect if cart is empty
-    useEffect(() => {
-        if (items.length === 0) {
-            router.push('/menu');
-        }
-    }, [items, router]);
+    // ... existing useEffects ...
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -70,7 +32,7 @@ export default function CheckoutPage() {
                     size: item.selectedSize
                 })),
                 totalAmount: totalPrice,
-                finalAmount: totalPrice // Future: Apply discounts here
+                finalAmount: totalPrice
             };
 
             const response = await fetch('/api/orders', {
@@ -85,9 +47,11 @@ export default function CheckoutPage() {
 
             const result = await response.json();
 
-            // Clear cart and redirect to success page
+            // Clear cart
             clearCart();
-            router.push(`/order-confirmation/${result.orderId}`);
+
+            // SHOW SUCCESS MODAL IMMEDIATELY
+            setSuccessOrder({ id: result.orderId, number: result.orderNumber });
 
         } catch (err) {
             setError('Siparişiniz alınamadı. Lütfen tekrar deneyin.');
@@ -97,7 +61,48 @@ export default function CheckoutPage() {
         }
     };
 
-    if (items.length === 0) return null;
+    if (items.length === 0 && !successOrder) return null;
+
+    if (successOrder) {
+        return (
+            <div className="fixed inset-0 bg-green-500 z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
+                <div className="bg-white rounded-3xl shadow-2xl p-10 max-w-md w-full text-center relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-4 bg-gradient-to-r from-green-400 to-green-600"></div>
+
+                    <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <span className="text-4xl">✅</span>
+                    </div>
+
+                    <h2 className="text-3xl font-bold text-gray-900 mb-2">Sipariş Alındı!</h2>
+                    <p className="text-gray-500 mb-8">Teşekkürler, siparişiniz hazırlanıyor.</p>
+
+                    <div className="bg-gray-50 rounded-2xl p-6 border-2 border-dashed border-gray-200 mb-8 relative">
+                        <div className="absolute -left-3 top-1/2 w-6 h-6 bg-white rounded-full border-r border-gray-200 transform -translate-y-1/2"></div>
+                        <div className="absolute -right-3 top-1/2 w-6 h-6 bg-white rounded-full border-l border-gray-200 transform -translate-y-1/2"></div>
+
+                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Sipariş Numaranız</p>
+                        <p className="text-5xl font-black text-gray-900 tracking-tighter">
+                            #{successOrder.number.split('-').pop()}
+                        </p>
+                    </div>
+
+                    <button
+                        onClick={() => router.push(`/order-confirmation/${successOrder.id}`)}
+                        className="w-full bg-black text-white py-4 rounded-xl font-bold text-lg hover:bg-gray-800 transition-colors shadow-lg"
+                    >
+                        Detayları Gör ➔
+                    </button>
+
+                    <button
+                        onClick={() => { router.push('/menu'); }}
+                        className="mt-4 text-sm text-gray-400 hover:text-gray-600 font-medium"
+                    >
+                        Yeni Sipariş Oluştur
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
