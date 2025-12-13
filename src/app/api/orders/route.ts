@@ -138,7 +138,7 @@ export async function POST(request: Request) {
         try {
             for (const item of items) {
                 // Find recipe for this product + size combination
-                const recipe = await prisma.recipe.findUnique({
+                let recipe = await prisma.recipe.findUnique({
                     where: {
                         productId_size: {
                             productId: item.productId.toString(),
@@ -153,6 +153,26 @@ export async function POST(request: Request) {
                         }
                     }
                 });
+
+                // If no specific recipe found, try to find a generic recipe (size: null)
+                if (!recipe) {
+                    recipe = await prisma.recipe.findUnique({
+                        where: {
+                            productId_size: {
+                                productId: item.productId.toString(),
+                                size: null as any // Prisma workaround for nullable compound key
+                            }
+                        },
+                        include: {
+                            items: {
+                                include: {
+                                    ingredient: true
+                                }
+                            }
+                        }
+                    });
+                }
+
 
                 if (recipe) {
                     // Update Product: Increment soldCount
