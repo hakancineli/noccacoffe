@@ -211,11 +211,6 @@ export default function AdminDashboard() {
                 Hammaddeler
               </Link>
 
-              <Link href="/admin/recipes" className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500">
-                <span className="mr-2 text-lg">📋</span>
-                Reçeteler
-              </Link>
-
               <Link href="/admin/personnel" className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-pink-600 hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500">
                 <span className="mr-2 text-lg">👔</span>
                 Personel
