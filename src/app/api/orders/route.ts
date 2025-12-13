@@ -48,6 +48,11 @@ export async function POST(request: Request) {
         const orderStatus = (isAdmin && status) ? status : 'PENDING';
         const method = (isAdmin && paymentMethod) ? paymentMethod : 'CREDIT_CARD';
 
+        // Determine Payment Status: If Admin/POS created it and method exists, it's paid.
+        // OR if order is completed.
+        const isPosOrder = isAdmin && !!paymentMethod;
+        const paymentStatus = (orderStatus === 'COMPLETED' || isPosOrder) ? 'COMPLETED' : 'PENDING';
+
         // Create Order with Items
         const order = await prisma.order.create({
             data: {
@@ -61,12 +66,12 @@ export async function POST(request: Request) {
                 finalAmount: body.finalAmount || totalAmount,
                 status: orderStatus,
                 paymentMethod: method,
-                paymentStatus: orderStatus === 'COMPLETED' ? 'COMPLETED' : 'PENDING',
+                paymentStatus: paymentStatus,
                 payment: {
                     create: {
                         amount: totalAmount,
                         method: method,
-                        status: orderStatus === 'COMPLETED' ? 'COMPLETED' : 'PENDING',
+                        status: paymentStatus,
                     }
                 },
                 orderItems: {

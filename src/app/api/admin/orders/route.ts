@@ -110,12 +110,13 @@ export async function POST(request: NextRequest) {
         paymentMethod: paymentMethod || null,
         notes,
         status: body.status || 'PENDING', // Allow status override (e.g. for POS)
-        paymentStatus: (body.status === 'COMPLETED') ? 'COMPLETED' : 'PENDING',
+        // If payment method is provided in admin panel, assume payment is collected (COMPLETED)
+        paymentStatus: (body.status === 'COMPLETED' || paymentMethod) ? 'COMPLETED' : 'PENDING',
         payment: {
           create: {
             amount: totalAmount,
             method: paymentMethod || 'CASH',
-            status: (body.status === 'COMPLETED') ? 'COMPLETED' : 'PENDING',
+            status: (body.status === 'COMPLETED' || paymentMethod) ? 'COMPLETED' : 'PENDING',
           }
         },
         orderItems: {
