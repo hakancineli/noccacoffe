@@ -43,7 +43,8 @@ export default function OrderTracker({ initialOrder }: { initialOrder: Order }) 
     }, [initialOrder.id]);
 
     const getStatusText = (status: string) => {
-        switch (status) {
+        const s = status?.toUpperCase();
+        switch (s) {
             case 'PENDING': return 'Beklemede';
             case 'PREPARING': return 'Hazırlanıyor';
             case 'READY': return 'Hazır';
@@ -54,7 +55,8 @@ export default function OrderTracker({ initialOrder }: { initialOrder: Order }) 
     };
 
     const getStatusColor = (status: string) => {
-        switch (status) {
+        const s = status?.toUpperCase();
+        switch (s) {
             case 'PENDING': return 'bg-yellow-100 text-yellow-800';
             case 'PREPARING': return 'bg-orange-100 text-orange-800 animate-pulse';
             case 'READY': return 'bg-green-100 text-green-800';
@@ -64,12 +66,14 @@ export default function OrderTracker({ initialOrder }: { initialOrder: Order }) 
         }
     };
 
+    const isReady = order.status?.toUpperCase() === 'READY' || order.status?.toUpperCase() === 'COMPLETED';
+
     return (
         <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-3xl mx-auto text-center">
                 <div className="bg-white rounded-lg shadow-lg p-8">
                     <div className="flex justify-center mb-6">
-                        {order.status === 'READY' || order.status === 'COMPLETED' ? (
+                        {isReady ? (
                             <FaCheckCircle className="text-green-500 w-20 h-20" />
                         ) : (
                             <div className="w-20 h-20 rounded-full bg-yellow-100 flex items-center justify-center">
@@ -79,12 +83,12 @@ export default function OrderTracker({ initialOrder }: { initialOrder: Order }) 
                     </div>
 
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                        {order.status === 'PENDING' ? 'Siparişiniz Alındı!' :
-                            order.status === 'PREPARING' ? 'Siparişiniz Hazırlanıyor!' :
-                                order.status === 'READY' ? 'Siparişiniz Hazır!' : 'Sipariş Durumu'}
+                        {order.status?.toUpperCase() === 'PENDING' ? 'Siparişiniz Alındı!' :
+                            order.status?.toUpperCase() === 'PREPARING' ? 'Siparişiniz Hazırlanıyor!' :
+                                order.status?.toUpperCase() === 'READY' ? 'Siparişiniz Hazır!' : 'Sipariş Durumu'}
                     </h1>
                     <p className="text-gray-600 mb-8">
-                        {order.status === 'READY'
+                        {isReady
                             ? `Harika! Siparişiniz hazır, afiyet olsun ${order.customerName}.`
                             : `Teşekkürler ${order.customerName}. Sipariş durumunu buradan takip edebilirsiniz.`}
                     </p>
