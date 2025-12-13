@@ -101,8 +101,15 @@ export async function GET(request: Request) {
         allPayments.forEach(p => {
             const entry = getDayEntry(p.createdAt);
             entry.totalSales += p.amount;
-            if (p.method === 'CASH') entry.cashSales += p.amount;
-            else entry.cardSales += p.amount;
+
+            // Categorize payment method
+            if (p.method === 'CASH') {
+                entry.cashSales += p.amount;
+            } else {
+                // All non-cash payments (CREDIT_CARD, DEBIT_CARD, MOBILE_PAYMENT, BANK_TRANSFER)
+                entry.cardSales += p.amount;
+            }
+
             entry.orderCount += 1;
         });
 
