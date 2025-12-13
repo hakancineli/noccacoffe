@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { FaSearch, FaUser, FaTrash, FaCreditCard, FaMoneyBillWave, FaTimes } from 'react-icons/fa';
+import { FaSearch, FaUser, FaTrash, FaCreditCard, FaMoneyBillWave, FaTimes, FaPrint } from 'react-icons/fa';
 import { allMenuItems, categories, MenuItem } from '@/data/menuItems';
 
 interface CartItem {
@@ -35,6 +35,7 @@ export default function POSPage() {
     const [searchResults, setSearchResults] = useState<Customer[]>([]);
     const [isSearching, setIsSearching] = useState(false);
     const [processingPayment, setProcessingPayment] = useState(false);
+    const [lastOrder, setLastOrder] = useState<any>(null); // For Success Modal
 
     // Size Selection Modal State
     const [selectedProductForSize, setSelectedProductForSize] = useState<MenuItem | null>(null);
@@ -160,8 +161,9 @@ export default function POSPage() {
             });
 
             if (res.ok) {
-                // Success
-                alert('Sipariş başarıyla oluşturuldu!');
+                const createdOrder = await res.json();
+                // Success Modal
+                setLastOrder({ ...createdOrder, items: cart }); // Store for printing
                 setCart([]);
                 setSelectedCustomer(null);
                 setCustomerSearch('');
@@ -176,8 +178,93 @@ export default function POSPage() {
         }
     };
 
+    const printReceipt = () => {
+        if (!lastOrder) return;
+
+        const receiptContent = `
+            <html>
+            <head>
+                <title>Fiş Yazdır</title>
+                <style>
+                    body { font-family: 'Courier New', monospace; width: 300px; margin: 0; padding: 10px; font-size: 12px; }
+                    .header { text-align: center; margin-bottom: 20px; border-bottom: 1px dashed black; padding-bottom: 10px; }
+                    .item { display: flex; justify-content: space-between; margin-bottom: 5px; }
+                    .total { border-top: 1px dashed black; margin-top: 10px; padding-top: 10px; display: flex; justify-content: space-between; font-weight: bold; font-size: 14px; }
+                    .footer { text-align: center; margin-top: 20px; font-size: 10px; }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h2>NOCCA COFFEE</h2>
+                    <p>Tarih: ${new Date().toLocaleString('tr-TR')}</p>
+                    <p>Sipariş No: #${lastOrder.orderNumber ? lastOrder.orderNumber.split('-').pop() : '---'}</p>
+                    <p>Müşteri: ${lastOrder.customerName || 'Misafir'}</p>
+                </div>
+                <div>
+                   ${lastOrder.items.map((item: any) => `
+                        <div class="item">
+                            <span>${item.quantity}x ${item.name} ${item.size ? `(${item.size})` : ''}</span>
+                            <span>${(item.price * item.quantity).toFixed(2)}₺</span>
+                        </div>
+                   `).join('')}
+                </div>
+                <div class="total">
+                    <span>TOPLAM</span>
+                    <span>${(typeof lastOrder.totalAmount === 'number' ? lastOrder.totalAmount : parseFloat(lastOrder.totalAmount)).toFixed(2)}₺</span>
+                </div>
+                <div class="footer">
+                    <p>Afiyet Olsun!</p>
+                    <p>Bizi tercih ettiğiniz için teşekkürler.</p>
+                </div>
+            </body>
+            </html>
+        `;
+
+        const printWindow = window.open('', '', 'width=400,height=600');
+        if (printWindow) {
+            printWindow.document.write(receiptContent);
+            printWindow.document.close();
+            printWindow.focus();
+            printWindow.print();
+            printWindow.close();
+        }
+    };
+
+    const handleNewOrder = () => {
+        setLastOrder(null);
+    };
+
     return (
-        <div className="flex h-screen bg-gray-100 overflow-hidden">
+        <div className="flex h-screen bg-gray-100 overflow-hidden relative">
+            {/* Success Modal Overlay */}
+            {lastOrder && (
+                <div className="absolute inset-0 bg-black/50 z-50 flex items-center justify-center backdrop-blur-sm">
+                    <div className="bg-white p-8 rounded-2xl shadow-2xl text-center max-w-md w-full animate-bounce-in">
+                        <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <FaMoneyBillWave className="text-4xl text-green-600" />
+                        </div>
+                        <h2 className="text-3xl font-bold text-gray-800 mb-2">Sipariş Hazır!</h2>
+                        <p className="text-gray-500 mb-8">Ödeme başarıyla alındı ve mutfağa iletildi.</p>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <button
+                                onClick={handleNewOrder}
+                                className="py-3 px-6 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold rounded-xl transition"
+                            >
+                                Yeni Sipariş
+                            </button>
+                            <button
+                                onClick={printReceipt}
+                                className="py-3 px-6 bg-nocca-green hover:bg-green-700 text-white font-bold rounded-xl transition flex items-center justify-center"
+                            >
+                                <FaPrint className="mr-2" />
+                                Fiş Yazdır
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* LEFT: Product Grid */}
             <div className="flex-1 flex flex-col h-full overflow-hidden">
                 {/* Header / Categories */}
