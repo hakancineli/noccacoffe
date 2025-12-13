@@ -135,6 +135,18 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // Decrement Stock
+    try {
+      await Promise.all(items.map((item: any) =>
+        prisma.product.update({
+          where: { id: String(item.productId) },
+          data: { stock: { decrement: item.quantity } }
+        })
+      ));
+    } catch (stockError) {
+      console.error('Failed to update stock:', stockError);
+    }
+
     return NextResponse.json(order, { status: 201 });
   } catch (error) {
     console.error('Order creation error:', error);

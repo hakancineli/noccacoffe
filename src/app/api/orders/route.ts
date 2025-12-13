@@ -126,14 +126,31 @@ export async function POST(request: Request) {
                 console.error('Failed to award points for order:', pointError);
                 // Don't fail the order if points fail
             }
+        } catch (pointError) {
+            console.error('Failed to award points for order:', pointError);
+            // Don't fail the order if points fail
         }
-
-        return NextResponse.json({ success: true, orderId: order.id, orderNumber });
-    } catch (error) {
-        console.error('Order creation error:', error);
-        return NextResponse.json(
-            { success: false, error: 'Sipariş oluşturulamadı' },
-            { status: 500 }
-        );
     }
+
+        // Decrement Stock
+        try {
+        await Promise.all(items.map((item: any) =>
+            prisma.product.update({
+                where: { id: item.productId.toString() },
+                data: { stock: { decrement: item.quantity } }
+            })
+        ));
+    } catch (stockError) {
+        console.error('Failed to update stock:', stockError);
+        // Don't fail order for stock error, but log it
+    }
+
+    return NextResponse.json({ success: true, orderId: order.id, orderNumber });
+} catch (error) {
+    console.error('Order creation error:', error);
+    return NextResponse.json(
+        { success: false, error: 'Sipariş oluşturulamadı' },
+        { status: 500 }
+    );
+}
 }
