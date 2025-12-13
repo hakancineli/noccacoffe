@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { FaMoneyBillWave, FaArrowDown, FaArrowUp, FaPlus, FaChartLine, FaTrash, FaUsersCog, FaCalendarAlt } from 'react-icons/fa';
+import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface Expense {
     id: string;
@@ -245,6 +246,115 @@ export default function AccountingPage() {
                         <p className="text-xs text-gray-500 mt-1">Tahmini hammadde maliyeti</p>
                     </div>
                 </div>
+            </div>
+
+            {/* Charts Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                {/* Revenue vs Expenses Trend */}
+                <div className="bg-white rounded-lg shadow-lg p-6">
+                    <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <FaChartLine className="text-blue-600" />
+                        Gelir-Gider Trendi
+                    </h3>
+                    <ResponsiveContainer width="100%" height={300}>
+                        <LineChart data={dailyStats}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                            <XAxis
+                                dataKey="date"
+                                tick={{ fontSize: 12 }}
+                                tickFormatter={(value) => new Date(value).getDate().toString()}
+                            />
+                            <YAxis tick={{ fontSize: 12 }} />
+                            <Tooltip
+                                formatter={(value: number) => `₺${value.toLocaleString()}`}
+                                labelFormatter={(label) => new Date(label).toLocaleDateString('tr-TR')}
+                            />
+                            <Legend />
+                            <Line
+                                type="monotone"
+                                dataKey="totalSales"
+                                stroke="#10b981"
+                                strokeWidth={3}
+                                name="Gelir"
+                                dot={{ fill: '#10b981', r: 4 }}
+                            />
+                            <Line
+                                type="monotone"
+                                dataKey="totalExpenses"
+                                stroke="#ef4444"
+                                strokeWidth={3}
+                                name="Gider"
+                                dot={{ fill: '#ef4444', r: 4 }}
+                            />
+                        </LineChart>
+                    </ResponsiveContainer>
+                </div>
+
+                {/* Daily Sales Breakdown */}
+                <div className="bg-white rounded-lg shadow-lg p-6">
+                    <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <FaMoneyBillWave className="text-green-600" />
+                        Günlük Satış Dağılımı
+                    </h3>
+                    <ResponsiveContainer width="100%" height={300}>
+                        <BarChart data={dailyStats}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                            <XAxis
+                                dataKey="date"
+                                tick={{ fontSize: 12 }}
+                                tickFormatter={(value) => new Date(value).getDate().toString()}
+                            />
+                            <YAxis tick={{ fontSize: 12 }} />
+                            <Tooltip
+                                formatter={(value: number) => `₺${value.toLocaleString()}`}
+                                labelFormatter={(label) => new Date(label).toLocaleDateString('tr-TR')}
+                            />
+                            <Legend />
+                            <Bar dataKey="cashSales" fill="#10b981" name="Nakit" radius={[8, 8, 0, 0]} />
+                            <Bar dataKey="cardSales" fill="#3b82f6" name="Kart" radius={[8, 8, 0, 0]} />
+                        </BarChart>
+                    </ResponsiveContainer>
+                </div>
+            </div>
+
+            {/* Expense Categories Pie Chart */}
+            <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+                <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <FaArrowDown className="text-red-600" />
+                    Gider Kategorileri Dağılımı
+                </h3>
+                <ResponsiveContainer width="100%" height={300}>
+                    <PieChart>
+                        <Pie
+                            data={(() => {
+                                const categoryTotals: { [key: string]: number } = {};
+                                expenses.forEach(exp => {
+                                    categoryTotals[exp.category] = (categoryTotals[exp.category] || 0) + exp.amount;
+                                });
+                                return Object.entries(categoryTotals).map(([name, value]) => ({ name, value }));
+                            })()}
+                            cx="50%"
+                            cy="50%"
+                            labelLine={false}
+                            label={({ name, percent }) => `${name} (${((percent || 0) * 100).toFixed(0)}%)`}
+                            outerRadius={100}
+                            fill="#8884d8"
+                            dataKey="value"
+                        >
+                            {(() => {
+                                const COLORS = ['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899'];
+                                const categoryTotals: { [key: string]: number } = {};
+                                expenses.forEach(exp => {
+                                    categoryTotals[exp.category] = (categoryTotals[exp.category] || 0) + exp.amount;
+                                });
+                                return Object.keys(categoryTotals).map((_, index) => (
+                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                ));
+                            })()}
+                        </Pie>
+                        <Tooltip formatter={(value: number) => `₺${value.toLocaleString()}`} />
+                    </PieChart>
+                </ResponsiveContainer>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
