@@ -75,7 +75,9 @@ const FeaturedProducts = () => {
                       <h3 className="text-lg font-semibold text-gray-800 line-clamp-1">{product.name}</h3>
                       <p className="text-gray-600 text-sm mt-1 line-clamp-2 min-h-[40px]">{product.description}</p>
                       <div className="mt-auto pt-3 border-t border-gray-100">
-                        <span className="text-starbucks-green font-bold text-lg">{product.price}</span>
+                        <span className="text-starbucks-green font-bold text-lg">
+                          ₺{(product.price || product.sizes?.[0]?.price || 0).toFixed(2)}
+                        </span>
                       </div>
                     </div>
                   </div>
