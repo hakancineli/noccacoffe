@@ -12,7 +12,7 @@ export default function VideoBanner() {
     if (video) {
       // Try to autoplay
       const playPromise = video.play();
-      
+
       if (playPromise !== undefined) {
         playPromise.catch(error => {
           console.log('Auto-play was prevented:', error);
@@ -36,25 +36,25 @@ export default function VideoBanner() {
   };
 
   return (
-    <section className="relative w-full h-[400px] bg-black">
-      <div className="w-full h-full flex items-center justify-center overflow-hidden">
+    <section className="relative w-full h-[400px] bg-gray-50 overflow-hidden">
+      <div className="w-full h-full flex items-center justify-center">
         <video
           ref={videoRef}
-          className="w-full h-auto max-h-[400px] object-contain scale-[1.3]"
-        loop
-        muted
-        playsInline
-        onClick={togglePlay}
-        onPlay={() => setIsPlaying(true)}
-        onPause={() => setIsPlaying(false)}
+          className="w-full h-full object-cover"
+          loop
+          muted
+          playsInline
+          onClick={togglePlay}
+          onPlay={() => setIsPlaying(true)}
+          onPause={() => setIsPlaying(false)}
         >
           <source src="/videos/instagram/coffee-video.mp4" type="video/mp4" />
           Tarayıcınız video etiketini desteklemiyor.
         </video>
       </div>
-      
+
       {!isPlaying && (
-        <div 
+        <div
           className="absolute inset-0 flex items-center justify-center bg-black/30 cursor-pointer"
           onClick={togglePlay}
         >
