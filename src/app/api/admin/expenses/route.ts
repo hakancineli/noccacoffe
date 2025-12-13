@@ -56,13 +56,76 @@ export async function GET(request: Request) {
 
         const totalRevenue = payments._sum.amount || 0;
 
+        // 3. Daily Breakdown Calculation
+        const dailyMap = new Map<string, {
+            date: string;
+            totalSales: number;
+            cashSales: number;
+            cardSales: number;
+            totalExpenses: number;
+            netProfit: number;
+            orderCount: number;
+        }>();
+
+        // Helper to init day entry
+        const getDayEntry = (date: Date) => {
+            const dayKey = date.toISOString().split('T')[0];
+            if (!dailyMap.has(dayKey)) {
+                dailyMap.set(dayKey, {
+                    date: dayKey,
+                    totalSales: 0,
+                    cashSales: 0,
+                    cardSales: 0,
+                    totalExpenses: 0,
+                    netProfit: 0,
+                    orderCount: 0
+                });
+            }
+            return dailyMap.get(dayKey)!;
+        };
+
+        // Fetch detailed payments for breakdown
+        const allPayments = await prisma.payment.findMany({
+            where: {
+                status: 'COMPLETED',
+                ...paymentDateFilter
+            },
+            select: {
+                amount: true,
+                method: true,
+                createdAt: true
+            }
+        });
+
+        // Process Payments
+        allPayments.forEach(p => {
+            const entry = getDayEntry(p.createdAt);
+            entry.totalSales += p.amount;
+            if (p.method === 'CASH') entry.cashSales += p.amount;
+            else entry.cardSales += p.amount;
+            entry.orderCount += 1;
+        });
+
+        // Process Expenses
+        expenses.forEach(e => {
+            const entry = getDayEntry(e.date);
+            entry.totalExpenses += e.amount;
+        });
+
+        // Calculate Profit & Convert to Array
+        const dailyBreakdown = Array.from(dailyMap.values()).map(day => ({
+            ...day,
+            netProfit: day.totalSales - day.totalExpenses
+        })).sort((a, b) => b.date.localeCompare(a.date));
+
         return NextResponse.json({
             expenses,
             summary: {
                 totalRevenue,
                 totalExpenses,
                 netProfit: totalRevenue - totalExpenses
-            }
+            },
+            dailyBreakdown
         });
     } catch (error) {
         console.error('Expenses fetch error:', error);
