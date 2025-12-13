@@ -49,46 +49,49 @@ const OrdersPage = () => {
 
         if (response.ok) {
           const data = await response.json();
+          // Map backend status to frontend expectations if needed, or ensure frontend handles caps
           setOrders(data);
         } else {
           console.error('Failed to fetch orders');
-          // Optionally handle error state
         }
       } catch (error) {
         console.error('Error fetching orders:', error);
       }
     };
 
-    fetchOrders();
+    fetchOrders(); // Initial fetch
+
+    // Poll every 5 seconds
+    const interval = setInterval(fetchOrders, 5000);
+    return () => clearInterval(interval);
   }, [router]);
 
-  const getStatusColor = (status: Order['status']) => {
-    switch (status) {
-      case 'preparing':
+  const getStatusColor = (status: string) => {
+    const s = status?.toUpperCase();
+    switch (s) {
+      case 'PENDING':
+      case 'PREPARING':
         return 'bg-yellow-100 text-yellow-800';
-      case 'ready':
-        return 'bg-blue-100 text-blue-800';
-      case 'completed':
+      case 'READY':
         return 'bg-green-100 text-green-800';
-      case 'cancelled':
+      case 'COMPLETED':
+        return 'bg-gray-100 text-gray-800';
+      case 'CANCELLED':
         return 'bg-red-100 text-red-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
   };
 
-  const getStatusText = (status: Order['status']) => {
-    switch (status) {
-      case 'preparing':
-        return 'Hazırlanıyor';
-      case 'ready':
-        return 'Hazır';
-      case 'completed':
-        return 'Tamamlandı';
-      case 'cancelled':
-        return 'İptal Edildi';
-      default:
-        return 'Bilinmiyor';
+  const getStatusText = (status: string) => {
+    const s = status?.toUpperCase();
+    switch (s) {
+      case 'PENDING': return 'Bekleniyor';
+      case 'PREPARING': return 'Hazırlanıyor';
+      case 'READY': return 'Hazır';
+      case 'COMPLETED': return 'Tamamlandı';
+      case 'CANCELLED': return 'İptal Edildi';
+      default: return 'Bilinmiyor';
     }
   };
 
@@ -131,8 +134,8 @@ const OrdersPage = () => {
                   key={item.value}
                   onClick={() => setFilter(item.value as any)}
                   className={`px-4 py-2 rounded-md font-medium transition-colors ${filter === item.value
-                      ? 'bg-nocca-light-green text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'bg-nocca-light-green text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                 >
                   {item.label}
