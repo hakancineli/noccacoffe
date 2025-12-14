@@ -20,6 +20,8 @@ export default function IngredientsPage() {
     const [showModal, setShowModal] = useState(false);
     const [editingIngredient, setEditingIngredient] = useState<Ingredient | null>(null);
 
+    const [monthlyConsumption, setMonthlyConsumption] = useState(0);
+
     const [formData, setFormData] = useState({
         name: '',
         unit: 'g',
@@ -39,7 +41,18 @@ export default function IngredientsPage() {
 
             const res = await fetch(url);
             const data = await res.json();
-            setIngredients(data);
+
+            // Handle new response format
+            if (data.items) {
+                setIngredients(data.items);
+                setMonthlyConsumption(data.meta?.monthlyConsumptionCost || 0);
+            } else {
+                // Fallback for array response (filtered search might still return array depending on implementation, but I updated main GET)
+                // Actually my update handles search too, so it should be object.
+                // But just in case
+                if (Array.isArray(data)) setIngredients(data);
+                else setIngredients([]);
+            }
         } catch (error) {
             console.error('Failed to fetch ingredients:', error);
         } finally {
@@ -127,16 +140,24 @@ export default function IngredientsPage() {
                 </div>
 
                 {/* Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div className="bg-white p-6 rounded-lg shadow">
-                        <p className="text-gray-500 text-sm font-medium">Toplam Hammadde</p>
-                        <p className="text-3xl font-bold text-gray-900 mt-2">{ingredients.length}</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div className="bg-white p-6 rounded-lg shadow border-l-4 border-blue-500">
+                        <p className="text-gray-500 text-sm font-medium">Aylık Tüketim (Gider)</p>
+                        <p className="text-3xl font-bold text-gray-900 mt-2">
+                            ₺{monthlyConsumption.toFixed(2)}
+                        </p>
+                        <p className="text-xs text-gray-400 mt-1">Bu ay kullanılan hammadde maliyeti</p>
                     </div>
-                    <div className="bg-white p-6 rounded-lg shadow">
-                        <p className="text-gray-500 text-sm font-medium">Toplam Envanter Değeri</p>
+                    <div className="bg-white p-6 rounded-lg shadow border-l-4 border-green-500">
+                        <p className="text-gray-500 text-sm font-medium">Anlık Stok Değeri</p>
                         <p className="text-3xl font-bold text-green-600 mt-2">
                             ₺{totalInventoryValue.toFixed(2)}
                         </p>
+                        <p className="text-xs text-gray-400 mt-1">Mevcut stokların değeri</p>
+                    </div>
+                    <div className="bg-white p-6 rounded-lg shadow">
+                        <p className="text-gray-500 text-sm font-medium">Toplam Hammadde</p>
+                        <p className="text-3xl font-bold text-gray-900 mt-2">{ingredients.length}</p>
                     </div>
                     <div className="bg-white p-6 rounded-lg shadow">
                         <p className="text-gray-500 text-sm font-medium">Düşük Stok Uyarısı</p>

@@ -17,7 +17,57 @@ export async function GET(request: NextRequest) {
             orderBy: { name: 'asc' }
         });
 
-        return NextResponse.json(ingredients);
+        // Calculate Monthly Consumption (Approximated from Sales)
+        const startOfMonth = new Date();
+        startOfMonth.setDate(1);
+        startOfMonth.setHours(0, 0, 0, 0);
+
+        const monthlyOrders = await prisma.order.findMany({
+            where: {
+                createdAt: { gte: startOfMonth },
+                status: { not: 'CANCELLED' }
+            },
+            include: {
+                orderItems: true
+            }
+        });
+
+        const allRecipes = await prisma.recipe.findMany({
+            include: { items: { include: { ingredient: true } } }
+        });
+
+        let monthlyConsumptionCost = 0;
+
+        for (const order of monthlyOrders) {
+            for (const item of order.orderItems) {
+                // Find recipe (match size OR generic)
+                let recipe = allRecipes.find(r =>
+                    r.productId === item.productId &&
+                    (r.size === item.size || (item.size && !r.size))
+                );
+
+                // Precise matching logic
+                const specificRecipe = allRecipes.find(r => r.productId === item.productId && r.size === item.size);
+                const genericRecipe = allRecipes.find(r => r.productId === item.productId && r.size === null);
+
+                const activeRecipe = specificRecipe || genericRecipe;
+
+                if (activeRecipe) {
+                    for (const ri of activeRecipe.items) {
+                        const cost = ri.quantity * ri.ingredient.costPerUnit;
+                        monthlyConsumptionCost += cost * item.quantity;
+                    }
+                }
+            }
+        }
+
+        return NextResponse.json({
+            items: ingredients,
+            meta: {
+                monthlyConsumptionCost
+            }
+        });
+
     } catch (error) {
         console.error('Ingredients fetch error:', error);
         return NextResponse.json(
