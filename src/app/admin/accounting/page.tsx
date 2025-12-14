@@ -43,6 +43,38 @@ const translateCategory = (category: string): string => {
     return translations[category] || category;
 };
 
+const RADIAN = Math.PI / 180;
+const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index, name }: any) => {
+    if (percent < 0.01) return null; // Hide labels for very small slices to prevent overlap
+
+    const radius = outerRadius * 1.4;
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+    // Calculate line points
+    const sin = Math.sin(-midAngle * RADIAN);
+    const cos = Math.cos(-midAngle * RADIAN);
+    const sx = cx + (outerRadius + 10) * cos;
+    const sy = cy + (outerRadius + 10) * sin;
+    const mx = cx + (outerRadius + 30) * cos;
+    const my = cy + (outerRadius + 30) * sin;
+
+    // Force text to align to columns
+    const xDirection = cos >= 0 ? 1 : -1;
+    const ex = cx + (outerRadius + 50) * xDirection;
+    const ey = my;
+    const textAnchor = xDirection === 1 ? 'start' : 'end';
+
+    return (
+        <g>
+            <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke="#9ca3af" fill="none" />
+            <text x={ex + (xDirection * 5)} y={ey} textAnchor={textAnchor} fill="#374151" fontSize={11} dominantBaseline="central">
+                {`${name} (%${(percent * 100).toFixed(0)})`}
+            </text>
+        </g>
+    );
+};
+
 export default function AccountingPage() {
     // Start of component
     const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -380,8 +412,8 @@ export default function AccountingPage() {
                             })()}
                             cx="50%"
                             cy="50%"
-                            labelLine={true}
-                            label={({ name, percent }: { name?: string; percent?: number }) => `${name || ''} (%${((percent || 0) * 100).toFixed(0)})`}
+                            labelLine={false}
+                            label={renderCustomizedLabel}
                             outerRadius={65}
                             fill="#8884d8"
                             dataKey="value"
