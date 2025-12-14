@@ -43,15 +43,16 @@ export default function IngredientsPage() {
             const data = await res.json();
 
             // Handle new response format
-            if (data.items) {
+            // Handle new response format
+            if (data.items && Array.isArray(data.items)) {
                 setIngredients(data.items);
                 setMonthlyConsumption(data.meta?.monthlyConsumptionCost || 0);
             } else {
-                // Fallback for array response (filtered search might still return array depending on implementation, but I updated main GET)
-                // Actually my update handles search too, so it should be object.
-                // But just in case
                 if (Array.isArray(data)) setIngredients(data);
-                else setIngredients([]);
+                else {
+                    console.error('Invalid ingredients format:', data);
+                    setIngredients([]); // Safe fallback
+                }
             }
         } catch (error) {
             console.error('Failed to fetch ingredients:', error);
@@ -117,10 +118,10 @@ export default function IngredientsPage() {
         setEditingIngredient(null);
     };
 
-    const totalInventoryValue = ingredients.reduce(
+    const totalInventoryValue = Array.isArray(ingredients) ? ingredients.reduce(
         (sum, ing) => sum + (ing.stock * ing.costPerUnit),
         0
-    );
+    ) : 0;
 
     return (
         <div className="min-h-screen bg-gray-50 p-8">
