@@ -197,12 +197,59 @@ export async function POST(request: Request) {
                     }
                     console.log(`Deducted ingredients for ${item.quantity}x ${item.productName} (${item.size})`);
                 } else {
-                    // Fallback: If no recipe found, decrement product stock AND increment soldCount
+                    // Even if no recipe, increment soldCount
                     await prisma.product.update({
                         where: { id: item.productId.toString() },
                         data: {
-                            stock: { decrement: item.quantity },
                             soldCount: { increment: item.quantity }
+                        }
+                    });
+                }
+
+                // --- AUTOMATIC CUP DEDUCTION ---
+                // Map sizes to specific Ingredient Names
+                const sizeToCupMap: Record<string, string> = {
+                    'Small': 'Küçük Bardak (8oz)',
+                    'Medium': 'Orta Bardak (12oz)',
+                    'Large': 'Büyük Bardak (16oz)'
+                };
+
+                const targetSize = item.size || 'Medium'; // Default
+                const cupName = sizeToCupMap[targetSize];
+
+                if (cupName) {
+                    // check if this cup was already in the recipe (to avoid double deduction)
+                    let alreadyDeducted = false;
+                    if (recipe) {
+                        // We need the ingredient names from recipe items to check.
+                        // The previous fetch included: items: { include: { ingredient: true } }
+                        // So we can check names.
+                        alreadyDeducted = recipe.items.some(ri => ri.ingredient.name === cupName);
+                    }
+
+                    if (!alreadyDeducted) {
+                        // Find the cup ingredient
+                        const cupIngredient = await prisma.ingredient.findFirst({
+                            where: { name: cupName }
+                        });
+
+                        if (cupIngredient) {
+                            await prisma.ingredient.update({
+                                where: { id: cupIngredient.id },
+                                data: {
+                                    stock: { decrement: item.quantity }
+                                }
+                            });
+                        }
+                    }
+                }
+                // -------------------------------
+                if (!recipe) { // This 'if' block was part of the original 'else' block, now it's moved and modified
+                    // Fallback: If no recipe found, decrement product stock
+                    await prisma.product.update({
+                        where: { id: item.productId.toString() },
+                        data: {
+                            stock: { decrement: item.quantity }
                         }
                     });
                     console.log(`No recipe found for ${item.productName}, using product stock`);
