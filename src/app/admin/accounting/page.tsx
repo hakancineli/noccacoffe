@@ -37,6 +37,7 @@ const translateCategory = (category: string): string => {
         'SUPPLIES': 'Malzemeler',
         'MAINTENANCE': 'Bakım',
         'MARKETING': 'Pazarlama',
+        'ADVANCE': 'Avans',
         'OTHER': 'Diğer'
     };
     return translations[category] || category;
@@ -381,7 +382,7 @@ export default function AccountingPage() {
                             cy="50%"
                             labelLine={true}
                             label={({ name, percent }: { name?: string; percent?: number }) => `${name || ''} (%${((percent || 0) * 100).toFixed(0)})`}
-                            outerRadius={80}
+                            outerRadius={65}
                             fill="#8884d8"
                             dataKey="value"
                         >
