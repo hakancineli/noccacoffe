@@ -38,6 +38,7 @@ interface Product {
   updatedAt: string;
   recipes?: Recipe[];
   soldCount: number;
+  salesBySize?: { size: string; count: number }[];
 }
 
 export default function ProductsManagement() {
@@ -393,10 +394,10 @@ export default function ProductsManagement() {
                     Kategori
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Fiyat
+                    Toplam Satış
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Toplam Satış
+                    Fiyat
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Durum
@@ -451,12 +452,21 @@ export default function ProductsManagement() {
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {product.category}
                       </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-bold">
+                        <div>{product.soldCount} Adet</div>
+                        {product.salesBySize && product.salesBySize.length > 0 && (
+                          <div className="text-xs text-gray-400 mt-1 space-y-0.5">
+                            {product.salesBySize.map(s => (
+                              <div key={s.size} className="flex gap-1">
+                                <span className="font-semibold">{s.size === 'Standart' ? 'Std' : s.size.substring(0, 1)}:</span>
+                                <span>{s.count}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         ₺{product.price.toFixed(2)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold text-blue-600">
-                        {/* Display Sales Count instead of Stock */}
-                        {(product as any).soldCount || 0} Adet
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${product.isActive
@@ -560,30 +570,34 @@ export default function ProductsManagement() {
             </div>
           )}
         </div>
-      </main>
+      </main >
 
       {/* Create Product Modal */}
-      {isCreateModalOpen && (
-        <ProductModal
-          product={null}
-          onSubmit={createProduct}
-          onClose={() => setIsCreateModalOpen(false)}
-          categories={categories}
-        />
-      )}
+      {
+        isCreateModalOpen && (
+          <ProductModal
+            product={null}
+            onSubmit={createProduct}
+            onClose={() => setIsCreateModalOpen(false)}
+            categories={categories}
+          />
+        )
+      }
 
       {/* Edit Product Modal */}
-      {isModalOpen && selectedProduct && (
-        <ProductModal
-          product={selectedProduct}
-          onSubmit={(formData) => updateProduct(selectedProduct.id, formData)}
-          onClose={() => {
-            setIsModalOpen(false);
-            setSelectedProduct(null);
-          }}
-          categories={categories}
-        />
-      )}
+      {
+        isModalOpen && selectedProduct && (
+          <ProductModal
+            product={selectedProduct}
+            onSubmit={(formData) => updateProduct(selectedProduct.id, formData)}
+            onClose={() => {
+              setIsModalOpen(false);
+              setSelectedProduct(null);
+            }}
+            categories={categories}
+          />
+        )
+      }
 
       {/* Recipe Modal */}
       <RecipeModal
@@ -603,7 +617,7 @@ export default function ProductsManagement() {
         calculateRecipeCost={calculateRecipeCost}
         saveRecipe={saveRecipe}
       />
-    </div>
+    </div >
   );
 
 }

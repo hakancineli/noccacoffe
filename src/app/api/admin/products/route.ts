@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
       (prisma as any).product.findMany({
         where,
         include: {
-          recipes: true
+          recipes: { include: { items: true } } // Improved include
         },
         orderBy: { createdAt: 'desc' },
         skip,
@@ -46,8 +46,28 @@ export async function GET(request: NextRequest) {
       (prisma as any).product.count({ where }),
     ]);
 
+    // Calculate sales breakdown by size
+    const productsWithSales = await Promise.all(products.map(async (p: any) => {
+      const salesBySize = await (prisma as any).orderItem.groupBy({
+        by: ['size'],
+        where: {
+          productId: p.id,
+          order: { status: { not: 'CANCELLED' } }
+        },
+        _sum: { quantity: true }
+      });
+
+      // Format: { size: 'Large', count: 5 }
+      const salesBreakdown = salesBySize.map((s: any) => ({
+        size: s.size || 'Standart',
+        count: s._sum.quantity || 0
+      }));
+
+      return { ...p, salesBySize: salesBreakdown };
+    }));
+
     return NextResponse.json({
-      products,
+      products: productsWithSales,
       pagination: {
         page,
         limit,
