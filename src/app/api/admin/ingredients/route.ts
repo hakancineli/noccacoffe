@@ -90,16 +90,33 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        const ingredient = await prisma.ingredient.create({
-            data: {
-                name,
-                unit,
-                stock: stock || 0,
-                costPerUnit: costPerUnit || 0
+        // Use transaction to ensure both or neither are created
+        const result = await prisma.$transaction(async (tx) => {
+            const ingredient = await tx.ingredient.create({
+                data: {
+                    name,
+                    unit,
+                    stock: stock || 0,
+                    costPerUnit: costPerUnit || 0
+                }
+            });
+
+            // If initial stock is provided, create an expense
+            if (stock && stock > 0 && costPerUnit && costPerUnit > 0) {
+                await tx.expense.create({
+                    data: {
+                        description: `Hammadde: ${name} (${stock} ${unit})`,
+                        amount: stock * costPerUnit,
+                        category: 'SUPPLIES',
+                        date: new Date()
+                    }
+                });
             }
+
+            return ingredient;
         });
 
-        return NextResponse.json(ingredient, { status: 201 });
+        return NextResponse.json(result, { status: 201 });
     } catch (error) {
         console.error('Ingredient creation error:', error);
         return NextResponse.json(
@@ -122,17 +139,47 @@ export async function PUT(request: NextRequest) {
             );
         }
 
-        const ingredient = await prisma.ingredient.update({
-            where: { id },
-            data: {
-                ...(name && { name }),
-                ...(unit && { unit }),
-                ...(stock !== undefined && { stock }),
-                ...(costPerUnit !== undefined && { costPerUnit })
+        const result = await prisma.$transaction(async (tx) => {
+            // Get existing ingredient to check stock difference
+            const existing = await tx.ingredient.findUnique({
+                where: { id }
+            });
+
+            if (!existing) {
+                throw new Error('Ingredient not found');
             }
+
+            const ingredient = await tx.ingredient.update({
+                where: { id },
+                data: {
+                    ...(name && { name }),
+                    ...(unit && { unit }),
+                    ...(stock !== undefined && { stock }),
+                    ...(costPerUnit !== undefined && { costPerUnit })
+                }
+            });
+
+            // If stock increased, create expense for the difference
+            if (stock !== undefined && stock > existing.stock) {
+                const addedStock = stock - existing.stock;
+                const unitCost = costPerUnit !== undefined ? costPerUnit : existing.costPerUnit;
+
+                if (addedStock > 0 && unitCost > 0) {
+                    await tx.expense.create({
+                        data: {
+                            description: `Hammadde Ekleme: ${ingredient.name} (+${addedStock} ${ingredient.unit})`,
+                            amount: addedStock * unitCost,
+                            category: 'SUPPLIES',
+                            date: new Date()
+                        }
+                    });
+                }
+            }
+
+            return ingredient;
         });
 
-        return NextResponse.json(ingredient);
+        return NextResponse.json(result);
     } catch (error) {
         console.error('Ingredient update error:', error);
         return NextResponse.json(
