@@ -211,7 +211,10 @@ export async function POST(request: Request) {
                 const sizeToCupMap: Record<string, string> = {
                     'Small': 'Küçük Bardak (8oz)',
                     'Medium': 'Orta Bardak (12oz)',
-                    'Large': 'Büyük Bardak (16oz)'
+                    'Large': 'Büyük Bardak (16oz)',
+                    'S': 'Küçük Bardak (8oz)',
+                    'M': 'Orta Bardak (12oz)',
+                    'L': 'Büyük Bardak (16oz)'
                 };
 
                 const targetSize = item.size || 'Medium'; // Default
