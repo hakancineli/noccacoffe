@@ -64,12 +64,13 @@ export async function POST(request: Request) {
                 notes,
                 totalAmount,
                 finalAmount: body.finalAmount || totalAmount,
+                discountAmount: body.discountAmount || 0,
                 status: orderStatus,
                 paymentMethod: method,
                 paymentStatus: paymentStatus,
                 payment: {
                     create: {
-                        amount: totalAmount,
+                        amount: body.finalAmount || totalAmount, // Use final (discounted) amount
                         method: method,
                         status: paymentStatus,
                     }

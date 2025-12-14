@@ -106,7 +106,8 @@ export async function POST(request: NextRequest) {
         customerPhone,
         customerEmail,
         totalAmount,
-        finalAmount: totalAmount,
+        finalAmount: body.finalAmount || totalAmount,
+        discountAmount: body.discountAmount || 0,
         paymentMethod: paymentMethod || null,
         notes,
         status: body.status || 'PENDING', // Allow status override (e.g. for POS)
@@ -114,7 +115,7 @@ export async function POST(request: NextRequest) {
         paymentStatus: (body.status === 'COMPLETED' || paymentMethod) ? 'COMPLETED' : 'PENDING',
         payment: {
           create: {
-            amount: totalAmount,
+            amount: body.finalAmount || totalAmount, // Use final (discounted) amount
             method: paymentMethod || 'CASH',
             status: (body.status === 'COMPLETED' || paymentMethod) ? 'COMPLETED' : 'PENDING',
           }

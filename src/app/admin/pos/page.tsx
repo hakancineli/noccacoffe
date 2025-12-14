@@ -40,10 +40,16 @@ export default function POSPage() {
     // Size Selection Modal State
     const [selectedProductForSize, setSelectedProductForSize] = useState<MenuItem | null>(null);
 
+    const [productSearch, setProductSearch] = useState('');
+    const [discountRate, setDiscountRate] = useState(0);
+    const [showDiscountInput, setShowDiscountInput] = useState(false);
+
     // Filter products
-    const filteredProducts = activeCategory === 'Tümü'
-        ? allMenuItems
-        : allMenuItems.filter(item => item.category === activeCategory);
+    const filteredProducts = allMenuItems.filter(item => {
+        const matchesCategory = activeCategory === 'Tümü' || item.category === activeCategory;
+        const matchesSearch = item.name.toLowerCase().includes(productSearch.toLowerCase());
+        return matchesCategory && matchesSearch;
+    });
 
     // Cart Logic
     const handleProductClick = (product: MenuItem) => {
@@ -103,6 +109,8 @@ export default function POSPage() {
     };
 
     const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const discountAmount = cartTotal * (discountRate / 100);
+    const finalTotal = cartTotal - discountAmount;
 
     // Customer Search Logic
     useEffect(() => {
@@ -130,6 +138,7 @@ export default function POSPage() {
         return () => clearTimeout(timeoutId);
     }, [customerSearch]);
 
+    // Order Creation Logic
     const handleCreateOrder = async (paymentMethod: 'CASH' | 'CREDIT_CARD') => {
         if (cart.length === 0) return;
 
@@ -145,6 +154,8 @@ export default function POSPage() {
                     size: item.size
                 })),
                 totalAmount: cartTotal,
+                finalAmount: finalTotal,
+                discountAmount: discountAmount,
                 status: 'PENDING', // Start as PENDING to show in Kitchen/Order Management
                 paymentMethod,
                 userId: selectedCustomer?.id || null, // Assign to customer if selected
@@ -167,6 +178,7 @@ export default function POSPage() {
                 setCart([]);
                 setSelectedCustomer(null);
                 setCustomerSearch('');
+                setDiscountRate(0); // Reset discount after order
             } else {
                 alert('Sipariş oluşturulurken hata oluştu.');
             }
@@ -208,9 +220,15 @@ export default function POSPage() {
                         </div>
                    `).join('')}
                 </div>
+                ${lastOrder.discountAmount > 0 ? `
+                    <div class="item" style="color: red;">
+                        <span>İskonto (${lastOrder.discountRate || ''}%)</span>
+                        <span>-₺${lastOrder.discountAmount.toFixed(2)}</span>
+                    </div>
+                ` : ''}
                 <div class="total">
                     <span>TOPLAM</span>
-                    <span>${(typeof lastOrder.totalAmount === 'number' ? lastOrder.totalAmount : parseFloat(lastOrder.totalAmount)).toFixed(2)}₺</span>
+                    <span>${(typeof lastOrder.finalAmount === 'number' ? lastOrder.finalAmount : parseFloat(lastOrder.finalAmount)).toFixed(2)}₺</span>
                 </div>
                 <div class="footer">
                     <p>Afiyet Olsun!</p>
@@ -311,6 +329,20 @@ export default function POSPage() {
                         <div className="text-sm text-gray-500">
                             {new Date().toLocaleDateString('tr-TR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                         </div>
+                    </div>
+                </div>
+
+                {/* Search Bar */}
+                <div className="bg-white px-4 pb-4 shadow-sm z-10 border-t border-gray-100">
+                    <div className="relative">
+                        <FaSearch className="absolute left-3 top-3 text-nocca-green" />
+                        <input
+                            type="text"
+                            placeholder="Ürün Ara (örn: Latte, Mocha)..."
+                            value={productSearch}
+                            onChange={(e) => setProductSearch(e.target.value)}
+                            className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:outline-none bg-gray-50 transition-all font-medium text-gray-800 placeholder-gray-400 opacity-90 hover:opacity-100" // Styled to match image
+                        />
                     </div>
 
                     <div className="flex space-x-2 overflow-x-auto pb-2 scrollbar-hide">
@@ -453,9 +485,51 @@ export default function POSPage() {
 
                 {/* Totals & Payment */}
                 <div className="p-4 bg-white border-t border-gray-200 shadow-inner">
-                    <div className="flex justify-between items-center mb-4">
-                        <span className="text-gray-600 font-medium">Toplam Tutar</span>
-                        <span className="text-2xl font-bold text-gray-900">₺{cartTotal.toFixed(2)}</span>
+
+                    {/* Discount Control */}
+                    <div className="flex justify-between items-center mb-2">
+                        <button
+                            onClick={() => setShowDiscountInput(!showDiscountInput)}
+                            className="text-xs font-semibold text-nocca-green hover:underline flex items-center"
+                        >
+                            {showDiscountInput ? 'İskontoyu Kapat' : '+ İskonto Uygula'}
+                        </button>
+                        {showDiscountInput && (
+                            <div className="flex items-center space-x-1 animate-fade-in-right">
+                                <input
+                                    type="number"
+                                    min="0"
+                                    max="100"
+                                    value={discountRate}
+                                    onChange={(e) => {
+                                        let val = parseFloat(e.target.value);
+                                        if (val > 100) val = 100;
+                                        if (val < 0) val = 0;
+                                        setDiscountRate(val);
+                                    }}
+                                    className="w-16 p-1 border border-gray-300 rounded text-right text-sm focus:ring-1 focus:ring-green-500"
+                                    placeholder="0"
+                                />
+                                <span className="text-gray-600 text-sm font-bold">%</span>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="flex justify-between items-center mb-1">
+                        <span className="text-gray-500 text-sm">Ara Toplam</span>
+                        <span className="font-medium text-gray-700">₺{cartTotal.toFixed(2)}</span>
+                    </div>
+
+                    {discountRate > 0 && (
+                        <div className="flex justify-between items-center mb-1 text-red-500 font-medium">
+                            <span className="text-sm">İskonto (%{discountRate})</span>
+                            <span>-₺{discountAmount.toFixed(2)}</span>
+                        </div>
+                    )}
+
+                    <div className="flex justify-between items-center mb-4 pt-2 border-t border-dashed border-gray-300">
+                        <span className="text-gray-800 font-bold text-lg">Genel Toplam</span>
+                        <span className="text-2xl font-bold text-gray-900">₺{finalTotal.toFixed(2)}</span>
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
