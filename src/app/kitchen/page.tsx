@@ -131,12 +131,12 @@ export default function KitchenPage() {
         }
     };
 
-    if (loading) return <div className="flex h-screen items-center justify-center bg-[#2C1A1D] text-[#EAD8C0] text-2xl font-mono">Sistem Yükleniyor...</div>;
+    if (loading) return <div className="flex h-screen items-center justify-center bg-[#E5D9C8] text-[#3E2723] text-2xl font-mono">Sistem Yükleniyor...</div>;
 
     if (!hasInteracted) {
         return (
-            <div className="flex h-screen items-center justify-center bg-[#2C1A1D] text-[#EAD8C0]" onClick={handleInteraction}>
-                <div className="text-center p-10 border border-[#5C4033] rounded-2xl bg-[#3E2723] shadow-2xl cursor-pointer animate-pulse">
+            <div className="flex h-screen items-center justify-center bg-[#E5D9C8] text-[#3E2723]" onClick={handleInteraction}>
+                <div className="text-center p-10 border border-[#5C4033] rounded-2xl bg-[#3E2723] text-[#EAD8C0] shadow-2xl cursor-pointer animate-pulse">
                     <div className="text-6xl mb-4">🔇 ➔ 🔊</div>
                     <h1 className="text-3xl font-bold mb-2">Mutfak Ekranını Başlat</h1>
                     <p className="text-[#A1887F]">Sesli bildirimleri etkinleştirmek için ekrana dokunun.</p>
@@ -146,7 +146,7 @@ export default function KitchenPage() {
     }
 
     return (
-        <div className="min-h-screen bg-[#2C1A1D] text-[#EAD8C0] p-6 font-sans">
+        <div className="min-h-screen bg-[#E5D9C8] text-[#3E2723] p-6 font-sans">
             {/* Header */}
             <div className="flex justify-between items-center mb-8 bg-[#3E2723] p-4 rounded-2xl shadow-lg border border-[#5C4033]">
                 <div className="flex items-center">
