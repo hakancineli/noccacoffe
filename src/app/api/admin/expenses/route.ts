@@ -36,7 +36,12 @@ export async function GET(request: Request) {
             orderBy: {
                 date: 'desc'
             },
-            take: 100 // Limit to last 100 expenses for now
+            take: 100, // Limit to last 100 expenses for now
+            include: {
+                staff: {
+                    select: { name: true }
+                }
+            }
         });
 
         // Calculate total expenses
@@ -146,7 +151,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const { description, amount, category, date } = body;
+        const { description, amount, category, date, staffId } = body;
 
         // Basic validation
         if (!description || !amount || !category) {
@@ -162,6 +167,7 @@ export async function POST(request: Request) {
                 amount: parseFloat(amount),
                 category: category as ExpenseCategory,
                 date: date ? new Date(date) : new Date(),
+                staffId: staffId || null,
             }
         });
 

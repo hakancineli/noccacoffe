@@ -43,11 +43,15 @@ const translateCategory = (category: string): string => {
 };
 
 export default function AccountingPage() {
+    // Start of component
     const [expenses, setExpenses] = useState<Expense[]>([]);
     const [dailyStats, setDailyStats] = useState<DailyStats[]>([]);
     const [stats, setStats] = useState<FinancialStats>({ revenue: 0, expenses: 0, profit: 0 });
     const [isLoading, setIsLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // Staff State
+    const [staffList, setStaffList] = useState<{ id: string; name: string }[]>([]);
 
     // Modal State
     const [showEndOfDayModal, setShowEndOfDayModal] = useState(false);
@@ -60,10 +64,24 @@ export default function AccountingPage() {
     const [description, setDescription] = useState('');
     const [amount, setAmount] = useState('');
     const [category, setCategory] = useState('SUPPLIES');
+    const [selectedStaffId, setSelectedStaffId] = useState('');
 
     useEffect(() => {
         fetchData();
-    }, [selectedMonth]); // Refetch when month changes
+        fetchStaff();
+    }, [selectedMonth]);
+
+    const fetchStaff = async () => {
+        try {
+            const res = await fetch('/api/admin/staff');
+            if (res.ok) {
+                const data = await res.json();
+                setStaffList(data);
+            }
+        } catch (e) {
+            console.error('Staff fetch error:', e);
+        }
+    };
 
     const fetchData = async () => {
         setIsLoading(true);
@@ -98,6 +116,10 @@ export default function AccountingPage() {
     const handleAddExpense = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!description || !amount) return;
+        if (category === 'ADVANCE' && !selectedStaffId) {
+            alert('Lütfen avans verilecek personeli seçiniz.');
+            return;
+        }
 
         setIsSubmitting(true);
         try {
@@ -105,9 +127,12 @@ export default function AccountingPage() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    description,
+                    description: category === 'ADVANCE'
+                        ? `${description} (Avans: ${staffList.find(s => s.id === selectedStaffId)?.name})`
+                        : description,
                     amount: parseFloat(amount),
-                    category
+                    category,
+                    staffId: category === 'ADVANCE' ? selectedStaffId : undefined
                 })
             });
 
@@ -115,6 +140,8 @@ export default function AccountingPage() {
                 await fetchData(); // Refresh data
                 setDescription('');
                 setAmount('');
+                setSelectedStaffId('');
+                if (category === 'ADVANCE') setCategory('SUPPLIES'); // Reset category
             } else {
                 alert('Gider eklenemedi.');
             }
@@ -444,9 +471,28 @@ export default function AccountingPage() {
                                 <option value="SUPPLIES">Hammadde / Malzeme</option>
                                 <option value="SALARY">Personel Maaşı</option>
                                 <option value="MAINTENANCE">Bakım / Onarım</option>
+                                <option value="ADVANCE">Personel Avans</option>
                                 <option value="OTHER">Diğer</option>
                             </select>
                         </div>
+
+                        {/* Staff Selection for Avans */}
+                        {category === 'ADVANCE' && (
+                            <div className="animate-fade-in bg-yellow-50 p-3 rounded-lg border border-yellow-200">
+                                <label className="block text-sm font-bold text-yellow-800 mb-1">Avans Verilecek Personel</label>
+                                <select
+                                    required
+                                    value={selectedStaffId}
+                                    onChange={(e) => setSelectedStaffId(e.target.value)}
+                                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 bg-white"
+                                >
+                                    <option value="">Personel Seçiniz...</option>
+                                    {staffList.map((staff) => (
+                                        <option key={staff.id} value={staff.id}>{staff.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
 
                         <button
                             type="submit"

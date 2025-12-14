@@ -12,6 +12,8 @@ interface Staff {
     salary: number;
     isActive: boolean;
     startDate: string;
+    totalAdvances?: number;
+    remainingPayment?: number;
 }
 
 export default function StaffPage() {
@@ -150,12 +152,24 @@ export default function StaffPage() {
                             </div>
                             <div className="flex items-center text-green-700 font-medium">
                                 <FaMoneyBillWave className="mr-2" />
-                                <span>₺{staff.salary?.toLocaleString()} / Ay</span>
+                                <span>Maaş: ₺{staff.salary?.toLocaleString()}</span>
+                            </div>
+
+                            {/* Advances & Remaining Payment */}
+                            <div className="mt-3 pt-3 border-t border-dashed border-gray-200 text-sm space-y-2">
+                                <div className="flex justify-between text-orange-600">
+                                    <span className="flex items-center"><span className="w-2 h-2 rounded-full bg-orange-500 mr-2"></span>Alınan Avans:</span>
+                                    <span className="font-bold">-₺{(staff.totalAdvances || 0).toLocaleString()}</span>
+                                </div>
+                                <div className="flex justify-between text-blue-700 bg-blue-50 px-2 py-1 rounded">
+                                    <span className="font-bold">Kalan Ödeme:</span>
+                                    <span className="font-bold">₺{(staff.remainingPayment ?? staff.salary).toLocaleString()}</span>
+                                </div>
                             </div>
                         </div>
 
                         <div className="mt-4 pt-4 border-t text-xs text-gray-500 flex justify-between">
-                            <span>Başlama: {new Date(staff.startDate).toLocaleDateString()}</span>
+                            <span>Başlama: {new Date(staff.startDate).toLocaleDateString('tr-TR')}</span>
                         </div>
                     </div>
                 ))}

@@ -4,10 +4,31 @@ import { StaffRole } from '@prisma/client';
 
 export async function GET(request: Request) {
     try {
-        const staff = await prisma.barista.findMany({
+        const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+
+        const staffRaw = await prisma.barista.findMany({
+            include: {
+                expenses: {
+                    where: {
+                        category: 'ADVANCE',
+                        date: { gte: startOfMonth }
+                    },
+                    select: { amount: true }
+                }
+            },
             orderBy: {
                 createdAt: 'desc'
             }
+        });
+
+        const staff = staffRaw.map(s => {
+            const totalAdvances = s.expenses.reduce((sum, e) => sum + e.amount, 0);
+            return {
+                ...s,
+                totalAdvances,
+                remainingPayment: s.salary - totalAdvances,
+                expenses: undefined // clean up response if needed, or keep it
+            };
         });
 
         return NextResponse.json(staff);
