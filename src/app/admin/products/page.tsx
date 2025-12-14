@@ -169,7 +169,13 @@ export default function ProductsManagement() {
       const res = await fetch('/api/admin/ingredients');
       if (res.ok) {
         const data = await res.json();
-        setIngredients(data);
+        if (data.items && Array.isArray(data.items)) {
+          setIngredients(data.items);
+        } else if (Array.isArray(data)) {
+          setIngredients(data);
+        } else {
+          setIngredients([]);
+        }
       }
     } catch (error) {
       console.error('Failed to fetch ingredients:', error);
