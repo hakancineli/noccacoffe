@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { FaFire, FaCheck, FaClock, FaBell, FaBellSlash } from 'react-icons/fa';
+import { FaFire, FaCheck, FaClock, FaBell, FaBellSlash, FaCashRegister, FaMobileAlt } from 'react-icons/fa';
 
 interface Order {
     id: string;
@@ -190,101 +190,131 @@ export default function KitchenPage() {
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {orders.map((order) => (
-                        <div
-                            key={order.id}
-                            className={`relative flex flex-col rounded-xl overflow-hidden shadow-2xl transition-all duration-300 transform hover:scale-[1.02] ${order.status === 'PENDING'
-                                ? 'bg-[#3E2723] border-l-4 border-[#FF8A65] ring-1 ring-[#FF8A65]/20'
-                                : 'bg-[#4E342E] border-l-4 border-[#81C784] opacity-90'
-                                }`}
-                        >
-                            {/* Urgency Strip (Animated for Pending) */}
-                            {order.status === 'PENDING' && (
-                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF8A65] via-[#FFCCBC] to-[#FF8A65] animate-gradient-x"></div>
-                            )}
+                    {orders.map((order) => {
+                        const isPos = order.notes?.includes('POS');
+                        const cardTheme = isPos
+                            ? {
+                                bg: 'bg-[#3E2723]',
+                                border: 'border-[#FF8A65]',
+                                accent: 'text-[#FF8A65]',
+                                subBg: 'bg-[#FF8A65]/10'
+                            } // POS: Warm Orange/Brown
+                            : {
+                                bg: 'bg-[#263238]',
+                                border: 'border-[#4DB6AC]',
+                                accent: 'text-[#4DB6AC]',
+                                subBg: 'bg-[#4DB6AC]/10'
+                            }; // Mobile: Cool Teal/BlueSlate
 
-                            {/* Card Header */}
-                            <div className="p-5 border-b border-dashed border-[#5C4033] flex justify-between items-start bg-black/10">
-                                <div>
-                                    <div className="flex items-center space-x-2">
-                                        <span className={`text-2xl font-black tracking-tight ${order.status === 'PENDING' ? 'text-[#EAD8C0]' : 'text-[#D7CCC8]'}`}>
-                                            #{order.orderNumber.split('-').pop()}
-                                        </span>
-                                        {order.status === 'PENDING' && <span className="animate-pulse text-[#FF8A65] text-xs font-bold px-2 py-0.5 rounded bg-[#FF8A65]/10 border border-[#FF8A65]/20">YENİ</span>}
-                                    </div>
-                                    <div className="text-[#A1887F] text-sm mt-1 flex items-center">
-                                        <FaClock className="mr-1 text-xs" />
-                                        {new Date(order.createdAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
-                                    </div>
-                                </div>
-                                <div className="text-right">
-                                    <div className="text-xs font-bold text-[#8D6E63] uppercase tracking-wider mb-1">Müşteri</div>
-                                    <div className="font-medium text-[#D7CCC8] truncate max-w-[120px]" title={order.customerName}>
-                                        {order.customerName}
-                                    </div>
-                                </div>
-                            </div>
+                        return (
+                            <div
+                                key={order.id}
+                                className={`relative flex flex-col rounded-xl overflow-hidden shadow-2xl transition-all duration-300 transform hover:scale-[1.02] 
+                                ${cardTheme.bg} border-l-4 ${order.status === 'PENDING' ? 'border-[#FF8A65]' : 'border-[#81C784]'} 
+                                ${isPos ? 'ring-1 ring-[#FF8A65]/20' : 'ring-1 ring-[#4DB6AC]/20'}
+                            `}
+                            >
+                                {/* Urgency Strip (Animated for Pending) */}
+                                {order.status === 'PENDING' && (
+                                    <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${isPos ? 'from-[#FF8A65] via-[#FFCCBC] to-[#FF8A65]' : 'from-[#4DB6AC] via-[#B2DFDB] to-[#4DB6AC]'} animate-gradient-x`}></div>
+                                )}
 
-                            {/* Card Body (Items) */}
-                            <div className="p-5 flex-1 overflow-y-auto max-h-[300px] scrollbar-thin scrollbar-thumb-[#5C4033] scrollbar-track-transparent">
-                                <div className="space-y-4">
-                                    {order.orderItems.map((item, idx) => (
-                                        <div key={item.id} className="flex flex-col">
-                                            <div className="flex items-start">
-                                                <span className={`text-xl font-bold w-8 text-right mr-3 ${order.status === 'PENDING' ? 'text-[#FF8A65]' : 'text-[#81C784]'}`}>
-                                                    {item.quantity}x
-                                                </span>
-                                                <div className="flex-1">
-                                                    <span className="text-lg font-medium text-[#EAD8C0] leading-snug block">
-                                                        {item.productName}
-                                                    </span>
-                                                    {item.size && (
-                                                        <span className="inline-block mt-1 px-2 py-0.5 rounded text-xs font-bold bg-[#5D4037] text-[#D7CCC8] border border-[#795548]">
-                                                            {item.size}
-                                                        </span>
-                                                    )}
-                                                </div>
-                                            </div>
-                                            {item.notes && (
-                                                <div className="ml-11 mt-1 text-sm text-[#FFCCBC] italic bg-[#FF8A65]/10 p-1 rounded border-l-2 border-[#FF8A65]/50 pl-2">
-                                                    "{item.notes}"
-                                                </div>
-                                            )}
-                                            {idx < order.orderItems.length - 1 && <div className="border-b border-dashed border-[#5C4033] my-2 ml-11"></div>}
+                                {/* Card Header */}
+                                <div className="p-5 border-b border-dashed border-[#5C4033] flex justify-between items-start bg-black/10">
+                                    <div>
+                                        <div className="flex items-center space-x-2">
+                                            <span className={`text-2xl font-black tracking-tight ${order.status === 'PENDING' ? 'text-[#EAD8C0]' : 'text-[#D7CCC8]'}`}>
+                                                #{order.orderNumber.split('-').pop()}
+                                            </span>
+                                            {order.status === 'PENDING' && <span className="animate-pulse text-[#FF8A65] text-xs font-bold px-2 py-0.5 rounded bg-[#FF8A65]/10 border border-[#FF8A65]/20">YENİ</span>}
                                         </div>
-                                    ))}
+                                        <div className="text-[#A1887F] text-sm mt-1 flex items-center">
+                                            <FaClock className="mr-1 text-xs" />
+                                            {new Date(order.createdAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
+
+                                            {/* Source Badge */}
+                                            <div className={`ml-3 flex items-center px-2 py-0.5 rounded text-[10px] font-bold tracking-wider ${isPos ? 'bg-orange-900/40 text-orange-200 border border-orange-700/30' : 'bg-teal-900/40 text-teal-200 border border-teal-700/30'}`}>
+                                                {isPos ? (
+                                                    <>
+                                                        <FaCashRegister className="mr-1" /> KASA
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <FaMobileAlt className="mr-1" /> MOBİL
+                                                    </>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <div className="text-xs font-bold text-[#8D6E63] uppercase tracking-wider mb-1">Müşteri</div>
+                                        <div className="font-medium text-[#D7CCC8] truncate max-w-[120px]" title={order.customerName}>
+                                            {order.customerName}
+                                        </div>
+                                    </div>
                                 </div>
 
-                                {order.notes && (
-                                    <div className="mt-4 p-3 bg-[#FFF3E0]/5 border border-[#FFE0B2]/30 rounded-lg">
-                                        <span className="text-xs text-[#FFB74D] font-bold uppercase block mb-1">Sipariş Notu</span>
-                                        <p className="text-[#FFE0B2] text-sm">{order.notes}</p>
+                                {/* Card Body (Items) */}
+                                <div className="p-5 flex-1 overflow-y-auto max-h-[300px] scrollbar-thin scrollbar-thumb-[#5C4033] scrollbar-track-transparent">
+                                    <div className="space-y-4">
+                                        {order.orderItems.map((item, idx) => (
+                                            <div key={item.id} className="flex flex-col">
+                                                <div className="flex items-start">
+                                                    <span className={`text-xl font-bold w-8 text-right mr-3 ${order.status === 'PENDING' ? 'text-[#FF8A65]' : 'text-[#81C784]'}`}>
+                                                        {item.quantity}x
+                                                    </span>
+                                                    <div className="flex-1">
+                                                        <span className="text-lg font-medium text-[#EAD8C0] leading-snug block">
+                                                            {item.productName}
+                                                        </span>
+                                                        {item.size && (
+                                                            <span className="inline-block mt-1 px-2 py-0.5 rounded text-xs font-bold bg-[#5D4037] text-[#D7CCC8] border border-[#795548]">
+                                                                {item.size}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                {item.notes && (
+                                                    <div className="ml-11 mt-1 text-sm text-[#FFCCBC] italic bg-[#FF8A65]/10 p-1 rounded border-l-2 border-[#FF8A65]/50 pl-2">
+                                                        "{item.notes}"
+                                                    </div>
+                                                )}
+                                                {idx < order.orderItems.length - 1 && <div className="border-b border-dashed border-[#5C4033] my-2 ml-11"></div>}
+                                            </div>
+                                        ))}
                                     </div>
-                                )}
-                            </div>
 
-                            {/* Card Footer (Actions) */}
-                            <div className="p-4 bg-black/20 border-t border-[#5C4033]">
-                                {order.status === 'PENDING' ? (
-                                    <button
-                                        onClick={() => updateStatus(order.id, 'PREPARING')}
-                                        className="w-full group relative flex items-center justify-center py-3 bg-gradient-to-r from-[#8D6E63] to-[#795548] hover:from-[#795548] hover:to-[#6D4C41] text-[#EAD8C0] font-bold rounded-lg shadow-lg shadow-black/20 transition-all transform active:scale-95 border border-[#A1887F]/30"
-                                    >
-                                        <span className="mr-2 text-xl group-hover:rotate-12 transition-transform">🔥</span>
-                                        HAZIRLA
-                                    </button>
-                                ) : (
-                                    <button
-                                        onClick={() => updateStatus(order.id, 'READY')}
-                                        className="w-full group relative flex items-center justify-center py-3 bg-gradient-to-r from-[#388E3C] to-[#2E7D32] hover:from-[#2E7D32] hover:to-[#1B5E20] text-white font-bold rounded-lg shadow-lg shadow-green-900/40 transition-all transform active:scale-95 border border-green-700/50"
-                                    >
-                                        <span className="mr-2 text-xl group-hover:-rotate-12 transition-transform">✅</span>
-                                        HAZIR
-                                    </button>
-                                )}
+                                    {order.notes && (
+                                        <div className={`mt-4 p-3 border rounded-lg ${cardTheme.subBg} ${cardTheme.border}/30`}>
+                                            <span className={`text-xs font-bold uppercase block mb-1 ${cardTheme.accent}`}>Sipariş Notu</span>
+                                            <p className="text-[#FFE0B2] text-sm">{order.notes}</p>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Card Footer (Actions) */}
+                                <div className="p-4 bg-black/20 border-t border-[#5C4033]">
+                                    {order.status === 'PENDING' ? (
+                                        <button
+                                            onClick={() => updateStatus(order.id, 'PREPARING')}
+                                            className="w-full group relative flex items-center justify-center py-3 bg-gradient-to-r from-[#8D6E63] to-[#795548] hover:from-[#795548] hover:to-[#6D4C41] text-[#EAD8C0] font-bold rounded-lg shadow-lg shadow-black/20 transition-all transform active:scale-95 border border-[#A1887F]/30"
+                                        >
+                                            <span className="mr-2 text-xl group-hover:rotate-12 transition-transform">🔥</span>
+                                            HAZIRLA
+                                        </button>
+                                    ) : (
+                                        <button
+                                            onClick={() => updateStatus(order.id, 'READY')}
+                                            className="w-full group relative flex items-center justify-center py-3 bg-gradient-to-r from-[#388E3C] to-[#2E7D32] hover:from-[#2E7D32] hover:to-[#1B5E20] text-white font-bold rounded-lg shadow-lg shadow-green-900/40 transition-all transform active:scale-95 border border-green-700/50"
+                                        >
+                                            <span className="mr-2 text-xl group-hover:-rotate-12 transition-transform">✅</span>
+                                            HAZIR
+                                        </button>
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        )
+                    })}
                 </div>
             )}
         </div>
