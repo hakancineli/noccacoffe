@@ -51,7 +51,6 @@ interface DayDetails {
         finalAmount: number;
         createdAt: string;
         payment: { method: string };
-        creatorName: string | null;
         customerName: string | null;
     }[];
     expenses: {

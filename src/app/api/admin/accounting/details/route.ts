@@ -37,7 +37,6 @@ export async function GET(request: NextRequest) {
                         method: true
                     }
                 },
-                creatorName: true,
                 customerName: true
             },
             orderBy: {
