@@ -1,6 +1,12 @@
-User - agent: *
-    Allow: /
-Disallow: /admin/
-Disallow: /api/
+import { MetadataRoute } from 'next';
 
-Sitemap: https://noccacoffee.com/sitemap.xml
+export default function robots(): MetadataRoute.Robots {
+    return {
+        rules: {
+            userAgent: '*',
+            allow: '/',
+            disallow: ['/admin/', '/api/'],
+        },
+        sitemap: 'https://www.noccacoffee.com.tr/sitemap.xml',
+    };
+}

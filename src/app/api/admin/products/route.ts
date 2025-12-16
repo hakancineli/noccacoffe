@@ -63,7 +63,14 @@ export async function GET(request: NextRequest) {
         count: s._sum.quantity || 0
       }));
 
-      return { ...p, salesBySize: salesBreakdown };
+      // Calculate total sold dynamically to ensure consistency
+      const realTotalSold = salesBreakdown.reduce((sum: number, item: any) => sum + item.count, 0);
+
+      return {
+        ...p,
+        soldCount: realTotalSold, // Overwrite DB value with actual calculated value
+        salesBySize: salesBreakdown
+      };
     }));
 
     return NextResponse.json({
