@@ -26,17 +26,19 @@ export async function POST(request: Request) {
                 // If the user in token is NOT the one passed in body (or body has no userId), default to token user
                 // BUT, if admin is creating order for someone else, use body.userId
 
-                // Check if admin
-                if (decoded.email === 'admin@noccacoffee.com' || decoded.role === 'ADMIN') {
-                    isAdmin = true;
-                    // If Admin and body has userId, use it. Otherwise use Admin's ID? No, usually null or Admin's ID.
-                    // For POS, we want to assign to customer.
+                // Check if user has staff access (Admin/Manager/Barista)
+                const staffRoles = ['MANAGER', 'BARISTA', 'ADMIN'];
+                const isStaffUser = staffRoles.includes(decoded.role || '') || decoded.email === 'admin@noccacoffee.com';
+
+                if (isStaffUser) {
+                    isAdmin = true; // Use isAdmin flag to indicate trusted staff source
+                    // For POS, if userId is provided in body, use it (attaching to customer)
+                    // If not, it remains null (Guest Order)
                     if (body.userId) {
                         userId = body.userId;
-                    } else {
-                        userId = decoded.userId;
                     }
                 } else {
+                    // Regular customer creating their own order
                     userId = decoded.userId;
                 }
             }
@@ -265,7 +267,11 @@ export async function POST(request: Request) {
 
         return NextResponse.json({ success: true, orderId: order.id, orderNumber });
     } catch (error) {
-        console.error('Order creation error:', error);
+        console.error('Order creation error details:', error);
+        if (error instanceof Error) {
+            console.error('Error message:', error.message);
+            console.error('Error stack:', error.stack);
+        }
         return NextResponse.json(
             { success: false, error: 'Sipariş oluşturulamadı' },
             { status: 500 }
