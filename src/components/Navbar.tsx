@@ -10,7 +10,7 @@ import { useCart } from '@/contexts/CartContext';
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [user, setUser] = useState<{ email: string; firstName?: string; lastName?: string } | null>(null);
+  const [user, setUser] = useState<{ email: string; firstName?: string; lastName?: string; role?: string } | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -52,9 +52,11 @@ const Navbar = () => {
           setUser({
             email: data.email,
             firstName: data.firstName,
-            lastName: data.lastName
+            lastName: data.lastName,
+            role: data.role
           });
-          setIsAdmin(data.email === 'admin@noccacoffee.com');
+          const staffRoles = ['MANAGER', 'BARISTA', 'WAITER', 'KITCHEN'];
+          setIsAdmin(data.email === 'admin@noccacoffee.com' || staffRoles.includes(data.role));
         } else {
           // Token invalid or expired
           localStorage.removeItem('authToken');
