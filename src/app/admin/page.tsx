@@ -24,14 +24,26 @@ export default function AdminDashboard() {
 
   const checkAdminAccess = async () => {
     try {
-      // Önce cookie'yi kontrol et
       const response = await fetch('/api/auth/me');
       const data = await response.json();
 
-      if (!response.ok || data.email !== 'admin@noccacoffee.com') {
+      if (!response.ok) {
         router.push('/login');
         return;
       }
+
+      // If user is staff but not MANAGER, redirect to POS or allowed area
+      if (['BARISTA', 'WAITER', 'KITCHEN'].includes(data.role)) {
+        router.push('/admin/pos');
+        return;
+      }
+
+      // If customer, block
+      if (data.role === 'CUSTOMER') {
+        router.push('/login');
+        return;
+      }
+
     } catch (error) {
       console.error('Admin access check error:', error);
       router.push('/login');

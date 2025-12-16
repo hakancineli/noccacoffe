@@ -6,7 +6,7 @@ export async function GET(request: NextRequest) {
   try {
     // Get token from cookie first, then from authorization header
     let token = request.cookies.get('auth-token')?.value;
-    
+
     if (!token) {
       const authHeader = request.headers.get('authorization');
       if (authHeader && authHeader.startsWith('Bearer ')) {
@@ -25,9 +25,25 @@ export async function GET(request: NextRequest) {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret') as {
       userId: string;
       email: string;
+      role?: string;
+      isStaff?: boolean;
     };
 
-    // Get user from database
+    let userData;
+
+    // Check if Staff
+    if (decoded.isStaff || (decoded.role && decoded.role !== 'CUSTOMER')) {
+      const staff = await prisma.barista.findUnique({
+        where: { id: decoded.userId }
+      });
+
+      if (staff) {
+        const { passwordHash, ...staffWithoutPassword } = staff;
+        return NextResponse.json(staffWithoutPassword);
+      }
+    }
+
+    // Fallback to Customer/User
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
       include: {
