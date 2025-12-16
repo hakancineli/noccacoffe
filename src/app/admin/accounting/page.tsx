@@ -179,6 +179,12 @@ export default function AccountingPage() {
                 setAmount('');
                 setSelectedStaffId('');
                 if (category === 'ADVANCE') setCategory('SUPPLIES'); // Reset category
+
+                // Scroll to transactions
+                const element = document.getElementById('expense-transactions');
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' });
+                }
             } else {
                 alert('Gider eklenemedi.');
             }
@@ -213,6 +219,11 @@ export default function AccountingPage() {
             if (res.ok) {
                 alert(data.message);
                 await fetchData();
+                // Scroll to transactions
+                const element = document.getElementById('expense-transactions');
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' });
+                }
             } else {
                 alert('İşlem başarısız.');
             }
@@ -544,7 +555,7 @@ export default function AccountingPage() {
                 </div>
 
                 {/* Expense List */}
-                <div className="lg:col-span-2 bg-white rounded-lg shadow overflow-hidden">
+                <div id="expense-transactions" className="lg:col-span-2 bg-white rounded-lg shadow overflow-hidden">
                     <div className="p-6 border-b flex justify-between items-center bg-gray-50">
                         <h2 className="text-xl font-bold text-gray-800">Gider Hareketleri</h2>
                         <span className="text-sm text-gray-500 bg-white px-3 py-1 rounded border border-gray-200">
