@@ -100,6 +100,62 @@ async function main() {
   // I will skip them or use createMany with skipDuplicates if Prisma supported it for SQLite/Postgres widely, 
   // but better to leave them out if not critical for now, OR try to create if not exists.
 
+  // Staff / Barista upsert
+  console.log('Seeding staff (Barista) accounts...');
+  const staffMembers = [
+    {
+      name: 'Ceren Alper',
+      email: 'ceren@noccacoffee.com',
+      role: 'MANAGER',
+      password: '123',
+      phone: '5551234567'
+    },
+    {
+      name: 'Can Tecirli',
+      email: 'can@noccacoffee.com',
+      role: 'MANAGER',
+      password: '123',
+      phone: '5557654321'
+    },
+    {
+      name: 'Kasa Personeli',
+      email: 'kasa@noccacoffee.com',
+      role: 'BARISTA',
+      password: '123',
+      phone: '5550000000'
+    }
+  ];
+
+  for (const member of staffMembers) {
+    const hash = await bcrypt.hash(member.password, 10);
+
+    // Upsert Staff
+    // We use 'any' cast for role because TypeScript might not pick up the enum from client immediately in seed file context sometimes, 
+    // but usually it works if import is correct. Let's rely on string matching or import enum if needed. 
+    // Actually, better to just pass the string which Prisma converts to Enum.
+    await prisma.barista.upsert({
+      where: { email: member.email },
+      update: {
+        name: member.name,
+        // @ts-ignore
+        role: member.role,
+        passwordHash: hash
+      },
+      create: {
+        name: member.name,
+        email: member.email,
+        // @ts-ignore
+        role: member.role,
+        passwordHash: hash,
+        phone: member.phone,
+        salary: 0,
+        startDate: new Date(),
+        isActive: true
+      }
+    });
+    console.log(`Staff updated/created: ${member.name}`);
+  }
+
   // Seed Ingredients
   console.log('Seeding ingredients...');
 
