@@ -193,58 +193,118 @@ export default function POSPage() {
     const printReceipt = () => {
         if (!lastOrder) return;
 
+        // Thermal Printer Layout (80mm width standard approx 300-320px safe area)
         const receiptContent = `
             <html>
             <head>
-                <title>Fiş Yazdır</title>
+                <title>Fiş No: #${lastOrder.orderNumber}</title>
                 <style>
-                    body { font-family: 'Courier New', monospace; width: 300px; margin: 0; padding: 10px; font-size: 12px; }
-                    .header { text-align: center; margin-bottom: 20px; border-bottom: 1px dashed black; padding-bottom: 10px; }
-                    .item { display: flex; justify-content: space-between; margin-bottom: 5px; }
-                    .total { border-top: 1px dashed black; margin-top: 10px; padding-top: 10px; display: flex; justify-content: space-between; font-weight: bold; font-size: 14px; }
-                    .footer { text-align: center; margin-top: 20px; font-size: 10px; }
+                    @page { margin: 0; size: auto; }
+                    body {
+                        font-family: 'Courier New', Courier, monospace;
+                        width: 300px;
+                        margin: 0;
+                        padding: 10px 0;
+                        font-size: 13px;
+                        line-height: 1.2;
+                        color: black;
+                    }
+                    .header { text-align: center; margin-bottom: 10px; }
+                    .title { font-size: 16px; font-weight: bold; margin: 0; }
+                    .subtitle { font-size: 12px; margin: 2px 0; }
+                    .details { font-size: 11px; margin-bottom: 10px; border-bottom: 1px dashed black; padding-bottom: 5px; }
+                    
+                    .items-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+                    .items-table th { text-align: left; border-bottom: 1px solid black; font-size: 11px; padding-bottom: 2px; }
+                    .items-table td { padding: 4px 0; vertical-align: top; }
+                    .col-qty { width: 30px; }
+                    .col-item { }
+                    .col-price { text-align: right; white-space: nowrap; }
+                    
+                    .item-name { font-weight: bold; }
+                    .item-meta { font-size: 11px; color: #333; }
+                    
+                    .totals { border-top: 1px dashed black; padding-top: 5px; margin-top: 5px; }
+                    .row { display: flex; justify-content: space-between; margin-bottom: 2px; }
+                    .total-row { font-size: 16px; font-weight: bold; margin-top: 5px; border-top: 1px solid black; padding-top: 5px; }
+                    
+                    .footer { text-align: center; margin-top: 20px; font-size: 11px; }
                 </style>
             </head>
             <body>
                 <div class="header">
-                    <h2>NOCCA COFFEE</h2>
-                    <p>Tarih: ${new Date().toLocaleString('tr-TR')}</p>
-                    <p>Sipariş No: #${lastOrder.orderNumber ? lastOrder.orderNumber.split('-').pop() : '---'}</p>
-                    <p>Müşteri: ${lastOrder.customerName || 'Misafir'}</p>
+                    <div class="title">NOCCA COFFEE</div>
+                    <div class="subtitle">Caddebostan, İstanbul</div>
+                    <div class="subtitle">www.noccacoffee.com.tr</div>
                 </div>
-                <div>
-                   ${lastOrder.items.map((item: any) => `
-                        <div class="item">
-                            <span>${item.quantity}x ${item.name} ${item.size ? `(${item.size})` : ''}</span>
-                            <span>${(item.price * item.quantity).toFixed(2)}₺</span>
-                        </div>
-                   `).join('')}
+
+                <div class="details">
+                    <div>Tarih: ${new Date().toLocaleDateString('tr-TR')} ${new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</div>
+                    <div>Sipariş No: #${lastOrder.orderNumber ? lastOrder.orderNumber.split('-').pop() : '---'}</div>
+                    <div>Kasiyer: ${lastOrder.creatorName || 'Kasa'}</div>
+                    <div>Müşteri: ${lastOrder.customerName || 'Misafir'}</div>
                 </div>
-                ${lastOrder.discountAmount > 0 ? `
-                    <div class="item" style="color: red;">
-                        <span>İskonto (${lastOrder.discountRate || ''}%)</span>
-                        <span>-₺${lastOrder.discountAmount.toFixed(2)}</span>
+
+                <table class="items-table">
+                    <thead>
+                        <tr>
+                            <th class="col-qty">Adet</th>
+                            <th class="col-item">Ürün</th>
+                            <th class="col-price">Tutar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${lastOrder.items.map((item: any) => `
+                            <tr>
+                                <td class="col-qty">${item.quantity}</td>
+                                <td class="col-item">
+                                    <div class="item-name">${item.name}</div>
+                                    ${item.size ? `<div class="item-meta">${item.size}</div>` : ''}
+                                </td>
+                                <td class="col-price">${(item.price * item.quantity).toFixed(2)}₺</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+
+                <div class="totals">
+                    <div class="row">
+                        <span>Ara Toplam</span>
+                        <span>${lastOrder.totalAmount.toFixed(2)}₺</span>
                     </div>
-                ` : ''}
-                <div class="total">
-                    <span>TOPLAM</span>
-                    <span>${(typeof lastOrder.finalAmount === 'number' ? lastOrder.finalAmount : parseFloat(lastOrder.finalAmount)).toFixed(2)}₺</span>
+                    ${lastOrder.discountAmount > 0 ? `
+                        <div class="row">
+                            <span>İskonto</span>
+                            <span>-${lastOrder.discountAmount.toFixed(2)}₺</span>
+                        </div>
+                    ` : ''}
+                    <div class="row total-row">
+                        <span>GENEL TOPLAM</span>
+                        <span>${(typeof lastOrder.finalAmount === 'number' ? lastOrder.finalAmount : parseFloat(lastOrder.finalAmount)).toFixed(2)}₺</span>
+                    </div>
                 </div>
+
                 <div class="footer">
-                    <p>Afiyet Olsun!</p>
-                    <p>Bizi tercih ettiğiniz için teşekkürler.</p>
+                    <div>Mali Değeri Yoktur / Bilgi Fişidir</div>
+                    <div style="margin-top: 5px;">* Afiyet Olsun *</div>
                 </div>
+                
+                <script>
+                    window.onload = function() {
+                        window.print();
+                        // Optional: close after print for smoother kiosk experience (uncomment if desired)
+                        // setTimeout(function() { window.close(); }, 500);
+                    }
+                </script>
             </body>
             </html>
         `;
 
-        const printWindow = window.open('', '', 'width=400,height=600');
+        const printWindow = window.open('', '_blank', 'width=400,height=600,menubar=no,toolbar=no,location=no,status=no');
         if (printWindow) {
             printWindow.document.write(receiptContent);
             printWindow.document.close();
-            printWindow.focus();
-            printWindow.print();
-            printWindow.close();
+            // Printing is handled by window.onload inside the iframe logic
         }
     };
 
