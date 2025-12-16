@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
   try {
     // Get token from header or cookie
     let token = request.cookies.get('auth-token')?.value;
-    
+
     if (!token) {
       const authHeader = request.headers.get('authorization');
       if (authHeader && authHeader.startsWith('Bearer ')) {
@@ -25,10 +25,14 @@ export async function GET(request: NextRequest) {
 
     // Verify token and check admin
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret') as any;
-    
-    if (decoded.email !== 'admin@noccacoffee.com') {
+
+    // Check if user has staff access
+    const staffRoles = ['MANAGER', 'BARISTA', 'WAITER', 'KITCHEN'];
+    const hasAccess = decoded.isStaff || staffRoles.includes(decoded.role) || decoded.email === 'admin@noccacoffee.com';
+
+    if (!hasAccess) {
       return NextResponse.json(
-        { error: 'Unauthorized - Admin access required' },
+        { error: 'Unauthorized - Staff access required' },
         { status: 403 }
       );
     }

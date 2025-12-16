@@ -61,12 +61,18 @@ const LoginPage = () => {
       localStorage.setItem('authToken', data.token);
 
       // Redirect Logic
-      let targetUrl = '/';
-      if (data.user.email === 'admin@noccacoffee.com') {
+      let targetUrl = '/'; // Default for CUSTOMER
+
+      const role = data.role || data.user.role; // Handle potential structure differences
+
+      if (['MANAGER', 'ADMIN'].includes(role)) {
         targetUrl = '/admin/orders';
-      } else if (data.user.email === 'kitchen@noccacoffee.com') {
+      } else if (['BARISTA', 'WAITER'].includes(role)) {
+        targetUrl = '/admin/pos';
+      } else if (role === 'KITCHEN' || data.user.email === 'kitchen@noccacoffee.com') {
         targetUrl = '/kitchen';
       }
+
       setSuccess(`Giriş başarılı! Yönlendiriliyorsunuz: ${targetUrl}`);
 
       setTimeout(() => {
