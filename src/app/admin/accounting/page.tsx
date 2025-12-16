@@ -309,31 +309,136 @@ export default function AccountingPage() {
                 </div>
             </div>
 
-            {/* Ingredient Cost Analysis Card */}
-            <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-lg shadow-lg border-l-4 border-purple-500 mb-8">
-                <div className="flex justify-between items-start mb-4">
-                    <div>
-                        <h3 className="text-lg font-bold text-purple-900 flex items-center gap-2">
-                            📦 Hammadde Giderleri
-                        </h3>
-                        <p className="text-sm text-purple-700 mt-1">Reçete bazlı maliyet analizi</p>
+            {/* Daily Sales Report Table - MOVED UP */}
+            <div className="bg-white rounded-lg shadow overflow-hidden mb-8">
+                <div className="p-6 border-b bg-gray-50 flex justify-between items-center">
+                    <h2 className="text-xl font-bold text-gray-800">Günlük Finansal Hareketler</h2>
+                    <span className="text-xs text-gray-500 bg-white px-2 py-1 rounded border">Net Kâr = (Nakit + Kart) - Gider</span>
+                </div>
+                <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-100">
+                            <tr>
+                                <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase">Tarih</th>
+                                <th className="px-6 py-3 text-right text-xs font-bold text-gray-600 uppercase">Sipariş</th>
+                                <th className="px-6 py-3 text-right text-xs font-bold text-gray-600 uppercase">Toplam Ciro</th>
+                                <th className="px-6 py-3 text-right text-xs font-bold text-green-600 uppercase">Nakit</th>
+                                <th className="px-6 py-3 text-right text-xs font-bold text-blue-600 uppercase">Kart</th>
+                                <th className="px-6 py-3 text-right text-xs font-bold text-red-600 uppercase">Gider</th>
+                                <th className="px-6 py-3 text-right text-xs font-bold text-gray-800 uppercase">Net Kâr</th>
+                            </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                            {dailyStats.length === 0 ? (
+                                <tr>
+                                    <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
+                                        Kayıt bulunamadı.
+                                    </td>
+                                </tr>
+                            ) : (
+                                dailyStats.map((day) => (
+                                    <tr key={day.date} className="hover:bg-gray-50 transition">
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                            {new Date(day.date).toLocaleDateString('tr-TR')}
+                                            {day.date === new Date().toISOString().split('T')[0] && <span className="ml-2 text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">Bugün</span>}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
+                                            {day.orderCount}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 text-right">
+                                            ₺{day.totalSales.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-green-600 text-right font-medium">
+                                            ₺{day.cashSales.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-600 text-right font-medium">
+                                            ₺{day.cardSales.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-red-600 text-right">
+                                            -₺{day.totalExpenses.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                        </td>
+                                        <td className={`px-6 py-4 whitespace-nowrap text-sm font-bold text-right ${day.netProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                            ₺{day.netProfit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {/* Analysis Grid: Ingredient Cost & Expense Pie Chart */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                {/* Ingredient Cost Analysis Card */}
+                <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-lg shadow-lg border-l-4 border-purple-500">
+                    <div className="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 className="text-lg font-bold text-purple-900 flex items-center gap-2">
+                                📦 Hammadde Giderleri
+                            </h3>
+                            <p className="text-sm text-purple-700 mt-1">Reçete bazlı maliyet analizi</p>
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="bg-white p-4 rounded-lg">
+                            <p className="text-xs text-gray-500 font-medium mb-1">Bugün</p>
+                            <p className="text-2xl font-bold text-purple-600">
+                                ₺{(todayStats?.totalSales ? todayStats.totalSales * 0.35 : 0).toFixed(2)}
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1">~35% maliyet oranı</p>
+                        </div>
+                        <div className="bg-white p-4 rounded-lg">
+                            <p className="text-xs text-gray-500 font-medium mb-1">Bu Ay</p>
+                            <p className="text-2xl font-bold text-purple-600">
+                                ₺{(stats.revenue * 0.35).toFixed(2)}
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1">Tahmini hammadde maliyeti</p>
+                        </div>
                     </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-white p-4 rounded-lg">
-                        <p className="text-xs text-gray-500 font-medium mb-1">Bugün</p>
-                        <p className="text-2xl font-bold text-purple-600">
-                            ₺{(todayStats?.totalSales ? todayStats.totalSales * 0.35 : 0).toFixed(2)}
-                        </p>
-                        <p className="text-xs text-gray-500 mt-1">~35% maliyet oranı</p>
-                    </div>
-                    <div className="bg-white p-4 rounded-lg">
-                        <p className="text-xs text-gray-500 font-medium mb-1">Bu Ay</p>
-                        <p className="text-2xl font-bold text-purple-600">
-                            ₺{(stats.revenue * 0.35).toFixed(2)}
-                        </p>
-                        <p className="text-xs text-gray-500 mt-1">Tahmini hammadde maliyeti</p>
-                    </div>
+
+                {/* Expense Categories Pie Chart */}
+                <div className="bg-white rounded-lg shadow-lg p-6">
+                    <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <FaArrowDown className="text-red-600" />
+                        Gider Kategorileri Dağılımı
+                    </h3>
+                    <ResponsiveContainer width="100%" height={250}>
+                        <PieChart>
+                            <Pie
+                                data={(() => {
+                                    const categoryTotals: { [key: string]: number } = {};
+                                    expenses.forEach(exp => {
+                                        categoryTotals[exp.category] = (categoryTotals[exp.category] || 0) + exp.amount;
+                                    });
+                                    return Object.entries(categoryTotals).map(([name, value]) => ({
+                                        name: translateCategory(name),
+                                        value
+                                    }));
+                                })()}
+                                cx="50%"
+                                cy="50%"
+                                labelLine={false}
+                                label={renderCustomizedLabel}
+                                outerRadius={65}
+                                fill="#8884d8"
+                                dataKey="value"
+                            >
+                                {(() => {
+                                    const COLORS = ['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899'];
+                                    const categoryTotals: { [key: string]: number } = {};
+                                    expenses.forEach(exp => {
+                                        categoryTotals[exp.category] = (categoryTotals[exp.category] || 0) + exp.amount;
+                                    });
+                                    return Object.keys(categoryTotals).map((_, index) => (
+                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                    ));
+                                })()}
+                            </Pie>
+                            <Tooltip formatter={(value: number) => `₺${value.toLocaleString()}`} />
+                        </PieChart>
+                    </ResponsiveContainer>
                 </div>
             </div>
 
@@ -406,49 +511,7 @@ export default function AccountingPage() {
                 </div>
             </div>
 
-            {/* Expense Categories Pie Chart */}
-            <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-                <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                    <FaArrowDown className="text-red-600" />
-                    Gider Kategorileri Dağılımı
-                </h3>
-                <ResponsiveContainer width="100%" height={300}>
-                    <PieChart>
-                        <Pie
-                            data={(() => {
-                                const categoryTotals: { [key: string]: number } = {};
-                                expenses.forEach(exp => {
-                                    categoryTotals[exp.category] = (categoryTotals[exp.category] || 0) + exp.amount;
-                                });
-                                return Object.entries(categoryTotals).map(([name, value]) => ({
-                                    name: translateCategory(name),
-                                    value
-                                }));
-                            })()}
-                            cx="50%"
-                            cy="50%"
-                            labelLine={false}
-                            label={renderCustomizedLabel}
-                            outerRadius={65}
-                            fill="#8884d8"
-                            dataKey="value"
-                        >
-                            {(() => {
-                                const COLORS = ['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899'];
-                                const categoryTotals: { [key: string]: number } = {};
-                                expenses.forEach(exp => {
-                                    categoryTotals[exp.category] = (categoryTotals[exp.category] || 0) + exp.amount;
-                                });
-                                return Object.keys(categoryTotals).map((_, index) => (
-                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                ));
-                            })()}
-                        </Pie>
-                        <Tooltip formatter={(value: number) => `₺${value.toLocaleString()}`} />
-                    </PieChart>
-                </ResponsiveContainer>
-            </div>
-
+            {/* Expense Operations Section (Form & List) - MOVED DOWN */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Add Expense Form */}
                 <div className="bg-white rounded-lg shadow p-6 h-fit sticky top-6">
@@ -607,65 +670,6 @@ export default function AccountingPage() {
                                                 >
                                                     <FaTrash />
                                                 </button>
-                                            </td>
-                                        </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                {/* Daily Sales Report Table */}
-                <div className="lg:col-span-3 bg-white rounded-lg shadow overflow-hidden mt-8">
-                    <div className="p-6 border-b bg-gray-50 flex justify-between items-center">
-                        <h2 className="text-xl font-bold text-gray-800">Günlük Finansal Hareketler</h2>
-                        <span className="text-xs text-gray-500 bg-white px-2 py-1 rounded border">Net Kâr = (Nakit + Kart) - Gider</span>
-                    </div>
-                    <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-100">
-                                <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase">Tarih</th>
-                                    <th className="px-6 py-3 text-right text-xs font-bold text-gray-600 uppercase">Sipariş</th>
-                                    <th className="px-6 py-3 text-right text-xs font-bold text-gray-600 uppercase">Toplam Ciro</th>
-                                    <th className="px-6 py-3 text-right text-xs font-bold text-green-600 uppercase">Nakit</th>
-                                    <th className="px-6 py-3 text-right text-xs font-bold text-blue-600 uppercase">Kart</th>
-                                    <th className="px-6 py-3 text-right text-xs font-bold text-red-600 uppercase">Gider</th>
-                                    <th className="px-6 py-3 text-right text-xs font-bold text-gray-800 uppercase">Net Kâr</th>
-                                </tr>
-                            </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                                {dailyStats.length === 0 ? (
-                                    <tr>
-                                        <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
-                                            Kayıt bulunamadı.
-                                        </td>
-                                    </tr>
-                                ) : (
-                                    dailyStats.map((day) => (
-                                        <tr key={day.date} className="hover:bg-gray-50 transition">
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                {new Date(day.date).toLocaleDateString('tr-TR')}
-                                                {day.date === new Date().toISOString().split('T')[0] && <span className="ml-2 text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">Bugün</span>}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
-                                                {day.orderCount}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 text-right">
-                                                ₺{day.totalSales.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-green-600 text-right font-medium">
-                                                ₺{day.cashSales.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-600 text-right font-medium">
-                                                ₺{day.cardSales.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-red-600 text-right">
-                                                -₺{day.totalExpenses.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                            </td>
-                                            <td className={`px-6 py-4 whitespace-nowrap text-sm font-bold text-right ${day.netProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                                ₺{day.netProfit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                             </td>
                                         </tr>
                                     ))
