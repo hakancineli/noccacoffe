@@ -14,6 +14,11 @@ interface Staff {
     startDate: string;
     totalAdvances?: number;
     remainingPayment?: number;
+    expenses?: {
+        id: string;
+        amount: number;
+        date: string;
+    }[];
 }
 
 export default function StaffPage() {
@@ -159,7 +164,18 @@ export default function StaffPage() {
                             <div className="mt-3 pt-3 border-t border-dashed border-gray-200 text-sm space-y-2">
                                 <div className="flex justify-between text-orange-600">
                                     <span className="flex items-center"><span className="w-2 h-2 rounded-full bg-orange-500 mr-2"></span>Alınan Avans:</span>
-                                    <span className="font-bold">-₺{(staff.totalAdvances || 0).toLocaleString()}</span>
+                                    <div className="text-right">
+                                        <span className="font-bold block">-₺{(staff.totalAdvances || 0).toLocaleString()}</span>
+                                        {staff.expenses && staff.expenses.length > 0 && (
+                                            <div className="text-[10px] text-gray-500 mt-1">
+                                                {staff.expenses.map(exp => (
+                                                    <div key={exp.id}>
+                                                        {new Date(exp.date).toLocaleDateString('tr-TR')}: -₺{exp.amount}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                                 <div className="flex justify-between text-blue-700 bg-blue-50 px-2 py-1 rounded">
                                     <span className="font-bold">Kalan Ödeme:</span>
@@ -182,86 +198,88 @@ export default function StaffPage() {
             </div>
 
             {/* Modal */}
-            {isModalOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
-                        <h2 className="text-2xl font-bold mb-4">Yeni Personel Ekle</h2>
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium mb-1">Ad Soyad</label>
-                                <input
-                                    type="text"
-                                    required
-                                    className="w-full border rounded px-3 py-2"
-                                    value={formData.name}
-                                    onChange={e => setFormData({ ...formData, name: e.target.value })}
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium mb-1">E-Posta</label>
-                                <input
-                                    type="email"
-                                    required
-                                    className="w-full border rounded px-3 py-2"
-                                    value={formData.email}
-                                    onChange={e => setFormData({ ...formData, email: e.target.value })}
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium mb-1">Telefon</label>
-                                <input
-                                    type="text"
-                                    className="w-full border rounded px-3 py-2"
-                                    value={formData.phone}
-                                    onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                                />
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
+            {
+                isModalOpen && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                        <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
+                            <h2 className="text-2xl font-bold mb-4">Yeni Personel Ekle</h2>
+                            <form onSubmit={handleSubmit} className="space-y-4">
                                 <div>
-                                    <label className="block text-sm font-medium mb-1">Rol</label>
-                                    <select
-                                        className="w-full border rounded px-3 py-2"
-                                        value={formData.role}
-                                        onChange={e => setFormData({ ...formData, role: e.target.value })}
-                                    >
-                                        <option value="BARISTA">Barista</option>
-                                        <option value="MANAGER">Müdür</option>
-                                        <option value="WAITER">Garson</option>
-                                        <option value="KITCHEN">Mutfak</option>
-                                        <option value="CLEANER">Temizlik</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium mb-1">Maaş (₺)</label>
+                                    <label className="block text-sm font-medium mb-1">Ad Soyad</label>
                                     <input
-                                        type="number"
+                                        type="text"
+                                        required
                                         className="w-full border rounded px-3 py-2"
-                                        value={formData.salary}
-                                        onChange={e => setFormData({ ...formData, salary: e.target.value })}
+                                        value={formData.name}
+                                        onChange={e => setFormData({ ...formData, name: e.target.value })}
                                     />
                                 </div>
-                            </div>
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">E-Posta</label>
+                                    <input
+                                        type="email"
+                                        required
+                                        className="w-full border rounded px-3 py-2"
+                                        value={formData.email}
+                                        onChange={e => setFormData({ ...formData, email: e.target.value })}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">Telefon</label>
+                                    <input
+                                        type="text"
+                                        className="w-full border rounded px-3 py-2"
+                                        value={formData.phone}
+                                        onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                                    />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium mb-1">Rol</label>
+                                        <select
+                                            className="w-full border rounded px-3 py-2"
+                                            value={formData.role}
+                                            onChange={e => setFormData({ ...formData, role: e.target.value })}
+                                        >
+                                            <option value="BARISTA">Barista</option>
+                                            <option value="MANAGER">Müdür</option>
+                                            <option value="WAITER">Garson</option>
+                                            <option value="KITCHEN">Mutfak</option>
+                                            <option value="CLEANER">Temizlik</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium mb-1">Maaş (₺)</label>
+                                        <input
+                                            type="number"
+                                            className="w-full border rounded px-3 py-2"
+                                            value={formData.salary}
+                                            onChange={e => setFormData({ ...formData, salary: e.target.value })}
+                                        />
+                                    </div>
+                                </div>
 
-                            <div className="flex justify-end space-x-3 mt-6">
-                                <button
-                                    type="button"
-                                    onClick={() => setIsModalOpen(false)}
-                                    className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded"
-                                >
-                                    İptal
-                                </button>
-                                <button
-                                    type="submit"
-                                    disabled={isSubmitting}
-                                    className="px-4 py-2 bg-nocca-green text-white rounded hover:bg-nocca-light-green transition"
-                                >
-                                    {isSubmitting ? 'Kaydediliyor...' : 'Kaydet'}
-                                </button>
-                            </div>
-                        </form>
+                                <div className="flex justify-end space-x-3 mt-6">
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsModalOpen(false)}
+                                        className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded"
+                                    >
+                                        İptal
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        disabled={isSubmitting}
+                                        className="px-4 py-2 bg-nocca-green text-white rounded hover:bg-nocca-light-green transition"
+                                    >
+                                        {isSubmitting ? 'Kaydediliyor...' : 'Kaydet'}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )
+            }
+        </div >
     );
 }

@@ -22,6 +22,41 @@ interface OrderItem {
     notes?: string;
 }
 
+// Timer Component to show elapsed time since order creation
+const OrderTimer = ({ createdAt }: { createdAt: string }) => {
+    const [elapsed, setElapsed] = useState('');
+    const [colorClass, setColorClass] = useState('text-gray-400');
+
+    useEffect(() => {
+        const updateTimer = () => {
+            const now = new Date().getTime();
+            const start = new Date(createdAt).getTime();
+            const diff = now - start;
+
+            const minutes = Math.floor(diff / 60000);
+            const seconds = Math.floor((diff % 60000) / 1000);
+
+            setElapsed(`${minutes}:${seconds.toString().padStart(2, '0')}`);
+
+            // Color coding based on wait time
+            if (minutes < 5) setColorClass('text-green-500');       // < 5 mins
+            else if (minutes < 10) setColorClass('text-orange-500'); // 5-10 mins
+            else setColorClass('text-red-600 animate-pulse');        // > 10 mins
+        };
+
+        updateTimer(); // Initial call
+        const interval = setInterval(updateTimer, 1000);
+        return () => clearInterval(interval);
+    }, [createdAt]);
+
+    return (
+        <div className={`flex items-center font-mono font-bold ${colorClass}`}>
+            <FaClock className="mr-1" />
+            {elapsed}
+        </div>
+    );
+};
+
 export default function KitchenPage() {
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
@@ -229,8 +264,9 @@ export default function KitchenPage() {
                                             {order.status === 'PENDING' && <span className="animate-pulse text-[#FF8A65] text-xs font-bold px-2 py-0.5 rounded bg-[#FF8A65]/10 border border-[#FF8A65]/20">YENİ</span>}
                                         </div>
                                         <div className="text-[#A1887F] text-sm mt-1 flex items-center">
-                                            <FaClock className="mr-1 text-xs" />
-                                            {new Date(order.createdAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
+                                            {/* Timer replaces static time */}
+                                            <OrderTimer createdAt={order.createdAt} />
+                                            <span className="text-xs text-[#A1887F] ml-2">({new Date(order.createdAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })})</span>
 
                                             {/* Source Badge */}
                                             <div className={`ml-3 flex items-center px-2 py-0.5 rounded text-[10px] font-bold tracking-wider ${isPos ? 'bg-orange-900/40 text-orange-200 border border-orange-700/30' : 'bg-teal-900/40 text-teal-200 border border-teal-700/30'}`}>

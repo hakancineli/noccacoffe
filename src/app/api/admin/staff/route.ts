@@ -13,7 +13,7 @@ export async function GET(request: Request) {
                         category: 'ADVANCE',
                         date: { gte: startOfMonth }
                     },
-                    select: { amount: true }
+                    select: { id: true, amount: true, date: true }
                 }
             },
             orderBy: {
@@ -27,7 +27,7 @@ export async function GET(request: Request) {
                 ...s,
                 totalAdvances,
                 remainingPayment: s.salary - totalAdvances,
-                expenses: undefined // clean up response if needed, or keep it
+                expenses: s.expenses
             };
         });
 
