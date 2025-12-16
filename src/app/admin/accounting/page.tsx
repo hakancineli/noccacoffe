@@ -43,6 +43,26 @@ const translateCategory = (category: string): string => {
     return translations[category] || category;
 };
 
+
+interface DayDetails {
+    orders: {
+        id: string;
+        orderNumber: string;
+        finalAmount: number;
+        createdAt: string;
+        payment: { method: string };
+        creatorName: string | null;
+        customerName: string | null;
+    }[];
+    expenses: {
+        id: string;
+        description: string;
+        amount: number;
+        category: string;
+        date: string;
+    }[];
+}
+
 const RADIAN = Math.PI / 180;
 const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index, name }: any) => {
     if (percent < 0.01) return null; // Hide labels for very small slices to prevent overlap
@@ -89,6 +109,12 @@ export default function AccountingPage() {
     // Modal State
     const [showEndOfDayModal, setShowEndOfDayModal] = useState(false);
     const [todayStats, setTodayStats] = useState<DailyStats | null>(null);
+
+    // Detail Modal State
+    const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+    const [selectedDate, setSelectedDate] = useState<string | null>(null);
+    const [dayDetails, setDayDetails] = useState<DayDetails | null>(null);
+    const [detailLoading, setDetailLoading] = useState(false);
 
     // Filter State
     const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().slice(0, 7)); // YYYY-MM
@@ -234,6 +260,24 @@ export default function AccountingPage() {
         }
     };
 
+    const handleDayClick = async (date: string) => {
+        setSelectedDate(date);
+        setIsDetailModalOpen(true);
+        setDetailLoading(true);
+
+        try {
+            const res = await fetch(`/api/admin/accounting/details?date=${date}`);
+            if (res.ok) {
+                const data = await res.json();
+                setDayDetails(data);
+            }
+        } catch (error) {
+            console.error('Day details fetch error:', error);
+        } finally {
+            setDetailLoading(false);
+        }
+    };
+
     if (isLoading) {
         return <div className="p-8 text-center">Yükleniyor...</div>;
     }
@@ -337,7 +381,11 @@ export default function AccountingPage() {
                                 </tr>
                             ) : (
                                 dailyStats.map((day) => (
-                                    <tr key={day.date} className="hover:bg-gray-50 transition">
+                                    <tr
+                                        key={day.date}
+                                        onClick={() => handleDayClick(day.date)}
+                                        className="hover:bg-gray-50 transition cursor-pointer"
+                                    >
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                             {new Date(day.date).toLocaleDateString('tr-TR')}
                                             {day.date === new Date().toISOString().split('T')[0] && <span className="ml-2 text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">Bugün</span>}
@@ -753,6 +801,113 @@ export default function AccountingPage() {
                     </div>
                 )
             }
-        </div >
+        </div>
+            
+            {/* Day Detail Modal */ }
+    {
+        isDetailModalOpen && selectedDate && (
+            <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in">
+                <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[80vh] flex flex-col overflow-hidden">
+                    <div className="bg-gradient-to-r from-nocca-green to-green-800 p-6 text-white flex justify-between items-center shrink-0">
+                        <div>
+                            <h2 className="text-xl font-bold">Gün Detayı</h2>
+                            <p className="text-nocca-light text-sm mt-1">
+                                {new Date(selectedDate).toLocaleDateString('tr-TR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                            </p>
+                        </div>
+                        <button onClick={() => setIsDetailModalOpen(false)} className="text-white/80 hover:text-white transition p-2 hover:bg-white/10 rounded-full">✕</button>
+                    </div>
+
+                    <div className="flex-1 overflow-hidden flex flex-col md:flex-row">
+                        {detailLoading ? (
+                            <div className="w-full h-full flex items-center justify-center">
+                                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+                            </div>
+                        ) : dayDetails ? (
+                            <>
+                                {/* Left: Orders */}
+                                <div className="flex-1 border-r border-gray-200 flex flex-col overflow-hidden">
+                                    <div className="p-4 bg-gray-50 border-b flex justify-between items-center">
+                                        <h3 className="font-bold text-gray-800 flex items-center">
+                                            <FaMoneyBillWave className="mr-2 text-green-600" />
+                                            Siparişler ({dayDetails.orders.length})
+                                        </h3>
+                                        <span className="text-green-600 font-bold">
+                                            ₺{dayDetails.orders.reduce((sum, o) => sum + o.finalAmount, 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                        </span>
+                                    </div>
+                                    <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                                        {dayDetails.orders.length === 0 ? (
+                                            <p className="text-center text-gray-500 py-10">Sipariş bulunamadı.</p>
+                                        ) : (
+                                            dayDetails.orders.map(order => (
+                                                <div key={order.id} className="bg-white p-3 rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition">
+                                                    <div className="flex justify-between items-start">
+                                                        <div>
+                                                            <span className="font-bold text-gray-900 block">#{order.orderNumber.split('-').pop()}</span>
+                                                            <span className="text-xs text-gray-500">{new Date(order.createdAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</span>
+                                                            <span className="text-xs text-gray-400 ml-2">• {order.payment?.method || 'Nakit'}</span>
+                                                        </div>
+                                                        <div className="text-right">
+                                                            <span className="font-bold text-green-600 block">₺{order.finalAmount.toFixed(2)}</span>
+                                                            <span className="text-xs text-gray-500">{order.customerName || 'Misafir'}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Right: Expenses */}
+                                <div className="flex-1 flex flex-col overflow-hidden">
+                                    <div className="p-4 bg-gray-50 border-b flex justify-between items-center">
+                                        <h3 className="font-bold text-gray-800 flex items-center">
+                                            <FaArrowDown className="mr-2 text-red-600" />
+                                            Giderler ({dayDetails.expenses.length})
+                                        </h3>
+                                        <span className="text-red-600 font-bold">
+                                            -₺{dayDetails.expenses.reduce((sum, e) => sum + e.amount, 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                        </span>
+                                    </div>
+                                    <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                                        {dayDetails.expenses.length === 0 ? (
+                                            <p className="text-center text-gray-500 py-10">Gider bulunamadı.</p>
+                                        ) : (
+                                            dayDetails.expenses.map(expense => (
+                                                <div key={expense.id} className="bg-white p-3 rounded-lg border border-red-50 shadow-sm hover:shadow-md transition">
+                                                    <div className="flex justify-between items-start">
+                                                        <div>
+                                                            <span className="font-medium text-gray-900 block">{expense.description}</span>
+                                                            <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 mt-1 inline-block">
+                                                                {translateCategory(expense.category)}
+                                                            </span>
+                                                        </div>
+                                                        <div className="text-right">
+                                                            <span className="font-bold text-red-600 block">-₺{expense.amount.toFixed(2)}</span>
+                                                            <span className="text-xs text-gray-400">{new Date(expense.date).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                </div>
+                            </>
+                        ) : null}
+                    </div>
+
+                    <div className="p-4 bg-gray-50 border-t flex justify-end">
+                        <button
+                            onClick={() => setIsDetailModalOpen(false)}
+                            className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-2 rounded-lg font-medium transition"
+                        >
+                            Kapat
+                        </button>
+                    </div>
+                </div>
+            </div>
+        )
+    }
     );
 }
