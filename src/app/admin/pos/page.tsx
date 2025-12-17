@@ -288,7 +288,11 @@ export default function POSPage() {
                 
                 <script>
                     window.onload = function() {
+                        window.focus();
                         window.print();
+                        // Close window after print dialog to simulate 'direct' feel
+                        // Note: If using Kiosk mode (silent print), this closes immediately.
+                        setTimeout(function() { window.close(); }, 500);
                     }
                 </script>
             </body>
