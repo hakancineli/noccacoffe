@@ -187,20 +187,20 @@ export default function OrdersManagement() {
                 <div class="header">
                     <h2>NOCCA COFFEE</h2>
                     <p>Tarih: ${new Date().toLocaleString('tr-TR')}</p>
-                    <p>Sipariş No: #${order.orderNumber.split('-').pop()}</p>
-                    <p>Müşteri: ${order.customerName}</p>
+                    <p>Sipariş No: #${order.orderNumber?.split('-').pop() ?? ''}</p>
+                    <p>Müşteri: ${order.customerName ?? ''}</p>
                 </div>
                 <div>
-                   ${order.orderItems.map((item) => `
+                   ${order.orderItems?.map((item) => `
                         <div class="item">
-                            <span>${item.quantity}x ${item.productName} ${item.size ? `(${item.size})` : ''}</span>
-                            <span>${(item.totalPrice).toFixed(2)}₺</span>
+                            <span>${item.quantity}x ${item.productName}${item.size ? ` (${item.size})` : ''}</span>
+                            <span>${(item.totalPrice ?? 0).toFixed(2)}₺</span>
                         </div>
-                   `).join('')}
+                    `).join('')}
                 </div>
                 <div class="total">
                     <span>TOPLAM</span>
-                    <span>${order.finalAmount.toFixed(2)}₺</span>
+                    <span>${(order.finalAmount ?? 0).toFixed(2)}₺</span>
                 </div>
                 <div class="footer">
                     <p>Afiyet Olsun!</p>

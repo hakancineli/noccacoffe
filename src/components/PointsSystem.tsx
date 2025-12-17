@@ -240,8 +240,8 @@ const PointsSystem = () => {
             <div
               key={level.name}
               className={`p-4 rounded-lg border-2 transition-all ${currentTier === level.name
-                  ? `${level.color} text-white border-white shadow-lg transform scale-105`
-                  : 'bg-gray-50 border-gray-200 hover:border-nocca-light-green'
+                ? `${level.color} text-white border-white shadow-lg transform scale-105`
+                : 'bg-gray-50 border-gray-200 hover:border-nocca-light-green'
                 }`}
             >
               <div className="text-center">
@@ -299,8 +299,8 @@ const PointsSystem = () => {
                   <td className="p-3 text-sm">{transaction.date}</td>
                   <td className="p-3 text-sm">
                     <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${transaction.type === 'EARNED' ? 'bg-green-100 text-green-800' :
-                        transaction.type === 'REDEEMED' ? 'bg-red-100 text-red-800' :
-                          'bg-blue-100 text-blue-800'
+                      transaction.type === 'REDEEMED' ? 'bg-red-100 text-red-800' :
+                        'bg-blue-100 text-blue-800'
                       }`}>
                       {transaction.type === 'EARNED' ? 'Kazanılan' :
                         transaction.type === 'REDEEMED' ? 'Harcanılan' : 'Bonus'}
