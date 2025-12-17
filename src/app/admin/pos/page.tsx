@@ -188,7 +188,16 @@ export default function POSPage() {
                 const createdOrder = await res.json();
 
                 // 1. Set receipt data (triggers useEffect -> print)
-                setLastOrder({ ...createdOrder, items: cart });
+                // API returns minimal data, so we combine it with local state
+                setLastOrder({
+                    ...createdOrder,
+                    items: cart,
+                    totalAmount: cartTotal,
+                    finalAmount: finalTotal,
+                    discountAmount: discountAmount,
+                    customerName: orderData.customerName,
+                    creatorName: 'Kasa' // Default for now
+                });
 
                 // 2. Clear Cart & Reset State immediately (Auto-New Order)
                 setCart([]);
