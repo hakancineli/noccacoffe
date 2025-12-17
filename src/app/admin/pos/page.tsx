@@ -241,7 +241,7 @@ export default function POSPage() {
                                                 {size.size === 'S' ? 'Küçük Boy' : size.size === 'M' ? 'Orta Boy' : 'Büyük Boy'}
                                             </span>
                                         </div>
-                                        <span className="font-bold text-gray-900">₺{size.price.toFixed(2)}</span>
+                                        <span className="font-bold text-gray-900">₺{(size.price ?? 0).toFixed(2)}</span>
                                     </button>
                                 ))}
                             </div>
@@ -255,7 +255,7 @@ export default function POSPage() {
                     <div className="bg-white p-4 shadow-sm z-10">
                         <div className="flex justify-between items-center mb-4">
                             <h1 className="text-2xl font-bold text-gray-800">Kasa Modu</h1>
-                            <div className="text-sm text-gray-500">
+                            <div className="text-sm text-gray-500" suppressHydrationWarning>
                                 {new Date().toLocaleDateString('tr-TR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                             </div>
                         </div>
@@ -400,7 +400,7 @@ export default function POSPage() {
                                                 <button onClick={() => updateQuantity(item.id, 1)} className="px-2 py-1 hover:bg-gray-200 text-gray-600">+</button>
                                             </div>
                                             <div className="text-right w-16">
-                                                <p className="font-bold text-gray-800">₺{(item.price * item.quantity).toFixed(2)}</p>
+                                                <p className="font-bold text-gray-800">₺{((item.price ?? 0) * (item.quantity ?? 0)).toFixed(2)}</p>
                                             </div>
                                             <button onClick={() => removeFromCart(item.id)} className="text-gray-400 hover:text-red-500">
                                                 <FaTrash className="w-3 h-3" />
@@ -446,19 +446,19 @@ export default function POSPage() {
 
                         <div className="flex justify-between items-center mb-1">
                             <span className="text-gray-500 text-sm">Ara Toplam</span>
-                            <span className="font-medium text-gray-700">₺{cartTotal.toFixed(2)}</span>
+                            <span className="font-medium text-gray-700">₺{(cartTotal ?? 0).toFixed(2)}</span>
                         </div>
 
                         {discountRate > 0 && (
                             <div className="flex justify-between items-center mb-1 text-red-500 font-medium">
                                 <span className="text-sm">İskonto (%{discountRate})</span>
-                                <span>-₺{discountAmount.toFixed(2)}</span>
+                                <span>-₺{(discountAmount ?? 0).toFixed(2)}</span>
                             </div>
                         )}
 
                         <div className="flex justify-between items-center mb-4 pt-2 border-t border-dashed border-gray-300">
                             <span className="text-gray-800 font-bold text-lg">Genel Toplam</span>
-                            <span className="text-2xl font-bold text-gray-900">₺{finalTotal.toFixed(2)}</span>
+                            <span className="text-2xl font-bold text-gray-900">₺{(finalTotal ?? 0).toFixed(2)}</span>
                         </div>
 
                         <div className="grid grid-cols-2 gap-3">
@@ -510,7 +510,7 @@ export default function POSPage() {
                         </div>
 
                         <div className="text-[11px] mb-2 border-b border-dashed border-black pb-1">
-                            <div>Tarih: {new Date().toLocaleDateString('tr-TR')} {new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</div>
+                            <div suppressHydrationWarning>Tarih: {new Date().toLocaleDateString('tr-TR')} {new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</div>
                             <div>Sipariş No: #{lastOrder.orderNumber ? lastOrder.orderNumber.split('-').pop() : '---'}</div>
                             <div>Kasiyer: {lastOrder.creatorName || 'Kasa'}</div>
                             <div>Müşteri: {lastOrder.customerName || 'Misafir'}</div>
@@ -532,7 +532,7 @@ export default function POSPage() {
                                             <div className="font-bold">{item.name}</div>
                                             {item.size && <div className="text-[11px] text-[#333]">{item.size}</div>}
                                         </td>
-                                        <td className="py-[4px] align-top text-right text-nowrap">{(item.price * item.quantity).toFixed(2)}₺</td>
+                                        <td className="py-[4px] align-top text-right text-nowrap">{((item.price ?? 0) * (item.quantity ?? 0)).toFixed(2)}₺</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -541,17 +541,17 @@ export default function POSPage() {
                         <div className="border-t border-dashed border-black pt-1 mt-1">
                             <div className="flex justify-between mb-[2px]">
                                 <span>Ara Toplam</span>
-                                <span>{lastOrder.totalAmount.toFixed(2)}₺</span>
+                                <span>{(lastOrder.totalAmount ?? 0).toFixed(2)}₺</span>
                             </div>
                             {lastOrder.discountAmount > 0 && (
                                 <div className="flex justify-between mb-[2px]">
                                     <span>İskonto</span>
-                                    <span>-{lastOrder.discountAmount.toFixed(2)}₺</span>
+                                    <span>-{(lastOrder.discountAmount ?? 0).toFixed(2)}₺</span>
                                 </div>
                             )}
                             <div className="flex justify-between text-base font-bold mt-1 border-t border-black pt-1">
                                 <span>GENEL TOPLAM</span>
-                                <span>{(typeof lastOrder.finalAmount === 'number' ? lastOrder.finalAmount : parseFloat(lastOrder.finalAmount)).toFixed(2)}₺</span>
+                                <span>{(typeof lastOrder.finalAmount === 'number' ? lastOrder.finalAmount : parseFloat(lastOrder.finalAmount ?? '0')).toFixed(2)}₺</span>
                             </div>
                         </div>
 
