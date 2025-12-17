@@ -366,10 +366,10 @@ export default function OrdersManagement() {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        ₺{order.finalAmount.toFixed(2)}
+                        ₺{(order.finalAmount ?? 0).toFixed(2)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(order.createdAt).toLocaleString('tr-TR')}
+                        <span suppressHydrationWarning>{new Date(order.createdAt).toLocaleString('tr-TR')}</span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex space-x-2">
@@ -504,7 +504,7 @@ export default function OrdersManagement() {
                           {item.size && <span className="text-gray-500 text-xs ml-2">({item.size})</span>}
                           <span className="text-gray-500"> x {item.quantity}</span>
                         </div>
-                        <span className="font-medium">₺{item.totalPrice.toFixed(2)}</span>
+                        <span className="font-medium">₺{(item.totalPrice ?? 0).toFixed(2)}</span>
                       </div>
                     ))}
                   </div>
@@ -513,7 +513,7 @@ export default function OrdersManagement() {
                 <div className="pt-4 border-t">
                   <div className="flex justify-between">
                     <span className="font-medium">Toplam:</span>
-                    <span className="font-medium">₺{selectedOrder.finalAmount.toFixed(2)}</span>
+                    <span className="font-medium">₺{(selectedOrder.finalAmount ?? 0).toFixed(2)}</span>
                   </div>
                 </div>
 
