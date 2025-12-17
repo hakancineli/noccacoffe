@@ -175,10 +175,7 @@ export default function POSPage() {
                 const createdOrder = await res.json();
                 // Success Modal
                 setLastOrder({ ...createdOrder, items: cart }); // Store for printing
-                setCart([]);
-                setSelectedCustomer(null);
-                setCustomerSearch('');
-                setDiscountRate(0); // Reset discount after order
+                // Note: We do NOT clear cart here anymore. User must click "Yeni Sipariş".
             } else {
                 alert('Sipariş oluşturulurken hata oluştu.');
             }
@@ -292,8 +289,6 @@ export default function POSPage() {
                 <script>
                     window.onload = function() {
                         window.print();
-                        // Optional: close after print for smoother kiosk experience (uncomment if desired)
-                        // setTimeout(function() { window.close(); }, 500);
                     }
                 </script>
             </body>
@@ -304,12 +299,16 @@ export default function POSPage() {
         if (printWindow) {
             printWindow.document.write(receiptContent);
             printWindow.document.close();
-            // Printing is handled by window.onload inside the iframe logic
         }
     };
 
     const handleNewOrder = () => {
         setLastOrder(null);
+        // Clear all states for new order
+        setCart([]);
+        setSelectedCustomer(null);
+        setCustomerSearch('');
+        setDiscountRate(0);
     };
 
     return (
