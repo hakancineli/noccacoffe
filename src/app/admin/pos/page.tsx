@@ -190,6 +190,18 @@ export default function POSPage() {
     const printReceipt = () => {
         if (!lastOrder) return;
 
+        // Create a hidden iframe for printing
+        // This avoids pop-up blockers which are common on touch screens/kiosks
+        const existingIframe = document.getElementById('receipt-print-frame');
+        if (existingIframe) {
+            document.body.removeChild(existingIframe);
+        }
+
+        const iframe = document.createElement('iframe');
+        iframe.id = 'receipt-print-frame';
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
+
         // Thermal Printer Layout (80mm width standard approx 300-320px safe area)
         const receiptContent = `
             <html>
@@ -285,24 +297,29 @@ export default function POSPage() {
                     <div>Mali Değeri Yoktur / Bilgi Fişidir</div>
                     <div style="margin-top: 5px;">* Afiyet Olsun *</div>
                 </div>
-                
-                <script>
-                    window.onload = function() {
-                        window.focus();
-                        window.print();
-                        // Close window after print dialog to simulate 'direct' feel
-                        // Note: If using Kiosk mode (silent print), this closes immediately.
-                        setTimeout(function() { window.close(); }, 500);
-                    }
-                </script>
             </body>
             </html>
         `;
 
-        const printWindow = window.open('', '_blank', 'width=400,height=600,menubar=no,toolbar=no,location=no,status=no');
-        if (printWindow) {
-            printWindow.document.write(receiptContent);
-            printWindow.document.close();
+        // Write content to iframe and print
+        const doc = iframe.contentWindow?.document;
+        if (doc) {
+            doc.open();
+            doc.write(receiptContent);
+            doc.close();
+
+            // Wait for content to load then print
+            iframe.onload = () => {
+                iframe.contentWindow?.focus();
+                iframe.contentWindow?.print();
+
+                // Cleanup after a delay
+                setTimeout(() => {
+                    if (document.body.contains(iframe)) {
+                        document.body.removeChild(iframe);
+                    }
+                }, 1000);
+            };
         }
     };
 
