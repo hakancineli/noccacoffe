@@ -61,9 +61,13 @@ export default function POSPage() {
         fetchProducts();
     }, []);
 
-    const getStock = (name: string) => {
+    const getStockInfo = (name: string) => {
         const found = dbProducts.find(p => p.name === name);
-        return found ? found.stock : 99; // Default to some stock if not in DB yet
+        if (!found) return { stock: 99, isAvailable: true };
+        return {
+            stock: found.stock,
+            isAvailable: found.isAvailable ?? true
+        };
     };
 
     // Filter products
@@ -75,9 +79,9 @@ export default function POSPage() {
 
     // Cart Logic
     const handleProductClick = (product: MenuItem) => {
-        const stock = getStock(product.name);
-        if (stock <= 0) {
-            alert(`"${product.name}" tükendi! Stokta kalmadı.`);
+        const stockInfo = getStockInfo(product.name);
+        if (!stockInfo.isAvailable) {
+            alert(`"${product.name}" için gerekli hammaddeler veya stok tükendi!`);
             return;
         }
 
@@ -331,8 +335,8 @@ export default function POSPage() {
                     <div className="flex-1 overflow-y-auto p-4">
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                             {filteredProducts.map(item => {
-                                const stock = getStock(item.name);
-                                const isOutOfStock = stock <= 0;
+                                const stockInfo = getStockInfo(item.name);
+                                const isOutOfStock = !stockInfo.isAvailable;
 
                                 return (
                                     <button
@@ -366,8 +370,8 @@ export default function POSPage() {
                                                 <p className="text-nocca-green font-bold">
                                                     {item.price ? `₺${item.price}` : (item.sizes ? `₺${item.sizes[0].price}` : '-')}
                                                 </p>
-                                                <span className={`text-[10px] font-bold px-1 rounded ${stock <= 10 ? 'text-red-500 bg-red-50' : 'text-gray-400 bg-gray-50'}`}>
-                                                    Stok: {stock}
+                                                <span className={`text-[10px] font-bold px-1 rounded ${stockInfo.stock <= 10 ? 'text-red-500 bg-red-50' : 'text-gray-400 bg-gray-50'}`}>
+                                                    Stok: {stockInfo.stock}
                                                 </span>
                                             </div>
                                         </div>

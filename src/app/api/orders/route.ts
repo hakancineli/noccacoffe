@@ -99,17 +99,37 @@ export async function POST(request: Request) {
             select: { id: true, name: true, stock: true }
         });
 
-        // Strict Stock Check
+        // Strict Stock Check (Product & Ingredients)
         for (const item of items) {
             const productInDb = existingProducts.find(p => p.id === item.productId.toString());
             if (!productInDb) {
                 return NextResponse.json({ success: false, error: `Ürün bulunamadı: ${item.productName}` }, { status: 400 });
             }
-            if (productInDb.stock < item.quantity) {
+
+            // Check Product Direct Stock (if physical product)
+            if (productInDb.stock < item.quantity && productInDb.stock > 0) {
                 return NextResponse.json({
                     success: false,
                     error: `${productInDb.name} tükendi veya yetersiz stok! (Kalan: ${productInDb.stock})`
                 }, { status: 400 });
+            }
+
+            // Deep Ingredient Check (Recipe)
+            const recipe = await prisma.recipe.findFirst({
+                where: { productId: productInDb.id, OR: [{ size: item.size }, { size: null }] },
+                include: { items: { include: { ingredient: true } } },
+                orderBy: { size: 'desc' } // Prefer specific size match
+            });
+
+            if (recipe) {
+                for (const ri of recipe.items) {
+                    if (ri.ingredient.stock < (ri.quantity * item.quantity)) {
+                        return NextResponse.json({
+                            success: false,
+                            error: `Yetersiz Hammadde: ${ri.ingredient.name} tükendiği için ${productInDb.name} üretilemez!`
+                        }, { status: 400 });
+                    }
+                }
             }
         }
 

@@ -66,10 +66,25 @@ export async function GET(request: NextRequest) {
       // Calculate total sold dynamically to ensure consistency
       const realTotalSold = salesBreakdown.reduce((sum: number, item: any) => sum + item.count, 0);
 
+      // Check ingredient availability
+      let isAvailable = p.stock > 0;
+
+      // If product has recipes, availability depends on ingredients
+      if (p.recipes && p.recipes.length > 0) {
+        // A product is available if AT LEAST ONE of its sizes can be made
+        isAvailable = p.recipes.some((recipe: any) => {
+          return recipe.items.every((ri: any) => {
+            // ri.ingredient is included in fetch
+            return ri.ingredient.stock >= ri.quantity;
+          });
+        });
+      }
+
       return {
         ...p,
         soldCount: realTotalSold, // Overwrite DB value with actual calculated value
-        salesBySize: salesBreakdown
+        salesBySize: salesBreakdown,
+        isAvailable // New flag for POS
       };
     }));
 
