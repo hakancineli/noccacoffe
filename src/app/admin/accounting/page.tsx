@@ -379,7 +379,7 @@ export default function AccountingPage() {
                                     </td>
                                 </tr>
                             ) : (
-                                dailyStats.map((day) => (
+                                dailyStats.slice().sort((a, b) => b.date.localeCompare(a.date)).map((day) => (
                                     <tr
                                         key={day.date}
                                         onClick={() => handleDayClick(day.date)}
