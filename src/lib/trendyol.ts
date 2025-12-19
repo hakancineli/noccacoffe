@@ -41,7 +41,8 @@ export class TrendyolClient {
             const response = await fetch(url, {
                 headers: {
                     'Authorization': `Basic ${this.token}`,
-                    'User-Agent': 'NoccaCoffee-Integration/1.0',
+                    'User-Agent': `${this.sellerId} - SelfIntegration`,
+                    'x-agent-name': `${this.sellerId} - SelfIntegration`,
                     'Content-Type': 'application/json'
                 }
             });
@@ -68,7 +69,8 @@ export class TrendyolClient {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Basic ${this.token}`,
-                    'User-Agent': 'NoccaCoffee-Integration/1.0',
+                    'User-Agent': `${this.sellerId} - SelfIntegration`,
+                    'x-agent-name': `${this.sellerId} - SelfIntegration`,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ status })

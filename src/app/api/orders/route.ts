@@ -46,6 +46,43 @@ export async function POST(request: Request) {
             console.log("Token verification failed during order creation (ignoring):", error);
         }
 
+        // 1.5 Auto-Registration / Guest Linking Logic
+        if (!userId && customerEmail) {
+            try {
+                let userRecord = await prisma.user.findUnique({
+                    where: { email: customerEmail }
+                });
+
+                if (!userRecord) {
+                    // Create a new ghost user account
+                    const nameParts = customerName?.split(' ') || ['Misafir'];
+                    const firstName = nameParts[0];
+                    const lastName = nameParts.slice(1).join(' ');
+
+                    userRecord = await prisma.user.create({
+                        data: {
+                            email: customerEmail,
+                            passwordHash: 'GUEST_ACCOUNT', // Placeholder
+                            firstName,
+                            lastName,
+                            phone: customerPhone,
+                            userPoints: {
+                                create: {
+                                    points: 0,
+                                    tier: 'BRONZE'
+                                }
+                            }
+                        }
+                    });
+                    console.log(`Auto-registered new user: ${customerEmail}`);
+                }
+
+                userId = userRecord.id;
+            } catch (authErr) {
+                console.error('Auto-registration error:', authErr);
+            }
+        }
+
         // Determine Order Status: Admin can set it (e.g. 'COMPLETED'), others default to 'PENDING'
         const orderStatus = (isAdmin && status) ? status : 'PENDING';
         const method = (isAdmin && paymentMethod) ? paymentMethod : 'CREDIT_CARD';
