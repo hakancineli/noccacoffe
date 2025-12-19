@@ -737,6 +737,63 @@ export const allMenuItems: MenuItem[] = [
     price: 180,
     image: '/images/products/Iced Matcha Latte.jpeg',
   },
+
+  // ŞURUPLAR
+  { id: 68, name: 'Karamel Şurubu', description: 'Ekstra lezzet için karamel şurubu', category: 'Şuruplar', price: 40 },
+  { id: 69, name: 'Fındık Şurubu', description: 'Fındık aromalı şurup', category: 'Şuruplar', price: 40 },
+  { id: 70, name: 'Vanilya Şurubu', description: 'Vanilya aromalı şurup', category: 'Şuruplar', price: 40 },
+  { id: 71, name: 'Toffeenut Şurubu', description: 'Toffeenut aromalı şurup', category: 'Şuruplar', price: 40 },
+  { id: 72, name: 'Çikolata Şurubu', description: 'Çikolata aromalı şurup', category: 'Şuruplar', price: 40 },
+  { id: 73, name: 'Chai Şurubu', description: 'Chai aromalı şurup', category: 'Şuruplar', price: 40 },
+  { id: 74, name: 'Beyaz Çikolata Şurubu', description: 'Beyaz çikolata aromalı şurup', category: 'Şuruplar', price: 40 },
+  { id: 75, name: 'Nar Şurubu', description: 'Nar aromalı şurup', category: 'Şuruplar', price: 40 },
+  { id: 76, name: 'Menta Şurubu', description: 'Menta aromalı şurup', category: 'Şuruplar', price: 40 },
+  { id: 77, name: 'Muz Şurubu', description: 'Muz aromalı şurup', category: 'Şuruplar', price: 40 },
+  { id: 78, name: 'Çilek Şurubu', description: 'Çilek aromalı şurup', category: 'Şuruplar', price: 40 },
+  { id: 79, name: 'Mint Şurubu', description: 'Nane aromalı şurup', category: 'Şuruplar', price: 40 },
+
+  // SOSLAR
+  { id: 80, name: 'Karamel Sos', description: 'Zengin karamel sosu', category: 'Soslar', price: 50 },
+  { id: 81, name: 'Beyaz Çikolata Sos', description: 'Beyaz çikolata sosu', category: 'Soslar', price: 50 },
+  { id: 82, name: 'Çikolata Sos', description: 'Çikolata sosu', category: 'Soslar', price: 50 },
+  { id: 83, name: 'Salted Karamel Sos', description: 'Tuzlu karamel sosu', category: 'Soslar', price: 50 },
+
+  // PÜRELER
+  { id: 84, name: 'Çilek Püresi', description: 'Taze çilek püresi', category: 'Püreler', price: 60 },
+  { id: 85, name: 'Mango Püresi', description: 'Egzotik mango püresi', category: 'Püreler', price: 60 },
+  { id: 86, name: 'Muz Püresi', description: 'Tatlı muz püresi', category: 'Püreler', price: 60 },
+  { id: 87, name: 'Biscoff Püresi', description: 'Biscoff aromalı püre', category: 'Püreler', price: 60 },
+  { id: 88, name: 'Antep Fıstığı Püresi', description: 'Antep fıstığı püresi', category: 'Püreler', price: 80 },
+
+  // TOZLAR
+  { id: 89, name: 'Vanilya Tozu', description: 'Karışımlar için vanilya tozu', category: 'Tozlar', price: 40 },
+  { id: 90, name: 'Muz Tozu', description: 'Karışımlar için muz tozu', category: 'Tozlar', price: 40 },
+  { id: 91, name: 'Çikolata Tozu', description: 'Karışımlar için çikolata tozu', category: 'Tozlar', price: 40 },
+  { id: 92, name: 'Salep', description: 'Geleneksel salep tozu', category: 'Tozlar', price: 120 },
+  { id: 93, name: 'Sıcak Çikolata Tozu', description: 'Sıcak çikolata karışımı', category: 'Tozlar', price: 120 },
+  { id: 94, name: 'Frappe Tozu', description: 'Frappe tabanı', category: 'Tozlar', price: 50 },
+
+  // SÜTLER
+  { id: 95, name: 'Laktozsuz Süt', description: 'Laktozsuz süt seçeneği', category: 'Sütler', price: 30 },
+  { id: 96, name: 'Normal Süt', description: 'Tam yağlı taze süt', category: 'Sütler', price: 0 },
+  { id: 97, name: 'Badem Sütü', description: 'Bitkisel badem sütü', category: 'Sütler', price: 50 },
+  { id: 98, name: 'Yulaf Sütü', description: 'Bitkisel yulaf sütü', category: 'Sütler', price: 50 },
+
+  // YAN ÜRÜNLER
+  { id: 99, name: 'Lokum', description: 'Kahve yanı geleneksel lokum', category: 'Yan Ürünler', price: 0 },
+  { id: 100, name: 'Kurutulmuş Limon', description: 'Süsleme ve aroma için kurutulmuş limon', category: 'Yan Ürünler', price: 0 },
+
+  // KAHVE ÇEKİRDEKLERİ
+  { id: 101, name: 'Espresso Çekirdeği (250g)', description: 'Nocca özel espresso çekirdeği', category: 'Kahve Çekirdekleri', price: 450 },
+  { id: 102, name: 'Filtre Kahve Çekirdeği (250g)', description: 'Nocca özel filtre kahve çekirdeği', category: 'Kahve Çekirdekleri', price: 400 },
+  { id: 103, name: 'Türk Kahvesi Çekirdeği (250g)', description: 'Geleneksel Türk kahvesi çekirdeği', category: 'Kahve Çekirdekleri', price: 350 },
+
+  // MEŞRUBATLAR
+  { id: 104, name: 'Coca Cola', description: 'Kutu 330ml', category: 'Meşrubatlar', price: 60 },
+  { id: 105, name: 'Kola Turka', description: 'Kutu 330ml', category: 'Meşrubatlar', price: 50 },
+  { id: 106, name: 'Su', description: 'Pet Şişe 0.5L', category: 'Meşrubatlar', price: 20 },
+  { id: 107, name: 'Sade Soda', description: 'Maden Suyu', category: 'Meşrubatlar', price: 30 },
+  { id: 108, name: 'Limonlu Soda', description: 'Meyveli Maden Suyu', category: 'Meşrubatlar', price: 35 },
 ];
 
 // Category list for filtering
@@ -751,5 +808,13 @@ export const categories = [
   'Bubble Tea',
   'Matchalar',
   'Bitki Çayları',
+  'Şuruplar',
+  'Soslar',
+  'Püreler',
+  'Tozlar',
+  'Sütler',
+  'Yan Ürünler',
+  'Kahve Çekirdekleri',
+  'Meşrubatlar',
   'Extra',
 ];
