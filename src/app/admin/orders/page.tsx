@@ -196,6 +196,22 @@ export default function OrdersManagement() {
     }
   };
 
+  const deleteOrder = async (orderId: string) => {
+    if (!confirm('Bu siparişi silmek istediğinize emin misiniz? (İşlem geçmişine kaydedilecektir)')) return;
+    try {
+      const response = await fetch(`/api/admin/orders/${orderId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        fetchOrders();
+        setIsModalOpen(false);
+      }
+    } catch (error) {
+      console.error('Order delete error:', error);
+    }
+  };
+
   const printReceipt = (order: Order) => {
     const receiptContent = `
             <html>
@@ -494,6 +510,13 @@ export default function OrdersManagement() {
                               Tamamla
                             </button>
                           )}
+                          <button
+                            onClick={() => deleteOrder(order.id)}
+                            className="text-red-400 hover:text-red-600 ml-2"
+                            title="Siparişi Sil"
+                          >
+                            Sil
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -633,6 +656,12 @@ export default function OrdersManagement() {
                   >
                     <FaPrint className="mr-2" />
                     Yazdır
+                  </button>
+                  <button
+                    onClick={() => deleteOrder(selectedOrder.id)}
+                    className="flex items-center px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition border border-red-200"
+                  >
+                    Siparişi Sil
                   </button>
                 </div>
               </div>
