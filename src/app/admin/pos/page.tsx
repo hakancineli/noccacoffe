@@ -43,6 +43,28 @@ export default function POSPage() {
     const [productSearch, setProductSearch] = useState('');
     const [discountRate, setDiscountRate] = useState(0);
     const [showDiscountInput, setShowDiscountInput] = useState(false);
+    const [dbProducts, setDbProducts] = useState<any[]>([]);
+
+    // Fetch DB products for stock check
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                const res = await fetch('/api/admin/products?limit=250');
+                if (res.ok) {
+                    const data = await res.json();
+                    setDbProducts(data.products || []);
+                }
+            } catch (error) {
+                console.error('POS stock fetch error:', error);
+            }
+        };
+        fetchProducts();
+    }, []);
+
+    const getStock = (name: string) => {
+        const found = dbProducts.find(p => p.name === name);
+        return found ? found.stock : 99; // Default to some stock if not in DB yet
+    };
 
     // Filter products
     const filteredProducts = allMenuItems.filter(item => {
@@ -53,6 +75,12 @@ export default function POSPage() {
 
     // Cart Logic
     const handleProductClick = (product: MenuItem) => {
+        const stock = getStock(product.name);
+        if (stock <= 0) {
+            alert(`"${product.name}" tükendi! Stokta kalmadı.`);
+            return;
+        }
+
         // If product has sizes, open selection modal
         if (product.sizes && product.sizes.length > 0) {
             setSelectedProductForSize(product);
@@ -302,32 +330,50 @@ export default function POSPage() {
                     {/* Grid */}
                     <div className="flex-1 overflow-y-auto p-4">
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                            {filteredProducts.map(item => (
-                                <button
-                                    key={item.id}
-                                    onClick={() => handleProductClick(item)}
-                                    className="bg-white p-3 rounded-lg shadow hover:shadow-md transition-all text-left flex flex-col h-full active:scale-95 border border-transparent hover:border-nocca-light-green"
-                                >
-                                    <div className="relative w-full h-32 mb-2 rounded-md overflow-hidden bg-gray-100">
-                                        {item.image ? (
-                                            <Image
-                                                src={item.image}
-                                                alt={item.name}
-                                                fill
-                                                className="object-cover"
-                                            />
-                                        ) : (
-                                            <div className="w-full h-full flex items-center justify-center text-xs text-gray-400">Resim Yok</div>
+                            {filteredProducts.map(item => {
+                                const stock = getStock(item.name);
+                                const isOutOfStock = stock <= 0;
+
+                                return (
+                                    <button
+                                        key={item.id}
+                                        onClick={() => handleProductClick(item)}
+                                        disabled={isOutOfStock}
+                                        className={`bg-white p-3 rounded-lg shadow hover:shadow-md transition-all text-left flex flex-col h-full active:scale-95 border border-transparent hover:border-nocca-light-green relative ${isOutOfStock ? 'opacity-70 grayscale' : ''}`}
+                                    >
+                                        {isOutOfStock && (
+                                            <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 z-10 flex justify-center pointer-events-none">
+                                                <span className="bg-red-600 text-white text-[10px] font-black px-2 py-1 rounded shadow-lg transform -rotate-12 border-2 border-white uppercase tracking-tighter">
+                                                    TÜKENDİ
+                                                </span>
+                                            </div>
                                         )}
-                                    </div>
-                                    <div className="mt-auto">
-                                        <h3 className="font-semibold text-gray-800 text-sm line-clamp-2">{item.name}</h3>
-                                        <p className="text-nocca-green font-bold mt-1">
-                                            {item.price ? `₺${item.price}` : (item.sizes ? `₺${item.sizes[0].price}` : '-')}
-                                        </p>
-                                    </div>
-                                </button>
-                            ))}
+                                        <div className="relative w-full h-32 mb-2 rounded-md overflow-hidden bg-gray-100">
+                                            {item.image ? (
+                                                <Image
+                                                    src={item.image}
+                                                    alt={item.name}
+                                                    fill
+                                                    className="object-cover"
+                                                />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center text-xs text-gray-400">Resim Yok</div>
+                                            )}
+                                        </div>
+                                        <div className="mt-auto">
+                                            <h3 className="font-semibold text-gray-800 text-sm line-clamp-2">{item.name}</h3>
+                                            <div className="flex justify-between items-end mt-1">
+                                                <p className="text-nocca-green font-bold">
+                                                    {item.price ? `₺${item.price}` : (item.sizes ? `₺${item.sizes[0].price}` : '-')}
+                                                </p>
+                                                <span className={`text-[10px] font-bold px-1 rounded ${stock <= 10 ? 'text-red-500 bg-red-50' : 'text-gray-400 bg-gray-50'}`}>
+                                                    Stok: {stock}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </button>
+                                );
+                            })}
                         </div>
                     </div>
                 </div>

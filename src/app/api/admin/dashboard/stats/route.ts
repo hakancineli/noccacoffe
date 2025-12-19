@@ -83,6 +83,15 @@ export async function GET(request: NextRequest) {
       }
     });
 
+    const lowStockCount = await (prisma as any).product.count({
+      where: {
+        stock: {
+          lte: 10
+        },
+        isActive: true
+      }
+    });
+
     const stats = {
       totalOrders,
       todayOrders,
@@ -90,6 +99,7 @@ export async function GET(request: NextRequest) {
       activeCustomers,
       pendingOrders,
       completedOrders,
+      lowStockCount,
     };
 
     return NextResponse.json(stats);

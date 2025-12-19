@@ -92,21 +92,25 @@ export async function POST(request: Request) {
         const isPosOrder = isAdmin && !!paymentMethod;
         const paymentStatus = (orderStatus === 'COMPLETED' || isPosOrder) ? 'COMPLETED' : 'PENDING';
 
-        // 1. Validate all product IDs exist in DB to prevent relation errors
+        // 1. Validate all product IDs exist and check stock
         const productIds = items.map((item: any) => item.productId.toString());
         const existingProducts = await prisma.product.findMany({
             where: { id: { in: productIds } },
-            select: { id: true }
+            select: { id: true, name: true, stock: true }
         });
-        const existingIds = new Set(existingProducts.map(p => p.id));
-        const missingIds = productIds.filter((id: string) => !existingIds.has(id));
 
-        if (missingIds.length > 0) {
-            console.error('Missing Product IDs in DB:', missingIds);
-            return NextResponse.json(
-                { success: false, error: `Bazı ürünler veritabanında bulunamadı: ${missingIds.join(', ')}. Lütfen sistemi güncelleyin.` },
-                { status: 400 }
-            );
+        // Strict Stock Check
+        for (const item of items) {
+            const productInDb = existingProducts.find(p => p.id === item.productId.toString());
+            if (!productInDb) {
+                return NextResponse.json({ success: false, error: `Ürün bulunamadı: ${item.productName}` }, { status: 400 });
+            }
+            if (productInDb.stock < item.quantity) {
+                return NextResponse.json({
+                    success: false,
+                    error: `${productInDb.name} tükendi veya yetersiz stok! (Kalan: ${productInDb.stock})`
+                }, { status: 400 });
+            }
         }
 
         // 2. Create Order with Items
