@@ -112,11 +112,26 @@ model Order {
   externalId     String?        @unique @map("external_id")
   createdAt      DateTime       @default(now()) @map("created_at")
   updatedAt      DateTime       @updatedAt @map("updated_at")
+  isDeleted      Boolean        @default(false) @map("is_deleted")
   orderItems     OrderItem[]
   user           User?          @relation(fields: [userId], references: [id])
   payment        Payment?
 
   @@map("orders")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  action    String   // e.g., "DELETE_ORDER", "UPDATE_PRODUCT"
+  entity    String   // e.g., "Order", "Product"
+  entityId  String   @map("entity_id")
+  oldData   Json?    @map("old_data")
+  newData   Json?    @map("new_data")
+  userId    String?  @map("user_id")
+  userEmail String?  @map("user_email")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("audit_logs")
 }
 
 enum OrderSource {

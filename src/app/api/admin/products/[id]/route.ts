@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
+import { createAuditLog } from '@/lib/audit';
 
 export async function GET(
   request: NextRequest,
@@ -54,9 +53,32 @@ export async function PUT(
     if (stock !== undefined) updateData.stock = parseInt(stock);
     if (isActive !== undefined) updateData.isActive = isActive;
 
-    const product = await (prisma as any).product.update({
+    const userId = request.headers.get('x-user-id') || undefined;
+    const userEmail = request.headers.get('x-user-email') || undefined;
+
+    // Get current state for logging
+    const currentProduct = await prisma.product.findUnique({
+      where: { id: params.id }
+    });
+
+    if (!currentProduct) {
+      return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+    }
+
+    const product = await prisma.product.update({
       where: { id: params.id },
       data: updateData,
+    });
+
+    // Log the update
+    await createAuditLog({
+      action: 'UPDATE_PRODUCT',
+      entity: 'Product',
+      entityId: params.id,
+      oldData: currentProduct,
+      newData: product,
+      userId,
+      userEmail,
     });
 
     return NextResponse.json(product);
@@ -74,8 +96,25 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    await (prisma as any).product.delete({
+    const userId = request.headers.get('x-user-id') || undefined;
+    const userEmail = request.headers.get('x-user-email') || undefined;
+
+    const currentProduct = await prisma.product.findUnique({
+      where: { id: params.id }
+    });
+
+    await prisma.product.delete({
       where: { id: params.id },
+    });
+
+    // Log the deletion
+    await createAuditLog({
+      action: 'DELETE_PRODUCT',
+      entity: 'Product',
+      entityId: params.id,
+      oldData: currentProduct,
+      userId,
+      userEmail,
     });
 
     return NextResponse.json({ message: 'Product deleted successfully' });

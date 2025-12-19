@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
+import { createAuditLog } from '@/lib/audit';
 
 // Type definitions
 type OrderStatus = 'PENDING' | 'PREPARING' | 'READY' | 'COMPLETED' | 'CANCELLED';
@@ -11,8 +10,11 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const order = await (prisma as any).order.findUnique({
-      where: { id: params.id },
+    const order = await prisma.order.findFirst({
+      where: {
+        id: params.id,
+        isDeleted: false // Filter out soft-deleted
+      },
       include: {
         orderItems: true,
         user: {
@@ -52,6 +54,8 @@ export async function PUT(
   try {
     const body = await request.json();
     const { status, notes } = body;
+    const userId = request.headers.get('x-user-id') || undefined;
+    const userEmail = request.headers.get('x-user-email') || undefined;
 
     // Validate status
     const validStatuses: OrderStatus[] = ['PENDING', 'PREPARING', 'READY', 'COMPLETED', 'CANCELLED'];
@@ -62,11 +66,21 @@ export async function PUT(
       );
     }
 
+    // Get current order state for logging
+    const currentOrder = await prisma.order.findUnique({
+      where: { id: params.id },
+      include: { payment: true }
+    });
+
+    if (!currentOrder) {
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+    }
+
     const updateData: any = {};
     if (status) updateData.status = status;
     if (notes !== undefined) updateData.notes = notes;
 
-    const order = await (prisma as any).order.update({
+    const order = await prisma.order.update({
       where: { id: params.id },
       data: updateData,
       include: {
@@ -83,19 +97,32 @@ export async function PUT(
       },
     });
 
+    // Handle Audit Logging for status change
+    if (status && status !== currentOrder.status) {
+      await createAuditLog({
+        action: 'UPDATE_ORDER_STATUS',
+        entity: 'Order',
+        entityId: params.id,
+        oldData: { status: currentOrder.status },
+        newData: { status: status },
+        userId,
+        userEmail
+      });
+    }
+
     // Handle Payment Status Sync
     if (status === 'COMPLETED') {
-      const existingPayment = await (prisma as any).payment.findUnique({
+      const existingPayment = await prisma.payment.findUnique({
         where: { orderId: params.id }
       });
 
       if (existingPayment) {
-        await (prisma as any).payment.update({
+        await prisma.payment.update({
           where: { id: existingPayment.id },
           data: { status: 'COMPLETED' }
         });
       } else {
-        await (prisma as any).payment.create({
+        await prisma.payment.create({
           data: {
             orderId: params.id,
             amount: order.finalAmount,
@@ -105,8 +132,7 @@ export async function PUT(
         });
       }
     } else if (status === 'CANCELLED') {
-      // Optionally refund or mark failed
-      await (prisma as any).payment.updateMany({
+      await prisma.payment.updateMany({
         where: { orderId: params.id },
         data: { status: 'FAILED' }
       });
@@ -127,8 +153,24 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    await (prisma as any).order.delete({
+    const userId = request.headers.get('x-user-id') || undefined;
+    const userEmail = request.headers.get('x-user-email') || undefined;
+
+    // Soft delete order
+    const order = await prisma.order.update({
       where: { id: params.id },
+      data: { isDeleted: true }
+    });
+
+    // Log the sensitive action
+    await createAuditLog({
+      action: 'DELETE_ORDER',
+      entity: 'Order',
+      entityId: params.id,
+      oldData: { isDeleted: false, orderNumber: order.orderNumber },
+      newData: { isDeleted: true },
+      userId,
+      userEmail
     });
 
     return NextResponse.json({ message: 'Order deleted successfully' });

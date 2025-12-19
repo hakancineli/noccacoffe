@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
+import { createAuditLog } from '@/lib/audit';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,14 +23,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (search) {
-      where.AND = [
-        {
-          OR: [
-            { name: { contains: search, mode: 'insensitive' } },
-            { description: { contains: search, mode: 'insensitive' } },
-          ]
-        }
-      ];
+      where.name = { contains: search, mode: 'insensitive' };
     }
 
     if (active === 'true') {
@@ -45,7 +37,15 @@ export async function GET(request: NextRequest) {
       (prisma as any).product.findMany({
         where,
         include: {
-          recipes: { include: { items: true } } // Improved include
+          recipes: {
+            include: {
+              items: {
+                include: {
+                  ingredient: true
+                }
+              }
+            }
+          }
         },
         orderBy: { createdAt: 'desc' },
         skip,
@@ -81,12 +81,22 @@ export async function GET(request: NextRequest) {
       if (p.recipes && p.recipes.length > 0) {
         // A product is available if AT LEAST ONE of its sizes can be made
         isAvailable = p.recipes.some((recipe: any) => {
+          // A recipe is viable if ALL its items have sufficient ingredient stock
           return recipe.items.every((ri: any) => {
-            // ri.ingredient is included in fetch
+            // ri.ingredient might be null if DB is inconsistent, check carefully
+            if (!ri.ingredient) return true; // Assume available if ingredient record missing? 
             return ri.ingredient.stock >= ri.quantity;
           });
         });
       }
+
+      // Final fallback if stock is explicitly 0 and no recipes exist
+      if (p.stock <= 0 && (!p.recipes || p.recipes.length === 0)) {
+        isAvailable = false;
+      }
+
+      // If stock is > 0 OR recipes exist and are viable, it will be true.
+      // Most products start with stock: 100 in seed.
 
       return {
         ...p,
@@ -135,7 +145,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create product
-    const product = await (prisma as any).product.create({
+    const product = await prisma.product.create({
       data: {
         name,
         description,
@@ -145,6 +155,16 @@ export async function POST(request: NextRequest) {
         stock: parseInt(stock) || 0,
         isActive: true,
       },
+    });
+
+    // Log creation
+    await createAuditLog({
+      action: 'CREATE_PRODUCT',
+      entity: 'Product',
+      entityId: product.id,
+      newData: product,
+      userId: request.headers.get('x-user-id') || undefined,
+      userEmail: request.headers.get('x-user-email') || undefined,
     });
 
     return NextResponse.json(product, { status: 201 });

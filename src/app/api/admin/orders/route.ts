@@ -13,18 +13,25 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
 
     // Build where clause
-    const where: Prisma.OrderWhereInput = {};
+    const where: Prisma.OrderWhereInput = {
+      isDeleted: false // Always filter out soft-deleted orders
+    };
 
     if (status && status !== 'all') {
-      where.status = status as any; // Cast status if enum mismatch occurs
+      where.status = status as any;
     }
 
     if (search) {
-      where.OR = [
-        { orderNumber: { contains: search, mode: 'insensitive' } },
-        { customerName: { contains: search, mode: 'insensitive' } },
-        { customerEmail: { contains: search, mode: 'insensitive' } },
-        { customerPhone: { contains: search, mode: 'insensitive' } },
+      where.AND = [
+        { isDeleted: false },
+        {
+          OR: [
+            { orderNumber: { contains: search, mode: 'insensitive' } },
+            { customerName: { contains: search, mode: 'insensitive' } },
+            { customerEmail: { contains: search, mode: 'insensitive' } },
+            { customerPhone: { contains: search, mode: 'insensitive' } },
+          ]
+        }
       ];
     }
 
