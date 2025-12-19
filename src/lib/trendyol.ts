@@ -18,7 +18,7 @@ export interface TrendyolOrder {
     }[];
 }
 
-const TRENDYOL_BASE_URL = 'https://apigw.trendyol.com/integration/order/sellers';
+const TRENDYOL_BASE_URL = 'https://api.tgoapis.com/integration/order/sellers';
 
 export class TrendyolClient {
     private sellerId: string;
@@ -43,6 +43,7 @@ export class TrendyolClient {
                     'Authorization': `Basic ${this.token}`,
                     'User-Agent': `${this.sellerId} - SelfIntegration`,
                     'x-agent-name': `${this.sellerId} - SelfIntegration`,
+                    'x-reference-id': '24b7d6f2-0ff6-4f06-8a0c-21415e9303e6',
                     'Content-Type': 'application/json'
                 }
             });
@@ -71,6 +72,7 @@ export class TrendyolClient {
                     'Authorization': `Basic ${this.token}`,
                     'User-Agent': `${this.sellerId} - SelfIntegration`,
                     'x-agent-name': `${this.sellerId} - SelfIntegration`,
+                    'x-reference-id': '24b7d6f2-0ff6-4f06-8a0c-21415e9303e6',
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ status })
