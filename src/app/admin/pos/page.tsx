@@ -512,61 +512,84 @@ export default function POSPage() {
                         lineHeight: '1.2',
                         color: 'black'
                     }}>
-                        <div className="text-center mb-2">
-                            <div className="text-base font-bold m-0">NOCCA COFFEE</div>
-                            <div className="text-xs m-0">Caddebostan, İstanbul</div>
-                            <div className="text-xs m-0">www.noccacoffee.com.tr</div>
-                        </div>
-
-                        <div className="text-[11px] mb-2 border-b border-dashed border-black pb-1">
-                            <div suppressHydrationWarning>Tarih: {new Date().toLocaleDateString('tr-TR')} {new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</div>
-                            <div>Sipariş No: #{lastOrder.orderNumber ? lastOrder.orderNumber.split('-').pop() : '---'}</div>
-                            <div>Kasiyer: {lastOrder.creatorName || 'Kasa'}</div>
-                            <div>Müşteri: {lastOrder.customerName || 'Misafir'}</div>
-                        </div>
-
-                        <table className="w-full border-collapse mb-2">
-                            <thead>
-                                <tr>
-                                    <th className="text-left border-b border-black text-[11px] pb-[2px] w-[30px]">Adet</th>
-                                    <th className="text-left border-b border-black text-[11px] pb-[2px]">Ürün</th>
-                                    <th className="text-right border-b border-black text-[11px] pb-[2px] whitespace-nowrap">Tutar</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {lastOrder.items.map((item: any, idx: number) => (
-                                    <tr key={idx}>
-                                        <td className="py-[4px] align-top">{item.quantity}</td>
-                                        <td className="py-[4px] align-top">
-                                            <div className="font-bold">{item.name}</div>
-                                            {item.size && <div className="text-[11px] text-[#333]">{item.size}</div>}
-                                        </td>
-                                        <td className="py-[4px] align-top text-right text-nowrap">{((item.price ?? 0) * (item.quantity ?? 0)).toFixed(2)}₺</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-
-                        <div className="border-t border-dashed border-black pt-1 mt-1">
-                            <div className="flex justify-between mb-[2px]">
-                                <span>Ara Toplam</span>
-                                <span>{(lastOrder.totalAmount ?? 0).toFixed(2)}₺</span>
+                        <div style={{
+                            fontFamily: "'Courier New', Courier, monospace",
+                            width: '80mm',
+                            margin: '0',
+                            padding: '10px 0',
+                            fontSize: '13px',
+                            lineHeight: '1.2',
+                            color: 'black'
+                        }}>
+                            <div className="text-center mb-4 border-b border-black pb-2">
+                                <div className="text-lg font-bold">SİPARİŞ FİŞİ</div>
+                                <div className="text-[10px] uppercase font-bold tracking-widest mt-1">Bilgi Amaçlıdır</div>
                             </div>
-                            {lastOrder.discountAmount > 0 && (
-                                <div className="flex justify-between mb-[2px]">
-                                    <span>İskonto</span>
-                                    <span>-{(lastOrder.discountAmount ?? 0).toFixed(2)}₺</span>
+
+                            <div className="text-[11px] mb-2 space-y-0.5">
+                                <div className="flex justify-between">
+                                    <span suppressHydrationWarning>Tarih: {new Date().toLocaleDateString('tr-TR')}</span>
+                                    <span suppressHydrationWarning>{new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</span>
                                 </div>
-                            )}
-                            <div className="flex justify-between text-base font-bold mt-1 border-t border-black pt-1">
-                                <span>GENEL TOPLAM</span>
-                                <span>{(typeof lastOrder.finalAmount === 'number' ? lastOrder.finalAmount : parseFloat(lastOrder.finalAmount ?? '0')).toFixed(2)}₺</span>
+                                <div>No: #{lastOrder.orderNumber ? lastOrder.orderNumber.split('-').pop() : '---'}</div>
+                                <div className="flex justify-between border-t border-black pt-1 mt-1">
+                                    <span>Kasiyer: {lastOrder.creatorName || 'Kasa'}</span>
+                                    <span>Müşteri: {lastOrder.customerName || 'Misafir'}</span>
+                                </div>
                             </div>
-                        </div>
 
-                        <div className="text-center mt-5 text-[11px]">
-                            <div>Mali Değeri Yoktur / Bilgi Fişidir</div>
-                            <div className="mt-1">* Afiyet Olsun *</div>
+                            <table className="w-full border-collapse mb-2">
+                                <thead>
+                                    <tr className="border-y border-black">
+                                        <th className="text-left text-[11px] py-1 w-[30px]">Adet</th>
+                                        <th className="text-left text-[11px] py-1">Ürün</th>
+                                        <th className="text-right text-[11px] py-1 whitespace-nowrap">Tutar</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {lastOrder.items.map((item: any, idx: number) => (
+                                        <tr key={idx} className="border-b border-gray-100 border-dashed last:border-0">
+                                            <td className="py-2 align-top font-bold">{item.quantity}</td>
+                                            <td className="py-2 align-top">
+                                                <div className="font-bold uppercase">{item.name}</div>
+                                                {item.size && (
+                                                    <div className="text-[10px] bg-gray-100 inline-block px-1 font-bold">
+                                                        BOY: {item.size === 'S' ? 'KÜÇÜK' : item.size === 'M' ? 'ORTA' : item.size === 'L' ? 'BÜYÜK' : item.size}
+                                                    </div>
+                                                )}
+                                            </td>
+                                            <td className="py-2 align-top text-right font-bold whitespace-nowrap">
+                                                {((item.price ?? 0) * (item.quantity ?? 0)).toFixed(2)}₺
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+
+                            <div className="border-t-2 border-black pt-2 mt-1 space-y-1">
+                                <div className="flex justify-between text-[11px]">
+                                    <span>ARA TOPLAM</span>
+                                    <span>{(lastOrder.totalAmount ?? 0).toFixed(2)}₺</span>
+                                </div>
+                                {lastOrder.discountAmount > 0 && (
+                                    <div className="flex justify-between text-[11px] text-black">
+                                        <span>İNDİRİM</span>
+                                        <span>-{(lastOrder.discountAmount ?? 0).toFixed(2)}₺</span>
+                                    </div>
+                                )}
+                                <div className="flex justify-between text-[15px] font-black mt-1 border-t border-black pt-1">
+                                    <span>GENEL TOPLAM</span>
+                                    <span>{(typeof lastOrder.finalAmount === 'number' ? lastOrder.finalAmount : parseFloat(lastOrder.finalAmount ?? '0')).toFixed(2)}₺</span>
+                                </div>
+                            </div>
+
+                            <div className="text-center mt-6 pt-4 border-t border-dashed border-black">
+                                <div className="text-base font-black tracking-widest">NOCCA COFFEE</div>
+                                <div className="text-[10px] mt-1 italic">Caddebostan, İstanbul</div>
+                                <div className="text-[10px]">www.noccacoffee.com.tr</div>
+                                <div className="mt-4 text-[11px] font-bold">* AFİYET OLSUN *</div>
+                                <div className="text-[9px] mt-4 opacity-70 italic">Mali değeri yoktur. Teşekkür ederiz.</div>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -290,13 +290,24 @@ export default function ProductsManagement() {
   };
 
   const categories = [
-    'Kahve',
-    'Çay',
-    'Tatlı',
-    'Atıştırmalık',
-    'Sandviç',
-    'Salata',
-    'İçecek',
+    'Soğuk Kahveler',
+    'Sıcak Kahveler',
+    'Soğuk İçecekler',
+    'Espresso',
+    'Milkshake',
+    'Frappeler',
+    'Bubble Tea',
+    'Matchalar',
+    'Bitki Çayları',
+    'Şuruplar',
+    'Soslar',
+    'Püreler',
+    'Tozlar',
+    'Sütler',
+    'Yan Ürünler',
+    'Kahve Çekirdekleri',
+    'Meşrubatlar',
+    'Extra',
   ];
 
   return (

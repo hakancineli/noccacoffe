@@ -557,7 +557,7 @@ export const allMenuItems: MenuItem[] = [
   // BUBBLE TEA
   {
     id: 46,
-    name: 'Quenn Style Fresh',
+    name: 'Queen Style Fresh',
     description: 'Özel bubble tea karışımı',
     category: 'Bubble Tea',
     price: 150,

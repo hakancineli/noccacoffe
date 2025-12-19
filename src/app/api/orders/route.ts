@@ -55,11 +55,28 @@ export async function POST(request: Request) {
         const isPosOrder = isAdmin && !!paymentMethod;
         const paymentStatus = (orderStatus === 'COMPLETED' || isPosOrder) ? 'COMPLETED' : 'PENDING';
 
-        // Create Order with Items
+        // 1. Validate all product IDs exist in DB to prevent relation errors
+        const productIds = items.map((item: any) => item.productId.toString());
+        const existingProducts = await prisma.product.findMany({
+            where: { id: { in: productIds } },
+            select: { id: true }
+        });
+        const existingIds = new Set(existingProducts.map(p => p.id));
+        const missingIds = productIds.filter((id: string) => !existingIds.has(id));
+
+        if (missingIds.length > 0) {
+            console.error('Missing Product IDs in DB:', missingIds);
+            return NextResponse.json(
+                { success: false, error: `Bazı ürünler veritabanında bulunamadı: ${missingIds.join(', ')}. Lütfen sistemi güncelleyin.` },
+                { status: 400 }
+            );
+        }
+
+        // 2. Create Order with Items
         const order = await prisma.order.create({
             data: {
                 orderNumber,
-                userId, // Add Relation
+                userId,
                 customerName,
                 customerPhone,
                 customerEmail,
@@ -72,14 +89,14 @@ export async function POST(request: Request) {
                 paymentStatus: paymentStatus,
                 payment: {
                     create: {
-                        amount: body.finalAmount || totalAmount, // Use final (discounted) amount
+                        amount: body.finalAmount || totalAmount,
                         method: method,
                         status: paymentStatus,
                     }
                 },
                 orderItems: {
                     create: items.map((item: any) => ({
-                        productId: item.productId.toString(), // Ensure string ID to match seeded data
+                        productId: item.productId.toString(),
                         productName: item.productName,
                         size: item.size,
                         quantity: item.quantity,
@@ -92,34 +109,23 @@ export async function POST(request: Request) {
 
         // Award Points if User is Registered
         if (userId) {
-            const pointsEarned = Math.floor(totalAmount * 2); // 1 TL = 2 Points (Buy 5 Get 1 Free logic)
-
             try {
-                // Get current user points
-                const userPoints = await prisma.userPoints.findUnique({
-                    where: { userId }
-                });
+                const pointsEarned = Math.floor(totalAmount * 2);
+                const userPoints = await prisma.userPoints.findUnique({ where: { userId } });
 
                 if (userPoints) {
                     let newPoints = userPoints.points + pointsEarned;
-
-                    // Determine new tier
                     let newTier = userPoints.tier;
                     if (newPoints >= 10000) newTier = 'PLATINUM';
                     else if (newPoints >= 5000) newTier = 'GOLD';
                     else if (newPoints >= 1000) newTier = 'SILVER';
                     else newTier = 'BRONZE';
 
-                    // Update UserPoints
                     await prisma.userPoints.update({
                         where: { userId },
-                        data: {
-                            points: newPoints,
-                            tier: newTier
-                        }
+                        data: { points: newPoints, tier: newTier }
                     });
 
-                    // Create PointTransaction
                     await prisma.pointTransaction.create({
                         data: {
                             userId,
@@ -131,149 +137,76 @@ export async function POST(request: Request) {
                     });
                 }
             } catch (pointError) {
-                console.error('Failed to award points for order:', pointError);
-                // Don't fail the order if points fail
+                console.error('Failed to award points:', pointError);
             }
-
         }
 
-        // Decrement Ingredient Stock Based on Recipes
+        // 3. Decrement Ingredient Stock (Safe Background Process)
         try {
             for (const item of items) {
-                // Find recipe for this product + size combination
+                const productIdStr = item.productId.toString();
+
                 let recipe = await prisma.recipe.findUnique({
-                    where: {
-                        productId_size: {
-                            productId: item.productId.toString(),
-                            size: item.size || 'Medium' // Default to Medium if no size specified
-                        }
-                    },
-                    include: {
-                        items: {
-                            include: {
-                                ingredient: true
-                            }
-                        }
-                    }
+                    where: { productId_size: { productId: productIdStr, size: item.size || 'Medium' } },
+                    include: { items: { include: { ingredient: true } } }
                 });
 
-                // If no specific recipe found, try to find a generic recipe (size: null)
                 if (!recipe) {
                     recipe = await prisma.recipe.findFirst({
-                        where: {
-                            productId: item.productId.toString(),
-                            size: null
-                        },
-                        include: {
-                            items: {
-                                include: {
-                                    ingredient: true
-                                }
-                            }
-                        }
+                        where: { productId: productIdStr, size: null },
+                        include: { items: { include: { ingredient: true } } }
                     });
                 }
-
 
                 if (recipe) {
-                    // Update Product: Increment soldCount
                     await prisma.product.update({
-                        where: { id: item.productId.toString() },
-                        data: {
-                            soldCount: { increment: item.quantity }
-                        }
+                        where: { id: productIdStr },
+                        data: { soldCount: { increment: item.quantity } }
                     });
 
-                    // Deduct ingredients for each quantity ordered
                     for (const recipeItem of recipe.items) {
                         const totalQuantityNeeded = recipeItem.quantity * item.quantity;
-
                         await prisma.ingredient.update({
                             where: { id: recipeItem.ingredientId },
-                            data: {
-                                stock: {
-                                    decrement: totalQuantityNeeded
-                                }
-                            }
+                            data: { stock: { decrement: totalQuantityNeeded } }
                         });
                     }
-                    console.log(`Deducted ingredients for ${item.quantity}x ${item.productName} (${item.size})`);
                 } else {
-                    // Even if no recipe, increment soldCount
+                    // Fallback to product stock
                     await prisma.product.update({
-                        where: { id: item.productId.toString() },
+                        where: { id: productIdStr },
                         data: {
-                            soldCount: { increment: item.quantity }
-                        }
-                    });
-                }
-
-                // --- AUTOMATIC CUP DEDUCTION ---
-                // Map sizes to specific Ingredient Names
-                const sizeToCupMap: Record<string, string> = {
-                    'Small': 'Küçük Bardak (8oz)',
-                    'Medium': 'Orta Bardak (12oz)',
-                    'Large': 'Büyük Bardak (16oz)',
-                    'S': 'Küçük Bardak (8oz)',
-                    'M': 'Orta Bardak (12oz)',
-                    'L': 'Büyük Bardak (16oz)'
-                };
-
-                const targetSize = item.size || 'Medium'; // Default
-                const cupName = sizeToCupMap[targetSize];
-
-                if (cupName) {
-                    // check if this cup was already in the recipe (to avoid double deduction)
-                    let alreadyDeducted = false;
-                    if (recipe) {
-                        // We need the ingredient names from recipe items to check.
-                        // The previous fetch included: items: { include: { ingredient: true } }
-                        // So we can check names.
-                        alreadyDeducted = recipe.items.some(ri => ri.ingredient.name === cupName);
-                    }
-
-                    if (!alreadyDeducted) {
-                        // Find the cup ingredient
-                        const cupIngredient = await prisma.ingredient.findFirst({
-                            where: { name: cupName }
-                        });
-
-                        if (cupIngredient) {
-                            await prisma.ingredient.update({
-                                where: { id: cupIngredient.id },
-                                data: {
-                                    stock: { decrement: item.quantity }
-                                }
-                            });
-                        }
-                    }
-                }
-                // -------------------------------
-                if (!recipe) { // This 'if' block was part of the original 'else' block, now it's moved and modified
-                    // Fallback: If no recipe found, decrement product stock
-                    await prisma.product.update({
-                        where: { id: item.productId.toString() },
-                        data: {
+                            soldCount: { increment: item.quantity },
                             stock: { decrement: item.quantity }
                         }
                     });
-                    console.log(`No recipe found for ${item.productName}, using product stock`);
+                }
+
+                // Automatic Cup Deduction
+                const sizeToCupMap: Record<string, string> = {
+                    'Small': 'Küçük Bardak (8oz)', 'Medium': 'Orta Bardak (12oz)', 'Large': 'Büyük Bardak (16oz)',
+                    'S': 'Küçük Bardak (8oz)', 'M': 'Orta Bardak (12oz)', 'L': 'Büyük Bardak (16oz)'
+                };
+                const cupName = sizeToCupMap[item.size || 'Medium'];
+                if (cupName) {
+                    const cupIngredient = await prisma.ingredient.findFirst({ where: { name: cupName } });
+                    if (cupIngredient) {
+                        await prisma.ingredient.update({
+                            where: { id: cupIngredient.id },
+                            data: { stock: { decrement: item.quantity } }
+                        });
+                    }
                 }
             }
         } catch (stockError) {
-            console.error('Failed to update ingredient stock:', stockError);
-            // Don't fail order for stock error, but log it
+            console.error('Stock Update Error (Order Created):', stockError);
         }
 
         return NextResponse.json({ success: true, orderId: order.id, orderNumber });
     } catch (error) {
         console.error('Order creation error details:', error);
-        if (error instanceof Error) {
-            console.error('Error message:', error.message);
-            console.error('Error stack:', error.stack);
-        }
         return NextResponse.json(
-            { success: false, error: 'Sipariş oluşturulamadı' },
+            { success: false, error: 'Sipariş oluşturulamadı.' },
             { status: 500 }
         );
     }
