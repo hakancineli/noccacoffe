@@ -92,6 +92,14 @@ export async function GET(request: NextRequest) {
       }
     });
 
+    const lowIngredientCount = await (prisma as any).ingredient.count({
+      where: {
+        stock: {
+          lte: 100
+        }
+      }
+    });
+
     const stats = {
       totalOrders,
       todayOrders,
@@ -100,6 +108,7 @@ export async function GET(request: NextRequest) {
       pendingOrders,
       completedOrders,
       lowStockCount,
+      lowIngredientCount,
     };
 
     return NextResponse.json(stats);
