@@ -59,6 +59,12 @@ export default function ProductsManagement() {
     search: '',
     active: 'true',
   });
+
+  // Reset page when filters change
+  useEffect(() => {
+    setPagination(prev => ({ ...prev, page: 1 }));
+  }, [filter.category, filter.search, filter.active]);
+
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 10,

@@ -3,13 +3,15 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
     const category = searchParams.get('category');
-    const search = searchParams.get('search');
+    const search = searchParams.get('search')?.trim();
     const active = searchParams.get('active');
 
     const skip = (page - 1) * limit;
@@ -22,14 +24,20 @@ export async function GET(request: NextRequest) {
     }
 
     if (search) {
-      where.OR = [
-        { name: { contains: search, mode: 'insensitive' } },
-        { description: { contains: search, mode: 'insensitive' } },
+      where.AND = [
+        {
+          OR: [
+            { name: { contains: search, mode: 'insensitive' } },
+            { description: { contains: search, mode: 'insensitive' } },
+          ]
+        }
       ];
     }
 
-    if (active !== undefined) {
-      where.isActive = active === 'true';
+    if (active === 'true') {
+      where.isActive = true;
+    } else if (active === 'false') {
+      where.isActive = false;
     }
 
     // Get products with pagination
