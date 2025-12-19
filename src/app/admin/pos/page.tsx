@@ -584,6 +584,16 @@ export default function POSPage() {
                             </div>
 
                             <div className="text-center mt-6 pt-4 border-t border-dashed border-black">
+                                <img
+                                    src="/images/logo/receipt-logo.jpg"
+                                    alt="NOCCA Logo"
+                                    style={{
+                                        width: '45mm',
+                                        margin: '0 auto 10px',
+                                        filter: 'grayscale(100%) contrast(1.2) brightness(1.1)',
+                                        mixBlendMode: 'multiply'
+                                    }}
+                                />
                                 <div className="text-base font-black tracking-widest">NOCCA COFFEE</div>
                                 <div className="text-[10px] mt-1 italic">Caddebostan, İstanbul</div>
                                 <div className="text-[10px]">www.noccacoffee.com.tr</div>

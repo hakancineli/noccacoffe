@@ -17,6 +17,8 @@ interface Order {
   paymentMethod?: string;
   paymentStatus?: string;
   notes?: string;
+  source?: string;
+  externalId?: string;
   createdAt: string;
   orderItems: OrderItem[];
 }
@@ -46,6 +48,7 @@ export default function OrdersManagement() {
     total: 0,
     pages: 0,
   });
+  const [isSyncing, setIsSyncing] = useState(false);
 
   const router = useRouter();
 
@@ -92,6 +95,29 @@ export default function OrdersManagement() {
       }
     } catch (error) {
       console.error('Order update error:', error);
+    }
+  };
+
+  const syncTrendyolOrders = async () => {
+    setIsSyncing(true);
+    try {
+      const res = await fetch('/api/admin/trendyol/sync');
+      const data = await res.json();
+      if (data.success) {
+        if (data.synced > 0) {
+          alert(`${data.synced} yeni Trendyol siparişi başarıyla eklendi!`);
+          fetchOrders();
+        } else {
+          alert('Yeni Trendyol siparişi bulunamadı.');
+        }
+      } else {
+        alert(`Hata: ${data.error}`);
+      }
+    } catch (err) {
+      console.error('Trendyol sync error:', err);
+      alert('Senkronizasyon sırasında bir hata oluştu.');
+    } finally {
+      setIsSyncing(false);
     }
   };
 
@@ -174,37 +200,73 @@ export default function OrdersManagement() {
     const receiptContent = `
             <html>
             <head>
-                <title>Fiş Yazdır</title>
+                <title>Fiş Yazdır - NOCCA</title>
                 <style>
-                    body { font-family: 'Courier New', monospace; width: 300px; margin: 0; padding: 10px; font-size: 12px; }
-                    .header { text-align: center; margin-bottom: 20px; border-bottom: 1px dashed black; padding-bottom: 10px; }
-                    .item { display: flex; justify-content: space-between; margin-bottom: 5px; }
-                    .total { border-top: 1px dashed black; margin-top: 10px; padding-top: 10px; display: flex; justify-content: space-between; font-weight: bold; font-size: 14px; }
-                    .footer { text-align: center; margin-top: 20px; font-size: 10px; }
+                    body { font-family: 'Courier New', monospace; width: 80mm; margin: 0; padding: 10px; font-size: 13px; color: black; line-height: 1.2; }
+                    .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid black; padding-bottom: 10px; }
+                    .title { font-size: 18px; font-weight: bold; margin-bottom: 10px; }
+                    .info { text-align: left; font-size: 11px; margin-bottom: 10px; }
+                    .item { display: flex; justify-content: space-between; margin-bottom: 5px; font-weight: bold; }
+                    .item-detail { font-size: 11px; margin-bottom: 8px; color: #333; }
+                    .total-box { border-top: 2px solid black; margin-top: 10px; padding-top: 5px; }
+                    .total-line { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 2px; }
+                    .grand-total { display: flex; justify-content: space-between; font-weight: 900; font-size: 16px; border-top: 1px solid black; margin-top: 5px; padding-top: 5px; }
+                    .footer { text-align: center; margin-top: 30px; border-top: 1px dashed black; padding-top: 15px; }
+                    .branding { font-weight: bold; font-size: 15px; margin-top: 5px; letter-spacing: 2px; }
                 </style>
             </head>
             <body>
                 <div class="header">
-                    <h2>NOCCA COFFEE</h2>
-                    <p>Tarih: ${new Date().toLocaleString('tr-TR')}</p>
-                    <p>Sipariş No: #${order.orderNumber?.split('-').pop() ?? ''}</p>
-                    <p>Müşteri: ${order.customerName ?? ''}</p>
+                    <div class="title">SİPARİŞ FİŞİ</div>
+                    <div style="font-size: 10px; letter-spacing: 1px;">BİLGİ AMAÇLIDIR</div>
                 </div>
-                <div>
-                   ${order.orderItems?.map((item) => `
-                        <div class="item">
-                            <span>${item.quantity}x ${item.productName}${item.size ? ` (${item.size})` : ''}</span>
-                            <span>${(item.totalPrice ?? 0).toFixed(2)}₺</span>
+                
+                <div class="info">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Tarih: ${new Date().toLocaleDateString('tr-TR')}</span>
+                        <span>Saat: ${new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</span>
+                    </div>
+                    <div>Fiş No: #${order.orderNumber?.split('-').pop() ?? ''}</div>
+                    <div>Müşteri: ${order.customerName ?? 'Misafir'}</div>
+                    ${order.source === 'TRENDYOL' ? '<div style="color: #e67e22; font-weight: bold;">KAYNAK: TRENDYOL GO</div>' : ''}
+                </div>
+
+                <div style="border-bottom: 1px solid black; margin-bottom: 10px; font-size: 11px; display: flex; justify-content: space-between;">
+                    <span>Ürün</span>
+                    <span>Tutar</span>
+                </div>
+
+                ${order.orderItems?.map((item) => `
+                    <div class="item">
+                        <span>${item.quantity} x ${item.productName.toUpperCase()}</span>
+                        <span>${(item.totalPrice ?? 0).toFixed(2)}₺</span>
+                    </div>
+                    ${item.size ? `<div class="item-detail">BOY: ${item.size === 'S' ? 'KÜÇÜK' : item.size === 'M' ? 'ORTA' : item.size === 'L' ? 'BÜYÜK' : item.size}</div>` : ''}
+                `).join('')}
+
+                <div class="total-box">
+                    <div class="total-line">
+                        <span>ARA TOPLAM</span>
+                        <span>${(order.totalAmount ?? 0).toFixed(2)}₺</span>
+                    </div>
+                    ${(order.totalAmount - order.finalAmount) > 0 ? `
+                        <div class="total-line">
+                            <span>İNDİRİM</span>
+                            <span>-${(order.totalAmount - order.finalAmount).toFixed(2)}₺</span>
                         </div>
-                    `).join('')}
+                    ` : ''}
+                    <div class="grand-total">
+                        <span>TOPLAM</span>
+                        <span>${(order.finalAmount ?? 0).toFixed(2)}₺</span>
+                    </div>
                 </div>
-                <div class="total">
-                    <span>TOPLAM</span>
-                    <span>${(order.finalAmount ?? 0).toFixed(2)}₺</span>
-                </div>
+
                 <div class="footer">
-                    <p>Afiyet Olsun!</p>
-                    <p>Bizi tercih ettiğiniz için teşekkürler.</p>
+                    <img src="/images/logo/receipt-logo.jpg" style="width: 40mm; filter: grayscale(100%) contrast(1.2); mix-blend-mode: multiply;" />
+                    <div class="branding">NOCCA COFFEE</div>
+                    <p style="margin: 5px 0;">Caddebostan, İstanbul</p>
+                    <p style="font-weight: bold; margin-top: 10px;">* AFİYET OLSUN *</p>
+                    <p style="font-style: italic; font-size: 9px; margin-top: 15px;">Mali değeri yoktur. Teşekkür ederiz.</p>
                 </div>
             </body>
             </html>
@@ -301,6 +363,20 @@ export default function OrdersManagement() {
                 <option value="CANCELLED">İptal Edildi</option>
               </select>
             </div>
+            <div className="flex items-end">
+              <button
+                onClick={syncTrendyolOrders}
+                disabled={isSyncing}
+                className="w-full sm:w-auto bg-orange-500 text-white px-4 py-2 rounded-md font-bold hover:bg-orange-600 disabled:opacity-50 flex items-center justify-center gap-2 shadow-sm transition-all"
+              >
+                {isSyncing ? (
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                  <span className="text-xl">🟠</span>
+                )}
+                {isSyncing ? 'Çekiliyor...' : 'Trendyol\'dan Çek'}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -318,6 +394,9 @@ export default function OrdersManagement() {
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Durum
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Kaynak
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Tutar
@@ -364,6 +443,15 @@ export default function OrdersManagement() {
                           ${order.status === 'PENDING' ? 'animate-pulse ring-2 ring-red-400' : ''}`}>
                           {getStatusText(order.status)}
                         </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {order.source === 'TRENDYOL' ? (
+                          <span className="flex items-center gap-1 text-orange-600 font-bold bg-orange-50 px-2 py-0.5 rounded-full border border-orange-100 italic">
+                            <span className="text-[10px]">TY</span> Trendyol
+                          </span>
+                        ) : (
+                          <span className="text-gray-400 font-medium">Kasa</span>
+                        )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         ₺{(order.finalAmount ?? 0).toFixed(2)}
@@ -491,6 +579,20 @@ export default function OrdersManagement() {
                   )}
                   {selectedOrder.customerPhone && (
                     <p className="text-sm text-gray-600">{selectedOrder.customerPhone}</p>
+                  )}
+                </div>
+
+                <div className="p-3 bg-gray-50 rounded-lg flex justify-between items-center">
+                  <div>
+                    <h4 className="text-xs font-bold text-gray-500 uppercase">Kaynak</h4>
+                    <p className="text-sm font-medium text-gray-900">
+                      {selectedOrder.source === 'TRENDYOL' ? 'Trendyol Go' : 'Kasa / POS'}
+                    </p>
+                  </div>
+                  {selectedOrder.source === 'TRENDYOL' ? (
+                    <span className="text-orange-500 text-xl">🟠</span>
+                  ) : (
+                    <span className="text-gray-400 text-xl">💻</span>
                   )}
                 </div>
 
