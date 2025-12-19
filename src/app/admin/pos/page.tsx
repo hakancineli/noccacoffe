@@ -370,9 +370,6 @@ export default function POSPage() {
                                                 <p className="text-nocca-green font-bold">
                                                     {item.price ? `₺${item.price}` : (item.sizes ? `₺${item.sizes[0].price}` : '-')}
                                                 </p>
-                                                <span className={`text-[10px] font-bold px-1 rounded ${stockInfo.stock <= 10 ? 'text-red-500 bg-red-50' : 'text-gray-400 bg-gray-50'}`}>
-                                                    Stok: {stockInfo.stock}
-                                                </span>
                                             </div>
                                         </div>
                                     </button>
