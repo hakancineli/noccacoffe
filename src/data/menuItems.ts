@@ -50,7 +50,7 @@ export const allMenuItems: MenuItem[] = [
       { size: 'M', price: 160 },
       { size: 'L', price: 170 }
     ],
-    image: '/images/products/Buzlu Caffè Latte.jpeg',
+    image: '/images/products/buzlu-latte.jpeg',
     isIced: true,
   },
   {
@@ -89,7 +89,7 @@ export const allMenuItems: MenuItem[] = [
       { size: 'M', price: 190 },
       { size: 'L', price: 200 }
     ],
-    image: '/images/products/Buzlu Caffé Mocha.jpeg',
+    image: '/images/products/buzlu-mocha.jpeg',
     isIced: true,
   },
   {
@@ -102,7 +102,7 @@ export const allMenuItems: MenuItem[] = [
       { size: 'M', price: 190 },
       { size: 'L', price: 200 }
     ],
-    image: '/images/products/Buzlu White Chocolate Mocha.jpeg',
+    image: '/images/products/buzlu-white-mocha.jpeg',
     isIced: true,
   },
   {
@@ -128,7 +128,7 @@ export const allMenuItems: MenuItem[] = [
       { size: 'M', price: 160 },
       { size: 'L', price: 170 }
     ],
-    image: '/images/products/Buzlu Caffè Latte.jpeg',
+    image: '/images/products/buzlu-latte.jpeg',
     isIced: true,
   },
   {
@@ -167,7 +167,7 @@ export const allMenuItems: MenuItem[] = [
       { size: 'M', price: 185 },
       { size: 'L', price: 195 }
     ],
-    image: '/images/products/Buzlu Caffé Mocha.jpeg',
+    image: '/images/products/buzlu-mocha.jpeg',
     isIced: true,
   },
   {
@@ -255,7 +255,7 @@ export const allMenuItems: MenuItem[] = [
       { size: 'M', price: 180 },
       { size: 'L', price: 190 }
     ],
-    image: '/images/products/Caffé Mocha.jpeg',
+    image: '/images/products/mocha.jpeg',
   },
   {
     id: 20,
@@ -267,7 +267,7 @@ export const allMenuItems: MenuItem[] = [
       { size: 'M', price: 190 },
       { size: 'L', price: 200 }
     ],
-    image: '/images/products/White Chocolate Mocha .jpeg',
+    image: '/images/products/white-mocha.jpeg',
   },
   {
     id: 21,
@@ -327,7 +327,7 @@ export const allMenuItems: MenuItem[] = [
       { size: 'M', price: 175 },
       { size: 'L', price: 185 }
     ],
-    image: '/images/products/Caffé Mocha.jpeg',
+    image: '/images/products/mocha.jpeg',
   },
   {
     id: 26,
@@ -351,7 +351,7 @@ export const allMenuItems: MenuItem[] = [
       { size: 'M', price: 180 },
       { size: 'L', price: 200 }
     ],
-    image: '/images/products/Caffé Mocha.jpeg',
+    image: '/images/products/mocha.jpeg',
   },
 
   // SOĞUK İÇECEKLER (COLD DRINKS)
@@ -401,7 +401,7 @@ export const allMenuItems: MenuItem[] = [
       { size: 'M', price: 220 },
       { size: 'L', price: 230 }
     ],
-    image: '/images/products/Buzlu Caffé Mocha.jpeg',
+    image: '/images/products/buzlu-mocha.jpeg',
   },
 
   // ESPRESSO BAZLI
@@ -465,7 +465,7 @@ export const allMenuItems: MenuItem[] = [
       { size: 'M', price: 190 },
       { size: 'L', price: 200 }
     ],
-    image: '/images/products/Caffé Mocha.jpeg',
+    image: '/images/products/mocha.jpeg',
   },
   {
     id: 39,
@@ -501,7 +501,7 @@ export const allMenuItems: MenuItem[] = [
       { size: 'M', price: 190 },
       { size: 'L', price: 200 }
     ],
-    image: '/images/products/White Chocolate Mocha .jpeg',
+    image: '/images/products/white-mocha.jpeg',
   },
 
   // FRAPPELER (FRAPPUCCINOS)
@@ -527,7 +527,7 @@ export const allMenuItems: MenuItem[] = [
       { size: 'M', price: 190 },
       { size: 'L', price: 200 }
     ],
-    image: '/images/products/Buzlu Caffé Mocha.jpeg',
+    image: '/images/products/buzlu-mocha.jpeg',
   },
   {
     id: 44,
@@ -539,7 +539,7 @@ export const allMenuItems: MenuItem[] = [
       { size: 'M', price: 190 },
       { size: 'L', price: 200 }
     ],
-    image: '/images/products/Buzlu White Chocolate Mocha.jpeg',
+    image: '/images/products/buzlu-white-mocha.jpeg',
   },
   {
     id: 45,
@@ -601,7 +601,7 @@ export const allMenuItems: MenuItem[] = [
     description: 'Mocha bubble tea',
     category: 'Bubble Tea',
     price: 200,
-    image: '/images/products/Buzlu Caffé Mocha.jpeg',
+    image: '/images/products/buzlu-mocha.jpeg',
   },
   {
     id: 52,
@@ -740,14 +740,14 @@ export const allMenuItems: MenuItem[] = [
 
   // ŞURUPLAR
   { id: 68, name: 'Karamel Şurubu', description: 'Ekstra lezzet için karamel şurubu', category: 'Şuruplar', price: 40 },
-  { id: 69, name: 'Fındık Şurubu', description: 'Fındık aromalı şurup', category: 'Şuruplar', price: 40, image: '/images/products/Fındık Şurubu Fındık aromalı şurup.jpeg' },
-  { id: 70, name: 'Vanilya Şurubu', description: 'Vanilya aromalı şurup', category: 'Şuruplar', price: 40, image: '/images/products/Vanilya Şurubu Vanilya aromalı şurup.jpeg' },
+  { id: 69, name: 'Fındık Şurubu', description: 'Fındık aromalı şurup', category: 'Şuruplar', price: 40, image: '/images/products/findik-surubu.jpeg' },
+  { id: 70, name: 'Vanilya Şurubu', description: 'Vanilya aromalı şurup', category: 'Şuruplar', price: 40, image: '/images/products/vanilya-surubu.jpeg' },
   { id: 71, name: 'Toffeenut Şurubu', description: 'Toffeenut aromalı şurup', category: 'Şuruplar', price: 40 },
-  { id: 72, name: 'Çikolata Şurubu', description: 'Çikolata aromalı şurup', category: 'Şuruplar', price: 40, image: '/images/products/Çikolata Şurubu Çikolata aromalı şurup.jpeg' },
+  { id: 72, name: 'Çikolata Şurubu', description: 'Çikolata aromalı şurup', category: 'Şuruplar', price: 40, image: '/images/products/cikolata-surubu.jpeg' },
   { id: 73, name: 'Chai Şurubu', description: 'Chai aromalı şurup', category: 'Şuruplar', price: 40 },
   { id: 74, name: 'Beyaz Çikolata Şurubu', description: 'Beyaz çikolata aromalı şurup', category: 'Şuruplar', price: 40 },
-  { id: 75, name: 'Nar Şurubu', description: 'Nar aromalı şurup', category: 'Şuruplar', price: 40, image: '/images/products/Nar Şurubu Nar aromalı şurup.jpeg' },
-  { id: 76, name: 'Menta Şurubu', description: 'Menta aromalı şurup', category: 'Şuruplar', price: 40, image: '/images/products/Menta Şurubu Menta aromalı şurup.jpeg' },
+  { id: 75, name: 'Nar Şurubu', description: 'Nar aromalı şurup', category: 'Şuruplar', price: 40, image: '/images/products/nar-surubu.jpeg' },
+  { id: 76, name: 'Menta Şurubu', description: 'Menta aromalı şurup', category: 'Şuruplar', price: 40, image: '/images/products/menta-surubu.jpeg' },
   { id: 77, name: 'Muz Şurubu', description: 'Muz aromalı şurup', category: 'Şuruplar', price: 40 },
   { id: 78, name: 'Çilek Şurubu', description: 'Çilek aromalı şurup', category: 'Şuruplar', price: 40 },
   { id: 79, name: 'Mint Şurubu', description: 'Nane aromalı şurup', category: 'Şuruplar', price: 40 },
@@ -756,13 +756,13 @@ export const allMenuItems: MenuItem[] = [
   { id: 80, name: 'Karamel Sos', description: 'Zengin karamel sosu', category: 'Soslar', price: 50 },
   { id: 81, name: 'Beyaz Çikolata Sos', description: 'Beyaz çikolata sosu', category: 'Soslar', price: 50 },
   { id: 82, name: 'Çikolata Sos', description: 'Çikolata sosu', category: 'Soslar', price: 50 },
-  { id: 83, name: 'Salted Karamel Sos', description: 'Tuzlu karamel sosu', category: 'Soslar', price: 50, image: '/images/products/Salted Karamel Sos Tuzlu karamel sosu.jpeg' },
+  { id: 83, name: 'Salted Karamel Sos', description: 'Tuzlu karamel sosu', category: 'Soslar', price: 50, image: '/images/products/salted-karamel-sos.jpeg' },
 
   // PÜRELER
   { id: 84, name: 'Çilek Püresi', description: 'Taze çilek püresi', category: 'Püreler', price: 60 },
   { id: 85, name: 'Mango Püresi', description: 'Egzotik mango püresi', category: 'Püreler', price: 60 },
   { id: 86, name: 'Muz Püresi', description: 'Tatlı muz püresi', category: 'Püreler', price: 60 },
-  { id: 87, name: 'Biscoff Püresi', description: 'Biscoff aromalı püre', category: 'Püreler', price: 60, image: '/images/products/Biscoff Püresi Biscoff aromalı püre.jpeg' },
+  { id: 87, name: 'Biscoff Püresi', description: 'Biscoff aromalı püre', category: 'Püreler', price: 60, image: '/images/products/biscoff-puresi.jpeg' },
   { id: 88, name: 'Antep Fıstığı Püresi', description: 'Antep fıstığı püresi', category: 'Püreler', price: 80 },
 
   // TOZLAR
@@ -790,7 +790,7 @@ export const allMenuItems: MenuItem[] = [
 
   // MEŞRUBATLAR
   { id: 104, name: 'Coca Cola', description: 'Kutu 330ml', category: 'Meşrubatlar', price: 60 },
-  { id: 105, name: 'Kola Turka', description: 'Kutu 330ml', category: 'Meşrubatlar', price: 50, image: '/images/products/Kola Turka Kutu 330ml.jpeg' },
+  { id: 105, name: 'Kola Turka', description: 'Kutu 330ml', category: 'Meşrubatlar', price: 50, image: '/images/products/kola-turka.jpeg' },
   { id: 106, name: 'Su', description: 'Pet Şişe 0.5L', category: 'Meşrubatlar', price: 20 },
   { id: 107, name: 'Sade Soda', description: 'Maden Suyu', category: 'Meşrubatlar', price: 30 },
   { id: 108, name: 'Limonlu Soda', description: 'Meyveli Maden Suyu', category: 'Meşrubatlar', price: 35 },
