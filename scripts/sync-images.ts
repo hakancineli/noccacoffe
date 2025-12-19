@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { allMenuItems } from './src/data/menuItems.js'; // Note: using .js extension for compiled version or direct import if ts-node handles it
+import { allMenuItems } from '../src/data/menuItems';
 
 const prisma = new PrismaClient();
 
