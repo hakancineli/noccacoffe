@@ -499,8 +499,8 @@ export default function POSPage() {
                         @media print {
                             body { margin: 0; padding: 0; }
                             @page { margin: 0; size: 80mm 210mm; }
-                            .print\\\\:block { display: block !important; }
-                            .print\\\\:hidden { display: none !important; }
+                            .print\\:block { display: block !important; }
+                            .print\\:hidden { display: none !important; }
                         }
                     `}</style>
                     <div style={{
@@ -512,94 +512,87 @@ export default function POSPage() {
                         lineHeight: '1.2',
                         color: 'black'
                     }}>
-                        <div style={{
-                            fontFamily: "'Courier New', Courier, monospace",
-                            width: '80mm',
-                            margin: '0',
-                            padding: '10px 0',
-                            fontSize: '13px',
-                            lineHeight: '1.2',
-                            color: 'black'
-                        }}>
-                            <div className="text-center mb-4 border-b border-black pb-2">
-                                <div className="text-lg font-bold">SİPARİŞ FİŞİ</div>
-                                <div className="text-[10px] uppercase font-bold tracking-widest mt-1">Bilgi Amaçlıdır</div>
-                            </div>
+                        <div className="text-center mb-4 border-b border-black pb-2">
+                            <div className="text-lg font-bold">SİPARİŞ FİŞİ</div>
+                            <div className="text-[10px] uppercase font-bold tracking-widest mt-1">Bilgi Amaçlıdır</div>
+                        </div>
 
-                            <div className="text-[11px] mb-2 space-y-0.5">
-                                <div className="flex justify-between">
-                                    <span suppressHydrationWarning>Tarih: {new Date().toLocaleDateString('tr-TR')}</span>
-                                    <span suppressHydrationWarning>{new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</span>
-                                </div>
-                                <div>No: #{lastOrder.orderNumber ? lastOrder.orderNumber.split('-').pop() : '---'}</div>
-                                <div className="flex justify-between border-t border-black pt-1 mt-1">
-                                    <span>Kasiyer: {lastOrder.creatorName || 'Kasa'}</span>
-                                    <span>Müşteri: {lastOrder.customerName || 'Misafir'}</span>
-                                </div>
+                        <div className="text-[11px] mb-2 space-y-0.5">
+                            <div className="flex justify-between">
+                                <span suppressHydrationWarning>Tarih: {new Date().toLocaleDateString('tr-TR')}</span>
+                                <span suppressHydrationWarning>{new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</span>
                             </div>
+                            <div>No: #{lastOrder.orderNumber ? lastOrder.orderNumber.split('-').pop() : '---'}</div>
+                            <div className="flex justify-between border-t border-black pt-1 mt-1">
+                                <span>Kasiyer: {lastOrder.creatorName || 'Kasa'}</span>
+                                <span>Müşteri: {lastOrder.customerName || 'Misafir'}</span>
+                            </div>
+                            <div className="font-bold border-y border-black py-1 mt-1">
+                                ÖDEME: {lastOrder.paymentMethod === 'CREDIT_CARD' ? 'KREDİ KARTI' : 'NAKİT'}
+                            </div>
+                        </div>
 
-                            <table className="w-full border-collapse mb-2">
-                                <thead>
-                                    <tr className="border-y border-black">
-                                        <th className="text-left text-[11px] py-1 w-[30px]">Adet</th>
-                                        <th className="text-left text-[11px] py-1">Ürün</th>
-                                        <th className="text-right text-[11px] py-1 whitespace-nowrap">Tutar</th>
+                        <table className="w-full border-collapse mb-2">
+                            <thead>
+                                <tr className="border-b border-black">
+                                    <th className="text-left text-[11px] py-1 w-[30px]">Adet</th>
+                                    <th className="text-left text-[11px] py-1">Ürün</th>
+                                    <th className="text-right text-[11px] py-1 whitespace-nowrap">Tutar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {lastOrder.items.map((item: any, idx: number) => (
+                                    <tr key={idx} className="border-b border-gray-100 border-dashed last:border-0">
+                                        <td className="py-2 align-top font-bold">{item.quantity}</td>
+                                        <td className="py-2 align-top">
+                                            <div className="font-bold uppercase">{item.name}</div>
+                                            {item.size && (
+                                                <div className="text-[10px] bg-gray-100 inline-block px-1 font-bold">
+                                                    BOY: {item.size === 'S' ? 'KÜÇÜK' : item.size === 'M' ? 'ORTA' : item.size === 'L' ? 'BÜYÜK' : item.size}
+                                                </div>
+                                            )}
+                                        </td>
+                                        <td className="py-2 align-top text-right font-bold whitespace-nowrap">
+                                            {((item.price ?? 0) * (item.quantity ?? 0)).toFixed(2)}₺
+                                        </td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    {lastOrder.items.map((item: any, idx: number) => (
-                                        <tr key={idx} className="border-b border-gray-100 border-dashed last:border-0">
-                                            <td className="py-2 align-top font-bold">{item.quantity}</td>
-                                            <td className="py-2 align-top">
-                                                <div className="font-bold uppercase">{item.name}</div>
-                                                {item.size && (
-                                                    <div className="text-[10px] bg-gray-100 inline-block px-1 font-bold">
-                                                        BOY: {item.size === 'S' ? 'KÜÇÜK' : item.size === 'M' ? 'ORTA' : item.size === 'L' ? 'BÜYÜK' : item.size}
-                                                    </div>
-                                                )}
-                                            </td>
-                                            <td className="py-2 align-top text-right font-bold whitespace-nowrap">
-                                                {((item.price ?? 0) * (item.quantity ?? 0)).toFixed(2)}₺
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                                ))}
+                            </tbody>
+                        </table>
 
-                            <div className="border-t-2 border-black pt-2 mt-1 space-y-1">
-                                <div className="flex justify-between text-[11px]">
-                                    <span>ARA TOPLAM</span>
-                                    <span>{(lastOrder.totalAmount ?? 0).toFixed(2)}₺</span>
-                                </div>
-                                {lastOrder.discountAmount > 0 && (
-                                    <div className="flex justify-between text-[11px] text-black">
-                                        <span>İNDİRİM</span>
-                                        <span>-{(lastOrder.discountAmount ?? 0).toFixed(2)}₺</span>
-                                    </div>
-                                )}
-                                <div className="flex justify-between text-[15px] font-black mt-1 border-t border-black pt-1">
-                                    <span>GENEL TOPLAM</span>
-                                    <span>{(typeof lastOrder.finalAmount === 'number' ? lastOrder.finalAmount : parseFloat(lastOrder.finalAmount ?? '0')).toFixed(2)}₺</span>
-                                </div>
+                        <div className="border-t-2 border-black pt-2 mt-1 space-y-1">
+                            <div className="flex justify-between text-[11px]">
+                                <span>ARA TOPLAM</span>
+                                <span>{(lastOrder.totalAmount ?? 0).toFixed(2)}₺</span>
                             </div>
+                            {lastOrder.discountAmount > 0 && (
+                                <div className="flex justify-between text-[11px] text-black">
+                                    <span>İNDİRİM</span>
+                                    <span>-{(lastOrder.discountAmount ?? 0).toFixed(2)}₺</span>
+                                </div>
+                            )}
+                            <div className="flex justify-between text-[15px] font-black mt-1 border-t border-black pt-1">
+                                <span>GENEL TOPLAM</span>
+                                <span>{(typeof lastOrder.finalAmount === 'number' ? lastOrder.finalAmount : parseFloat(lastOrder.finalAmount ?? '0')).toFixed(2)}₺</span>
+                            </div>
+                        </div>
 
-                            <div className="text-center mt-6 pt-4 border-t border-dashed border-black">
-                                <img
-                                    src="/images/logo/receipt-logo.jpg"
-                                    alt="NOCCA Logo"
-                                    style={{
-                                        width: '45mm',
-                                        margin: '0 auto 10px',
-                                        filter: 'grayscale(100%) contrast(1.2) brightness(1.1)',
-                                        mixBlendMode: 'multiply'
-                                    }}
-                                />
-                                <div className="text-base font-black tracking-widest">NOCCA COFFEE</div>
-                                <div className="text-[10px] mt-1 italic">Caddebostan, İstanbul</div>
-                                <div className="text-[10px]">www.noccacoffee.com.tr</div>
-                                <div className="mt-4 text-[11px] font-bold">* AFİYET OLSUN *</div>
-                                <div className="text-[9px] mt-4 opacity-70 italic">Mali değeri yoktur. Teşekkür ederiz.</div>
-                            </div>
+                        <div className="text-center mt-6 pt-4 border-t border-dashed border-black">
+                            <img
+                                src="/images/logo/receipt-logo.jpg"
+                                alt="NOCCA Logo"
+                                style={{
+                                    width: '45mm',
+                                    margin: '0 auto 10px',
+                                    filter: 'grayscale(100%) contrast(1.2) brightness(1.1)',
+                                    mixBlendMode: 'multiply'
+                                }}
+                            />
+                            <div className="text-base font-black tracking-widest">NOCCA COFFEE</div>
+                            <div className="text-[10px] mt-1 italic">Caddebostan, İstanbul</div>
+                            <div className="text-[10px]">www.noccacoffee.com.tr</div>
+                            <div className="mt-4 text-[11px] font-bold">* AFİYET OLSUN *</div>
+                            <div className="text-[9px] mt-4 opacity-70 italic">Mali değeri yoktur. Teşekkür ederiz.</div>
                         </div>
                     </div>
                 </div>
