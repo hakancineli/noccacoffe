@@ -122,13 +122,10 @@ export async function POST(request: NextRequest) {
           }
         }
       } else {
-        // Fallback: Check product stock directly
-        const product = await prisma.product.findUnique({ where: { id: productId } });
-        if (product && product.stock < item.quantity) {
-          return NextResponse.json({
-            error: `Yetersiz Stok: "${product.name}" tükenmiş! (Kalan: ${product.stock})`
-          }, { status: 400 });
-        }
+        // No recipe = Product cannot be ordered
+        return NextResponse.json({
+          error: `"${item.productName}" için reçete tanımlı değil! Lütfen önce ürün reçetesini oluşturun.`
+        }, { status: 400 });
       }
     }
     // --- END VALIDATION ---

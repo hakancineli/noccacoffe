@@ -130,6 +130,12 @@ export async function POST(request: Request) {
                         }, { status: 400 });
                     }
                 }
+            } else {
+                // No recipe = Product cannot be ordered
+                return NextResponse.json({
+                    success: false,
+                    error: `${productInDb.name} için reçete tanımlı değil! Lütfen yöneticinize başvurun.`
+                }, { status: 400 });
             }
         }
 
