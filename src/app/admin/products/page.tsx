@@ -76,7 +76,7 @@ export default function ProductsManagement() {
 
   useEffect(() => {
     fetchProducts();
-  }, [filter.category, filter.search, filter.active, pagination.page]);
+  }, [filter.category, filter.search, filter.active, pagination.page, pagination.limit]);
 
   const fetchProducts = async () => {
     try {
@@ -390,6 +390,22 @@ export default function ProductsManagement() {
                 <option value="true">Aktif</option>
                 <option value="false">Pasif</option>
                 <option value="">Tümü</option>
+              </select>
+            </div>
+            <div className="sm:w-32">
+              <label htmlFor="limit-filter" className="block text-sm font-medium text-gray-700 mb-1">
+                Göster
+              </label>
+              <select
+                id="limit-filter"
+                value={pagination.limit}
+                onChange={(e) => setPagination(prev => ({ ...prev, limit: parseInt(e.target.value), page: 1 }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              >
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
               </select>
             </div>
           </div>
