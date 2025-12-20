@@ -22,14 +22,30 @@ export default function AuditLogsPage() {
     const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
 
+    const [filters, setFilters] = useState({
+        action: 'all',
+        entity: 'all',
+        startDate: '',
+        endDate: ''
+    });
+
     useEffect(() => {
         fetchLogs();
-    }, [pagination.page]);
+    }, [pagination.page, filters]);
 
     const fetchLogs = async () => {
         setIsLoading(true);
         try {
-            const response = await fetch(`/api/admin/audit-logs?page=${pagination.page}&limit=${pagination.limit}`);
+            const queryParams = new URLSearchParams({
+                page: pagination.page.toString(),
+                limit: pagination.limit.toString(),
+                ...(filters.action !== 'all' && { action: filters.action }),
+                ...(filters.entity !== 'all' && { entity: filters.entity }),
+                ...(filters.startDate && { startDate: filters.startDate }),
+                ...(filters.endDate && { endDate: filters.endDate }),
+            });
+
+            const response = await fetch(`/api/admin/audit-logs?${queryParams}`);
             if (response.ok) {
                 const data = await response.json();
                 setLogs(data.logs);
@@ -134,6 +150,11 @@ export default function AuditLogsPage() {
         );
     };
 
+    const handleFilterChange = (key: string, value: string) => {
+        setFilters(prev => ({ ...prev, [key]: value }));
+        setPagination(prev => ({ ...prev, page: 1 })); // Reset to page 1 on filter change
+    };
+
     return (
         <div className="min-h-screen bg-gray-50">
             <header className="bg-white shadow-sm border-b">
@@ -150,6 +171,59 @@ export default function AuditLogsPage() {
             </header>
 
             <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+                {/* Filters */}
+                <div className="bg-white shadow rounded-lg p-4 mb-6">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">İşlem Tipi</label>
+                            <select
+                                value={filters.action}
+                                onChange={(e) => handleFilterChange('action', e.target.value)}
+                                className="w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                            >
+                                <option value="all">Tümü</option>
+                                <option value="DELETE_ORDER">Sipariş Silme</option>
+                                <option value="UPDATE_ORDER_STATUS">Durum Güncelleme</option>
+                                <option value="CREATE_PRODUCT">Ürün Ekleme</option>
+                                <option value="UPDATE_PRODUCT">Ürün Güncelleme</option>
+                                <option value="DELETE_PRODUCT">Ürün Silme</option>
+                                <option value="CREATE_WASTE_LOG">Zayi Kaydı</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Varlık Türü</label>
+                            <select
+                                value={filters.entity}
+                                onChange={(e) => handleFilterChange('entity', e.target.value)}
+                                className="w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                            >
+                                <option value="all">Tümü</option>
+                                <option value="Order">Sipariş</option>
+                                <option value="Product">Ürün</option>
+                                <option value="WasteLog">Zayi</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Başlangıç Tarihi</label>
+                            <input
+                                type="date"
+                                value={filters.startDate}
+                                onChange={(e) => handleFilterChange('startDate', e.target.value)}
+                                className="w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Bitiş Tarihi</label>
+                            <input
+                                type="date"
+                                value={filters.endDate}
+                                onChange={(e) => handleFilterChange('endDate', e.target.value)}
+                                className="w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                            />
+                        </div>
+                    </div>
+                </div>
+
                 <div className="bg-white shadow rounded-lg overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-gray-200">
