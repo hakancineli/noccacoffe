@@ -38,6 +38,7 @@ const translateCategory = (category: string): string => {
         'MAINTENANCE': 'Bakım',
         'MARKETING': 'Pazarlama',
         'ADVANCE': 'Avans',
+        'WASTE': 'Zayi',
         'OTHER': 'Diğer'
     };
     return translations[category] || category;

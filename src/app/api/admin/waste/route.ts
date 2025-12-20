@@ -74,6 +74,9 @@ export async function POST(request: NextRequest) {
 
             // 2. Update Stock and Calculate Cost
             if (productId) {
+                // Find product to get its name and category for smart-matching if recipe fails
+                const product = await tx.product.findUnique({ where: { id: productId } });
+
                 const recipes = await tx.recipe.findMany({
                     where: { productId },
                     include: { items: { include: { ingredient: true } } }
@@ -89,6 +92,30 @@ export async function POST(request: NextRequest) {
                             where: { id: item.ingredientId },
                             data: {
                                 stock: { decrement: item.quantity * parseFloat(quantity) },
+                            },
+                        });
+                    }
+                } else if (product) {
+                    // SMART SYNC: If no recipe, try to find an ingredient with the same name or category: name
+                    // This handles items like bottled water or sodas which are both products and ingredients
+                    const possibleNames = [
+                        product.name,
+                        `${product.category}: ${product.name}`,
+                        `${product.category.slice(0, -1)}: ${product.name}`, // "Meşrubatlar" -> "Meşrubat"
+                    ];
+
+                    const linkedIngredient = await tx.ingredient.findFirst({
+                        where: {
+                            OR: possibleNames.map(name => ({ name: { equals: name, mode: 'insensitive' } }))
+                        }
+                    });
+
+                    if (linkedIngredient) {
+                        totalCost = (linkedIngredient.costPerUnit || 0) * parseFloat(quantity);
+                        await tx.ingredient.update({
+                            where: { id: linkedIngredient.id },
+                            data: {
+                                stock: { decrement: parseFloat(quantity) },
                             },
                         });
                     }
