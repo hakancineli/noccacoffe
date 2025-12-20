@@ -352,13 +352,14 @@ export default function POSPage() {
                                                 </span>
                                             </div>
                                         )}
-                                        <div className="relative w-full h-32 mb-2 rounded-md overflow-hidden bg-gray-100">
+                                        <div className="relative w-full h-32 mb-2 rounded-md overflow-hidden bg-gray-50">
                                             {item.image ? (
                                                 <Image
                                                     src={item.image}
                                                     alt={item.name}
                                                     fill
-                                                    className="object-cover"
+                                                    sizes="(max-width: 768px) 50vw, 25vw"
+                                                    className="object-contain p-1"
                                                 />
                                             ) : (
                                                 <div className="w-full h-full flex items-center justify-center text-xs text-gray-400">Resim Yok</div>
