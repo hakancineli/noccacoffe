@@ -49,12 +49,10 @@ export async function POST(request: NextRequest) {
         }
 
         // Check if recipe already exists
-        const existingRecipe = await prisma.recipe.findUnique({
+        const existingRecipe = await prisma.recipe.findFirst({
             where: {
-                productId_size: {
-                    productId,
-                    size: size || null
-                }
+                productId,
+                size: size || null
             }
         });
 
