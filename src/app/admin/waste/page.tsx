@@ -64,8 +64,7 @@ export default function WasteManagementPage() {
             }
             if (ingredientsRes.ok) {
                 const data = await ingredientsRes.json();
-                // Assuming ingredients API returns a simple array or { ingredients: [] }
-                setIngredients(Array.isArray(ingredientsRes) ? ingredientsRes : (await ingredientsRes.json()).ingredients || []);
+                setIngredients(data.items || []);
             }
         } catch (error) {
             console.error('Initial data fetch error:', error);
