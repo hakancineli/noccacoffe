@@ -49,7 +49,7 @@ export default function POSPage() {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const res = await fetch('/api/admin/products?limit=250');
+                const res = await fetch('/api/admin/products?limit=1000');
                 if (res.ok) {
                     const data = await res.json();
                     setDbProducts(data.products || []);
@@ -63,7 +63,8 @@ export default function POSPage() {
 
     const getStockInfo = (name: string) => {
         const found = dbProducts.find(p => p.name === name);
-        if (!found) return { stock: 99, isAvailable: true, hasRecipe: false };
+        // Safety: If not found in DB (sync issue), assume OUT OF STOCK to prevent errors
+        if (!found) return { stock: 0, isAvailable: false, hasRecipe: false };
         return {
             stock: found.stock,
             isAvailable: found.isAvailable ?? true,

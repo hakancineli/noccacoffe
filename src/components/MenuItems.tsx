@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { FaPlus, FaSearch, FaTimes } from 'react-icons/fa';
 import { allMenuItems, categories, MenuItem } from '@/data/menuItems';
@@ -12,6 +12,34 @@ const MenuItems = () => {
   const [selectedSizes, setSelectedSizes] = useState<{ [key: number]: string }>({});
   const [searchQuery, setSearchQuery] = useState('');
   const { addToCart } = useCart();
+  const [dbProducts, setDbProducts] = useState<any[]>([]);
+
+  // Fetch DB products for stock check
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await fetch('/api/admin/products?limit=1000');
+        if (res.ok) {
+          const data = await res.json();
+          setDbProducts(data.products || []);
+        }
+      } catch (error) {
+        console.error('Menu stock fetch error:', error);
+      }
+    };
+    fetchProducts();
+  }, []);
+
+  const getAvailability = (name: string) => {
+    // If we haven't fetched yet, assume available to avoid flashing everything as disabled
+    if (dbProducts.length === 0) return true;
+
+    const found = dbProducts.find(p => p.name === name);
+    // If not found in DB but exists in static menu, assume UNAVAILABLE to be safe
+    if (!found) return false;
+
+    return found.isAvailable ?? true;
+  };
 
   // Filter items based on active category AND search query
   const filteredItems = allMenuItems.filter(item => {
@@ -126,72 +154,85 @@ const MenuItems = () => {
 
       {/* Menu Items */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-        {filteredItems.map((item) => (
-          <div key={item.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
-            <div className="relative h-64 bg-gray-100">
-              {item.image ? (
-                <div className="relative w-full h-full">
-                  <Image
-                    src={item.image}
-                    alt={item.name}
-                    fill
-                    quality={95}
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    className={`${item.isIced ? 'object-cover scale-110' : 'object-cover'
-                      }`}
-                    priority={item.id <= 6}
-                  />
-                </div>
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-gray-400">
-                  <span>Resim Yükleniyor</span>
-                </div>
-              )}
-            </div>
-            <div className="p-4">
-              <div className="flex justify-between items-start mb-2">
-                <h3 className="text-lg font-semibold text-gray-900">{item.name}</h3>
-                <span className="text-nocca-green font-bold whitespace-nowrap ml-2">
-                  {getItemPrice(item)}
-                </span>
-              </div>
-              <p className="text-sm text-gray-600 mb-3">{item.description}</p>
+        {filteredItems.map((item) => {
+          const isAvailable = getAvailability(item.name);
 
-              {/* Size Selection */}
-              {item.sizes && item.sizes.length > 0 && (
-                <div className="mb-3">
-                  <div className="flex gap-2">
-                    {item.sizes.map((sizeOption) => (
-                      <button
-                        key={sizeOption.size}
-                        onClick={() => handleSizeSelect(item.id, sizeOption.size)}
-                        className={`flex-1 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${(selectedSizes[item.id] || item.sizes![0].size) === sizeOption.size
-                          ? 'bg-nocca-green text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                          }`}
-                      >
-                        {sizeOption.size}
-                      </button>
-                    ))}
+          return (
+            <div key={item.id} className={`bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 ${!isAvailable ? 'opacity-70 grayscale' : ''}`}>
+              <div className="relative h-64 bg-gray-100">
+                {!isAvailable && (
+                  <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/10">
+                    <span className="bg-red-600 text-white text-sm font-black px-3 py-1 rounded shadow-lg transform -rotate-12 border-2 border-white uppercase tracking-wider">
+                      TÜKENDİ
+                    </span>
                   </div>
+                )}
+                {item.image ? (
+                  <div className="relative w-full h-full">
+                    <Image
+                      src={item.image}
+                      alt={item.name}
+                      fill
+                      quality={95}
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className={`${item.isIced ? 'object-cover scale-110' : 'object-cover'
+                        }`}
+                      priority={item.id <= 6}
+                    />
+                  </div>
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-gray-400">
+                    <span>Resim Yükleniyor</span>
+                  </div>
+                )}
+              </div>
+              <div className="p-4">
+                <div className="flex justify-between items-start mb-2">
+                  <h3 className="text-lg font-semibold text-gray-900">{item.name}</h3>
+                  <span className="text-nocca-green font-bold whitespace-nowrap ml-2">
+                    {getItemPrice(item)}
+                  </span>
                 </div>
-              )}
+                <p className="text-sm text-gray-600 mb-3">{item.description}</p>
 
-              <div className="flex justify-between items-center">
-                <span className="text-xs text-gray-500">
-                  {item.category}
-                </span>
-                <button
-                  onClick={() => addToCart(item, selectedSizes[item.id] || (item.sizes && item.sizes.length > 0 ? item.sizes[0].size : undefined))}
-                  className="bg-nocca-green text-white p-2 rounded-full hover:bg-nocca-light-green transition-colors active:scale-95 transform"
-                  aria-label={`${item.name} sepete ekle`}
-                >
-                  <FaPlus className="h-4 w-4" />
-                </button>
+                {/* Size Selection */}
+                {item.sizes && item.sizes.length > 0 && (
+                  <div className="mb-3">
+                    <div className="flex gap-2">
+                      {item.sizes.map((sizeOption) => (
+                        <button
+                          key={sizeOption.size}
+                          onClick={() => handleSizeSelect(item.id, sizeOption.size)}
+                          disabled={!isAvailable}
+                          className={`flex-1 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${(selectedSizes[item.id] || item.sizes![0].size) === sizeOption.size
+                            ? 'bg-nocca-green text-white'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            } ${!isAvailable ? 'cursor-not-allowed opacity-50' : ''}`}
+                        >
+                          {sizeOption.size}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-gray-500">
+                    {item.category}
+                  </span>
+                  <button
+                    onClick={() => addToCart(item, selectedSizes[item.id] || (item.sizes && item.sizes.length > 0 ? item.sizes[0].size : undefined))}
+                    disabled={!isAvailable}
+                    className={`bg-nocca-green text-white p-2 rounded-full hover:bg-nocca-light-green transition-colors active:scale-95 transform ${!isAvailable ? 'bg-gray-400 hover:bg-gray-400 cursor-not-allowed' : ''}`}
+                    aria-label={`${item.name} sepete ekle`}
+                  >
+                    <FaPlus className="h-4 w-4" />
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* No items message */}
