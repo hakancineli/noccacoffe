@@ -792,8 +792,8 @@ export const allMenuItems: MenuItem[] = [
   { id: 104, name: 'Coca Cola', description: 'Kutu 330ml', category: 'Meşrubatlar', price: 60, image: '/images/products/beverages-collection.png' },
   { id: 105, name: 'Kola Turka', description: 'Kutu 330ml', category: 'Meşrubatlar', price: 50, image: '/images/products/kola-turka.jpeg' },
   { id: 106, name: 'Su', description: 'Pet Şişe 0.5L', category: 'Meşrubatlar', price: 20, image: '/images/products/beverages-collection.png' },
-  { id: 107, name: 'Sade Soda', description: 'Maden Suyu', category: 'Meşrubatlar', price: 30, image: '/images/products/beverages-collection.png' },
-  { id: 108, name: 'Limonlu Soda', description: 'Meyveli Maden Suyu', category: 'Meşrubatlar', price: 35, image: '/images/products/beverages-collection.png' },
+  { id: 107, name: 'Sade Soda', description: 'Maden Suyu', category: 'Meşrubatlar', price: 30, image: '/images/products/beypazari soda.jpeg' },
+  { id: 108, name: 'Limonlu Soda', description: 'Meyveli Maden Suyu', category: 'Meşrubatlar', price: 35, image: '/images/products/beypazari soda.jpeg' },
 ];
 
 // Category list for filtering
