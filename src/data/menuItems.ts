@@ -687,7 +687,7 @@ export const allMenuItems: MenuItem[] = [
     description: 'Rahatlatıcı papatya çayı',
     category: 'Bitki Çayları',
     price: 160,
-    image: '/images/products/Papatya Çayı Rahatlatıcı papatya çayı.jpeg',
+    image: '/images/products/papatya-cayi.jpeg',
   },
   {
     id: 62,
@@ -695,7 +695,7 @@ export const allMenuItems: MenuItem[] = [
     description: 'Baharatlı kış çayı',
     category: 'Bitki Çayları',
     price: 160,
-    image: '/images/products/Kış Çayı Baharatlı kış çayı.jpeg',
+    image: '/images/products/kis-cayi.jpeg',
   },
   {
     id: 63,
@@ -711,7 +711,7 @@ export const allMenuItems: MenuItem[] = [
     description: 'Taze yeşil çay',
     category: 'Bitki Çayları',
     price: 160,
-    image: '/images/products/Yeşil Çay Taze yeşil çay.jpeg',
+    image: '/images/products/yesil-cay.jpeg',
   },
   {
     id: 65,
@@ -719,7 +719,7 @@ export const allMenuItems: MenuItem[] = [
     description: 'Yasemin aromalı yeşil çay',
     category: 'Bitki Çayları',
     price: 180,
-    image: '/images/products/Yaseminli Yeşil Çay Yasemin aromalı yeşil çay.jpeg',
+    image: '/images/products/yaseminli-yesil-cay.jpeg',
   },
   {
     id: 66,
@@ -727,7 +727,7 @@ export const allMenuItems: MenuItem[] = [
     description: 'Hibiskus çayı',
     category: 'Bitki Çayları',
     price: 160,
-    image: '/images/products/Hibiscus Çayı Hibiskus çayı.jpeg',
+    image: '/images/products/hibiscus-cayi.jpeg',
   },
   {
     id: 67,

@@ -79,11 +79,11 @@ async function main() {
     // --- PART 3: Update Images ---
     console.log('\n--- 3. Updating Product Images ---');
     const imageUpdates = [
-        { name: 'Kış Çayı', image: '/images/products/Kış Çayı Baharatlı kış çayı.jpeg' },
-        { name: 'Papatya Çayı', image: '/images/products/Papatya Çayı Rahatlatıcı papatya çayı.jpeg' },
-        { name: 'Hibiscus Çayı', image: '/images/products/Hibiscus Çayı Hibiskus çayı.jpeg' },
-        { name: 'Yaseminli Yeşil Çay', image: '/images/products/Yaseminli Yeşil Çay Yasemin aromalı yeşil çay.jpeg' },
-        { name: 'Yeşil Çay', image: '/images/products/Yeşil Çay Taze yeşil çay.jpeg' }
+        { name: 'Kış Çayı', image: '/images/products/kis-cayi.jpeg' },
+        { name: 'Papatya Çayı', image: '/images/products/papatya-cayi.jpeg' },
+        { name: 'Hibiscus Çayı', image: '/images/products/hibiscus-cayi.jpeg' },
+        { name: 'Yaseminli Yeşil Çay', image: '/images/products/yaseminli-yesil-cay.jpeg' },
+        { name: 'Yeşil Çay', image: '/images/products/yesil-cay.jpeg' }
     ];
 
     for (const update of imageUpdates) {
