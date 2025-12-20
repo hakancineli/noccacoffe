@@ -70,18 +70,21 @@ export async function POST(request: NextRequest) {
                 },
             });
 
-            // 2. Update Stock
+            let totalCost = 0;
+
+            // 2. Update Stock and Calculate Cost
             if (productId) {
-                // First, check if there's a recipe for this product
                 const recipes = await tx.recipe.findMany({
                     where: { productId },
-                    include: { items: true }
+                    include: { items: { include: { ingredient: true } } }
                 });
 
                 if (recipes.length > 0) {
-                    // Deduct from ingredients for each recipe item (using the first recipe found - usually the only one or default)
                     const recipe = recipes[0];
                     for (const item of recipe.items) {
+                        const itemCost = (item.ingredient.costPerUnit || 0) * item.quantity * parseFloat(quantity);
+                        totalCost += itemCost;
+
                         await tx.ingredient.update({
                             where: { id: item.ingredientId },
                             data: {
@@ -91,7 +94,6 @@ export async function POST(request: NextRequest) {
                     }
                 }
 
-                // Also decrement the product's own stock counter
                 await tx.product.update({
                     where: { id: productId },
                     data: {
@@ -99,6 +101,14 @@ export async function POST(request: NextRequest) {
                     },
                 });
             } else if (ingredientId) {
+                const ingredient = await tx.ingredient.findUnique({
+                    where: { id: ingredientId }
+                });
+
+                if (ingredient) {
+                    totalCost = (ingredient.costPerUnit || 0) * parseFloat(quantity);
+                }
+
                 await tx.ingredient.update({
                     where: { id: ingredientId },
                     data: {
@@ -107,7 +117,23 @@ export async function POST(request: NextRequest) {
                 });
             }
 
-            // 3. Create Audit Log
+            // 3. Create Expense Record
+            if (totalCost > 0) {
+                // Find barista by email to link the expense
+                const staff = userEmail ? await tx.barista.findUnique({ where: { email: userEmail } }) : null;
+
+                await tx.expense.create({
+                    data: {
+                        description: `Zayi: ${productName || ingredientName} (${quantity} ${unit}) - ${reason}`,
+                        amount: totalCost,
+                        category: 'WASTE',
+                        date: new Date(),
+                        staffId: staff?.id || undefined,
+                    }
+                });
+            }
+
+            // 4. Create Audit Log
             await createAuditLog({
                 action: 'CREATE_WASTE_LOG',
                 entity: 'WasteLog',

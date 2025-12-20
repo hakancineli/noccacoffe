@@ -356,4 +356,5 @@ enum ExpenseCategory {
   OTHER
   MARKETING
   ADVANCE
+  WASTE
 }

@@ -56,7 +56,10 @@ export default function AuditLogsPage() {
 
     const formatEntityName = (log: AuditLog) => {
         if (log.entity === 'WasteLog') {
-            return `${log.newData?.productName || log.newData?.ingredientName || 'Zayi'}`;
+            const data = log.newData || {};
+            const name = data.productName || data.ingredientName || 'Zayi';
+            const qty = data.quantity ? ` (${data.quantity} ${data.unit || ''})` : '';
+            return `${name}${qty}`;
         }
         if (log.entity === 'Order') {
             return `Sipariş #${log.oldData?.orderNumber || log.newData?.orderNumber || log.entityId.slice(-6)}`;
