@@ -1,5 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { verifyToken } from '@/lib/auth';
+
+// Helper to get user from request
+const getUser = (request: NextRequest) => {
+    let token = request.cookies.get('auth-token')?.value;
+    if (!token) {
+        const authHeader = request.headers.get('authorization');
+        if (authHeader?.startsWith('Bearer ')) {
+            token = authHeader.substring(7);
+        }
+    }
+    return token ? verifyToken(token) : null;
+};
 
 // GET - List all ingredients
 export async function GET(request: NextRequest) {
@@ -80,6 +93,7 @@ export async function GET(request: NextRequest) {
 // POST - Create new ingredient
 export async function POST(request: NextRequest) {
     try {
+        const user = getUser(request);
         const body = await request.json();
         const { name, unit, stock, costPerUnit } = body;
 
@@ -113,6 +127,18 @@ export async function POST(request: NextRequest) {
                 });
             }
 
+            // Audit Log
+            await tx.auditLog.create({
+                data: {
+                    action: 'CREATE_INGREDIENT',
+                    entity: 'Ingredient',
+                    entityId: ingredient.id,
+                    newData: ingredient,
+                    userId: user?.userId,
+                    userEmail: user?.email,
+                }
+            });
+
             return ingredient;
         });
 
@@ -129,6 +155,7 @@ export async function POST(request: NextRequest) {
 // PUT - Update ingredient
 export async function PUT(request: NextRequest) {
     try {
+        const user = getUser(request);
         const body = await request.json();
         const { id, name, unit, stock, costPerUnit } = body;
 
@@ -176,6 +203,19 @@ export async function PUT(request: NextRequest) {
                 }
             }
 
+            // Audit Log
+            await tx.auditLog.create({
+                data: {
+                    action: 'UPDATE_INGREDIENT',
+                    entity: 'Ingredient',
+                    entityId: ingredient.id,
+                    oldData: existing,
+                    newData: ingredient,
+                    userId: user?.userId,
+                    userEmail: user?.email,
+                }
+            });
+
             return ingredient;
         });
 
@@ -192,6 +232,7 @@ export async function PUT(request: NextRequest) {
 // DELETE - Delete ingredient
 export async function DELETE(request: NextRequest) {
     try {
+        const user = getUser(request);
         const { searchParams } = new URL(request.url);
         const id = searchParams.get('id');
 
@@ -202,8 +243,28 @@ export async function DELETE(request: NextRequest) {
             );
         }
 
-        await prisma.ingredient.delete({
-            where: { id }
+        await prisma.$transaction(async (tx) => {
+            const existing = await tx.ingredient.findUnique({
+                where: { id }
+            });
+
+            if (existing) {
+                await tx.ingredient.delete({
+                    where: { id }
+                });
+
+                // Audit Log
+                await tx.auditLog.create({
+                    data: {
+                        action: 'DELETE_INGREDIENT',
+                        entity: 'Ingredient',
+                        entityId: id,
+                        oldData: existing,
+                        userId: user?.userId,
+                        userEmail: user?.email,
+                    }
+                });
+            }
         });
 
         return NextResponse.json({ success: true });
