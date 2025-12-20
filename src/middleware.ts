@@ -24,8 +24,8 @@ export async function middleware(request: NextRequest) {
       const { payload } = await jwtVerify(token, secret);
       const userRole = payload.role as string;
 
-      // 1. Block Customers from Admin Area
-      if (userRole === 'CUSTOMER' || !userRole) {
+      // 1. Block Customers from Admin Area (Exception for Kitchen account API access)
+      if ((userRole === 'CUSTOMER' || !userRole) && payload.email !== 'kitchen@noccacoffee.com') {
         if (isApiRoute) {
           return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
@@ -33,14 +33,14 @@ export async function middleware(request: NextRequest) {
       }
 
       // 2. RBAC Logic
-      // MANAGER: Access Everything
-      if (userRole === 'MANAGER') {
+      // MANAGER or Kitchen Account: Access Everything
+      if (userRole === 'MANAGER' || payload.email === 'kitchen@noccacoffee.com') {
         // Pass through
       }
       // BARISTA / WAITER / KITCHEN: Limited Access
       else if (['BARISTA', 'WAITER', 'KITCHEN'].includes(userRole)) {
         // Allowed paths for Staff
-        const allowedPaths = ['/admin/pos', '/admin/profile', '/admin/orders', '/api/admin/orders', '/api/admin/products']; // Added API paths
+        const allowedPaths = ['/admin/pos', '/admin/profile', '/admin/orders', '/api/admin/orders', '/api/admin/products', '/api/orders']; // Added API paths
 
         // Exact match or starts with (for sub-routes)
         const isAllowed = allowedPaths.some(path => pathname.startsWith(path)) || pathname === '/admin';
