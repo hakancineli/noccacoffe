@@ -96,22 +96,17 @@ export async function POST(request: Request) {
         const productIds = items.map((item: any) => item.productId.toString());
         const existingProducts = await prisma.product.findMany({
             where: { id: { in: productIds } },
-            select: { id: true, name: true, stock: true }
+            select: { id: true, name: true, stock: true, category: true }
         });
+
+        // Categories that don't require recipes (unit-based products)
+        const UNIT_BASED_CATEGORIES = ['Meşrubatlar'];
 
         // Strict Stock Check (Product & Ingredients)
         for (const item of items) {
             const productInDb = existingProducts.find(p => p.id === item.productId.toString());
             if (!productInDb) {
                 return NextResponse.json({ success: false, error: `Ürün bulunamadı: ${item.productName}` }, { status: 400 });
-            }
-
-            // Check Product Direct Stock (if physical product)
-            if (productInDb.stock < item.quantity && productInDb.stock > 0) {
-                return NextResponse.json({
-                    success: false,
-                    error: `${productInDb.name} tükendi veya yetersiz stok! (Kalan: ${productInDb.stock})`
-                }, { status: 400 });
             }
 
             // Deep Ingredient Check (Recipe)
@@ -129,6 +124,14 @@ export async function POST(request: Request) {
                             error: `Yetersiz Hammadde: ${ri.ingredient.name} tükendiği için ${productInDb.name} üretilemez!`
                         }, { status: 400 });
                     }
+                }
+            } else if (UNIT_BASED_CATEGORIES.includes(productInDb.category)) {
+                // Unit-based products: check product stock directly
+                if (productInDb.stock < item.quantity) {
+                    return NextResponse.json({
+                        success: false,
+                        error: `${productInDb.name} tükendi! (Kalan stok: ${productInDb.stock})`
+                    }, { status: 400 });
                 }
             } else {
                 // No recipe = Product cannot be ordered

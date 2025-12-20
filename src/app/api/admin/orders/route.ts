@@ -102,8 +102,18 @@ export async function POST(request: NextRequest) {
     );
 
     // --- STRICT INGREDIENT STOCK VALIDATION ---
+    const UNIT_BASED_CATEGORIES = ['Meşrubatlar']; // Categories that don't require recipes
+
     for (const item of items) {
       const productId = item.productId.toString();
+
+      // Get product info to check category
+      const product = await prisma.product.findUnique({ where: { id: productId } });
+      if (!product) {
+        return NextResponse.json({
+          error: `Ürün bulunamadı: "${item.productName}"`
+        }, { status: 400 });
+      }
 
       // Find recipe for this product
       let recipe = await prisma.recipe.findFirst({
@@ -120,6 +130,13 @@ export async function POST(request: NextRequest) {
               error: `Yetersiz Hammadde: "${ri.ingredient.name}" tükendiği için "${item.productName}" satılamaz! (Kalan: ${ri.ingredient.stock.toFixed(2)} ${ri.ingredient.unit})`
             }, { status: 400 });
           }
+        }
+      } else if (UNIT_BASED_CATEGORIES.includes(product.category)) {
+        // Unit-based products: check product stock directly
+        if (product.stock < item.quantity) {
+          return NextResponse.json({
+            error: `Yetersiz Stok: "${product.name}" tükenmiş! (Kalan: ${product.stock})`
+          }, { status: 400 });
         }
       } else {
         // No recipe = Product cannot be ordered

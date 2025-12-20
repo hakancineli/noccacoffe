@@ -71,13 +71,20 @@ export default function POSPage() {
         };
     };
 
-    // Filter products - ONLY show products with recipes
+    // Categories that don't require recipes (unit-based products)
+    const UNIT_BASED_CATEGORIES = ['Meşrubatlar'];
+
+    // Filter products - show products with recipes OR unit-based categories with stock
     const filteredProducts = allMenuItems.filter(item => {
         const matchesCategory = activeCategory === 'Tümü' || item.category === activeCategory;
         const matchesSearch = item.name.toLowerCase().includes(productSearch.toLowerCase());
         const stockInfo = getStockInfo(item.name);
-        const hasRecipe = stockInfo.hasRecipe;
-        return matchesCategory && matchesSearch && hasRecipe;
+
+        // Unit-based products only need stock, not recipes
+        const isUnitBased = UNIT_BASED_CATEGORIES.includes(item.category);
+        const canBeSold = stockInfo.hasRecipe || (isUnitBased && stockInfo.isAvailable);
+
+        return matchesCategory && matchesSearch && canBeSold;
     });
 
     // Cart Logic
