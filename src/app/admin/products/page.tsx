@@ -896,7 +896,7 @@ function RecipeModal({
               onChange={(e) => setRecipeFormData({ ...recipeFormData, size: e.target.value })}
               className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
             >
-              <option value="">Tüm boyutlar</option>
+              <option value="">Standart / Tek Boyut</option>
               <option value="Small">Small</option>
               <option value="Medium">Medium</option>
               <option value="Large">Large</option>
