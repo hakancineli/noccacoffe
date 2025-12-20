@@ -3,12 +3,16 @@ import { jwtVerify } from 'jose';
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const isApiRoute = pathname.startsWith('/api/');
 
   // Check if the path is admin route
-  if (pathname.startsWith('/admin')) {
+  if (pathname.startsWith('/admin') || pathname.startsWith('/api/admin')) {
     const token = request.cookies.get('auth-token')?.value;
 
     if (!token) {
+      if (isApiRoute) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
       return NextResponse.redirect(new URL('/login', request.url));
     }
 
@@ -22,6 +26,9 @@ export async function middleware(request: NextRequest) {
 
       // 1. Block Customers from Admin Area
       if (userRole === 'CUSTOMER' || !userRole) {
+        if (isApiRoute) {
+          return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        }
         return NextResponse.redirect(new URL('/login', request.url));
       }
 
@@ -33,12 +40,15 @@ export async function middleware(request: NextRequest) {
       // BARISTA / WAITER / KITCHEN: Limited Access
       else if (['BARISTA', 'WAITER', 'KITCHEN'].includes(userRole)) {
         // Allowed paths for Staff
-        const allowedPaths = ['/admin/pos', '/admin/profile', '/admin/orders']; // Added orders for waiter
+        const allowedPaths = ['/admin/pos', '/admin/profile', '/admin/orders', '/api/admin/orders', '/api/admin/products']; // Added API paths
 
         // Exact match or starts with (for sub-routes)
         const isAllowed = allowedPaths.some(path => pathname.startsWith(path)) || pathname === '/admin';
 
         if (!isAllowed) {
+          if (isApiRoute) {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+          }
           // Redirect unauthorized staff to POS
           return NextResponse.redirect(new URL('/admin/pos', request.url));
         }
@@ -63,15 +73,21 @@ export async function middleware(request: NextRequest) {
       });
     } catch (error) {
       console.error('Middleware auth error:', error);
+      if (isApiRoute) {
+        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+      }
       return NextResponse.redirect(new URL('/login', request.url));
     }
   }
 
   // Check if the path is kitchen route
-  if (pathname.startsWith('/kitchen')) {
+  if (pathname.startsWith('/kitchen') || pathname.startsWith('/api/kitchen')) {
     const token = request.cookies.get('auth-token')?.value;
 
     if (!token) {
+      if (isApiRoute) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
       return NextResponse.redirect(new URL('/login', request.url));
     }
 
@@ -82,12 +98,18 @@ export async function middleware(request: NextRequest) {
       const { payload } = await jwtVerify(token, secret);
 
       // Allow Kitchen and Admin
-      if (payload.email !== 'kitchen@noccacoffee.com' && payload.email !== 'admin@noccacoffee.com') {
+      if (payload.email !== 'kitchen@noccacoffee.com' && payload.email !== 'admin@noccacoffee.com' && payload.role !== 'MANAGER') {
+        if (isApiRoute) {
+          return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        }
         return NextResponse.redirect(new URL('/login', request.url));
       }
 
       return NextResponse.next();
     } catch (error) {
+      if (isApiRoute) {
+        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+      }
       return NextResponse.redirect(new URL('/login', request.url));
     }
   }
@@ -96,5 +118,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/kitchen/:path*'],
+  matcher: ['/admin/:path*', '/api/admin/:path*', '/kitchen/:path*', '/api/kitchen/:path*'],
 };

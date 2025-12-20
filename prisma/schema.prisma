@@ -134,6 +134,22 @@ model AuditLog {
   @@map("audit_logs")
 }
 
+model WasteLog {
+  id             String   @id @default(cuid())
+  productId      String?  @map("product_id")
+  productName    String?  @map("product_name")
+  ingredientId   String?  @map("ingredient_id")
+  ingredientName String?  @map("ingredient_name")
+  quantity       Float
+  unit           String?
+  reason         String?
+  userId         String?  @map("user_id")
+  userEmail      String?  @map("user_email")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@map("waste_logs")
+}
+
 enum OrderSource {
   POS
   WEBSITE
