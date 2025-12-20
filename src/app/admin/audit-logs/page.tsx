@@ -70,6 +70,20 @@ export default function AuditLogsPage() {
         return `${log.entity} (${log.entityId.slice(-6)})`;
     };
 
+    const translateStatus = (status: string) => {
+        const translations: Record<string, string> = {
+            'PENDING': 'Bekliyor',
+            'PREPARING': 'Hazırlanıyor',
+            'READY': 'Hazır',
+            'COMPLETED': 'Tamamlandı',
+            'CANCELLED': 'İptal Edildi',
+            'PROCESSING': 'İşleniyor',
+            'FAILED': 'Başarısız',
+            'REFUNDED': 'İade Edildi',
+        };
+        return translations[status] || status;
+    };
+
     const formatDetails = (log: AuditLog) => {
         const { action, oldData, newData } = log;
 
@@ -86,9 +100,9 @@ export default function AuditLogsPage() {
         if (action === 'UPDATE_ORDER_STATUS') {
             return (
                 <div className="text-sm">
-                    <span className="text-gray-400 line-through">{oldData?.status}</span>
+                    <span className="text-gray-400 line-through">{translateStatus(oldData?.status)}</span>
                     <span className="mx-2">→</span>
-                    <span className="font-medium text-green-600">{newData?.status}</span>
+                    <span className="font-medium text-green-600">{translateStatus(newData?.status)}</span>
                 </div>
             );
         }
