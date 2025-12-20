@@ -789,11 +789,11 @@ export const allMenuItems: MenuItem[] = [
   { id: 103, name: 'Türk Kahvesi Çekirdeği (250g)', description: 'Geleneksel Türk kahvesi çekirdeği', category: 'Kahve Çekirdekleri', price: 350, image: '/images/products/coffee-beans-collection.png' },
 
   // MEŞRUBATLAR
-  { id: 104, name: 'Coca Cola', description: 'Kutu 330ml', category: 'Meşrubatlar', price: 60, image: '/images/products/beverages-collection.png' },
+  { id: 104, name: 'Coca Cola', description: 'Kutu 330ml', category: 'Meşrubatlar', price: 60, image: '/images/products/Coca Cola Kutu 330ml.jpeg' },
   { id: 105, name: 'Kola Turka', description: 'Kutu 330ml', category: 'Meşrubatlar', price: 50, image: '/images/products/kola-turka.jpeg' },
-  { id: 106, name: 'Su', description: 'Pet Şişe 0.5L', category: 'Meşrubatlar', price: 20, image: '/images/products/beverages-collection.png' },
+  { id: 106, name: 'Su', description: 'Pet Şişe 0.5L', category: 'Meşrubatlar', price: 20, image: '/images/products/su.jpeg' },
   { id: 107, name: 'Sade Soda', description: 'Maden Suyu', category: 'Meşrubatlar', price: 30, image: '/images/products/beypazari soda.jpeg' },
-  { id: 108, name: 'Limonlu Soda', description: 'Meyveli Maden Suyu', category: 'Meşrubatlar', price: 35, image: '/images/products/beypazari soda.jpeg' },
+  { id: 108, name: 'Limonlu Soda', description: 'Meyveli Maden Suyu', category: 'Meşrubatlar', price: 35, image: '/images/products/limonlu soda.jpeg' },
 ];
 
 // Category list for filtering
