@@ -101,6 +101,38 @@ export async function POST(request: NextRequest) {
       0
     );
 
+    // --- STRICT INGREDIENT STOCK VALIDATION ---
+    for (const item of items) {
+      const productId = item.productId.toString();
+
+      // Find recipe for this product
+      let recipe = await prisma.recipe.findFirst({
+        where: { productId, OR: [{ size: item.size }, { size: null }] },
+        include: { items: { include: { ingredient: true } } },
+        orderBy: { size: 'desc' }
+      });
+
+      if (recipe) {
+        for (const ri of recipe.items) {
+          const requiredQty = ri.quantity * item.quantity;
+          if (ri.ingredient.stock < requiredQty) {
+            return NextResponse.json({
+              error: `Yetersiz Hammadde: "${ri.ingredient.name}" tükendiği için "${item.productName}" satılamaz! (Kalan: ${ri.ingredient.stock.toFixed(2)} ${ri.ingredient.unit})`
+            }, { status: 400 });
+          }
+        }
+      } else {
+        // Fallback: Check product stock directly
+        const product = await prisma.product.findUnique({ where: { id: productId } });
+        if (product && product.stock < item.quantity) {
+          return NextResponse.json({
+            error: `Yetersiz Stok: "${product.name}" tükenmiş! (Kalan: ${product.stock})`
+          }, { status: 400 });
+        }
+      }
+    }
+    // --- END VALIDATION ---
+
     // Generate NC- format order number
     const timestamp = Date.now().toString().slice(-6);
     const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
