@@ -65,6 +65,9 @@ export default function AuditLogsPage() {
             case 'CREATE_PRODUCT': return '✨ Yeni Ürün Eklendi';
             case 'UPDATE_PRODUCT': return '🔄 Ürün Güncellendi';
             case 'DELETE_PRODUCT': return '🗑️ Ürün Silindi';
+            case 'CREATE_INGREDIENT': return '📦 Hammadde Eklendi';
+            case 'UPDATE_INGREDIENT': return '📊 Hammadde Güncellendi';
+            case 'DELETE_INGREDIENT': return '🗑️ Hammadde Silindi';
             case 'CREATE_WASTE_LOG': return '🗑️ Zayi Kaydı Oluşturuldu';
             default: return action;
         }
@@ -82,6 +85,9 @@ export default function AuditLogsPage() {
         }
         if (log.entity === 'Product') {
             return `Ürün: ${log.oldData?.name || log.newData?.name || log.entityId}`;
+        }
+        if (log.entity === 'Ingredient') {
+            return `Hammadde: ${log.oldData?.name || log.newData?.name || log.entityId}`;
         }
         return `${log.entity} (${log.entityId.slice(-6)})`;
     };
@@ -141,6 +147,19 @@ export default function AuditLogsPage() {
             );
         }
 
+        if (action === 'UPDATE_INGREDIENT') {
+            const changes = [];
+            if (oldData?.stock !== newData?.stock) changes.push(`Stok: ${oldData?.stock} → ${newData?.stock} ${newData?.unit || ''}`);
+            if (oldData?.costPerUnit !== newData?.costPerUnit) changes.push(`Birim Maliyet: ₺${oldData?.costPerUnit} → ₺${newData?.costPerUnit}`);
+
+            return (
+                <div className="text-xs space-y-1">
+                    {changes.map((c, i) => <div key={i}>{c}</div>)}
+                    {changes.length === 0 && <span className="text-gray-400 italic">Bilgiler güncellendi</span>}
+                </div>
+            );
+        }
+
         // Fallback for others
         if (!newData && !oldData) return '-';
         return (
@@ -183,10 +202,13 @@ export default function AuditLogsPage() {
                             >
                                 <option value="all">Tümü</option>
                                 <option value="DELETE_ORDER">Sipariş Silme</option>
-                                <option value="UPDATE_ORDER_STATUS">Durum Güncelleme</option>
+                                <option value="UPDATE_ORDER_STATUS">Sipariş Durumu</option>
                                 <option value="CREATE_PRODUCT">Ürün Ekleme</option>
                                 <option value="UPDATE_PRODUCT">Ürün Güncelleme</option>
                                 <option value="DELETE_PRODUCT">Ürün Silme</option>
+                                <option value="CREATE_INGREDIENT">Hammadde Ekleme</option>
+                                <option value="UPDATE_INGREDIENT">Hammadde Güncelleme</option>
+                                <option value="DELETE_INGREDIENT">Hammadde Silme</option>
                                 <option value="CREATE_WASTE_LOG">Zayi Kaydı</option>
                             </select>
                         </div>
@@ -200,6 +222,7 @@ export default function AuditLogsPage() {
                                 <option value="all">Tümü</option>
                                 <option value="Order">Sipariş</option>
                                 <option value="Product">Ürün</option>
+                                <option value="Ingredient">Hammadde</option>
                                 <option value="WasteLog">Zayi</option>
                             </select>
                         </div>
