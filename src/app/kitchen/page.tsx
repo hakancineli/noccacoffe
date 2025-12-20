@@ -66,8 +66,6 @@ export default function KitchenPage() {
     const audioContextRef = useRef<AudioContext | null>(null);
     const prevPendingCountReq = useRef<number>(0);
 
-    const [debugInfo, setDebugInfo] = useState<any>(null);
-
     // Initialize Audio Context on user interaction (to bypass autoplay policy)
     const initAudio = () => {
         if (!audioContextRef.current) {
@@ -130,13 +128,6 @@ export default function KitchenPage() {
             const res = await fetch(`/api/admin/orders?status=all&limit=50&_t=${Date.now()}`);
             if (res.ok) {
                 const data = await res.json();
-                setDebugInfo({
-                    fetchedCount: data.orders?.length || 0,
-                    totalPagination: data.pagination?.total || 0,
-                    firstOrder: data.orders?.[0] ? `${data.orders[0].orderNumber} (${data.orders[0].status})` : 'None',
-                    allStatuses: data.orders?.map((o: any) => o.status).join(', ')
-                });
-
                 const kitchenOrders = data.orders.filter((o: Order) =>
                     ['PENDING', 'PREPARING'].includes(o.status)
                 );
@@ -145,12 +136,9 @@ export default function KitchenPage() {
                     return a.status === 'PENDING' ? -1 : 1;
                 });
                 setOrders(kitchenOrders);
-            } else {
-                setDebugInfo({ error: `API Error: ${res.status}` });
             }
         } catch (error) {
             console.error('Kitchen fetch error:', error);
-            setDebugInfo({ error: `Fetch Error: ${error}` });
         } finally {
             setLoading(false);
         }
@@ -228,18 +216,6 @@ export default function KitchenPage() {
                     </button>
                 </div>
             </div>
-
-            {/* Debug Info Overlay */}
-            {debugInfo && (
-                <div className="mb-4 p-2 bg-black/80 text-green-400 text-xs font-mono rounded overflow-hidden">
-                    <p>DEBUG MODE:</p>
-                    <p>Fetched: {debugInfo.fetchedCount} orders</p>
-                    <p>Total in DB: {debugInfo.totalPagination}</p>
-                    <p>First Order: {debugInfo.firstOrder}</p>
-                    <p className="truncate">Statuses: {debugInfo.allStatuses}</p>
-                    {debugInfo.error && <p className="text-red-500 font-bold">{debugInfo.error}</p>}
-                </div>
-            )}
 
             {orders.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-[60vh] text-[#8D6E63]">
