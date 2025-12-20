@@ -102,7 +102,8 @@ export async function GET(request: NextRequest) {
         ...p,
         soldCount: realTotalSold, // Overwrite DB value with actual calculated value
         salesBySize: salesBreakdown,
-        isAvailable // New flag for POS
+        isAvailable, // New flag for POS
+        hasRecipe: p.recipes && p.recipes.length > 0 // Flag for recipe status
       };
     }));
 

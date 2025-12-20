@@ -63,18 +63,21 @@ export default function POSPage() {
 
     const getStockInfo = (name: string) => {
         const found = dbProducts.find(p => p.name === name);
-        if (!found) return { stock: 99, isAvailable: true };
+        if (!found) return { stock: 99, isAvailable: true, hasRecipe: false };
         return {
             stock: found.stock,
-            isAvailable: found.isAvailable ?? true
+            isAvailable: found.isAvailable ?? true,
+            hasRecipe: found.hasRecipe ?? false
         };
     };
 
-    // Filter products
+    // Filter products - ONLY show products with recipes
     const filteredProducts = allMenuItems.filter(item => {
         const matchesCategory = activeCategory === 'Tümü' || item.category === activeCategory;
         const matchesSearch = item.name.toLowerCase().includes(productSearch.toLowerCase());
-        return matchesCategory && matchesSearch;
+        const stockInfo = getStockInfo(item.name);
+        const hasRecipe = stockInfo.hasRecipe;
+        return matchesCategory && matchesSearch && hasRecipe;
     });
 
     // Cart Logic
