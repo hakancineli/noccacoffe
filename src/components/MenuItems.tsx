@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { FaPlus } from 'react-icons/fa';
+import { FaPlus, FaSearch, FaTimes } from 'react-icons/fa';
 import { allMenuItems, categories, MenuItem } from '@/data/menuItems';
 import { useCart } from '@/contexts/CartContext';
 
@@ -10,12 +10,17 @@ const MenuItems = () => {
   const [activeCategory, setActiveCategory] = useState('Tümü');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [selectedSizes, setSelectedSizes] = useState<{ [key: number]: string }>({});
+  const [searchQuery, setSearchQuery] = useState('');
   const { addToCart } = useCart();
 
-  // Filter items based on active category
-  const filteredItems = activeCategory === 'Tümü'
-    ? allMenuItems
-    : allMenuItems.filter(item => item.category === activeCategory);
+  // Filter items based on active category AND search query
+  const filteredItems = allMenuItems.filter(item => {
+    const matchesCategory = activeCategory === 'Tümü' || item.category === activeCategory;
+    const matchesSearch = searchQuery === '' ||
+      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.description?.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
 
   // Get price for an item based on selected size
   const getItemPrice = (item: MenuItem) => {
@@ -39,9 +44,29 @@ const MenuItems = () => {
   };
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-8">
+      {/* Search Bar */}
+      <div className="relative max-w-md mx-auto">
+        <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+        <input
+          type="text"
+          placeholder="Ürün ara... (örn: Latte, Mocha)"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full pl-12 pr-12 py-3 border border-gray-200 rounded-full bg-gray-50 focus:bg-white focus:ring-2 focus:ring-nocca-green focus:border-transparent transition-all text-gray-800 placeholder-gray-400"
+        />
+        {searchQuery && (
+          <button
+            onClick={() => setSearchQuery('')}
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+          >
+            <FaTimes />
+          </button>
+        )}
+      </div>
+
       {/* Mobile Category Tabs */}
-      <div className="mb-12 md:hidden">
+      <div className="mb-8 md:hidden">
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           className="w-full flex justify-between items-center px-4 py-3 bg-gray-100 rounded-lg font-medium text-gray-700"
@@ -70,8 +95,8 @@ const MenuItems = () => {
                   setIsMobileMenuOpen(false);
                 }}
                 className={`w-full text-left px-4 py-2 rounded-md ${activeCategory === category
-                    ? 'bg-nocca-green text-white'
-                    : 'text-gray-700 hover:bg-gray-100'
+                  ? 'bg-nocca-green text-white'
+                  : 'text-gray-700 hover:bg-gray-100'
                   }`}
               >
                 {category}
@@ -89,8 +114,8 @@ const MenuItems = () => {
               key={category}
               onClick={() => setActiveCategory(category)}
               className={`px-6 py-2 rounded-full whitespace-nowrap font-medium text-sm transition-colors ${activeCategory === category
-                  ? 'bg-nocca-green text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ? 'bg-nocca-green text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
             >
               {category}
@@ -141,8 +166,8 @@ const MenuItems = () => {
                         key={sizeOption.size}
                         onClick={() => handleSizeSelect(item.id, sizeOption.size)}
                         className={`flex-1 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${(selectedSizes[item.id] || item.sizes![0].size) === sizeOption.size
-                            ? 'bg-nocca-green text-white'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          ? 'bg-nocca-green text-white'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                           }`}
                       >
                         {sizeOption.size}
