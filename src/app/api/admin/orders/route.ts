@@ -195,12 +195,18 @@ export async function POST(request: NextRequest) {
     // Increment Sales & Decrement Ingredient/Product Stock
     try {
       for (const item of items) {
+        // Normalize Size (S -> Small, M -> Medium, L -> Large)
+        let normalizedSize = item.size;
+        if (normalizedSize === 'S') normalizedSize = 'Small';
+        if (normalizedSize === 'M') normalizedSize = 'Medium';
+        if (normalizedSize === 'L') normalizedSize = 'Large';
+
         // Find recipe for this product + size combination
         let recipe = await prisma.recipe.findUnique({
           where: {
             productId_size: {
               productId: item.productId.toString(),
-              size: item.size || 'Medium'
+              size: normalizedSize || 'Medium' // Default to Medium if undefined
             }
           },
           include: {

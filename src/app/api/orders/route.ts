@@ -109,9 +109,15 @@ export async function POST(request: Request) {
                 return NextResponse.json({ success: false, error: `Ürün bulunamadı: ${item.productName}` }, { status: 400 });
             }
 
+            // Normalize Size (S -> Small, M -> Medium, L -> Large)
+            let normalizedSize = item.size;
+            if (normalizedSize === 'S') normalizedSize = 'Small';
+            if (normalizedSize === 'M') normalizedSize = 'Medium';
+            if (normalizedSize === 'L') normalizedSize = 'Large';
+
             // Deep Ingredient Check (Recipe)
             const recipe = await prisma.recipe.findFirst({
-                where: { productId: productInDb.id, OR: [{ size: item.size }, { size: null }] },
+                where: { productId: productInDb.id, OR: [{ size: normalizedSize }, { size: null }] },
                 include: { items: { include: { ingredient: true } } },
                 orderBy: { size: 'desc' } // Prefer specific size match
             });
@@ -216,8 +222,14 @@ export async function POST(request: Request) {
             for (const item of items) {
                 const productIdStr = item.productId.toString();
 
+                // Normalize Size (S -> Small, M -> Medium, L -> Large)
+                let normalizedSize = item.size;
+                if (normalizedSize === 'S') normalizedSize = 'Small';
+                if (normalizedSize === 'M') normalizedSize = 'Medium';
+                if (normalizedSize === 'L') normalizedSize = 'Large';
+
                 let recipe = await prisma.recipe.findUnique({
-                    where: { productId_size: { productId: productIdStr, size: item.size || 'Medium' } },
+                    where: { productId_size: { productId: productIdStr, size: normalizedSize || 'Medium' } },
                     include: { items: { include: { ingredient: true } } }
                 });
 
