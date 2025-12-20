@@ -763,21 +763,21 @@ export const allMenuItems: MenuItem[] = [
   { id: 85, name: 'Mango Püresi', description: 'Egzotik mango püresi', category: 'Püreler', price: 60, image: '/images/products/purees-collection.png' },
   { id: 86, name: 'Muz Püresi', description: 'Tatlı muz püresi', category: 'Püreler', price: 60, image: '/images/products/purees-collection.png' },
   { id: 87, name: 'Biscoff Püresi', description: 'Biscoff aromalı püre', category: 'Püreler', price: 60, image: '/images/products/biscoff-puresi.jpeg' },
-  { id: 88, name: 'Antep Fıstığı Püresi', description: 'Antep fıstığı püresi', category: 'Püreler', price: 80, image: '/images/products/purees-collection.png' },
+  { id: 88, name: 'Antep Fıstığı Püresi', description: 'Antep fıstığı püresi', category: 'Püreler', price: 80, image: '/images/products/Antep Fıstığı Püresi Antep fıstığı püresi.jpeg' },
 
   // TOZLAR
-  { id: 89, name: 'Vanilya Tozu', description: 'Karışımlar için vanilya tozu', category: 'Tozlar', price: 40, image: '/images/products/extras-collection.png' },
-  { id: 90, name: 'Muz Tozu', description: 'Karışımlar için muz tozu', category: 'Tozlar', price: 40, image: '/images/products/extras-collection.png' },
-  { id: 91, name: 'Çikolata Tozu', description: 'Karışımlar için çikolata tozu', category: 'Tozlar', price: 40, image: '/images/products/extras-collection.png' },
-  { id: 92, name: 'Salep', description: 'Geleneksel salep tozu', category: 'Tozlar', price: 120, image: '/images/products/extras-collection.png' },
-  { id: 93, name: 'Sıcak Çikolata Tozu', description: 'Sıcak çikolata karışımı', category: 'Tozlar', price: 120, image: '/images/products/extras-collection.png' },
-  { id: 94, name: 'Frappe Tozu', description: 'Frappe tabanı', category: 'Tozlar', price: 50, image: '/images/products/extras-collection.png' },
+  { id: 89, name: 'Vanilya Tozu', description: 'Karışımlar için vanilya tozu', category: 'Tozlar', price: 40, image: '/images/products/Vanilya Tozu Karışımlar için vanilya tozu.jpeg' },
+  { id: 90, name: 'Muz Tozu', description: 'Karışımlar için muz tozu', category: 'Tozlar', price: 40, image: '/images/products/Muz Tozu Karışımlar için muz tozu.jpeg' },
+  { id: 91, name: 'Çikolata Tozu', description: 'Karışımlar için çikolata tozu', category: 'Tozlar', price: 40, image: '/images/products/Çikolata Tozu Karışımlar için çikolata tozu.jpeg' },
+  { id: 92, name: 'Salep', description: 'Geleneksel salep tozu', category: 'Tozlar', price: 120, image: '/images/products/Salep Geleneksel salep tozu.jpeg' },
+  { id: 93, name: 'Sıcak Çikolata Tozu', description: 'Sıcak çikolata karışımı', category: 'Tozlar', price: 120, image: '/images/products/Sıcak Çikolata Tozu Sıcak çikolata karışımı.jpeg' },
+  { id: 94, name: 'Frappe Tozu', description: 'Frappe tabanı', category: 'Tozlar', price: 50, image: '/images/products/Frappe Tozu Frappe tabanı.jpeg' },
 
   // SÜTLER
-  { id: 95, name: 'Laktozsuz Süt', description: 'Laktozsuz süt seçeneği', category: 'Sütler', price: 30, image: '/images/products/extras-collection.png' },
-  { id: 96, name: 'Normal Süt', description: 'Tam yağlı taze süt', category: 'Sütler', price: 0, image: '/images/products/extras-collection.png' },
-  { id: 97, name: 'Badem Sütü', description: 'Bitkisel badem sütü', category: 'Sütler', price: 50, image: '/images/products/extras-collection.png' },
-  { id: 98, name: 'Yulaf Sütü', description: 'Bitkisel yulaf sütü', category: 'Sütler', price: 50, image: '/images/products/extras-collection.png' },
+  { id: 95, name: 'Laktozsuz Süt', description: 'Laktozsuz süt seçeneği', category: 'Sütler', price: 30, image: '/images/products/Laktozsuz Süt Laktozsuz süt seçeneği.jpeg' },
+  { id: 96, name: 'Normal Süt', description: 'Tam yağlı taze süt', category: 'Sütler', price: 0, image: '/images/products/Normal Süt Tam yağlı taze süt.jpeg' },
+  { id: 97, name: 'Badem Sütü', description: 'Bitkisel badem sütü', category: 'Sütler', price: 50, image: '/images/products/Badem Sütü Bitkisel badem sütü.jpeg' },
+  { id: 98, name: 'Yulaf Sütü', description: 'Bitkisel yulaf sütü', category: 'Sütler', price: 50, image: '/images/products/Yulaf Sütü Bitkisel yulaf sütü.jpeg' },
 
   // YAN ÜRÜNLER
   { id: 99, name: 'Lokum', description: 'Kahve yanı geleneksel lokum', category: 'Yan Ürünler', price: 0, image: '/images/products/extras-collection.png' },
@@ -792,7 +792,7 @@ export const allMenuItems: MenuItem[] = [
   { id: 104, name: 'Coca Cola', description: 'Kutu 330ml', category: 'Meşrubatlar', price: 60, image: '/images/products/Coca Cola Kutu 330ml.jpeg' },
   { id: 105, name: 'Kola Turka', description: 'Kutu 330ml', category: 'Meşrubatlar', price: 50, image: '/images/products/kola-turka.jpeg' },
   { id: 106, name: 'Su', description: 'Pet Şişe 0.5L', category: 'Meşrubatlar', price: 20, image: '/images/products/su.jpeg' },
-  { id: 107, name: 'Sade Soda', description: 'Maden Suyu', category: 'Meşrubatlar', price: 30, image: '/images/products/beypazari soda.jpeg' },
+  { id: 107, name: 'Sade Soda', description: 'Maden Suyu', category: 'Meşrubatlar', price: 30, image: '/images/products/sade soda.jpeg' },
   { id: 108, name: 'Limonlu Soda', description: 'Meyveli Maden Suyu', category: 'Meşrubatlar', price: 35, image: '/images/products/limonlu soda.jpeg' },
 ];
 
