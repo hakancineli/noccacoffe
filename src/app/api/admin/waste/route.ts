@@ -72,6 +72,26 @@ export async function POST(request: NextRequest) {
 
             // 2. Update Stock
             if (productId) {
+                // First, check if there's a recipe for this product
+                const recipes = await tx.recipe.findMany({
+                    where: { productId },
+                    include: { items: true }
+                });
+
+                if (recipes.length > 0) {
+                    // Deduct from ingredients for each recipe item (using the first recipe found - usually the only one or default)
+                    const recipe = recipes[0];
+                    for (const item of recipe.items) {
+                        await tx.ingredient.update({
+                            where: { id: item.ingredientId },
+                            data: {
+                                stock: { decrement: item.quantity * parseFloat(quantity) },
+                            },
+                        });
+                    }
+                }
+
+                // Also decrement the product's own stock counter
                 await tx.product.update({
                     where: { id: productId },
                     data: {

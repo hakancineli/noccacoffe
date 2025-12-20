@@ -44,13 +44,27 @@ export default function AuditLogsPage() {
 
     const formatAction = (action: string) => {
         switch (action) {
-            case 'DELETE_ORDER': return '🛑 Sipariş Silindi';
+            case 'DELETE_ORDER': return '🔴 Sipariş Silindi';
             case 'UPDATE_ORDER_STATUS': return '📝 Sipariş Durumu Değişti';
             case 'CREATE_PRODUCT': return '✨ Yeni Ürün Eklendi';
             case 'UPDATE_PRODUCT': return '🔄 Ürün Güncellendi';
             case 'DELETE_PRODUCT': return '🗑️ Ürün Silindi';
+            case 'CREATE_WASTE_LOG': return '🗑️ Zayi Kaydı Oluşturuldu';
             default: return action;
         }
+    };
+
+    const formatEntityName = (log: AuditLog) => {
+        if (log.entity === 'WasteLog') {
+            return `${log.newData?.productName || log.newData?.ingredientName || 'Zayi'}`;
+        }
+        if (log.entity === 'Order') {
+            return `Sipariş #${log.oldData?.orderNumber || log.newData?.orderNumber || log.entityId.slice(-6)}`;
+        }
+        if (log.entity === 'Product') {
+            return `Ürün: ${log.oldData?.name || log.newData?.name || log.entityId}`;
+        }
+        return `${log.entity} (${log.entityId.slice(-6)})`;
     };
 
     const formatData = (data: any) => {
@@ -108,7 +122,7 @@ export default function AuditLogsPage() {
                                                 {formatAction(log.action)}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {log.entity} ({log.entityId})
+                                                {formatEntityName(log)}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {log.userEmail || 'Sistem'}
