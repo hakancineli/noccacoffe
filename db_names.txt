@@ -1,0 +1,108 @@
+Air Lime Fresh
+Americano
+Antep Fıstığı Püresi
+Badem Sütü
+Badem Sütü
+Banana Milkshake
+Beyaz Çikolata Frappuccino
+Beyaz Çikolata Sos
+Beyaz Çikolata Şurubu
+Biscoff Püresi
+Blueorange Fresh
+Cappuccino
+Caramel Frappuccino
+Caramel Latte
+Caramel Macchiato
+Chai Tea Coffee
+Chai Tea Latte
+Chai Şurubu
+Chocolate Cookie Latte
+Chocolate Milkshake
+Coca Cola
+Coffee Caramel Macchiato Bubble
+Coffee Mocha Bubble
+Coffeebon Milk
+Cold Brew
+Cool Lime Fresh
+Cortado
+Double Espresso
+Double Türk Kahvesi
+Ekstra Süt
+Espresso
+Espresso Macchiato
+Espresso Shot
+Espresso Çekirdeği (250g)
+Filtre Kahve
+Filtre Kahve Çekirdeği (250g)
+Flat White
+Frappe Tozu
+Fındık Şurubu
+Hibiscus Fresh
+Hibiscus Çayı
+Iced Americano
+Iced Cappuccino
+Iced Caramel Latte
+Iced Caramel Macchiato
+Iced Chai Tea Latte
+Iced Chocolate Cookie Latte
+Iced Filtre Kahve
+Iced Latte
+Iced Mocha
+Iced Salted Caramel Latte
+Iced Toffeenut Latte
+Iced White Mocha
+Ihlamur
+Karamel Sos
+Karamel Şurubu
+Kiraz Sapı
+Kola Turka
+Kurutulmuş Limon
+Kış Çayı
+Laktozsuz Süt
+Latte
+Limonlu Soda
+Lokum
+Mango Püresi
+Matcha Latte
+Menta Şurubu
+Mint Şurubu
+Mocha
+Muz Püresi
+Muz Tozu
+Muz Şurubu
+Nar Şurubu
+Normal Süt
+Orange Mango
+Ored Mocca Special
+Papatya Çayı
+Queen Style Fresh
+Sade Soda
+Salep
+Salted Caramel Latte
+Salted Karamel Sos
+Strawberry Milkshake
+Su
+Sıcak Çikolata
+Sıcak Çikolata Tozu
+Toffeenut Latte
+Toffeenut Şurubu
+Türk Kahvesi
+Türk Kahvesi Çekirdeği (250g)
+V60/Chemex
+Vanilla Frappuccino
+Vanilla Milkshake
+Vanilya Tozu
+Vanilya Şurubu
+White Mocha
+Yaseminli Yeşil Çay
+Yeşil Çay
+Yulaf Sütü
+Yulaf Sütü
+Çikolata Frappuccino
+Çikolata Sos
+Çikolata Tozu
+Çikolata Şurubu
+Çilek Püresi
+Çilek Şurubu
+Çilekli Matcha Latte
+Şurup

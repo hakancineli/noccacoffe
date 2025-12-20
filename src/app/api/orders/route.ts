@@ -123,6 +123,7 @@ export async function POST(request: Request) {
             });
 
             if (recipe) {
+                // Determine total quantity needed for each ingredient
                 for (const ri of recipe.items) {
                     if (ri.ingredient.stock < (ri.quantity * item.quantity)) {
                         return NextResponse.json({
