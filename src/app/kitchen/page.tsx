@@ -125,7 +125,7 @@ export default function KitchenPage() {
 
     const fetchOrders = async () => {
         try {
-            const res = await fetch('/api/admin/orders?status=all&limit=50');
+            const res = await fetch(`/api/admin/orders?status=all&limit=50&_t=${Date.now()}`);
             if (res.ok) {
                 const data = await res.json();
                 const kitchenOrders = data.orders.filter((o: Order) =>
