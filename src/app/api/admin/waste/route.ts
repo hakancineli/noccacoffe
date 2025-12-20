@@ -138,7 +138,7 @@ export async function POST(request: NextRequest) {
                 action: 'CREATE_WASTE_LOG',
                 entity: 'WasteLog',
                 entityId: wasteLog.id,
-                newData: wasteLog,
+                newData: { ...wasteLog, cost: totalCost }, // Pass cost for UI
                 userId,
                 userEmail,
             });

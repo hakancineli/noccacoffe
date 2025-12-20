@@ -70,9 +70,54 @@ export default function AuditLogsPage() {
         return `${log.entity} (${log.entityId.slice(-6)})`;
     };
 
-    const formatData = (data: any) => {
-        if (!data) return '-';
-        return <pre className="text-xs bg-gray-50 p-2 rounded max-h-24 overflow-y-auto">{JSON.stringify(data, null, 2)}</pre>;
+    const formatDetails = (log: AuditLog) => {
+        const { action, oldData, newData } = log;
+
+        if (action === 'CREATE_WASTE_LOG') {
+            return (
+                <div className="text-sm">
+                    <span className="font-medium">Neden:</span> {newData?.reason || '-'}<br />
+                    <span className="font-medium text-red-600">Miktar:</span> {newData?.quantity} {newData?.unit}
+                    {newData?.cost ? <span className="ml-2 text-gray-500">(Maliyet: ₺{newData.cost.toFixed(2)})</span> : ''}
+                </div>
+            );
+        }
+
+        if (action === 'UPDATE_ORDER_STATUS') {
+            return (
+                <div className="text-sm">
+                    <span className="text-gray-400 line-through">{oldData?.status}</span>
+                    <span className="mx-2">→</span>
+                    <span className="font-medium text-green-600">{newData?.status}</span>
+                </div>
+            );
+        }
+
+        if (action === 'DELETE_ORDER') {
+            return <span className="text-sm text-red-600 font-medium">Bu sipariş sistemden kaldırıldı.</span>;
+        }
+
+        if (action === 'UPDATE_PRODUCT') {
+            const changes = [];
+            if (oldData?.price !== newData?.price) changes.push(`Fiyat: ₺${oldData?.price} → ₺${newData?.price}`);
+            if (oldData?.stock !== newData?.stock) changes.push(`Stok: ${oldData?.stock} → ${newData?.stock}`);
+            if (oldData?.isActive !== newData?.isActive) changes.push(`Durum: ${oldData?.isActive ? 'Aktif' : 'Pasif'} → ${newData?.isActive ? 'Aktif' : 'Pasif'}`);
+
+            return (
+                <div className="text-xs space-y-1">
+                    {changes.map((c, i) => <div key={i}>{c}</div>)}
+                    {changes.length === 0 && <span className="text-gray-400 italic">Genel bilgiler güncellendi</span>}
+                </div>
+            );
+        }
+
+        // Fallback for others
+        if (!newData && !oldData) return '-';
+        return (
+            <div className="text-[10px] text-gray-400 max-w-xs truncate">
+                {JSON.stringify(newData || oldData)}
+            </div>
+        );
     };
 
     return (
@@ -100,8 +145,7 @@ export default function AuditLogsPage() {
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">İşlem</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Varlık</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kullanıcı</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Eski Veri</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Yeni Veri</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Detaylar</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
@@ -131,10 +175,7 @@ export default function AuditLogsPage() {
                                                 {log.userEmail || 'Sistem'}
                                             </td>
                                             <td className="px-6 py-4 text-sm text-gray-500">
-                                                {formatData(log.oldData)}
-                                            </td>
-                                            <td className="px-6 py-4 text-sm text-gray-500">
-                                                {formatData(log.newData)}
+                                                {formatDetails(log)}
                                             </td>
                                         </tr>
                                     ))
