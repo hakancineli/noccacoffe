@@ -145,7 +145,8 @@ export default function CheckoutPage() {
             });
 
             if (!response.ok) {
-                throw new Error('Sipariş oluşturulurken bir hata oluştu');
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Sipariş oluşturulurken bir hata oluştu');
             }
 
             const result = await response.json();
@@ -154,8 +155,8 @@ export default function CheckoutPage() {
             clearCart();
             setSuccessOrder({ id: result.orderId, number: result.orderNumber });
 
-        } catch (err) {
-            setError('Siparişiniz alınamadı. Lütfen tekrar deneyin.');
+        } catch (err: any) {
+            setError(err.message || 'Siparişiniz alınamadı. Lütfen tekrar deneyin.');
             console.error(err);
         } finally {
             setLoading(false);

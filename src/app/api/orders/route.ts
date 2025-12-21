@@ -100,7 +100,7 @@ export async function POST(request: Request) {
         });
 
         // Categories that don't require recipes (unit-based products)
-        const UNIT_BASED_CATEGORIES = ['Meşrubatlar'];
+        const UNIT_BASED_CATEGORIES = ['Meşrubatlar', 'Yan Ürünler', 'Kahve Çekirdekleri', 'Bitki Çayları'];
 
         // Strict Stock Check (Product & Ingredients)
         for (const item of items) {

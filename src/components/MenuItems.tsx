@@ -30,13 +30,24 @@ const MenuItems = () => {
     fetchProducts();
   }, []);
 
-  const getAvailability = (name: string) => {
+  // Categories that don't require recipes (unit-based products)
+  const UNIT_BASED_CATEGORIES = ['Meşrubatlar', 'Yan Ürünler', 'Kahve Çekirdekleri', 'Bitki Çayları'];
+
+  const getAvailability = (item: MenuItem) => {
     // If we haven't fetched yet, assume available to avoid flashing everything as disabled
     if (dbProducts.length === 0) return true;
 
-    const found = dbProducts.find(p => p.name === name);
+    const found = dbProducts.find(p => p.name === item.name);
     // If not found in DB but exists in static menu, assume UNAVAILABLE to be safe
     if (!found) return false;
+
+    // Check if it can be sold (Has Recipe OR is Unit Based)
+    const hasRecipe = found.hasRecipe ?? false;
+    const isUnitBased = UNIT_BASED_CATEGORIES.includes(item.category);
+    const canBeSold = hasRecipe || (isUnitBased && (found.isActive !== false));
+
+    // If it can't be sold (no recipe & not unit based), treat as unavailable (Hidden/Disabled)
+    if (!canBeSold) return false;
 
     return found.isAvailable ?? true;
   };
@@ -47,6 +58,18 @@ const MenuItems = () => {
     const matchesSearch = searchQuery === '' ||
       item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.description?.toLowerCase().includes(searchQuery.toLowerCase());
+
+    // Visibility Check (Hide invalid items completely)
+    if (dbProducts.length > 0) {
+      const found = dbProducts.find(p => p.name === item.name);
+      if (found) {
+        const hasRecipe = found.hasRecipe ?? false;
+        const isUnitBased = UNIT_BASED_CATEGORIES.includes(item.category);
+        const canBeSold = hasRecipe || (isUnitBased && (found.isActive !== false));
+        if (!canBeSold) return false;
+      }
+    }
+
     return matchesCategory && matchesSearch;
   });
 
@@ -155,7 +178,7 @@ const MenuItems = () => {
       {/* Menu Items */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
         {filteredItems.map((item) => {
-          const isAvailable = getAvailability(item.name);
+          const isAvailable = getAvailability(item);
 
           return (
             <div key={item.id} className={`bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 ${!isAvailable ? 'opacity-70 grayscale' : ''}`}>
