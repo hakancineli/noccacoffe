@@ -54,7 +54,11 @@ export async function POST(request: Request) {
                 });
 
                 if (!userRecord) {
-                    // Create a new ghost user account
+                    const bcrypt = require('bcryptjs');
+                    const hashedPassword = body.password
+                        ? await bcrypt.hash(body.password, 10)
+                        : 'GUEST_ACCOUNT';
+
                     const nameParts = customerName?.split(' ') || ['Misafir'];
                     const firstName = nameParts[0];
                     const lastName = nameParts.slice(1).join(' ');
@@ -62,7 +66,7 @@ export async function POST(request: Request) {
                     userRecord = await prisma.user.create({
                         data: {
                             email: customerEmail,
-                            passwordHash: 'GUEST_ACCOUNT', // Placeholder
+                            passwordHash: hashedPassword,
                             firstName,
                             lastName,
                             phone: customerPhone,
@@ -74,7 +78,23 @@ export async function POST(request: Request) {
                             }
                         }
                     });
-                    console.log(`Auto-registered new user: ${customerEmail}`);
+
+                    if (body.password) {
+                        console.log(`New user registered during checkout: ${customerEmail}`);
+                    } else {
+                        console.log(`Auto-registered guest user: ${customerEmail}`);
+                    }
+                } else if (body.password && userRecord.passwordHash === 'GUEST_ACCOUNT') {
+                    // Upgrade Guest to Real User if they decide to "register" on a subsequent order
+                    // This handles the "I have a guest account but now I want to set a password" flow
+                    const bcrypt = require('bcryptjs');
+                    const hashedPassword = await bcrypt.hash(body.password, 10);
+
+                    userRecord = await prisma.user.update({
+                        where: { id: userRecord.id },
+                        data: { passwordHash: hashedPassword }
+                    });
+                    console.log(`Upgraded guest account to registered user: ${customerEmail}`);
                 }
 
                 userId = userRecord.id;

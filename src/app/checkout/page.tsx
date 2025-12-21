@@ -20,7 +20,10 @@ export default function CheckoutPage() {
         customerName: '',
         customerPhone: '',
         customerEmail: '',
-        notes: ''
+        notes: '',
+        createAccount: false,
+        password: '',
+        confirmPassword: ''
     });
 
     const [isEditing, setIsEditing] = useState(true);
@@ -99,6 +102,19 @@ export default function CheckoutPage() {
         e.preventDefault();
         setLoading(true);
         setError('');
+
+        if (formData.createAccount) {
+            if (formData.password !== formData.confirmPassword) {
+                setError('Şifreler eşleşmiyor!');
+                setLoading(false);
+                return;
+            }
+            if (formData.password.length < 6) {
+                setError('Şifre en az 6 karakter olmalıdır!');
+                setLoading(false);
+                return;
+            }
+        }
 
         try {
             // Apply discount to items payload
@@ -189,6 +205,7 @@ export default function CheckoutPage() {
                     </div>
 
                     <button
+                        onClick={() => router.push(`/order-confirmation/${successOrder.id}`)}
                         className="w-full bg-black text-white py-4 rounded-xl font-bold text-lg hover:bg-gray-800 transition-colors shadow-lg"
                     >
                         Siparişim Ne Durumda? ➔
@@ -296,6 +313,47 @@ export default function CheckoutPage() {
                                         onChange={e => setFormData({ ...formData, customerEmail: e.target.value })}
                                         placeholder="ornek@email.com"
                                     />
+                                </div>
+
+                                <div>
+                                    <label className="flex items-center space-x-2 text-sm font-medium text-gray-700 mb-3 cursor-pointer select-none border p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                                        <input
+                                            type="checkbox"
+                                            className="w-5 h-5 text-nocca-green rounded border-gray-300 focus:ring-nocca-green"
+                                            checked={formData.createAccount}
+                                            onChange={e => setFormData({ ...formData, createAccount: e.target.checked })}
+                                        />
+                                        <span className="flex-1">Bilgilerimle hesabımı oluştur (Sonraki siparişlerinizde puan kazanın!)</span>
+                                    </label>
+
+                                    {formData.createAccount && (
+                                        <div className="space-y-4 pl-2 border-l-2 border-nocca-green bg-green-50/30 p-4 rounded-r-lg animate-in fade-in slide-in-from-top-2 duration-300">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">Şifre Belirleyin</label>
+                                                <input
+                                                    type="password"
+                                                    required={formData.createAccount}
+                                                    minLength={6}
+                                                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-nocca-green"
+                                                    value={formData.password}
+                                                    onChange={e => setFormData({ ...formData, password: e.target.value })}
+                                                    placeholder="En az 6 karakter"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">Şifre Tekrar</label>
+                                                <input
+                                                    type="password"
+                                                    required={formData.createAccount}
+                                                    minLength={6}
+                                                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-nocca-green"
+                                                    value={formData.confirmPassword}
+                                                    onChange={e => setFormData({ ...formData, confirmPassword: e.target.value })}
+                                                    placeholder="Şifrenizi tekrar girin"
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div>
