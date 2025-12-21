@@ -189,10 +189,9 @@ export default function CheckoutPage() {
                     </div>
 
                     <button
-                        onClick={() => router.push(`/order-confirmation/${successOrder.id}`)}
                         className="w-full bg-black text-white py-4 rounded-xl font-bold text-lg hover:bg-gray-800 transition-colors shadow-lg"
                     >
-                        Detayları Gör ➔
+                        Siparişim Ne Durumda? ➔
                     </button>
 
                     <button
