@@ -278,7 +278,7 @@ export default function OrdersManagement() {
                 </div>
 
                 <div class="footer">
-                    <img src="/images/logo/receipt-logo.jpg" style="width: 40mm; filter: grayscale(100%) contrast(1.2); mix-blend-mode: multiply;" />
+                    <img src="/images/logo/receipt-qr-logo.jpg" style="width: 40mm; filter: grayscale(100%) contrast(1.2); mix-blend-mode: multiply;" />
                     <div class="branding">NOCCA COFFEE</div>
                     <p style="margin: 5px 0;">Caddebostan, İstanbul</p>
                     <p style="font-weight: bold; margin-top: 10px;">* AFİYET OLSUN *</p>

@@ -638,7 +638,7 @@ export default function POSPage() {
 
                         <div className="text-center mt-6 pt-4 border-t border-dashed border-black">
                             <img
-                                src="/images/logo/receipt-logo.jpg"
+                                src="/images/logo/receipt-qr-logo.jpg"
                                 alt="NOCCA Logo"
                                 style={{
                                     width: '45mm',
