@@ -605,19 +605,17 @@ export default function AccountingPage() {
                     <hr className="my-6 border-gray-200" />
 
                     <form onSubmit={handleAddExpense} className="space-y-4">
-                        {category !== 'ADVANCE' && category !== 'RENT' && (
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Açıklama</label>
-                                <input
-                                    type="text"
-                                    required
-                                    value={description}
-                                    onChange={(e) => setDescription(e.target.value)}
-                                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-nocca-green bg-gray-50 focus:bg-white"
-                                    placeholder="Örn: Kira, Elektrik..."
-                                />
-                            </div>
-                        )}
+                        <div className={(category === 'ADVANCE' || category === 'RENT') ? 'hidden' : ''}>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Açıklama</label>
+                            <input
+                                type="text"
+                                required={category !== 'ADVANCE' && category !== 'RENT'}
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
+                                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-nocca-green bg-gray-50 focus:bg-white"
+                                placeholder="Örn: Kira, Elektrik..."
+                            />
+                        </div>
 
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Tutar (₺)</label>
