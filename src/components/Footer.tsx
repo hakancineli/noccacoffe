@@ -50,7 +50,7 @@ const Footer = () => {
               </ul>
             </div>
           ))}
-          
+
           <div>
             <h3 className="text-lg font-semibold mb-4">Bizi Takip Edin</h3>
             <div className="flex space-x-4">
@@ -67,9 +67,10 @@ const Footer = () => {
                 <FaYoutube className="h-6 w-6" />
               </a>
             </div>
-            
+
             <div className="mt-8">
               <h3 className="text-lg font-semibold mb-4">Mobil Uygulama</h3>
+              {/*
               <div className="flex space-x-4">
                 <a href="#" className="block">
                   <img 
@@ -86,10 +87,11 @@ const Footer = () => {
                   />
                 </a>
               </div>
+              */}
             </div>
           </div>
         </div>
-        
+
         <div className="border-t border-gray-700 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="text-sm text-gray-400 mb-4 md:mb-0">

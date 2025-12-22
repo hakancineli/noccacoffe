@@ -551,7 +551,7 @@ export const allMenuItems: MenuItem[] = [
       { size: 'M', price: 190 },
       { size: 'L', price: 200 }
     ],
-    image: '/images/products/Buzlu White Chocolate Mocha.jpeg',
+    image: '/images/products/Beyaz Çikolata Frappuccino.jpeg',
   },
 
   // BUBBLE TEA
