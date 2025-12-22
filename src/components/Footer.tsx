@@ -9,21 +9,14 @@ const Footer = () => {
       title: 'Hakkımızda',
       links: [
         { name: 'Şirketimiz', href: '/about' },
-        { name: 'Kariyer', href: '/careers' },
         { name: 'Kurumsal Satış', href: '/corporate' },
-        { name: 'Haberler', href: '/news' },
-      ],
-    },
-    {
-      title: 'Yardım',
-      links: [
         { name: 'Sıkça Sorulan Sorular', href: '/faq' },
         { name: 'İletişim', href: '/contact' },
-        { name: 'Mağaza Bul', href: '/store-locator' },
       ],
     },
     {
       title: 'NOCCA REWARDS',
+      description: '5 kahve alana 1 kahve ücretsiz!',
       links: [
         { name: 'Hesabım', href: '/account' },
         { name: 'Kazanılan Yıldızlar', href: '/rewards' },
@@ -39,6 +32,10 @@ const Footer = () => {
           {footerLinks.map((section, index) => (
             <div key={index} className="mb-8 md:mb-0">
               <h3 className="text-lg font-semibold mb-4">{section.title}</h3>
+              {/* @ts-ignore */}
+              {section.description && (
+                <p className="text-sm text-gray-400 mb-4">{section.description}</p>
+              )}
               <ul className="space-y-2">
                 {section.links.map((link, linkIndex) => (
                   <li key={linkIndex}>
@@ -101,6 +98,7 @@ const Footer = () => {
               <Link href="/privacy" className="text-sm text-gray-400 hover:text-white">Gizlilik Politikası</Link>
               <Link href="/terms" className="text-sm text-gray-400 hover:text-white">Kullanım Koşulları</Link>
               <Link href="/cookies" className="text-sm text-gray-400 hover:text-white">Çerez Tercihleri</Link>
+              <Link href="/kvkk" className="text-sm text-gray-400 hover:text-white">KVKK Aydınlatma Metni</Link>
             </div>
           </div>
         </div>

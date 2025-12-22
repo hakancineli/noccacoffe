@@ -5,11 +5,14 @@ import FeaturedProducts from '@/components/FeaturedProducts';
 import VideoBanner from '@/components/VideoBanner';
 import MenuItems from '@/components/MenuItems';
 
+import CampaignSection from '@/components/CampaignSection';
+
 export default function Home() {
   return (
     <main>
       <Navbar />
       <Hero />
+      <CampaignSection />
       <VideoBanner />
 
       <div id="home-menu" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 bg-white">
