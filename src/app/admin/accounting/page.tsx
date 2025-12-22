@@ -178,7 +178,7 @@ export default function AccountingPage() {
         e.preventDefault();
 
         // Validation
-        if (category !== 'ADVANCE' && !description) return;
+        if (category !== 'ADVANCE' && category !== 'RENT' && !description) return;
         if (!amount) return;
 
         if (category === 'ADVANCE' && !selectedStaffId) {
