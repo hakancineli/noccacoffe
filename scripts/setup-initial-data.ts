@@ -62,6 +62,8 @@ async function setup() {
     const rawMaterialCategories = ['Şuruplar', 'Soslar', 'Püreler', 'Tozlar', 'Sütler', 'Meşrubatlar', 'Bitki Çayları'];
     for (const item of allMenuItems) {
         if (rawMaterialCategories.includes(item.category)) {
+            if (item.name === 'Normal Süt') continue; // Skip to avoid duplicate with base ingredient
+
             const unit = (item.category === 'Meşrubatlar' || item.category === 'Bitki Çayları') ? 'adet' : 'ml';
             const cost = item.price ? (typeof item.price === 'number' ? item.price * 0.4 : 10) : 10;
 
