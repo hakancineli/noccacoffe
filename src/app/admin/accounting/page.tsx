@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { FaMoneyBillWave, FaArrowDown, FaArrowUp, FaPlus, FaChartLine, FaTrash, FaUsersCog, FaCalendarAlt } from 'react-icons/fa';
+import { FaMoneyBillWave, FaArrowDown, FaArrowUp, FaPlus, FaChartLine, FaTrash, FaUsersCog, FaCalendarAlt, FaChevronLeft } from 'react-icons/fa';
+import { useRouter } from 'next/navigation';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface Expense {
@@ -96,6 +96,7 @@ const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, per
 };
 
 export default function AccountingPage() {
+    const router = useRouter();
     // Start of component
     const [expenses, setExpenses] = useState<Expense[]>([]);
     const [dailyStats, setDailyStats] = useState<DailyStats[]>([]);
@@ -192,7 +193,9 @@ export default function AccountingPage() {
                 body: JSON.stringify({
                     description: category === 'ADVANCE'
                         ? `Avans Ödemesi: ${staffList.find(s => s.id === selectedStaffId)?.name}`
-                        : description,
+                        : category === 'RENT'
+                            ? `${new Date().toLocaleDateString('tr-TR', { month: 'long' })} Ayı Kirası`
+                            : description,
                     amount: parseFloat(amount),
                     category,
                     staffId: category === 'ADVANCE' ? selectedStaffId : undefined
@@ -285,10 +288,19 @@ export default function AccountingPage() {
     return (
         <div className="min-h-screen bg-gray-50 p-6">
             <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-                <h1 className="text-3xl font-bold text-gray-900 flex items-center">
-                    <FaChartLine className="mr-3 text-nocca-green" />
-                    Finansal Rapor & Muhasebe
-                </h1>
+                <div className="flex items-center w-full md:w-auto">
+                    <button
+                        onClick={() => router.push('/admin')}
+                        className="mr-4 p-2 bg-white rounded-lg shadow-sm hover:bg-gray-100 transition-colors border border-gray-200"
+                        title="Geri Dön"
+                    >
+                        <FaChevronLeft className="text-gray-600" />
+                    </button>
+                    <h1 className="text-2xl md:text-3xl font-bold text-gray-900 flex items-center">
+                        <FaChartLine className="mr-3 text-nocca-green" />
+                        Finansal Rapor & Muhasebe
+                    </h1>
+                </div>
 
                 <div className="flex items-center space-x-3">
                     <button
@@ -592,7 +604,7 @@ export default function AccountingPage() {
                     <hr className="my-6 border-gray-200" />
 
                     <form onSubmit={handleAddExpense} className="space-y-4">
-                        {category !== 'ADVANCE' && (
+                        {category !== 'ADVANCE' && category !== 'RENT' && (
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Açıklama</label>
                                 <input
@@ -702,11 +714,14 @@ export default function AccountingPage() {
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                                    ${expense.category === 'SALARY' ? 'bg-blue-100 text-blue-800' :
-                                                        expense.category === 'RENT' ? 'bg-orange-100 text-orange-800' :
-                                                            'bg-gray-100 text-gray-800'}`}>
+                                                    ${expense.category === 'SALARY' ? 'bg-blue-100 text-blue-800 border border-blue-200' :
+                                                        expense.category === 'RENT' ? 'bg-amber-100 text-amber-800 border border-amber-200' :
+                                                            expense.category === 'SUPPLIES' ? 'bg-purple-100 text-purple-800 border border-purple-200' :
+                                                                expense.category === 'UTILITIES' ? 'bg-cyan-100 text-cyan-800 border border-cyan-200' :
+                                                                    expense.category === 'ADVANCE' ? 'bg-yellow-100 text-yellow-800 border border-yellow-200' :
+                                                                        expense.category === 'MAINTENANCE' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' :
+                                                                            'bg-gray-100 text-gray-800 border border-gray-200'}`}>
                                                     {translateCategory(expense.category)}
-
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-bold text-right flex justify-end items-center space-x-4">
