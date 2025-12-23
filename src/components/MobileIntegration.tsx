@@ -4,12 +4,12 @@ import { useState } from 'react';
 import { FaQrcode, FaMobileAlt, FaBell, FaGift, FaMapMarkerAlt } from 'react-icons/fa';
 
 const MobileIntegration = () => {
-  const [qrCode, setQrCode] = useState('NOCCA-2024-AHMET');
+  const [qrCode, setQrCode] = useState('NOCCA-2025-AHMET');
   const [notifications, setNotifications] = useState([
     {
       id: '1',
       title: '6. Kahve Hediye!',
-      message: '6. kahve alana 7. kahve bedava. Kampanya son gün 30.11.2024',
+      message: '6. kahve alana 7. kahve bedava. Kampanya son gün 30.11.2025',
       time: '2 saat önce',
       read: false,
       type: 'promotion'
@@ -45,13 +45,13 @@ const MobileIntegration = () => {
         id: '1',
         title: 'Ücretsiz Tatlı',
         points: 800,
-        availableDate: '01.11.2024'
+        availableDate: '01.11.2025'
       },
       {
         id: '2',
         title: 'Doğum Günü Hediyesi',
         points: 0,
-        availableDate: '15.11.2024'
+        availableDate: '15.11.2025'
       }
     ]
   });
@@ -87,7 +87,7 @@ const MobileIntegration = () => {
   ]);
 
   const markNotificationAsRead = (id: string) => {
-    setNotifications(notifications.map(notif => 
+    setNotifications(notifications.map(notif =>
       notif.id === id ? { ...notif, read: true } : notif
     ));
   };
@@ -110,7 +110,7 @@ const MobileIntegration = () => {
   return (
     <div className="bg-white rounded-lg shadow-lg p-6">
       <h2 className="text-2xl font-bold text-gray-800 mb-6">Mobil Entegrasyon</h2>
-      
+
       {/* QR Kod */}
       <div className="mb-8">
         <h3 className="text-lg font-semibold text-gray-800 mb-4">Mobil Cüzdan</h3>
@@ -124,7 +124,7 @@ const MobileIntegration = () => {
               Bakiye Yükle
             </button>
           </div>
-          
+
           <div className="border-t border-gray-200 pt-4">
             <h4 className="font-semibold mb-3">QR Kodunuz</h4>
             <div className="flex items-center space-x-4">
@@ -147,7 +147,7 @@ const MobileIntegration = () => {
               </button>
             </div>
           </div>
-          
+
           <div className="mt-4">
             <h4 className="font-semibold mb-3">Yaklaşan Ödüller</h4>
             <div className="space-y-3">
@@ -175,18 +175,16 @@ const MobileIntegration = () => {
         <h3 className="text-lg font-semibold text-gray-800 mb-4">Bildirimler</h3>
         <div className="space-y-3">
           {notifications.map((notification) => (
-            <div 
+            <div
               key={notification.id}
-              className={`bg-white border rounded-lg p-4 transition-all cursor-pointer hover:shadow-md ${
-                notification.read ? 'border-gray-200 opacity-60' : 'border-nocca-light-green bg-green-50'
-              }`}
+              className={`bg-white border rounded-lg p-4 transition-all cursor-pointer hover:shadow-md ${notification.read ? 'border-gray-200 opacity-60' : 'border-nocca-light-green bg-green-50'
+                }`}
               onClick={() => markNotificationAsRead(notification.id)}
             >
               <div className="flex items-start space-x-3">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                  notification.type === 'promotion' ? 'bg-blue-100 text-blue-600' :
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${notification.type === 'promotion' ? 'bg-blue-100 text-blue-600' :
                   notification.type === 'reward' ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-600'
-                }`}>
+                  }`}>
                   {notification.type === 'promotion' && <FaGift className="h-5 w-5" />}
                   {notification.type === 'reward' && <span className="text-lg">🎁</span>}
                 </div>

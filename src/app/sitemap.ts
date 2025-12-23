@@ -1,21 +1,27 @@
 import { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-    const baseUrl = 'https://noccacoffee.com'; // Replace with actual domain
+    const baseUrl = 'https://www.noccacoffee.com.tr';
 
-    return [
-        {
-            url: baseUrl,
-            lastModified: new Date(),
-            changeFrequency: 'daily',
-            priority: 1,
-        },
-        {
-            url: `${baseUrl}/menu`,
-            lastModified: new Date(),
-            changeFrequency: 'weekly',
-            priority: 0.8,
-        },
-        // Add other dynamic routes if needed
+    const routes = [
+        '',
+        '/menu',
+        '/about',
+        '/corporate',
+        '/faq',
+        '/contact',
+        '/campaigns',
+        '/rewards',
+        '/privacy',
+        '/terms',
+        '/cookies',
+        '/kvkk',
     ];
+
+    return routes.map((route) => ({
+        url: `${baseUrl}${route}`,
+        lastModified: new Date(),
+        changeFrequency: 'daily',
+        priority: route === '' ? 1 : 0.8,
+    }));
 }

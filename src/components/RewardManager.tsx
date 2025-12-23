@@ -292,31 +292,28 @@ const RewardManager = () => {
       <div className="flex space-x-1 mb-6 border-b border-gray-200">
         <button
           onClick={() => setActiveTab('rewards')}
-          className={`px-4 py-2 font-medium transition-colors border-b-2 ${
-            activeTab === 'rewards'
+          className={`px-4 py-2 font-medium transition-colors border-b-2 ${activeTab === 'rewards'
               ? 'text-nocca-light-green border-nocca-light-green'
               : 'text-gray-600 border-transparent hover:text-nocca-light-green'
-          }`}
+            }`}
         >
           Ödüller
         </button>
         <button
           onClick={() => setActiveTab('campaigns')}
-          className={`px-4 py-2 font-medium transition-colors border-b-2 ${
-            activeTab === 'campaigns'
+          className={`px-4 py-2 font-medium transition-colors border-b-2 ${activeTab === 'campaigns'
               ? 'text-nocca-light-green border-nocca-light-green'
               : 'text-gray-600 border-transparent hover:text-nocca-light-green'
-          }`}
+            }`}
         >
           Kampanyalar
         </button>
         <button
           onClick={() => setActiveTab('create')}
-          className={`px-4 py-2 font-medium transition-colors border-b-2 ${
-            activeTab === 'create'
+          className={`px-4 py-2 font-medium transition-colors border-b-2 ${activeTab === 'create'
               ? 'text-nocca-light-green border-nocca-light-green'
               : 'text-gray-600 border-transparent hover:text-nocca-light-green'
-          }`}
+            }`}
         >
           Oluştur
         </button>
@@ -329,7 +326,7 @@ const RewardManager = () => {
             <h3 className="text-xl font-bold text-gray-800">Mevcut Ödüller</h3>
             <span className="text-sm text-gray-600">{rewards.length} ödül</span>
           </div>
-          
+
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             {rewards.map((reward) => (
               <div key={reward.id} className="bg-gray-50 rounded-lg p-4 hover:shadow-md transition-shadow">
@@ -341,11 +338,10 @@ const RewardManager = () => {
                   <div className="flex space-x-2">
                     <button
                       onClick={() => toggleRewardAvailability(reward.id)}
-                      className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
-                        reward.isAvailable
+                      className={`px-2 py-1 rounded text-xs font-medium transition-colors ${reward.isAvailable
                           ? 'bg-green-100 text-green-800 hover:bg-green-200'
                           : 'bg-red-100 text-red-800 hover:bg-red-200'
-                      }`}
+                        }`}
                     >
                       {reward.isAvailable ? 'Aktif' : 'Pasif'}
                     </button>
@@ -357,9 +353,9 @@ const RewardManager = () => {
                     </button>
                   </div>
                 </div>
-                
+
                 <p className="text-gray-600 text-sm mb-3">{reward.description}</p>
-                
+
                 <div className="flex justify-between items-center">
                   <div className="space-y-1">
                     <p className="text-lg font-bold text-nocca-green">{reward.pointsCost} puan</p>
@@ -396,7 +392,7 @@ const RewardManager = () => {
             <h3 className="text-xl font-bold text-gray-800">Kampanyalar</h3>
             <span className="text-sm text-gray-600">{rewards.filter(r => r.category === 'DISCOUNT').length} kampanya</span>
           </div>
-          
+
           <div className="space-y-4">
             {rewards.filter((reward) => reward.category === 'DISCOUNT').map((campaign) => (
               <div key={campaign.id} className="bg-gray-50 rounded-lg p-4 hover:shadow-md transition-shadow">
@@ -408,11 +404,10 @@ const RewardManager = () => {
                   <div className="flex space-x-2">
                     <button
                       onClick={() => toggleCampaignStatus(campaign.id)}
-                      className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
-                        true
+                      className={`px-2 py-1 rounded text-xs font-medium transition-colors ${true
                           ? 'bg-green-100 text-green-800 hover:bg-green-200'
                           : 'bg-red-100 text-red-800 hover:bg-red-200'
-                      }`}
+                        }`}
                     >
                       {'Aktif'}
                     </button>
@@ -424,17 +419,17 @@ const RewardManager = () => {
                     </button>
                   </div>
                 </div>
-                
+
                 <p className="text-gray-600 text-sm mb-3">{campaign.description}</p>
-                
+
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
                     <p className="text-gray-500">Başlangıç:</p>
-                    <p className="font-medium">2024-01-01</p>
+                    <p className="font-medium">2025-01-01</p>
                   </div>
                   <div>
                     <p className="text-gray-500">Bitiş:</p>
-                    <p className="font-medium">2024-12-31</p>
+                    <p className="font-medium">2025-12-31</p>
                   </div>
                   <div>
                     <p className="text-gray-500">Değer:</p>
@@ -453,7 +448,7 @@ const RewardManager = () => {
                     </p>
                   </div>
                 </div>
-                
+
                 {campaign.image && (
                   <div className="mt-3">
                     <div className="relative w-full h-32">
@@ -485,28 +480,28 @@ const RewardManager = () => {
                   <input
                     type="text"
                     value={newReward.title}
-                    onChange={(e) => setNewReward({...newReward, title: e.target.value})}
+                    onChange={(e) => setNewReward({ ...newReward, title: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-nocca-light-green focus:border-transparent"
                     placeholder="Ödül başlığını girin"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Açıklama</label>
                   <textarea
                     value={newReward.description}
-                    onChange={(e) => setNewReward({...newReward, description: e.target.value})}
+                    onChange={(e) => setNewReward({ ...newReward, description: e.target.value })}
                     rows={3}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-nocca-light-green focus:border-transparent"
                     placeholder="Ödül açıklamasını girin"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
                   <select
                     value={newReward.category}
-                    onChange={(e) => setNewReward({...newReward, category: e.target.value as Reward['category']})}
+                    onChange={(e) => setNewReward({ ...newReward, category: e.target.value as Reward['category'] })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-nocca-light-green focus:border-transparent"
                     aria-label="Ödül kategorisi seçin"
                   >
@@ -516,25 +511,25 @@ const RewardManager = () => {
                     <option value="EXPERIENCE">Deneyim</option>
                   </select>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Puan Maliyeti</label>
                   <input
                     type="number"
                     value={newReward.pointsCost}
-                    onChange={(e) => setNewReward({...newReward, pointsCost: parseInt(e.target.value) || 0})}
+                    onChange={(e) => setNewReward({ ...newReward, pointsCost: parseInt(e.target.value) || 0 })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-nocca-light-green focus:border-transparent"
                     min="0"
                     placeholder="Gerekli puan miktarını"
                     aria-label="Gerekli puan miktarını"
                   />
                 </div>
-                
+
                 <div className="flex items-center">
                   <input
                     type="checkbox"
                     checked={newReward.isAvailable}
-                    onChange={(e) => setNewReward({...newReward, isAvailable: e.target.checked})}
+                    onChange={(e) => setNewReward({ ...newReward, isAvailable: e.target.checked })}
                     className="h-4 w-4 text-nocca-light-green focus:ring-nocca-light-green border-gray-300 rounded"
                     aria-label="Ödül aktifliği"
                   />
@@ -542,7 +537,7 @@ const RewardManager = () => {
                     Aktif
                   </label>
                 </div>
-                
+
                 <button
                   onClick={handleCreateReward}
                   className="w-full bg-nocca-light-green text-white py-2 px-4 rounded-md hover:bg-nocca-green transition-colors font-medium"
@@ -551,7 +546,7 @@ const RewardManager = () => {
                 </button>
               </div>
             </div>
-            
+
             {/* Create Campaign */}
             <div>
               <h3 className="text-xl font-bold text-gray-800 mb-4">Yeni Kampanya Oluştur</h3>
@@ -561,30 +556,30 @@ const RewardManager = () => {
                   <input
                     type="text"
                     value={newCampaign.title}
-                    onChange={(e) => setNewCampaign({...newCampaign, title: e.target.value})}
+                    onChange={(e) => setNewCampaign({ ...newCampaign, title: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-nocca-light-green focus:border-transparent"
                     placeholder="Kampanya başlığını girin"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Açıklama</label>
                   <textarea
                     value={newCampaign.description}
-                    onChange={(e) => setNewCampaign({...newCampaign, description: e.target.value})}
+                    onChange={(e) => setNewCampaign({ ...newCampaign, description: e.target.value })}
                     rows={3}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-nocca-light-green focus:border-transparent"
                     placeholder="Kampanya açıklamasını girin"
                   />
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Kampanya Tipi</label>
                     <select
                       aria-label="Ödül kategorisi seçin"
                       value={newCampaign.type}
-                      onChange={(e) => setNewCampaign({...newCampaign, type: e.target.value as Campaign['type']})}
+                      onChange={(e) => setNewCampaign({ ...newCampaign, type: e.target.value as Campaign['type'] })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-nocca-light-green focus:border-transparent"
                     >
                       <option value="POINTS_MULTIPLIER">Puan Çarpanı</option>
@@ -593,13 +588,13 @@ const RewardManager = () => {
                       <option value="DISCOUNT">İndirim</option>
                     </select>
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Değer</label>
                     <input
                       type="number"
                       value={newCampaign.value}
-                      onChange={(e) => setNewCampaign({...newCampaign, value: parseInt(e.target.value) || 1})}
+                      onChange={(e) => setNewCampaign({ ...newCampaign, value: parseInt(e.target.value) || 1 })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-nocca-light-green focus:border-transparent"
                       min="1"
                       placeholder="Kampanya değeri"
@@ -607,7 +602,7 @@ const RewardManager = () => {
                     />
                   </div>
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Başlangıç Tarihi</label>
@@ -615,29 +610,29 @@ const RewardManager = () => {
                       aria-label="Gerekli puan miktarını"
                       type="date"
                       value={newCampaign.startDate}
-                      onChange={(e) => setNewCampaign({...newCampaign, startDate: e.target.value})}
+                      onChange={(e) => setNewCampaign({ ...newCampaign, startDate: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-nocca-light-green focus:border-transparent"
                     />
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Bitiş Tarihi</label>
                     <input
                       aria-label="Kampanya değeri"
                       type="date"
                       value={newCampaign.endDate}
-                      onChange={(e) => setNewCampaign({...newCampaign, endDate: e.target.value})}
+                      onChange={(e) => setNewCampaign({ ...newCampaign, endDate: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-nocca-light-green focus:border-transparent"
                     />
                   </div>
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Hedef Kitle</label>
                     <select
                       value={newCampaign.targetAudience}
-                      onChange={(e) => setNewCampaign({...newCampaign, targetAudience: e.target.value as Campaign['targetAudience']})}
+                      onChange={(e) => setNewCampaign({ ...newCampaign, targetAudience: e.target.value as Campaign['targetAudience'] })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-nocca-light-green focus:border-transparent"
                       aria-label="Hedef kitle seçin"
                     >
@@ -646,12 +641,12 @@ const RewardManager = () => {
                       <option value="NEW_CUSTOMERS">Yeni Müşteriler</option>
                     </select>
                   </div>
-                  
+
                   <div className="flex items-center">
                     <input
                       type="checkbox"
                       checked={newCampaign.isActive}
-                      onChange={(e) => setNewCampaign({...newCampaign, isActive: e.target.checked})}
+                      onChange={(e) => setNewCampaign({ ...newCampaign, isActive: e.target.checked })}
                       className="h-4 w-4 text-nocca-light-green focus:ring-nocca-light-green border-gray-300 rounded"
                       aria-label="Kampanya aktifliği"
                     />
@@ -660,7 +655,7 @@ const RewardManager = () => {
                     </label>
                   </div>
                 </div>
-                
+
                 <button
                   onClick={handleCreateCampaign}
                   className="w-full bg-nocca-light-green text-white py-2 px-4 rounded-md hover:bg-nocca-green transition-colors font-medium"

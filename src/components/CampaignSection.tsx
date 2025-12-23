@@ -42,38 +42,15 @@ export default function CampaignSection() {
                         </div>
 
                         <p className="text-sm text-gray-500 mb-8 italic">
-                            Kampanya 31 Aralık 2024 tarihine kadar geçerlidir.
+                            Kampanya 31 Aralık 2025 tarihine kadar geçerlidir.
                         </p>
-
-                        <div className="bg-white p-6 rounded-2xl shadow-sm mb-8 w-full max-w-sm">
-                            <p className="text-sm font-bold text-gray-900 mb-2">Kampanya Kodu:</p>
-                            <div className="flex gap-2">
-                                <div className="flex-1 bg-gray-100 rounded-lg px-4 py-3 font-mono font-bold text-xl text-center tracking-widest text-nocca-green border border-gray-200">
-                                    {campaignCode}
-                                </div>
-                                <button
-                                    onClick={handleCopy}
-                                    className="bg-gray-900 text-white px-6 rounded-lg font-bold hover:bg-gray-800 transition-all active:scale-95 flex items-center justify-center min-w-[100px]"
-                                >
-                                    {copied ? (
-                                        <>
-                                            <FaCheck className="mr-2" /> Kopyalandı
-                                        </>
-                                    ) : (
-                                        <>
-                                            <FaCopy className="mr-2" /> Kopyala
-                                        </>
-                                    )}
-                                </button>
-                            </div>
-                        </div>
 
                         <div>
                             <Link
                                 href="/menu"
-                                className="inline-block bg-[#1B3C35] text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-[#142e28] transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                                className="inline-block bg-[#1B3C35] text-white px-10 py-4 rounded-xl font-bold text-lg hover:bg-[#142e28] transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                             >
-                                Kampanyayı Gör
+                                Hemen Sipariş Ver
                             </Link>
                         </div>
                     </div>

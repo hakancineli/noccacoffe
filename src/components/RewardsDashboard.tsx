@@ -34,7 +34,7 @@ const RewardsDashboard = () => {
     try {
       // Get token from localStorage or cookies
       const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
-      
+
       if (!token) {
         setLoading(false);
         return;
@@ -45,11 +45,11 @@ const RewardsDashboard = () => {
           'Authorization': `Bearer ${token}`
         }
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         const userPoints = data.user.userPoints;
-        
+
         // Calculate next level and progress
         const tierThresholds = {
           BRONZE: { min: 0, max: 999, next: 1000 },
@@ -117,10 +117,10 @@ const RewardsDashboard = () => {
   ];
 
   const recentActivity = [
-    { id: 1, type: 'Kazanılan Puan', amount: '+50', description: 'Caffè Latte alımı', date: '29.10.2024 14:30' },
-    { id: 2, type: 'Kullanılan Puan', amount: '-500', description: 'Ücretsiz Latte', date: '28.10.2024 10:15' },
-    { id: 3, type: 'Kazanılan Puan', amount: '+75', description: 'Brownie alımı', date: '27.10.2024 16:45' },
-    { id: 4, type: 'Bonus Puan', amount: '+100', description: 'Seviye yükseltme bonusu', date: '25.10.2024 09:00' }
+    { id: 1, type: 'Kazanılan Puan', amount: '+50', description: 'Caffè Latte alımı', date: '29.10.2025 14:30' },
+    { id: 2, type: 'Kullanılan Puan', amount: '-500', description: 'Ücretsiz Latte', date: '28.10.2025 10:15' },
+    { id: 3, type: 'Kazanılan Puan', amount: '+75', description: 'Brownie alımı', date: '27.10.2025 16:45' },
+    { id: 4, type: 'Bonus Puan', amount: '+100', description: 'Seviye yükseltme bonusu', date: '25.10.2025 09:00' }
   ];
 
   // Mock kullanıcı verisi - gerçek uygulamada bu context/API'den gelecek
@@ -156,17 +156,17 @@ const RewardsDashboard = () => {
   const handleLogout = async () => {
     try {
       const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
-      
+
       await fetch('/api/auth/logout', {
         method: 'POST',
         headers: token ? { 'Authorization': `Bearer ${token}` } : {}
       });
-      
+
       // Remove token from localStorage
       if (typeof window !== 'undefined') {
         localStorage.removeItem('authToken');
       }
-      
+
       setUserProfile(null);
     } catch (error) {
       console.error('Logout error:', error);
@@ -203,7 +203,7 @@ const RewardsDashboard = () => {
                 Özel teklifler, ücretsiz ürünler ve daha fazlası sizi bekliyor!
               </p>
             </div>
-            
+
             <div className="space-y-4">
               <button
                 onClick={handleLogin}
@@ -211,14 +211,14 @@ const RewardsDashboard = () => {
               >
                 Giriş Yap
               </button>
-              
+
               <button
                 onClick={handleRegister}
                 className="w-full bg-white border border-nocca-light-green text-nocca-light-green py-3 px-6 rounded-lg font-semibold hover:bg-nocca-light-green hover:text-white transition-colors"
               >
                 Üye Ol
               </button>
-              
+
               <div className="relative my-6">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-gray-300" />
@@ -227,20 +227,20 @@ const RewardsDashboard = () => {
                   <span className="px-4 bg-white text-gray-500">VEYA</span>
                 </div>
               </div>
-              
+
               <div className="space-y-3">
                 <button className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-md shadow-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
                   <span className="text-red-500 mr-2">G</span>
                   Google ile Giriş
                 </button>
-                
+
                 <button className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-md shadow-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
                   <span className="text-black mr-2">🍎</span>
                   Apple ile Giriş
                 </button>
               </div>
             </div>
-            
+
             <p className="text-xs text-gray-500 mt-6">
               Üye olarak{' '}
               <a href="#" className="text-nocca-light-green hover:text-nocca-green">
@@ -395,9 +395,8 @@ const RewardsDashboard = () => {
                       <td className="p-3 text-sm">{activity.date}</td>
                       <td className="p-3 text-sm font-medium">{activity.type}</td>
                       <td className="p-3 text-sm text-gray-600">{activity.description}</td>
-                      <td className={`p-3 text-sm text-right font-semibold ${
-                        activity.amount.startsWith('+') ? 'text-green-600' : 'text-red-600'
-                      }`}>
+                      <td className={`p-3 text-sm text-right font-semibold ${activity.amount.startsWith('+') ? 'text-green-600' : 'text-red-600'
+                        }`}>
                         {activity.amount}
                       </td>
                     </tr>
@@ -413,41 +412,37 @@ const RewardsDashboard = () => {
       <div className="flex space-x-1 mb-6 border-b border-gray-200">
         <button
           onClick={() => setActiveSection('dashboard')}
-          className={`px-4 py-2 font-medium transition-colors border-b-2 ${
-            activeSection === 'dashboard'
+          className={`px-4 py-2 font-medium transition-colors border-b-2 ${activeSection === 'dashboard'
               ? 'text-nocca-light-green border-nocca-light-green'
               : 'text-gray-600 border-transparent hover:text-nocca-light-green'
-          }`}
+            }`}
         >
           Dashboard
         </button>
         <button
           onClick={() => setActiveSection('profile')}
-          className={`px-4 py-2 font-medium transition-colors border-b-2 ${
-            activeSection === 'profile'
+          className={`px-4 py-2 font-medium transition-colors border-b-2 ${activeSection === 'profile'
               ? 'text-nocca-light-green border-nocca-light-green'
               : 'text-gray-600 border-transparent hover:text-nocca-light-green'
-          }`}
+            }`}
         >
           Profil
         </button>
         <button
           onClick={() => setActiveSection('points')}
-          className={`px-4 py-2 font-medium transition-colors border-b-2 ${
-            activeSection === 'points'
+          className={`px-4 py-2 font-medium transition-colors border-b-2 ${activeSection === 'points'
               ? 'text-nocca-light-green border-nocca-light-green'
               : 'text-gray-600 border-transparent hover:text-nocca-light-green'
-          }`}
+            }`}
         >
           Puan Sistemi
         </button>
         <button
           onClick={() => setActiveSection('rewards')}
-          className={`px-4 py-2 font-medium transition-colors border-b-2 ${
-            activeSection === 'rewards'
+          className={`px-4 py-2 font-medium transition-colors border-b-2 ${activeSection === 'rewards'
               ? 'text-nocca-light-green border-nocca-light-green'
               : 'text-gray-600 border-transparent hover:text-nocca-light-green'
-          }`}
+            }`}
         >
           Ödüller
         </button>
@@ -582,9 +577,8 @@ const RewardsDashboard = () => {
                         <td className="p-3 text-sm">{activity.date}</td>
                         <td className="p-3 text-sm font-medium">{activity.type}</td>
                         <td className="p-3 text-sm text-gray-600">{activity.description}</td>
-                        <td className={`p-3 text-sm text-right font-semibold ${
-                          activity.amount.startsWith('+') ? 'text-green-600' : 'text-red-600'
-                        }`}>
+                        <td className={`p-3 text-sm text-right font-semibold ${activity.amount.startsWith('+') ? 'text-green-600' : 'text-red-600'
+                          }`}>
                           {activity.amount}
                         </td>
                       </tr>

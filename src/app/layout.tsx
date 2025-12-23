@@ -7,11 +7,11 @@ export const metadata = {
   title: 'NOCCA Coffee - En İyi Kahve Deneyimi',
   description: 'NOCCA Coffee ile taze kavrulmuş kahvelerin tadını çıkarın. Geniş menümüz, lezzetli tatlılarımız ve özel kahve çeşitlerimizle hizmetinizdeyiz.',
   keywords: ['kahve', 'nocca coffee', 'istanbul kahve', 'latte', 'espresso', 'taze kahve', 'kahve siparişi'],
-  metadataBase: new URL('https://noccacoffee.com'), // Replace with actual domain
+  metadataBase: new URL('https://www.noccacoffee.com.tr'), // Replace with actual domain
   openGraph: {
     title: 'NOCCA Coffee',
     description: 'En iyi kahve deneyimi NOCCA Coffee\'de.',
-    url: 'https://noccacoffee.com',
+    url: 'https://www.noccacoffee.com.tr',
     siteName: 'NOCCA Coffee',
     locale: 'tr_TR',
     type: 'website',
