@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FaPrint } from 'react-icons/fa';
@@ -144,9 +144,52 @@ export default function OrdersManagement() {
   };
 
   // Audio Alarm Logic
-  const [audio] = useState(typeof window !== 'undefined' ? new Audio('https://codeskulptor-demos.commondatastorage.googleapis.com/pang/pop.mp3') : null);
   const [hasPending, setHasPending] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const alarmIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [hasInteracted, setHasInteracted] = useState(false);
+
+  const initAudio = () => {
+    if (!audioContextRef.current) {
+      const AudioContext = (window as any).AudioContext || (window as any).webkitAudioContext;
+      if (AudioContext) {
+        audioContextRef.current = new AudioContext();
+      }
+    }
+    const ctx = audioContextRef.current;
+    if (ctx && ctx.state === 'suspended') {
+      ctx.resume();
+    }
+  };
+
+  const playBellSound = () => {
+    if (!audioContextRef.current) initAudio();
+    const ctx = audioContextRef.current;
+    if (!ctx) return;
+
+    const now = ctx.currentTime;
+    const createHarmonic = (freq: number, volume: number, decay: number) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, now);
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(volume, now + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + decay);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + decay + 0.1);
+    };
+
+    // Desk Bell (Reception Bell)
+    createHarmonic(1046.50, 0.4, 1.5);
+    createHarmonic(2093.00, 0.2, 0.8);
+    createHarmonic(2489.02, 0.15, 0.6);
+    createHarmonic(3135.96, 0.1, 0.4);
+    createHarmonic(4186.01, 0.1, 0.3);
+  };
 
   // Poll for new orders every 5 seconds (simulated live sync)
   useEffect(() => {
@@ -171,16 +214,32 @@ export default function OrdersManagement() {
   }, [orders, isMuted]);
 
   const playAlarm = () => {
-    if (audio) {
-      audio.loop = true;
-      audio.play().catch(e => console.log('Audio autoplay blocked:', e));
-    }
+    if (!hasInteracted) return;
+    if (alarmIntervalRef.current) return;
+
+    // Play immediately then every 4 seconds
+    playBellSound();
+    alarmIntervalRef.current = setInterval(() => {
+      playBellSound();
+    }, 4000);
   };
 
   const stopAlarm = () => {
-    if (audio) {
-      audio.pause();
-      audio.currentTime = 0;
+    if (alarmIntervalRef.current) {
+      clearInterval(alarmIntervalRef.current);
+      alarmIntervalRef.current = null;
+    }
+  };
+
+  const handleInteraction = () => {
+    if (!hasInteracted) {
+      setHasInteracted(true);
+      initAudio();
+      // If there were already pending orders, start alarm
+      const pendingCount = orders.filter(o => o.status === 'PENDING').length;
+      if (pendingCount > 0 && !isMuted) {
+        playAlarm();
+      }
     }
   };
 
@@ -299,7 +358,7 @@ export default function OrdersManagement() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50" onClick={handleInteraction}>
       {/* Audio Control / Status */}
       {hasPending && (
         <div className="bg-red-600 text-white px-4 py-3 shadow-lg animate-pulse sticky top-0 z-50 flex justify-between items-center">

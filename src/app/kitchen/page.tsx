@@ -82,24 +82,34 @@ export default function KitchenPage() {
         const ctx = audioContextRef.current;
         if (!ctx) return;
 
-        // Create a pleasant "Ding" sound (Sine wave with decay)
-        const oscillator = ctx.createOscillator();
-        const gainNode = ctx.createGain();
+        const now = ctx.currentTime;
 
-        oscillator.connect(gainNode);
-        gainNode.connect(ctx.destination);
+        // Function to create a harmonic
+        const createHarmonic = (freq: number, volume: number, decay: number) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
 
-        // Bell characteristics
-        oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(660, ctx.currentTime); // E5 note
-        oscillator.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.1); // Slide up to A5
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now);
 
-        gainNode.gain.setValueAtTime(0.1, ctx.currentTime);
-        gainNode.gain.linearRampToValueAtTime(0.6, ctx.currentTime + 0.1); // Attack
-        gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2); // Decay
+            gain.gain.setValueAtTime(0, now);
+            gain.gain.linearRampToValueAtTime(volume, now + 0.01); // Sharp attack
+            gain.gain.exponentialRampToValueAtTime(0.001, now + decay); // Natural decay
 
-        oscillator.start();
-        oscillator.stop(ctx.currentTime + 2);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc.start(now);
+            osc.stop(now + decay + 0.1);
+        };
+
+        // Desk Bell (Reception Bell) characteristics: 
+        // A fundamental tone with several high-frequency metallic overtones
+        createHarmonic(1046.50, 0.4, 1.5); // C6 (Fundamental)
+        createHarmonic(2093.00, 0.2, 0.8); // C7
+        createHarmonic(2489.02, 0.15, 0.6); // Eb7 (Slightly discordant)
+        createHarmonic(3135.96, 0.1, 0.4); // G7
+        createHarmonic(4186.01, 0.1, 0.3); // C8 (Ping)
     };
 
     useEffect(() => {
