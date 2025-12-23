@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
@@ -7,10 +8,9 @@ import MenuHero from '@/components/MenuHero';
 import RewardsDashboard from '@/components/RewardsDashboard';
 
 export default function RewardsPage() {
-  const [isCopied, setIsCopied] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [showDashboard, setShowDashboard] = useState(true);
-  
+
   const slides = [
     '/images/instagram/bir yudum estetik.jpeg',
     '/images/instagram/brownie.jpg',
@@ -31,12 +31,6 @@ export default function RewardsPage() {
   const goToSlide = (index: number) => {
     setCurrentSlide(index);
   };
-
-  const handleCopyCode = () => {
-    navigator.clipboard.writeText('KAHVE5');
-    setIsCopied(true);
-    setTimeout(() => setIsCopied(false), 2000);
-  };
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
@@ -47,21 +41,19 @@ export default function RewardsPage() {
         <div className="flex space-x-4 mb-8">
           <button
             onClick={() => setShowDashboard(true)}
-            className={`px-6 py-3 rounded-full font-semibold transition-colors ${
-              showDashboard 
-                ? 'bg-nocca-light-green text-white' 
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            }`}
+            className={`px-6 py-3 rounded-full font-semibold transition-colors ${showDashboard
+              ? 'bg-nocca-light-green text-white'
+              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
           >
             Dashboard
           </button>
           <button
             onClick={() => setShowDashboard(false)}
-            className={`px-6 py-3 rounded-full font-semibold transition-colors ${
-              !showDashboard 
-                ? 'bg-nocca-light-green text-white' 
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            }`}
+            className={`px-6 py-3 rounded-full font-semibold transition-colors ${!showDashboard
+              ? 'bg-nocca-light-green text-white'
+              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
           >
             Kampanyalar
           </button>
@@ -82,34 +74,19 @@ export default function RewardsPage() {
                     <p>🎉 <span className="font-semibold">6. Kahve Hediye!</span></p>
                     <p>☕ 5 kahve alana 6. kahve ücretsiz</p>
                     <p>🍰 5. kahve + tatlı %20 indirim</p>
-                    <p className="text-sm text-gray-500 mt-2">Kampanya 31 Aralık 2024 tarihine kadar geçerlidir.</p>
+                    <p className="text-sm text-gray-500 mt-2">Kampanya 31 Aralık 2025 tarihine kadar geçerlidir.</p>
                   </div>
-                  <div className="bg-white p-4 rounded-lg mb-6">
-                    <h3 className="font-semibold text-lg mb-2">Kampanya Kodu:</h3>
-                    <div className="flex items-center">
-                      <code className="bg-gray-100 px-4 py-2 rounded-md text-lg font-mono">
-  KAHVE5
-                      </code>
-                      <button 
-                        className="ml-4 bg-nocca-light-green text-white px-4 py-2 rounded-md hover:bg-nocca-green transition-colors"
-                        onClick={handleCopyCode}
-                      >
-                        {isCopied ? 'Kopyalandı!' : 'Kopyala'}
-                      </button>
-                    </div>
-                  </div>
-                  <button className="bg-nocca-light-green text-white px-6 py-3 rounded-full font-semibold hover:bg-nocca-green transition-colors">
-                    Kampanyayı Gör
-                  </button>
+                  <Link href="/menu" className="inline-block bg-nocca-light-green text-white px-8 py-3 rounded-full font-semibold hover:bg-nocca-green transition-colors text-center">
+                    Hemen Sipariş Ver
+                  </Link>
                 </div>
                 <div className="md:w-1/2 bg-[#d4e9e2] p-8">
                   <div className="relative w-full h-64 md:h-full">
                     {slides.map((slide, index) => (
                       <div
                         key={index}
-                        className={`absolute inset-0 transition-opacity duration-1000 ${
-                          index === currentSlide ? 'opacity-100' : 'opacity-0'
-                        }`}
+                        className={`absolute inset-0 transition-opacity duration-1000 ${index === currentSlide ? 'opacity-100' : 'opacity-0'
+                          }`}
                       >
                         <Image
                           src={slide}
@@ -119,16 +96,15 @@ export default function RewardsPage() {
                         />
                       </div>
                     ))}
-                    
+
                     {/* Slayt İndikatörleri */}
                     <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
                       {slides.map((_, index) => (
                         <button
                           key={index}
                           onClick={() => goToSlide(index)}
-                          className={`w-3 h-3 rounded-full transition-colors duration-200 ${
-                            index === currentSlide ? 'bg-white' : 'bg-white/50'
-                          }`}
+                          className={`w-3 h-3 rounded-full transition-colors duration-200 ${index === currentSlide ? 'bg-white' : 'bg-white/50'
+                            }`}
                           aria-label={`Slayt ${index + 1}'e git`}
                         />
                       ))}
