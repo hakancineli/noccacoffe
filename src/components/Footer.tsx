@@ -8,6 +8,7 @@ const Footer = () => {
     {
       title: 'Hakkımızda',
       links: [
+        { name: 'İşletmeler İçin', href: '/solutions' },
         { name: 'Şirketimiz', href: '/about' },
         { name: 'Kurumsal Satış', href: '/corporate' },
         { name: 'Sıkça Sorulan Sorular', href: '/faq' },
