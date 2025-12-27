@@ -115,7 +115,6 @@ const Navbar = () => {
 
   const menuItems = [
     { name: 'MENÜ', href: '/menu' },
-    { name: 'İŞLETMELER İÇİN', href: '/solutions' },
     { name: 'KAHVE', href: '/coffee' },
     { name: 'NOCCA REWARDS', href: '/rewards' },
   ];
