@@ -141,7 +141,7 @@ export default function ProductsManagement() {
           price: formData.get('price'),
           imageUrl: formData.get('imageUrl'),
           stock: formData.get('stock'),
-          isActive: formData.get('isActive') === 'true',
+          isActive: formData.get('isActive') !== null,
         }),
       });
 

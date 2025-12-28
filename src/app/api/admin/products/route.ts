@@ -108,7 +108,7 @@ export async function GET(request: NextRequest) {
 
       return {
         ...p,
-        soldCount: p.soldCount, // Use persisted DB value (reset works)
+        soldCount: realTotalSold, // Use dynamic total from OrderItems for accuracy
         salesBySize: salesBreakdown,
         isAvailable, // New flag for POS
         hasRecipe: p.recipes && p.recipes.length > 0 // Flag for recipe status
