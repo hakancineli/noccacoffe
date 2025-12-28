@@ -285,12 +285,31 @@ export async function POST(request: Request) {
                     });
                 }
 
-                // Automatic Cup Deduction
-                const sizeToCupMap: Record<string, string> = {
-                    'Small': 'Küçük Bardak (8oz)', 'Medium': 'Orta Bardak (12oz)', 'Large': 'Büyük Bardak (16oz)',
-                    'S': 'Küçük Bardak (8oz)', 'M': 'Orta Bardak (12oz)', 'L': 'Büyük Bardak (16oz)'
-                };
-                const cupName = sizeToCupMap[item.size || 'Medium'];
+                // Automatic Cup Deduction (Smart Logic)
+                const productInDb = existingProducts.find(p => p.id === productIdStr);
+                if (!productInDb) continue;
+
+                const COLD_CATEGORIES = ['Soğuk Kahveler', 'Soğuk İçecekler', 'Frappeler', 'Bubble Tea', 'Milkshake'];
+                const isCold = COLD_CATEGORIES.includes(productInDb.category) ||
+                    productInDb.name.toLowerCase().includes('iced') ||
+                    productInDb.name.toLowerCase().includes('buzlu') ||
+                    productInDb.name.toLowerCase().includes('cold');
+
+                let cupName = '';
+                const size = item.size || 'Medium';
+
+                if (isCold) {
+                    // Transparent Cups for Cold Drinks
+                    if (['Small', 'S'].includes(size)) cupName = 'Bardak: Şeffaf Small';
+                    else if (['Medium', 'M'].includes(size)) cupName = 'Bardak: Şeffaf Medium';
+                    else if (['Large', 'L'].includes(size)) cupName = 'Bardak: Şeffaf Large';
+                } else {
+                    // Paper Cups for Hot Drinks (Fixed 14oz name)
+                    if (['Small', 'S'].includes(size)) cupName = 'Küçük Bardak (8oz)';
+                    else if (['Medium', 'M'].includes(size)) cupName = 'Orta Bardak (14oz)';
+                    else if (['Large', 'L'].includes(size)) cupName = 'Büyük Bardak (16oz)';
+                }
+
                 if (cupName) {
                     const cupIngredient = await prisma.ingredient.findFirst({ where: { name: cupName } });
                     if (cupIngredient) {
