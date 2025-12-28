@@ -875,6 +875,82 @@ function ProductModal({
   );
 }
 
+// Searchable Select Component
+function SearchableSelect({
+  value,
+  onChange,
+  options,
+  placeholder = "Seçiniz..."
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  options: Ingredient[];
+  placeholder?: string;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [search, setSearch] = useState('');
+  const [localOptions, setLocalOptions] = useState(options);
+
+  useEffect(() => {
+    setLocalOptions(
+      options.filter(opt =>
+        opt.name.toLowerCase().includes(search.toLowerCase())
+      )
+    );
+  }, [search, options]);
+
+  const selectedOption = options.find(o => o.id === value);
+
+  return (
+    <div className="relative flex-1">
+      <div
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white cursor-pointer flex justify-between items-center min-h-[38px] hover:border-gray-400 focus:ring-2 focus:ring-green-500"
+      >
+        <span className={selectedOption ? 'text-gray-900' : 'text-gray-400'}>
+          {selectedOption ? selectedOption.name : placeholder}
+        </span>
+        <span className="text-gray-400 text-xs">▼</span>
+      </div>
+
+      {isOpen && (
+        <>
+          <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)}></div>
+          <div className="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl max-h-60 overflow-auto">
+            <div className="p-2 sticky top-0 bg-white border-b border-gray-100">
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Ara..."
+                className="w-full px-2 py-1.5 border border-gray-200 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                autoFocus
+              />
+            </div>
+            {localOptions.length > 0 ? (
+              localOptions.map(opt => (
+                <div
+                  key={opt.id}
+                  onClick={() => {
+                    onChange(opt.id);
+                    setIsOpen(false);
+                    setSearch('');
+                  }}
+                  className={`px-3 py-2 text-sm cursor-pointer hover:bg-green-50 ${opt.id === value ? 'bg-green-100 text-green-700' : 'text-gray-700'}`}
+                >
+                  {opt.name}
+                </div>
+              ))
+            ) : (
+              <div className="px-3 py-2 text-sm text-gray-500 text-center">Sonuç bulunamadı</div>
+            )}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 // Recipe Modal Component
 function RecipeModal({
   isOpen,
@@ -958,18 +1034,14 @@ function RecipeModal({
               </button>
             </div>
 
-            <div className="space-y-3 max-h-64 overflow-y-auto">
+            <div className="space-y-3">
               {recipeFormData.items.map((item: any, index: number) => (
                 <div key={index} className="flex gap-3 items-center bg-gray-50 p-3 rounded-lg">
-                  <select
+                  <SearchableSelect
                     value={item.ingredientId}
-                    onChange={(e) => updateRecipeItem(index, 'ingredientId', e.target.value)}
-                    className="flex-1 px-3 py-2 border rounded-lg text-sm"
-                  >
-                    {ingredients.map(ing => (
-                      <option key={ing.id} value={ing.id}>{ing.name}</option>
-                    ))}
-                  </select>
+                    onChange={(val) => updateRecipeItem(index, 'ingredientId', val)}
+                    options={ingredients}
+                  />
                   <input
                     type="number"
                     step="0.01"
