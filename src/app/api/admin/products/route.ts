@@ -32,6 +32,14 @@ export async function GET(request: NextRequest) {
       where.isActive = false;
     }
 
+    // Recipe status filtering
+    const hasRecipe = searchParams.get('hasRecipe');
+    if (hasRecipe === 'true') {
+      where.recipes = { some: {} };
+    } else if (hasRecipe === 'false') {
+      where.recipes = { none: {} };
+    }
+
     // Get products with pagination
     const [products, total] = await Promise.all([
       (prisma as any).product.findMany({

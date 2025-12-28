@@ -59,12 +59,13 @@ export default function ProductsManagement() {
     category: 'all',
     search: '',
     active: 'true',
+    hasRecipe: 'all',
   });
 
   // Reset page when filters change
   useEffect(() => {
     setPagination(prev => ({ ...prev, page: 1 }));
-  }, [filter.category, filter.search, filter.active]);
+  }, [filter.category, filter.search, filter.active, filter.hasRecipe]);
 
   const [pagination, setPagination] = useState({
     page: 1,
@@ -77,7 +78,7 @@ export default function ProductsManagement() {
 
   useEffect(() => {
     fetchProducts();
-  }, [filter.category, filter.search, filter.active, pagination.page, pagination.limit]);
+  }, [filter.category, filter.search, filter.active, filter.hasRecipe, pagination.page, pagination.limit]);
 
   const fetchProducts = async () => {
     try {
@@ -88,6 +89,7 @@ export default function ProductsManagement() {
         ...(filter.category !== 'all' && { category: filter.category }),
         ...(filter.search && { search: filter.search }),
         ...(filter.active !== undefined && { active: filter.active }),
+        ...(filter.hasRecipe !== 'all' && { hasRecipe: filter.hasRecipe === 'yes' ? 'true' : 'false' }),
       });
 
       const response = await fetch(`/api/admin/products?${params}`);
@@ -394,6 +396,21 @@ export default function ProductsManagement() {
                 <option value="true">Aktif</option>
                 <option value="false">Pasif</option>
                 <option value="">Tümü</option>
+              </select>
+            </div>
+            <div className="sm:w-48">
+              <label htmlFor="recipe-status-filter" className="block text-sm font-medium text-gray-700 mb-1">
+                Reçete Durumu
+              </label>
+              <select
+                id="recipe-status-filter"
+                value={filter.hasRecipe}
+                onChange={(e) => setFilter(prev => ({ ...prev, hasRecipe: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              >
+                <option value="all">Tümü</option>
+                <option value="yes">Reçeteli</option>
+                <option value="no">Reçetesiz</option>
               </select>
             </div>
             <div className="sm:w-32">
@@ -1004,8 +1021,35 @@ function RecipeModal({
               Kaydet
             </button>
           </div>
+
+          {currentProductRecipes.length > 0 && (
+            <div className="mt-8 pt-6 border-t border-gray-200">
+              <h3 className="font-bold text-gray-900 mb-4">Mevcut Reçeteler (Özet)</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-60 overflow-y-auto">
+                {currentProductRecipes.map((recipe, rIndex) => (
+                  <div key={rIndex} className="bg-gray-50 p-4 rounded-lg border border-gray-200 text-sm">
+                    <div className="font-bold text-green-700 mb-2 border-b border-gray-200 pb-1">
+                      {recipe.size ? `${recipe.size} Boy` : 'Standart Boy'}
+                    </div>
+                    <ul className="space-y-1">
+                      {recipe.items.map((item, iIndex) => {
+                        const ingName = ingredients.find(ing => ing.id === item.ingredientId)?.name || 'Bilinmeyen Hammadde';
+                        const ingUnit = ingredients.find(ing => ing.id === item.ingredientId)?.unit || '';
+                        return (
+                          <li key={iIndex} className="flex justify-between text-gray-600">
+                            <span>{ingName}</span>
+                            <span className="font-medium">{item.quantity} {ingUnit}</span>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
-    </div>
+    </div >
   );
 }
