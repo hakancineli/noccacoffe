@@ -995,7 +995,8 @@ function RecipeModal({
   updateRecipeItem,
   removeRecipeItem,
   calculateRecipeCost,
-  saveRecipe
+  saveRecipe,
+  deleteRecipe
 }: {
   isOpen: boolean;
   onClose: () => void;
