@@ -115,7 +115,7 @@ model Order {
   isDeleted      Boolean        @default(false) @map("is_deleted")
   orderItems     OrderItem[]
   user           User?          @relation(fields: [userId], references: [id])
-  payment        Payment?
+  payments       Payment[]
 
   @@map("orders")
 }
@@ -233,7 +233,7 @@ model RecipeItem {
 
 model Payment {
   id            String        @id @default(cuid())
-  orderId       String        @unique @map("order_id")
+  orderId       String        @map("order_id")
   amount        Float
   method        PaymentMethod
   status        PaymentStatus @default(PENDING)

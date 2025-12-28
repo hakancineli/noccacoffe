@@ -44,7 +44,13 @@ export default function POSPage() {
     const [productSearch, setProductSearch] = useState('');
     const [discountRate, setDiscountRate] = useState(0);
     const [showDiscountInput, setShowDiscountInput] = useState(false);
+
     const [dbProducts, setDbProducts] = useState<any[]>([]);
+
+    // Split Bill State
+    const [showSplitModal, setShowSplitModal] = useState(false);
+    const [splitCash, setSplitCash] = useState(0);
+    const [splitCard, setSplitCard] = useState(0);
 
     // Fetch DB products for stock check
     useEffect(() => {
@@ -202,7 +208,7 @@ export default function POSPage() {
     }, [lastOrder]);
 
     // Order Creation Logic
-    const handleCreateOrder = async (paymentMethod: 'CASH' | 'CREDIT_CARD') => {
+    const handleCreateOrder = async (paymentMethod: 'CASH' | 'CREDIT_CARD' | 'SPLIT', customPayments?: any[]) => {
         if (cart.length === 0) return;
 
         setProcessingPayment(true);
@@ -214,7 +220,6 @@ export default function POSPage() {
                     quantity: item.quantity,
                     unitPrice: item.price,
                     totalPrice: item.price * item.quantity,
-
                     size: item.size,
                     isPorcelain: item.isPorcelain
                 })),
@@ -222,7 +227,9 @@ export default function POSPage() {
                 finalAmount: finalTotal,
                 discountAmount: discountAmount,
                 status: 'PENDING',
-                paymentMethod,
+                // For Split, we just say 'SPLIT' or 'CASH/CARD' generally, but backend relies on 'payments' array
+                paymentMethod: paymentMethod === 'SPLIT' ? 'CASH' : paymentMethod,
+                payments: customPayments, // <--- NEW: Pass split payments
                 userId: selectedCustomer?.id || null,
                 customerName: selectedCustomer ? `${selectedCustomer.firstName} ${selectedCustomer.lastName}` : 'Misafir',
                 customerPhone: selectedCustomer?.phone || '',
@@ -273,6 +280,119 @@ export default function POSPage() {
         <>
             {/* Screen UI - Hidden when printing */}
             <div className="flex h-screen bg-gray-100 overflow-hidden relative print:hidden">
+                {/* Split Bill Modal */}
+                {showSplitModal && (
+                    <div className="absolute inset-0 bg-black/50 z-50 flex items-center justify-center backdrop-blur-sm animate-fade-in">
+                        <div className="bg-white p-6 rounded-2xl shadow-2xl max-w-md w-full relative">
+                            <button
+                                onClick={() => setShowSplitModal(false)}
+                                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+                            >
+                                <FaTimes size={24} />
+                            </button>
+
+                            <h3 className="text-xl font-bold text-gray-800 mb-2">Hesap Böl (Parçalı Ödeme)</h3>
+                            <p className="text-gray-500 mb-6 text-sm">Toplam Tutar: <span className="font-bold text-gray-900 text-lg">₺{finalTotal.toFixed(2)}</span></p>
+
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Nakit Tutar</label>
+                                    <div className="relative">
+                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <span className="text-gray-500">₺</span>
+                                        </div>
+                                        <input
+                                            type="number"
+                                            value={splitCash}
+                                            onChange={(e) => {
+                                                const val = parseFloat(e.target.value) || 0;
+                                                setSplitCash(val);
+                                                // Auto-calculate remaining for card if possible, but let user type freely for now or implement smart fill
+                                            }}
+                                            className="pl-8 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-lg border p-2"
+                                            placeholder="0.00"
+                                        />
+                                        <button
+                                            onClick={() => {
+                                                const remain = Math.max(0, finalTotal - splitCard);
+                                                setSplitCash(Number(remain.toFixed(2)));
+                                            }}
+                                            className="absolute right-2 top-2 text-xs bg-gray-100 px-2 py-1 rounded hover:bg-gray-200"
+                                        >
+                                            Kalanı Ekle
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Kredi Kartı Tutar</label>
+                                    <div className="relative">
+                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <span className="text-gray-500">₺</span>
+                                        </div>
+                                        <input
+                                            type="number"
+                                            value={splitCard}
+                                            onChange={(e) => {
+                                                const val = parseFloat(e.target.value) || 0;
+                                                setSplitCard(val);
+                                            }}
+                                            className="pl-8 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-lg border p-2"
+                                            placeholder="0.00"
+                                        />
+                                        <button
+                                            onClick={() => {
+                                                const remain = Math.max(0, finalTotal - splitCash);
+                                                setSplitCard(Number(remain.toFixed(2)));
+                                            }}
+                                            className="absolute right-2 top-2 text-xs bg-gray-100 px-2 py-1 rounded hover:bg-gray-200"
+                                        >
+                                            Kalanı Ekle
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="pt-4 border-t border-gray-100">
+                                    <div className="flex justify-between items-center mb-2">
+                                        <span className="text-sm text-gray-600">Girilen Toplam:</span>
+                                        <span className={`font-bold ${(splitCash + splitCard).toFixed(2) === finalTotal.toFixed(2) ? 'text-green-600' : 'text-red-500'}`}>
+                                            ₺{(splitCash + splitCard).toFixed(2)}
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between items-center mb-4">
+                                        <span className="text-sm text-gray-600">Kalan:</span>
+                                        <span className="font-bold text-gray-800">
+                                            ₺{Math.max(0, finalTotal - (splitCash + splitCard)).toFixed(2)}
+                                        </span>
+                                    </div>
+
+                                    <button
+                                        onClick={() => {
+                                            const totalEntered = splitCash + splitCard;
+                                            if (Math.abs(totalEntered - finalTotal) > 0.01) {
+                                                alert(`Girilen tutar (${totalEntered.toFixed(2)}) toplam tutara (${finalTotal.toFixed(2)}) eşit değil!`);
+                                                return;
+                                            }
+
+                                            // Construct payments array
+                                            const payments = [];
+                                            if (splitCash > 0) payments.push({ method: 'CASH', amount: splitCash });
+                                            if (splitCard > 0) payments.push({ method: 'CREDIT_CARD', amount: splitCard });
+
+                                            setShowSplitModal(false);
+                                            handleCreateOrder('SPLIT', payments);
+                                        }}
+                                        disabled={Math.abs((splitCash + splitCard) - finalTotal) > 0.01}
+                                        className="w-full bg-purple-600 text-white py-3 rounded-xl font-bold hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        ÖDEMEYİ TAMAMLA
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* Size Selection Modal */}
                 {selectedProductForSize && (
                     <div className="absolute inset-0 bg-black/50 z-50 flex items-center justify-center backdrop-blur-sm animate-fade-in">
@@ -562,6 +682,17 @@ export default function POSPage() {
                             >
                                 <FaCreditCard className="w-6 h-6 mb-1" />
                                 <span className="font-bold">KREDİ KARTI</span>
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setSplitCash(0);
+                                    setSplitCard(0);
+                                    setShowSplitModal(true);
+                                }}
+                                disabled={cart.length === 0 || processingPayment}
+                                className="col-span-2 flex items-center justify-center py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg mt-2"
+                            >
+                                <span className="font-bold text-lg">⚖️ HESAP BÖL (Parçalı Ödeme)</span>
                             </button>
                         </div>
                     </div>

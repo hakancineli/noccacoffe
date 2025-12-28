@@ -26,7 +26,7 @@ export async function GET(
             phone: true,
           },
         },
-        payment: true,
+        payments: true,
       },
     });
 
@@ -69,7 +69,7 @@ export async function PUT(
     // Get current order state for logging
     const currentOrder = await prisma.order.findUnique({
       where: { id: params.id },
-      include: { payment: true }
+      include: { payments: true }
     });
 
     if (!currentOrder) {
@@ -93,7 +93,7 @@ export async function PUT(
             lastName: true,
           },
         },
-        payment: true,
+        payments: true,
       },
     });
 
@@ -112,13 +112,13 @@ export async function PUT(
 
     // Handle Payment Status Sync
     if (status === 'COMPLETED') {
-      const existingPayment = await prisma.payment.findUnique({
+      const existingPayments = await prisma.payment.findMany({
         where: { orderId: params.id }
       });
 
-      if (existingPayment) {
-        await prisma.payment.update({
-          where: { id: existingPayment.id },
+      if (existingPayments.length > 0) {
+        await prisma.payment.updateMany({
+          where: { orderId: params.id },
           data: { status: 'COMPLETED' }
         });
       } else {

@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
               lastName: true,
             },
           },
-          payment: true,
+          payments: true,
         },
         orderBy: { createdAt: 'desc' },
         skip,
@@ -168,7 +168,7 @@ export async function POST(request: NextRequest) {
         status: body.status || 'PENDING', // Allow status override (e.g. for POS)
         // If payment method is provided in admin panel, assume payment is collected (COMPLETED)
         paymentStatus: (body.status === 'COMPLETED' || paymentMethod) ? 'COMPLETED' : 'PENDING',
-        payment: {
+        payments: {
           create: {
             amount: body.finalAmount || totalAmount, // Use final (discounted) amount
             method: paymentMethod || 'CASH',

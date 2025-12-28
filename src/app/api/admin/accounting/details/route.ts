@@ -32,9 +32,10 @@ export async function GET(request: NextRequest) {
                 orderNumber: true,
                 finalAmount: true,
                 createdAt: true,
-                payment: {
+                payments: {
                     select: {
-                        method: true
+                        method: true,
+                        amount: true
                     }
                 },
                 customerName: true

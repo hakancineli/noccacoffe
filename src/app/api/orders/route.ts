@@ -184,12 +184,18 @@ export async function POST(request: Request) {
                 status: orderStatus,
                 paymentMethod: method,
                 paymentStatus: paymentStatus,
-                payment: {
-                    create: {
-                        amount: body.finalAmount || totalAmount,
-                        method: method,
-                        status: paymentStatus,
-                    }
+                payments: {
+                    create: body.payments && body.payments.length > 0
+                        ? body.payments.map((p: any) => ({
+                            amount: p.amount,
+                            method: p.method,
+                            status: paymentStatus
+                        }))
+                        : [{
+                            amount: body.finalAmount || totalAmount,
+                            method: method,
+                            status: paymentStatus
+                        }]
                 },
                 orderItems: {
                     create: items.map((item: any) => ({
@@ -289,8 +295,9 @@ export async function POST(request: Request) {
                 // Automatic Cup Deduction (Smart Logic)
                 const productInDb = existingProducts.find(p => p.id === productIdStr);
 
-                // Skip cup deduction if served in porcelain
-                if (!productInDb || item.isPorcelain) continue;
+                // Skip cup deduction if served in porcelain OR if it is Turkish Coffee (traditionally served in porcelain)
+                const isTurkishCoffee = productInDb?.name.includes('Türk Kahvesi');
+                if (!productInDb || item.isPorcelain || isTurkishCoffee) continue;
 
                 const COLD_CATEGORIES = ['Soğuk Kahveler', 'Soğuk İçecekler', 'Frappeler', 'Bubble Tea', 'Milkshake'];
                 const isCold = COLD_CATEGORIES.includes(productInDb.category) ||

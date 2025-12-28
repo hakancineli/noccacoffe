@@ -52,7 +52,7 @@ interface DayDetails {
         orderNumber: string;
         finalAmount: number;
         createdAt: string;
-        payment: { method: string };
+        payments: { method: string }[];
         customerName: string | null;
     }[];
     expenses: {
@@ -859,7 +859,7 @@ export default function AccountingPage() {
                                                                 <div>
                                                                     <span className="font-bold text-gray-900 block">#{order.orderNumber.split('-').pop()}</span>
                                                                     <span className="text-xs text-gray-500">{new Date(order.createdAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</span>
-                                                                    <span className="text-xs text-gray-400 ml-2">• {order.payment?.method || 'Nakit'}</span>
+                                                                    <span className="text-xs text-gray-400 ml-2">• {order.payments?.map(p => p.method === 'CREDIT_CARD' ? 'Kart' : 'Nakit').join(' + ') || 'Nakit'}</span>
                                                                 </div>
                                                                 <div className="text-right">
                                                                     <span className="font-bold text-green-600 block">₺{order.finalAmount.toFixed(2)}</span>
