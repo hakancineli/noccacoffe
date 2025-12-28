@@ -138,7 +138,8 @@ export default function POSPage() {
                 name: product.name,
                 price,
                 quantity: 1,
-                size
+                size,
+                isPorcelain: product.name.includes('Cortado') // Default to porcelain for Cortado
             }];
         });
 
@@ -303,9 +304,9 @@ export default function POSPage() {
                                         </div>
                                         <input
                                             type="number"
-                                            value={splitCash}
+                                            value={splitCash === 0 ? '' : splitCash}
                                             onChange={(e) => {
-                                                const val = parseFloat(e.target.value) || 0;
+                                                const val = e.target.value === '' ? 0 : parseFloat(e.target.value);
                                                 setSplitCash(val);
                                                 // Auto-calculate remaining for card if possible, but let user type freely for now or implement smart fill
                                             }}
@@ -332,9 +333,9 @@ export default function POSPage() {
                                         </div>
                                         <input
                                             type="number"
-                                            value={splitCard}
+                                            value={splitCard === 0 ? '' : splitCard}
                                             onChange={(e) => {
-                                                const val = parseFloat(e.target.value) || 0;
+                                                const val = e.target.value === '' ? 0 : parseFloat(e.target.value);
                                                 setSplitCard(val);
                                             }}
                                             className="pl-8 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-lg border p-2"

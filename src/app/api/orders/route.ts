@@ -295,9 +295,9 @@ export async function POST(request: Request) {
                 // Automatic Cup Deduction (Smart Logic)
                 const productInDb = existingProducts.find(p => p.id === productIdStr);
 
-                // Skip cup deduction if served in porcelain OR if it is Turkish Coffee (traditionally served in porcelain)
-                const isTurkishCoffee = productInDb?.name.includes('Türk Kahvesi');
-                if (!productInDb || item.isPorcelain || isTurkishCoffee) continue;
+                // Skip cup deduction if served in porcelain OR if it is Turkish Coffee/Cortado (traditionally served in porcelain)
+                const isTraditionalPorcelain = productInDb?.name.includes('Türk Kahvesi') || productInDb?.name.includes('Cortado');
+                if (!productInDb || item.isPorcelain || isTraditionalPorcelain) continue;
 
                 const COLD_CATEGORIES = ['Soğuk Kahveler', 'Soğuk İçecekler', 'Frappeler', 'Bubble Tea', 'Milkshake'];
                 const isCold = COLD_CATEGORIES.includes(productInDb.category) ||
