@@ -12,6 +12,7 @@ interface CartItem {
     price: number;
     quantity: number;
     size?: string;
+    isPorcelain?: boolean;
 }
 
 interface Customer {
@@ -153,6 +154,12 @@ export default function POSPage() {
         }));
     };
 
+    const togglePorcelain = (cartItemId: string) => {
+        setCart(prev => prev.map(item =>
+            item.id === cartItemId ? { ...item, isPorcelain: !item.isPorcelain } : item
+        ));
+    };
+
     const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const discountAmount = cartTotal * (discountRate / 100);
     const finalTotal = cartTotal - discountAmount;
@@ -207,7 +214,9 @@ export default function POSPage() {
                     quantity: item.quantity,
                     unitPrice: item.price,
                     totalPrice: item.price * item.quantity,
-                    size: item.size
+
+                    size: item.size,
+                    isPorcelain: item.isPorcelain
                 })),
                 totalAmount: cartTotal,
                 finalAmount: finalTotal,
@@ -459,7 +468,15 @@ export default function POSPage() {
                                     <div key={item.id} className="flex justify-between items-center bg-white p-2 rounded border border-gray-100">
                                         <div className="flex-1">
                                             <p className="font-medium text-gray-800 text-sm">{item.name}</p>
-                                            {item.size && <span className="text-xs text-gray-500 bg-gray-100 px-1 rounded">{item.size}</span>}
+                                            {item.size && <span className="text-xs text-gray-500 bg-gray-100 px-1 rounded mr-2">{item.size}</span>}
+                                            <button
+                                                onClick={() => togglePorcelain(item.id)}
+                                                className={`text-xs px-2 py-0.5 rounded border transition-colors ${item.isPorcelain
+                                                    ? 'bg-amber-100 text-amber-800 border-amber-200 hover:bg-amber-200'
+                                                    : 'bg-gray-50 text-gray-400 border-gray-200 hover:bg-gray-100'}`}
+                                            >
+                                                {item.isPorcelain ? '☕ Fincan' : '🥡 Karton'}
+                                            </button>
                                         </div>
                                         <div className="flex items-center space-x-3">
                                             <div className="flex items-center bg-gray-100 rounded">

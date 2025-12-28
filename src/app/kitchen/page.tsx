@@ -19,6 +19,7 @@ interface OrderItem {
     productName: string;
     quantity: number;
     size?: string;
+    isPorcelain?: boolean;
     notes?: string;
 }
 
@@ -316,6 +317,11 @@ export default function KitchenPage() {
                                                         {item.size && (
                                                             <span className="inline-block mt-1 px-2 py-0.5 rounded text-xs font-bold bg-[#5D4037] text-[#D7CCC8] border border-[#795548]">
                                                                 {item.size}
+                                                            </span>
+                                                        )}
+                                                        {item.isPorcelain && (
+                                                            <span className="inline-block mt-1 px-2 py-0.5 rounded text-xs font-bold bg-[#EAD8C0] text-[#3E2723] border border-[#5C4033] ml-2 animate-pulse">
+                                                                ☕ FİNCAN
                                                             </span>
                                                         )}
                                                     </div>

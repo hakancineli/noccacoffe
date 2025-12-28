@@ -198,7 +198,8 @@ export async function POST(request: Request) {
                         size: item.size,
                         quantity: item.quantity,
                         unitPrice: item.unitPrice,
-                        totalPrice: item.totalPrice
+                        totalPrice: item.totalPrice,
+                        isPorcelain: item.isPorcelain || false
                     }))
                 }
             }
@@ -287,7 +288,9 @@ export async function POST(request: Request) {
 
                 // Automatic Cup Deduction (Smart Logic)
                 const productInDb = existingProducts.find(p => p.id === productIdStr);
-                if (!productInDb) continue;
+
+                // Skip cup deduction if served in porcelain
+                if (!productInDb || item.isPorcelain) continue;
 
                 const COLD_CATEGORIES = ['Soğuk Kahveler', 'Soğuk İçecekler', 'Frappeler', 'Bubble Tea', 'Milkshake'];
                 const isCold = COLD_CATEGORIES.includes(productInDb.category) ||
