@@ -49,6 +49,7 @@ export default function ProductsManagement() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isRecipeModalOpen, setIsRecipeModalOpen] = useState(false);
   const [selectedProductForRecipe, setSelectedProductForRecipe] = useState<Product | null>(null);
+  const [currentProductRecipes, setCurrentProductRecipes] = useState<Recipe[]>([]);
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [recipeFormData, setRecipeFormData] = useState<{
     size: string;
@@ -198,6 +199,8 @@ export default function ProductsManagement() {
       const res = await fetch(`/api/admin/recipes?productId=${product.id}`);
       if (res.ok) {
         const recipes = await res.json();
+        setCurrentProductRecipes(recipes);
+
         if (recipes.length > 0) {
           // Load first recipe (or you can let user select which size)
           const recipe = recipes[0];
@@ -214,6 +217,7 @@ export default function ProductsManagement() {
       }
     } catch (error) {
       console.error('Failed to fetch recipes:', error);
+      setCurrentProductRecipes([]);
     }
 
     setIsRecipeModalOpen(true);
@@ -641,6 +645,7 @@ export default function ProductsManagement() {
           setRecipeFormData({ size: '', items: [] });
         }}
         product={selectedProductForRecipe}
+        currentProductRecipes={currentProductRecipes}
         ingredients={ingredients}
         recipeFormData={recipeFormData}
         setRecipeFormData={setRecipeFormData}
@@ -858,6 +863,7 @@ function RecipeModal({
   isOpen,
   onClose,
   product,
+  currentProductRecipes,
   ingredients,
   recipeFormData,
   setRecipeFormData,
@@ -870,6 +876,7 @@ function RecipeModal({
   isOpen: boolean;
   onClose: () => void;
   product: any;
+  currentProductRecipes: Recipe[];
   ingredients: any[];
   recipeFormData: any;
   setRecipeFormData: any;
@@ -880,6 +887,25 @@ function RecipeModal({
   saveRecipe: () => void;
 }) {
   if (!isOpen || !product) return null;
+
+  const handleSizeChange = (newSize: string) => {
+    const existingRecipe = currentProductRecipes.find(r => (r.size || '') === newSize);
+
+    if (existingRecipe) {
+      setRecipeFormData({
+        size: newSize,
+        items: existingRecipe.items.map(item => ({
+          ingredientId: item.ingredientId,
+          quantity: item.quantity
+        }))
+      });
+    } else {
+      setRecipeFormData({
+        size: newSize,
+        items: [] // Clear items or keep them if you want to copy? User request implies expectation of specific data. Let's clear to avoid confusion.
+      });
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
@@ -893,7 +919,7 @@ function RecipeModal({
             <label className="block text-sm font-medium text-gray-700 mb-1">Boyut (Opsiyonel)</label>
             <select
               value={recipeFormData.size}
-              onChange={(e) => setRecipeFormData({ ...recipeFormData, size: e.target.value })}
+              onChange={(e) => handleSizeChange(e.target.value)}
               className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
             >
               <option value="">Standart / Tek Boyut</option>
