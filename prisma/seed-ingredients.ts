@@ -56,6 +56,11 @@ const ingredients = [
     { name: 'Çekirdek: Türk Kahvesi', unit: 'gr', category: 'COFFEE' },
     // Espresso already exists usually, but good to ensure
 
+    // BARDAKLAR (adet)
+    { name: 'Bardak: Şeffaf Small', unit: 'adet', category: 'SUPPLIES' },
+    { name: 'Bardak: Şeffaf Medium', unit: 'adet', category: 'SUPPLIES' },
+    { name: 'Bardak: Şeffaf Large', unit: 'adet', category: 'SUPPLIES' },
+
     // MEŞRUBATLAR (adet)
     { name: 'Meşrubat: Coca Cola', unit: 'adet', category: 'BEVERAGE' },
     { name: 'Meşrubat: Cola Turka', unit: 'adet', category: 'BEVERAGE' },
