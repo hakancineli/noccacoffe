@@ -519,7 +519,7 @@ export const allMenuItems: MenuItem[] = [
   // FRAPPELER (FRAPPUCCINOS)
   {
     id: 42,
-    name: 'Caramel Frappuccino',
+    name: 'Caramel Frappe',
     description: 'Karamelli buzlu kahve',
     category: 'Frappeler',
     sizes: [
@@ -531,7 +531,7 @@ export const allMenuItems: MenuItem[] = [
   },
   {
     id: 43,
-    name: 'Çikolata Frappuccino',
+    name: 'Çikolata Frappe',
     description: 'Çikolatalı buzlu kahve',
     category: 'Frappeler',
     sizes: [
@@ -543,7 +543,7 @@ export const allMenuItems: MenuItem[] = [
   },
   {
     id: 44,
-    name: 'Vanilla Frappuccino',
+    name: 'Vanilla Frappe',
     description: 'Vanilyalı buzlu kahve',
     category: 'Frappeler',
     sizes: [
@@ -555,7 +555,7 @@ export const allMenuItems: MenuItem[] = [
   },
   {
     id: 45,
-    name: 'Beyaz Çikolata Frappuccino',
+    name: 'Beyaz Çikolata Frappe',
     description: 'Beyaz çikolatalı buzlu kahve',
     category: 'Frappeler',
     sizes: [
