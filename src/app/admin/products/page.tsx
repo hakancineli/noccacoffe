@@ -252,6 +252,36 @@ export default function ProductsManagement() {
     }
   };
 
+  const deleteRecipe = async (recipeId: string) => {
+    if (!confirm('Bu reçeteyi silmek istediğinizden emin misiniz?')) return;
+
+    try {
+      const res = await fetch(`/api/admin/recipes?id=${recipeId}`, {
+        method: 'DELETE',
+      });
+
+      if (res.ok) {
+        // If we deleted the currently viewed recipe size
+        if (currentProductRecipes.find(r => r.id === recipeId)?.size === recipeFormData.size ||
+          (!currentProductRecipes.find(r => r.id === recipeId)?.size && !recipeFormData.size)) {
+          setRecipeFormData({ size: recipeFormData.size, items: [] });
+        }
+
+        // Refresh recipes list
+        if (selectedProductForRecipe) {
+          const resRecipes = await fetch(`/api/admin/recipes?productId=${selectedProductForRecipe.id}`);
+          if (resRecipes.ok) {
+            const recipes = await resRecipes.json();
+            setCurrentProductRecipes(recipes);
+          }
+        }
+        fetchProducts(); // Update product status in table
+      }
+    } catch (error) {
+      console.error('Failed to delete recipe:', error);
+    }
+  };
+
   const addIngredientToRecipe = () => {
     if (ingredients.length === 0) return;
     setRecipeFormData({
@@ -671,6 +701,7 @@ export default function ProductsManagement() {
         removeRecipeItem={removeRecipeItem}
         calculateRecipeCost={calculateRecipeCost}
         saveRecipe={saveRecipe}
+        deleteRecipe={deleteRecipe}
       />
     </div >
   );
@@ -978,6 +1009,7 @@ function RecipeModal({
   removeRecipeItem: (index: number) => void;
   calculateRecipeCost: () => number;
   saveRecipe: () => void;
+  deleteRecipe: (recipeId: string) => void;
 }) {
   if (!isOpen || !product) return null;
 
@@ -1003,9 +1035,18 @@ function RecipeModal({
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
       <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full p-6 my-8">
-        <h2 className="text-2xl font-bold mb-6">
-          {product.name} - Reçete Yönetimi
-        </h2>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold">
+            {product.name} - Reçete Yönetimi
+          </h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100"
+          >
+            ✕
+          </button>
+        </div>
 
         <div className="space-y-4">
           <div>
@@ -1094,14 +1135,42 @@ function RecipeModal({
             </button>
           </div>
 
+          {/* Delete Button for Current Selection */}
+          {(() => {
+            const currentRecipe = currentProductRecipes.find(r => (r.size || '') === recipeFormData.size);
+            if (currentRecipe) {
+              return (
+                <div className="mt-4 flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => deleteRecipe(currentRecipe.id)}
+                    className="text-red-600 hover:text-red-800 text-sm font-medium flex items-center gap-1"
+                  >
+                    🗑️ Bu Reçeteyi Sil
+                  </button>
+                </div>
+              );
+            }
+            return null;
+          })()}
+
           {currentProductRecipes.length > 0 && (
             <div className="mt-8 pt-6 border-t border-gray-200">
               <h3 className="font-bold text-gray-900 mb-4">Mevcut Reçeteler (Özet)</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-60 overflow-y-auto">
                 {currentProductRecipes.map((recipe, rIndex) => (
                   <div key={rIndex} className="bg-gray-50 p-4 rounded-lg border border-gray-200 text-sm">
-                    <div className="font-bold text-green-700 mb-2 border-b border-gray-200 pb-1">
-                      {recipe.size ? `${recipe.size} Boy` : 'Standart Boy'}
+                    <div className="flex justify-between items-center mb-2 border-b border-gray-200 pb-1">
+                      <div className="font-bold text-green-700">
+                        {recipe.size ? `${recipe.size} Boy` : 'Standart Boy'}
+                      </div>
+                      <button
+                        onClick={() => deleteRecipe(recipe.id)}
+                        className="text-red-500 hover:text-red-700 text-xs px-2 py-1 rounded hover:bg-red-50"
+                        title="Reçeteyi Sil"
+                      >
+                        Sil 🗑️
+                      </button>
                     </div>
                     <ul className="space-y-1">
                       {recipe.items.map((item, iIndex) => {
