@@ -16,6 +16,9 @@ const ingredients = [
     { name: 'Şurup: Muz', unit: 'ml', category: 'SYRUP' },
     { name: 'Şurup: Çilek', unit: 'ml', category: 'SYRUP' },
     { name: 'Şurup: Mınt (Nane)', unit: 'ml', category: 'SYRUP' },
+    { name: 'Şurup: Cookie', unit: 'ml', category: 'SYRUP' },
+    { name: 'Şurup: Hazelnut', unit: 'ml', category: 'SYRUP' },
+    { name: 'Şurup: Mint', unit: 'ml', category: 'SYRUP' },
 
     // SOSLAR (ml)
     { name: 'Sos: Karamel', unit: 'ml', category: 'SAUCE' },
@@ -97,4 +100,3 @@ main()
         await prisma.$disconnect();
     });
 
-export { };

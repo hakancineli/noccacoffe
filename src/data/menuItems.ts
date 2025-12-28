@@ -353,6 +353,18 @@ export const allMenuItems: MenuItem[] = [
     ],
     image: '/images/products/mocha.jpeg',
   },
+  {
+    id: 109,
+    name: 'Salep',
+    description: 'Tarçın ile servis edilen geleneksel sıcak salep',
+    category: 'Sıcak Kahveler',
+    sizes: [
+      { size: 'S', price: 150 },
+      { size: 'M', price: 170 },
+      { size: 'L', price: 190 }
+    ],
+    image: '/images/products/Salep Geleneksel salep tozu.jpeg',
+  },
 
   // SOĞUK İÇECEKLER (COLD DRINKS)
   {
