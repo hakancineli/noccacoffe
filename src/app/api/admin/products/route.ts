@@ -143,6 +143,8 @@ export async function POST(request: NextRequest) {
       price,
       imageUrl,
       stock,
+      isActive,
+      prices
     } = body;
 
     // Validate required fields
@@ -154,15 +156,16 @@ export async function POST(request: NextRequest) {
     }
 
     // Create product
-    const product = await prisma.product.create({
+    const product = await (prisma as any).product.create({
       data: {
         name,
         description,
         category,
         price: parseFloat(price),
         imageUrl,
-        stock: parseInt(stock) || 0,
-        isActive: true,
+        stock: parseInt(stock),
+        isActive: isActive,
+        prices: prices ? JSON.stringify(prices) : null
       },
     });
 

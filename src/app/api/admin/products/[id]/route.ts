@@ -1,3 +1,4 @@
+
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { createAuditLog } from '@/lib/audit';
@@ -42,6 +43,7 @@ export async function PUT(
       imageUrl,
       stock,
       isActive,
+      prices, // Added prices field
     } = body;
 
     const updateData: any = {};

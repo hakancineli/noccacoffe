@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { FaTrash } from 'react-icons/fa';
 
 interface Ingredient {
   id: string;
@@ -31,14 +32,15 @@ interface Product {
   description?: string;
   category: string;
   price: number;
-  imageUrl?: string;
+  imageUrl: string | null;
   stock: number;
   isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
   recipes?: Recipe[];
   soldCount: number;
   salesBySize?: { size: string; count: number }[];
+  prices?: any; // JSON field
 }
 
 export default function ProductsManagement() {
@@ -722,6 +724,41 @@ function ProductModal({
 }) {
   const [formDataImageUrl, setFormDataImageUrl] = useState<string>('');
 
+  // Size Pricing State
+  const [sizePrices, setSizePrices] = useState<{ size: string, price: number }[]>([]);
+
+  useEffect(() => {
+    if (product && product.prices) {
+      try {
+        const parsed = typeof product.prices === 'string' ? JSON.parse(product.prices) : product.prices;
+        if (Array.isArray(parsed)) {
+          setSizePrices(parsed);
+        }
+      } catch (e) {
+        console.error("Failed to parse prices", e);
+      }
+    } else {
+      setSizePrices([]);
+    }
+  }, [product]);
+
+  const addSize = () => {
+    setSizePrices([...sizePrices, { size: '', price: 0 }]);
+  };
+
+  const removeSize = (index: number) => {
+    const newSizes = [...sizePrices];
+    newSizes.splice(index, 1);
+    setSizePrices(newSizes);
+  };
+
+  const updateSize = (index: number, field: 'size' | 'price', value: string | number) => {
+    const newSizes = [...sizePrices];
+    if (field === 'size') newSizes[index].size = value as string;
+    if (field === 'price') newSizes[index].price = Number(value);
+    setSizePrices(newSizes);
+  };
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -744,6 +781,12 @@ function ProductModal({
     if (formDataImageUrl) {
       formData.set('imageUrl', formDataImageUrl);
     }
+
+    // Append prices as JSON string
+    if (sizePrices.length > 0) {
+      formData.append('prices', JSON.stringify(sizePrices));
+    }
+
     onSubmit(formData);
   };
 
@@ -827,6 +870,52 @@ function ProductModal({
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
                 />
               </div>
+            </div>
+
+            {/* Size Pricing Section */}
+            <div className="border-t pt-4 mt-4">
+              <div className="flex justify-between items-center mb-2">
+                <label className="block text-sm font-medium text-gray-700">Fiyat Varyasyonları (Boyut)</label>
+                <button type="button" onClick={addSize} className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded hover:bg-green-200">
+                  + Boyut Ekle
+                </button>
+              </div>
+
+              {sizePrices.length === 0 ? (
+                <p className="text-xs text-gray-500 italic mb-4">Standart tek fiyat için yukarıdaki Fiyat alanını kullanın.</p>
+              ) : (
+                <div className="space-y-2 mb-4">
+                  {sizePrices.map((sp, idx) => (
+                    <div key={idx} className="flex gap-2 items-center">
+                      <select
+                        value={sp.size}
+                        onChange={(e) => updateSize(idx, 'size', e.target.value)}
+                        className="block w-1/3 px-2 py-1 border border-gray-300 rounded-md text-sm"
+                        required
+                      >
+                        <option value="" disabled>Boyut Seç</option>
+                        <option value="S">Küçük (S)</option>
+                        <option value="M">Orta (M)</option>
+                        <option value="L">Büyük (L)</option>
+                        <option value="Tek">Tek Boy</option>
+                      </select>
+                      <input
+                        type="number"
+                        value={sp.price}
+                        onChange={(e) => updateSize(idx, 'price', e.target.value)}
+                        placeholder="Fiyat"
+                        className="block w-1/3 px-2 py-1 border border-gray-300 rounded-md text-sm"
+                        min="0"
+                        step="0.01"
+                        required
+                      />
+                      <button type="button" onClick={() => removeSize(idx)} className="text-red-500 hover:text-red-700">
+                        <FaTrash />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div>
