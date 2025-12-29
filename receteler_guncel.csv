@@ -1,0 +1,324 @@
+Ürün Adı;Boyut;Hammadde;Miktar;Birim;Maliyet(Birim Başı)
+Air Lime Fresh;;;;;
+Americano;Small;Espresso Çekirdeği;18;g;0.6
+Americano;Medium;Espresso Çekirdeği;18;g;0.6
+Americano;Large;Espresso Çekirdeği;27;g;0.6
+Americano;;;;;
+Antep Fıstığı Püresi;;;;;
+Badem Sütü;;;;;
+Badem Sütü;;;;;
+Banana Milkshake;Small;Toz: Muz;40;gr;0
+Banana Milkshake;Small;Süt: Normal (Tam Yağlı);170;ml;0.04
+Banana Milkshake;Medium;Toz: Muz;50;gr;0
+Banana Milkshake;Medium;Süt: Normal (Tam Yağlı);200;ml;0.04
+Banana Milkshake;Large;Toz: Muz;60;gr;0
+Banana Milkshake;Large;Antep Fıstığı Püresi;230;ml;32
+Beyaz Çikolata Frappe;Small;Espresso Çekirdeği;9;g;0.6
+Beyaz Çikolata Frappe;Small;Süt: Normal (Tam Yağlı);100;ml;0.04
+Beyaz Çikolata Frappe;Small;Sos: Beyaz Çikolata;10;ml;0
+Beyaz Çikolata Frappe;Small;Şurup: Beyaz Çikolata;20;ml;0
+Beyaz Çikolata Frappe;Small;Toz: Frappe;5;gr;0
+Beyaz Çikolata Frappe;Medium;Espresso Çekirdeği;18;g;0.6
+Beyaz Çikolata Frappe;Medium;Süt: Normal (Tam Yağlı);150;ml;0.04
+Beyaz Çikolata Frappe;Medium;Şurup: Beyaz Çikolata;30;ml;0
+Beyaz Çikolata Frappe;Medium;Sos: Beyaz Çikolata;15;ml;0
+Beyaz Çikolata Frappe;Medium;Toz: Frappe;5;gr;0
+Beyaz Çikolata Frappe;Large;Espresso Çekirdeği;18;g;0.6
+Beyaz Çikolata Frappe;Large;Süt: Normal (Tam Yağlı);180;ml;0.04
+Beyaz Çikolata Frappe;Large;Şurup: Beyaz Çikolata;40;ml;0
+Beyaz Çikolata Frappe;Large;Sos: Beyaz Çikolata;20;ml;0
+Beyaz Çikolata Frappe;Large;Toz: Frappe;5;gr;0
+Beyaz Çikolata Sos;;;;;
+Beyaz Çikolata Şurubu;;;;;
+Biscoff Püresi;;;;;
+Blueorange Fresh;;;;;
+Buzlu Bardak;Large;Büyük Bardak (16oz);1;adet;3
+Buzlu Bardak;;;;;
+Cappuccino;Small;Espresso Çekirdeği;9;g;0.6
+Cappuccino;Small;Süt: Normal (Tam Yağlı);180;ml;0.04
+Cappuccino;Medium;Espresso Çekirdeği;18;g;0.6
+Cappuccino;Medium;Süt: Normal (Tam Yağlı);315;ml;0.04
+Cappuccino;Large;Espresso Çekirdeği;27;g;0.6
+Cappuccino;Large;Süt: Normal (Tam Yağlı);365;ml;0.04
+Caramel Frappe;Small;Espresso Çekirdeği;9;g;0.6
+Caramel Frappe;Small;Süt: Normal (Tam Yağlı);100;ml;0.04
+Caramel Frappe;Small;Şurup: Karamel;20;ml;0
+Caramel Frappe;Small;Sos: Salted Karamel;10;ml;0
+Caramel Frappe;Small;Toz: Frappe;5;gr;0
+Caramel Frappe;Medium;Espresso Çekirdeği;18;g;0.6
+Caramel Frappe;Medium;Süt: Normal (Tam Yağlı);150;ml;0.04
+Caramel Frappe;Medium;Şurup: Karamel;30;ml;0
+Caramel Frappe;Medium;Sos: Salted Karamel;15;ml;0
+Caramel Frappe;Medium;Toz: Frappe;5;gr;0
+Caramel Frappe;Large;Espresso Çekirdeği;18;g;0.6
+Caramel Frappe;Large;Süt: Normal (Tam Yağlı);180;ml;0.04
+Caramel Frappe;Large;Şurup: Karamel;40;ml;0
+Caramel Frappe;Large;Sos: Salted Karamel;20;ml;0
+Caramel Frappe;Large;Toz: Frappe;5;gr;0
+Caramel Latte;Small;Espresso Çekirdeği;9;g;0.6
+Caramel Latte;Small;Şurup: Karamel;5;ml;0
+Caramel Latte;Small;Süt: Normal (Tam Yağlı);180;ml;0.04
+Caramel Latte;Medium;Espresso Çekirdeği;18;g;0.6
+Caramel Latte;Medium;Şurup: Karamel;10;ml;0
+Caramel Latte;Medium;Süt: Normal (Tam Yağlı);300;ml;0.04
+Caramel Latte;Large;Espresso Çekirdeği;18;g;0.6
+Caramel Latte;Large;Şurup: Karamel;15;ml;0
+Caramel Latte;Large;Süt: Normal (Tam Yağlı);315;ml;0.04
+Caramel Macchiato;Small;Espresso Çekirdeği;9;g;0.6
+Caramel Macchiato;Small;Şurup: Vanilya;10;ml;0
+Caramel Macchiato;Small;Şurup: Karamel;5;ml;0
+Caramel Macchiato;Small;Sos: Salted Karamel;5;ml;0
+Caramel Macchiato;Small;Süt: Normal (Tam Yağlı);180;ml;0.04
+Caramel Macchiato;Medium;Espresso Çekirdeği;18;g;0.6
+Caramel Macchiato;Medium;Şurup: Vanilya;15;ml;0
+Caramel Macchiato;Medium;Şurup: Karamel;10;ml;0
+Caramel Macchiato;Medium;Sos: Salted Karamel;5;ml;0
+Caramel Macchiato;Medium;Süt: Normal (Tam Yağlı);300;ml;0.04
+Caramel Macchiato;Large;Espresso Çekirdeği;18;g;0.6
+Caramel Macchiato;Large;Şurup: Vanilya;20;ml;0
+Caramel Macchiato;Large;Şurup: Karamel;15;ml;0
+Caramel Macchiato;Large;Sos: Salted Karamel;5;ml;0
+Caramel Macchiato;Large;Süt: Normal (Tam Yağlı);315;ml;0.04
+Chai Tea Coffee;Standart;Espresso Çekirdeği;9;g;0.6
+Chai Tea Coffee;Standart;Süt: Normal (Tam Yağlı);270;ml;0.04
+Chai Tea Coffee;Standart;Orta Bardak (14oz);1;adet;2.5
+Chai Tea Latte;Small;Şurup: CHAI;30;ml;0
+Chai Tea Latte;Small;Süt: Normal (Tam Yağlı);180;ml;0.04
+Chai Tea Latte;Medium;Şurup: CHAI;40;ml;0
+Chai Tea Latte;Medium;Süt: Normal (Tam Yağlı);300;ml;0.04
+Chai Tea Latte;Large;Şurup: CHAI;50;ml;0
+Chai Tea Latte;Large;Süt: Normal (Tam Yağlı);365;ml;0.04
+Chai Şurubu;;;;;
+Chocolate Cookie Latte;Small;Espresso Çekirdeği;9;g;0.6
+Chocolate Cookie Latte;Small;Şurup: Çikolata;5;ml;0
+Chocolate Cookie Latte;Small;Şurup: Cookie;5;ml;0
+Chocolate Cookie Latte;Small;Süt: Normal (Tam Yağlı);180;ml;0.04
+Chocolate Cookie Latte;Medium;Espresso Çekirdeği;18;g;0.6
+Chocolate Cookie Latte;Medium;Şurup: Çikolata;10;ml;0
+Chocolate Cookie Latte;Medium;Şurup: Cookie;10;ml;0
+Chocolate Cookie Latte;Medium;Süt: Normal (Tam Yağlı);300;ml;0.04
+Chocolate Cookie Latte;Large;Espresso Çekirdeği;18;g;0.6
+Chocolate Cookie Latte;Large;Sos: Çikolata;15;ml;0
+Chocolate Cookie Latte;Large;Şurup: Cookie;15;ml;0
+Chocolate Cookie Latte;Large;Süt: Normal (Tam Yağlı);315;ml;0.04
+Chocolate Milkshake;Small;Toz: Çikolata;40;gr;0
+Chocolate Milkshake;Small;Sos: Çikolata;5;ml;0
+Chocolate Milkshake;Small;Süt: Normal (Tam Yağlı);170;ml;0.04
+Chocolate Milkshake;Medium;Toz: Çikolata;50;gr;0
+Chocolate Milkshake;Medium;Sos: Çikolata;5;ml;0
+Chocolate Milkshake;Medium;Süt: Normal (Tam Yağlı);200;ml;0.04
+Chocolate Milkshake;Large;Toz: Çikolata;60;gr;0
+Chocolate Milkshake;Large;Sos: Çikolata;5;ml;0
+Chocolate Milkshake;Large;Süt: Normal (Tam Yağlı);230;ml;0.04
+Coca Cola;Standart;Coca Cola;1;adet;24
+Coffee Caramel Macchiato Bubble;Standart;Sos: Karamel;20;ml;0
+Coffee Caramel Macchiato Bubble;Standart;Espresso Çekirdeği;9;g;0.6
+Coffee Caramel Macchiato Bubble;Standart;Süt: Normal (Tam Yağlı);270;ml;0.04
+Coffee Mocha Bubble;Standart;Sos: Çikolata;25;ml;0
+Coffee Mocha Bubble;Standart;Espresso Çekirdeği;9;g;0.6
+Coffee Mocha Bubble;Standart;Süt: Normal (Tam Yağlı);270;ml;0.04
+Coffeebon Milk;;;;;
+Cold Brew;;;;;
+Cookie;;;;;
+Cookie;;;;;
+Cool Lime Fresh;;;;;
+Cortado;Standart;Espresso Çekirdeği;18;g;0.6
+Cortado;Standart;Süt: Normal (Tam Yağlı);70;ml;0.04
+Double Espresso;Standart;Espresso Çekirdeği;18;g;0.6
+Double Espresso;;;;;
+Double Türk Kahvesi;Standart;Çekirdek: Türk Kahvesi;16;gr;0
+Ekstra Süt;Standart;Espresso Çekirdeği;8;g;0.6
+Espresso;Standart;Espresso Çekirdeği;9;g;0.6
+Espresso Macchiato;Standart;Espresso Çekirdeği;8;g;0.6
+Espresso Macchiato;Standart;Süt: Normal (Tam Yağlı);30;ml;0.04
+Espresso Shot;Standart;Espresso Çekirdeği;9;g;0.6
+Espresso Çekirdeği (250g);Standart;Espresso Çekirdeği;250;g;0.6
+Filtre Kahve;;;;;
+Filtre Kahve Çekirdeği (250g);Standart;Çekirdek: Filtre Kahve;250;gr;0
+Flat White;Small;Espresso Çekirdeği;18;g;0.6
+Flat White;Small;Süt: Normal (Tam Yağlı);180;ml;0.04
+Flat White;Medium;Espresso Çekirdeği;18;g;0.6
+Flat White;Medium;Süt: Normal (Tam Yağlı);315;ml;0.04
+Flat White;Large;Espresso Çekirdeği;27;g;0.6
+Flat White;Large;Süt: Normal (Tam Yağlı);350;ml;0.04
+Frappe Tozu;;;;;
+Fındık Şurubu;;;;;
+Hazelnut;;;;;
+Hazelnut;;;;;
+Hibiscus Fresh;Small;Hibiscus Çayı;20;adet;64
+Hibiscus Fresh;Small;Şurup: Nar;10;ml;0
+Hibiscus Fresh;Small;Şurup: Menta;10;ml;0
+Hibiscus Fresh;Small;Şurup: Çilek;5;ml;0
+Hibiscus Fresh;Medium;Hibiscus Çayı;30;adet;64
+Hibiscus Fresh;Medium;Şurup: Nar;15;ml;0
+Hibiscus Fresh;Medium;Şurup: Menta;15;ml;0
+Hibiscus Fresh;Medium;Şurup: Çilek;10;ml;0
+Hibiscus Fresh;Large;Hibiscus Çayı;50;adet;64
+Hibiscus Fresh;Large;Şurup: Nar;20;ml;0
+Hibiscus Fresh;Large;Şurup: Menta;20;ml;0
+Hibiscus Fresh;Large;Şurup: Çilek;15;ml;0
+Hibiscus Çayı;Standart;Hibiscus Çayı;7;adet;64
+Iced Americano;;;;;
+Iced Cappuccino;;;;;
+Iced Caramel Latte;;;;;
+Iced Caramel Macchiato;;;;;
+Iced Chai Tea Latte;;;;;
+Iced Chocolate Cookie Latte;;;;;
+Iced Filtre Kahve;;;;;
+Iced Latte;;;;;
+Iced Mocha;;;;;
+Iced Salted Caramel Latte;;;;;
+Iced Toffeenut Latte;;;;;
+Iced White Mocha;;;;;
+Ihlamur;Standart;Ihlamur;7;adet;72
+Karamel Sos;;;;;
+Karamel Şurubu;;;;;
+Kiraz Sapı;Standart;Kiraz Sapı;7;adet;64
+Kola Turka;Standart;Coca Cola;1;adet;24
+Kurutulmuş Limon;;;;;
+Kış Çayı;Standart;Kış Çayı;7;adet;64
+Laktozsuz Süt;Standart;Süt: Normal (Tam Yağlı);1000;ml;0.04
+Latte;Large;Espresso Çekirdeği;18;g;0.6
+Latte;Large;Süt: Normal (Tam Yağlı);365;ml;0.04
+Latte;Small;Espresso Çekirdeği;9;g;0.6
+Latte;Small;Süt: Normal (Tam Yağlı);180;ml;0.04
+Latte;Medium;Espresso Çekirdeği;18;g;0.6
+Latte;Medium;Süt: Normal (Tam Yağlı);315;ml;0.04
+Limonlu Soda;Standart;Limonlu Soda;1;adet;14
+Lokum;;;;;
+Mango Püresi;;;;;
+Matcha Latte;;;;;
+Menta Şurubu;;;;;
+Mint;;;;;
+Mint;;;;;
+Mint Şurubu;;;;;
+Mocha;Small;Espresso Çekirdeği;9;g;0.6
+Mocha;Small;Sos: Çikolata;15;ml;0
+Mocha;Small;Süt: Normal (Tam Yağlı);180;ml;0.04
+Mocha;Medium;Espresso Çekirdeği;18;g;0.6
+Mocha;Medium;Sos: Çikolata;25;ml;0
+Mocha;Medium;Şurup: Çikolata;5;ml;0
+Mocha;Medium;Süt: Normal (Tam Yağlı);300;ml;0.04
+Mocha;Large;Espresso Çekirdeği;18;g;0.6
+Mocha;Large;Sos: Çikolata;35;ml;0
+Mocha;Large;Şurup: Çikolata;5;ml;0
+Mocha;Large;Süt: Normal (Tam Yağlı);315;ml;0.04
+Muz Püresi;;;;;
+Muz Tozu;;;;;
+Muz Şurubu;;;;;
+Nar Şurubu;;;;;
+Normal Süt;Standart;Süt: Normal (Tam Yağlı);1000;ml;0.04
+Orange Mango;;;;;
+Oreo Nocca Special;;;;;
+Papatya Çayı;Standart;Papatya Çayı;7;adet;64
+Queen Style Fresh;;;;;
+Sade Soda;Standart;Sade Soda;1;adet;12
+Salep;;;;;
+Salted Caramel Latte;Small;Espresso Çekirdeği;9;g;0.6
+Salted Caramel Latte;Small;Sos: Karamel;15;ml;0
+Salted Caramel Latte;Small;Süt: Normal (Tam Yağlı);180;ml;0.04
+Salted Caramel Latte;Medium;Espresso Çekirdeği;18;g;0.6
+Salted Caramel Latte;Medium;Sos: Karamel;25;ml;0
+Salted Caramel Latte;Medium;Süt: Normal (Tam Yağlı);300;ml;0.04
+Salted Caramel Latte;Large;Espresso Çekirdeği;18;g;0.6
+Salted Caramel Latte;Large;Sos: Salted Karamel;35;ml;0
+Salted Caramel Latte;Large;Süt: Normal (Tam Yağlı);315;ml;0.04
+Salted Karamel Sos;;;;;
+Strawberry Milkshake;Standart;Püre: Çilek;60;ml;0
+Strawberry Milkshake;Standart;Şurup: Çilek;5;ml;0
+Strawberry Milkshake;Standart;Süt: Normal (Tam Yağlı);170;ml;0.04
+Strawberry Milkshake;Standart;Püre: Çilek;60;ml;0
+Strawberry Milkshake;Standart;Şurup: Çilek;5;ml;0
+Strawberry Milkshake;Standart;Süt: Normal (Tam Yağlı);170;ml;0.04
+Strawberry Milkshake;Small;Püre: Çilek;60;ml;0
+Strawberry Milkshake;Small;Şurup: Çilek;5;ml;0
+Strawberry Milkshake;Small;Süt: Normal (Tam Yağlı);170;ml;0.04
+Strawberry Milkshake;Medium;Püre: Çilek;80;ml;0
+Strawberry Milkshake;Medium;Şurup: Çilek;10;ml;0
+Strawberry Milkshake;Medium;Süt: Normal (Tam Yağlı);200;ml;0.04
+Strawberry Milkshake;Large;Püre: Çilek;100;ml;0
+Strawberry Milkshake;Large;Şurup: Çilek;10;ml;0
+Strawberry Milkshake;Large;Süt: Normal (Tam Yağlı);230;ml;0.04
+Su;Standart;Su;1;adet;8
+Sıcak Çikolata;Small;Toz: Sıcak Çikolata;25;gr;0
+Sıcak Çikolata;Small;Süt: Laktozsuz;180;ml;12
+Sıcak Çikolata;Medium;Toz: Sıcak Çikolata;35;gr;0
+Sıcak Çikolata;Medium;Süt: Laktozsuz;300;ml;12
+Sıcak Çikolata;Large;Toz: Sıcak Çikolata;45;gr;0
+Sıcak Çikolata;Large;Süt: Laktozsuz;350;ml;12
+Sıcak Çikolata Tozu;;;;;
+Toffeenut Latte;Small;Espresso Çekirdeği;9;g;0.6
+Toffeenut Latte;Small;Şurup: Karamel;5;ml;0
+Toffeenut Latte;Small;Şurup: Fındık;5;ml;0
+Toffeenut Latte;Small;Süt: Normal (Tam Yağlı);180;ml;0.04
+Toffeenut Latte;Medium;Espresso Çekirdeği;18;g;0.6
+Toffeenut Latte;Medium;Şurup: Karamel;10;ml;0
+Toffeenut Latte;Medium;Şurup: Fındık;10;ml;0
+Toffeenut Latte;Medium;Süt: Normal (Tam Yağlı);300;ml;0.04
+Toffeenut Latte;Large;Espresso Çekirdeği;18;g;0.6
+Toffeenut Latte;Large;Şurup: Karamel;15;ml;0
+Toffeenut Latte;Large;Şurup: Fındık;15;ml;0
+Toffeenut Latte;Large;Süt: Normal (Tam Yağlı);315;ml;0.04
+Toffeenut Şurubu;;;;;
+Toffinat;;;;;
+Toffinat;;;;;
+Türk Kahvesi;Standart;Çekirdek: Türk Kahvesi;8;gr;0
+Türk Kahvesi Çekirdeği (250g);Standart;Çekirdek: Türk Kahvesi;350;gr;0
+V60/Chemex;Standart;Filtre Kahve Çekirdeği;20;g;0.5
+Vanilla Frappe;Small;Espresso Çekirdeği;9;g;0.6
+Vanilla Frappe;Small;Süt: Normal (Tam Yağlı);100;ml;0.04
+Vanilla Frappe;Small;Şurup: Vanilya;20;ml;0
+Vanilla Frappe;Small;Toz: Frappe;5;gr;0
+Vanilla Frappe;Medium;Espresso Çekirdeği;18;g;0.6
+Vanilla Frappe;Medium;Süt: Normal (Tam Yağlı);150;ml;0.04
+Vanilla Frappe;Medium;Şurup: Vanilya;30;ml;0
+Vanilla Frappe;Medium;Toz: Frappe;5;gr;0
+Vanilla Frappe;Large;Espresso Çekirdeği;18;g;0.6
+Vanilla Frappe;Large;Süt: Normal (Tam Yağlı);180;ml;0.04
+Vanilla Frappe;Large;Şurup: Vanilya;40;ml;0
+Vanilla Frappe;Large;Toz: Frappe;5;gr;0
+Vanilla Milkshake;Small;Toz: Vanilya;40;gr;0
+Vanilla Milkshake;Small;Süt: Normal (Tam Yağlı);170;ml;0.04
+Vanilla Milkshake;Medium;Toz: Vanilya;50;gr;0
+Vanilla Milkshake;Medium;Süt: Normal (Tam Yağlı);200;ml;0.04
+Vanilla Milkshake;Large;Toz: Vanilya;60;gr;0
+Vanilla Milkshake;Large;Süt: Normal (Tam Yağlı);230;ml;0.04
+Vanilya Tozu;;;;;
+Vanilya Şurubu;;;;;
+White Mocha;Small;Espresso Çekirdeği;9;g;0.6
+White Mocha;Small;Sos: Beyaz Çikolata;15;ml;0
+White Mocha;Small;Süt: Normal (Tam Yağlı);180;ml;0.04
+White Mocha;Medium;Espresso Çekirdeği;18;g;0.6
+White Mocha;Medium;Sos: Beyaz Çikolata;25;ml;0
+White Mocha;Medium;Şurup: Beyaz Çikolata;5;ml;0
+White Mocha;Medium;Süt: Normal (Tam Yağlı);300;ml;0.04
+White Mocha;Large;Espresso Çekirdeği;18;g;0.6
+White Mocha;Large;Sos: Beyaz Çikolata;35;ml;0
+White Mocha;Large;Şurup: Beyaz Çikolata;5;ml;0
+White Mocha;Large;Süt: Normal (Tam Yağlı);315;ml;0.04
+Yaseminli Yeşil Çay;Standart;Yaseminli Yeşil Çay;7;adet;72
+Yeşil Çay;Standart;Yeşil Çay;7;adet;64
+Yulaf Sütü;;;;;
+Yulaf Sütü;;;;;
+Çikolata Frappe;Small;Espresso Çekirdeği;9;g;0.6
+Çikolata Frappe;Small;Süt: Normal (Tam Yağlı);100;ml;0.04
+Çikolata Frappe;Small;Şurup: Çikolata;20;ml;0
+Çikolata Frappe;Small;Sos: Çikolata;15;ml;0
+Çikolata Frappe;Small;Toz: Frappe;5;gr;0
+Çikolata Frappe;Medium;Espresso Çekirdeği;18;g;0.6
+Çikolata Frappe;Medium;Süt: Normal (Tam Yağlı);150;ml;0.04
+Çikolata Frappe;Medium;Şurup: Çikolata;30;ml;0
+Çikolata Frappe;Medium;Sos: Çikolata;20;ml;0
+Çikolata Frappe;Medium;Toz: Frappe;5;gr;0
+Çikolata Frappe;Large;Espresso Çekirdeği;18;g;0.6
+Çikolata Frappe;Large;Süt: Normal (Tam Yağlı);180;ml;0.04
+Çikolata Frappe;Large;Şurup: Çikolata;40;ml;0
+Çikolata Frappe;Large;Sos: Çikolata;25;ml;0
+Çikolata Frappe;Large;Toz: Frappe;5;gr;0
+Çikolata Sos;;;;;
+Çikolata Tozu;;;;;
+Çikolata Şurubu;;;;;
+Çilek Püresi;;;;;
+Çilek Şurubu;;;;;
+Çilekli Matcha Latte;;;;;
+Şurup;;;;;
