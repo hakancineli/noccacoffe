@@ -23,7 +23,23 @@ export async function GET(request: NextRequest) {
     }
 
     if (search) {
-      where.name = { contains: search, mode: 'insensitive' };
+      const searchLower = search.toLowerCase();
+      const variations = [search, searchLower];
+
+      // Turkish search normalization: handle both dotted/dotless i variations
+      if (searchLower.includes('i') || searchLower.includes('ı')) {
+        variations.push(searchLower.replace(/i/g, 'ı'));
+        variations.push(searchLower.replace(/ı/g, 'i'));
+      }
+
+      // Add original search and its lowercase/Turkish variations
+      // Using unique set to avoid duplicate conditions
+      const uniqueVariations = Array.from(new Set(variations));
+
+      where.OR = [
+        ...uniqueVariations.map(v => ({ name: { contains: v, mode: 'insensitive' as const } })),
+        ...uniqueVariations.map(v => ({ description: { contains: v, mode: 'insensitive' as const } }))
+      ];
     }
 
     if (active === 'true') {
