@@ -689,7 +689,7 @@ export const allMenuItems: MenuItem[] = [
     description: 'Özel demleme yöntemi',
     category: 'Extra',
     price: 180,
-    image: '/images/products/cold-brew.jpg',
+    image: '/images/products/v60-chemex.jpeg',
   },
 
   // BİTKİ ÇAYLARI (HERBAL TEAS)
@@ -747,7 +747,7 @@ export const allMenuItems: MenuItem[] = [
     description: 'Ihlamur çayı',
     category: 'Bitki Çayları',
     price: 180,
-    image: '/images/products/Iced Matcha Latte.jpeg',
+    image: '/images/products/ihlamur.jpeg',
   },
 
   // ŞURUPLAR
