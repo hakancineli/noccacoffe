@@ -361,3 +361,18 @@ enum ExpenseCategory {
   ADVANCE
   WASTE
 }
+
+model Fixture {
+  id            String    @id @default(cuid())
+  name          String
+  category      String?
+  quantity      Int       @default(1)
+  purchasePrice Float?    @map("purchase_price")
+  purchaseDate  DateTime? @map("purchase_date") @db.Date
+  status        String    @default("Kullanımda") // e.g., Kullanımda, Arızalı, Depoda, Hurda
+  notes         String?
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  @@map("fixtures")
+}
