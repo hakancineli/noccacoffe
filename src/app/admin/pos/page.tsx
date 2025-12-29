@@ -269,6 +269,8 @@ export default function POSPage() {
                 setLastOrder({
                     ...createdOrder,
                     items: cart,
+                    payments: customPayments, // Pass payment details for split orders
+                    itemAssignments: customPayments ? itemAssignments : null, // Pass per-item assignments
                     totalAmount: cartTotal,
                     finalAmount: finalTotal,
                     discountAmount: discountAmount,
@@ -866,8 +868,20 @@ export default function POSPage() {
                                 <span>Kasiyer: {lastOrder.creatorName || 'Kasa'}</span>
                                 <span>Müşteri: {lastOrder.customerName || 'Misafir'}</span>
                             </div>
-                            <div className="font-bold border-y border-black py-1 mt-1">
-                                ÖDEME: {lastOrder.paymentMethod === 'CREDIT_CARD' ? 'KREDİ KARTI' : 'NAKİT'}
+                            <div className="font-bold border-y border-black py-1 mt-1 uppercase">
+                                {lastOrder.payments && lastOrder.payments.length > 0 ? (
+                                    <div className="space-y-0.5">
+                                        <div className="text-[10px] mb-1">ÖDEME DETAYI:</div>
+                                        {lastOrder.payments.map((p: any, i: number) => (
+                                            <div key={i} className="flex justify-between text-[11px]">
+                                                <span>{p.method === 'CASH' ? 'NAKİT' : 'KREDİ KARTI'}</span>
+                                                <span>{p.amount.toFixed(2)}₺</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <span>ÖDEME: {lastOrder.paymentMethod === 'CREDIT_CARD' ? 'KREDİ KARTI' : 'NAKİT'}</span>
+                                )}
                             </div>
                         </div>
 
@@ -884,10 +898,24 @@ export default function POSPage() {
                                     <tr key={idx} className="border-b border-gray-100 border-dashed last:border-0">
                                         <td className="py-2 align-top font-bold">{item.quantity}</td>
                                         <td className="py-2 align-top">
-                                            <div className="font-bold uppercase">{item.name}</div>
+                                            <div className="font-bold uppercase">
+                                                {item.name}
+                                                {lastOrder.itemAssignments && lastOrder.itemAssignments[item.id] && (
+                                                    <span className="text-[9px] ml-1 bg-gray-200 px-1 rounded lowercase">
+                                                        ({lastOrder.itemAssignments[item.id].cash > 0 && lastOrder.itemAssignments[item.id].card > 0
+                                                            ? 'nakit+kart'
+                                                            : lastOrder.itemAssignments[item.id].cash > 0 ? 'nakit' : 'kart'})
+                                                    </span>
+                                                )}
+                                            </div>
                                             {item.size && (
-                                                <div className="text-[10px] bg-gray-100 inline-block px-1 font-bold">
+                                                <div className="text-[10px] bg-gray-100 inline-block px-1 font-bold mr-2">
                                                     BOY: {item.size === 'S' ? 'KÜÇÜK' : item.size === 'M' ? 'ORTA' : item.size === 'L' ? 'BÜYÜK' : item.size}
+                                                </div>
+                                            )}
+                                            {item.isPorcelain !== undefined && (
+                                                <div className="text-[10px] bg-amber-50 inline-block px-1 font-bold">
+                                                    {item.isPorcelain ? '☕ FİNCAN' : '🥡 KARTON'}
                                                 </div>
                                             )}
                                         </td>
@@ -921,12 +949,25 @@ export default function POSPage() {
                                 src="/images/logo/receipt-qr-logo.jpg"
                                 alt="NOCCA Logo"
                                 style={{
-                                    width: '45mm',
+                                    width: '35mm',
                                     margin: '0 auto 10px',
                                     filter: 'grayscale(100%) contrast(1.2) brightness(1.1)',
                                     mixBlendMode: 'multiply'
                                 }}
                             />
+
+                            <div className="my-4 flex justify-center">
+                                <img
+                                    src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://www.noccacoffee.com.tr/order/${lastOrder.orderNumber}`}
+                                    alt="Order QR"
+                                    style={{
+                                        width: '25mm',
+                                        height: '25mm',
+                                        imageRendering: 'pixelated'
+                                    }}
+                                />
+                            </div>
+
                             <div className="text-base font-black tracking-widest">NOCCA COFFEE</div>
                             <div className="text-[10px] mt-1 italic">Caddebostan, İstanbul</div>
                             <div className="text-[10px]">www.noccacoffee.com.tr</div>
