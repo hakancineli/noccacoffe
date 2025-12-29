@@ -51,6 +51,8 @@ export default function POSPage() {
     const [showSplitModal, setShowSplitModal] = useState(false);
     const [splitCash, setSplitCash] = useState(0);
     const [splitCard, setSplitCard] = useState(0);
+    // Assignments: { cartItemId: { cash: number, card: number } }
+    const [itemAssignments, setItemAssignments] = useState<Record<string, { cash: number, card: number }>>({});
 
     // Fetch DB products for stock check
     useEffect(() => {
@@ -308,7 +310,115 @@ export default function POSPage() {
                             </button>
 
                             <h3 className="text-xl font-bold text-gray-800 mb-2">Hesap Böl (Parçalı Ödeme)</h3>
-                            <p className="text-gray-500 mb-6 text-sm">Toplam Tutar: <span className="font-bold text-gray-900 text-lg">₺{finalTotal.toFixed(2)}</span></p>
+                            <p className="text-gray-500 mb-4 text-sm">Toplam Tutar: <span className="font-bold text-gray-900 text-lg">₺{finalTotal.toFixed(2)}</span></p>
+
+                            {/* Itemized Split Section */}
+                            <div className="mb-6 max-h-60 overflow-y-auto border rounded-xl p-2 bg-gray-50 space-y-2">
+                                <div className="flex justify-between items-center px-1 mb-1">
+                                    <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Ürünlere Göre Dağıt</p>
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => {
+                                                const newAssignments: Record<string, { cash: number, card: number }> = {};
+                                                cart.forEach(item => {
+                                                    newAssignments[item.id] = { cash: item.quantity, card: 0 };
+                                                });
+                                                setItemAssignments(newAssignments);
+                                                setSplitCash(Number(finalTotal.toFixed(2)));
+                                                setSplitCard(0);
+                                            }}
+                                            className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full hover:bg-green-200 transition-colors font-bold"
+                                        >
+                                            TÜMÜ NAKİT
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                const newAssignments: Record<string, { cash: number, card: number }> = {};
+                                                cart.forEach(item => {
+                                                    newAssignments[item.id] = { cash: 0, card: item.quantity };
+                                                });
+                                                setItemAssignments(newAssignments);
+                                                setSplitCash(0);
+                                                setSplitCard(Number(finalTotal.toFixed(2)));
+                                            }}
+                                            className="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full hover:bg-blue-200 transition-colors font-bold"
+                                        >
+                                            TÜMÜ KART
+                                        </button>
+                                    </div>
+                                </div>
+                                {cart.map(item => {
+                                    const assignment = itemAssignments[item.id] || { cash: 0, card: 0 };
+                                    const remaining = item.quantity - assignment.cash - assignment.card;
+                                    const unitPrice = item.price * (1 - discountRate / 100);
+
+                                    const updateAssignment = (method: 'cash' | 'card', delta: number) => {
+                                        const newAssignment = { ...assignment };
+                                        if (method === 'cash') {
+                                            if (delta > 0 && remaining > 0) newAssignment.cash += 1;
+                                            if (delta < 0 && newAssignment.cash > 0) newAssignment.cash -= 1;
+                                        } else {
+                                            if (delta > 0 && remaining > 0) newAssignment.card += 1;
+                                            if (delta < 0 && newAssignment.card > 0) newAssignment.card -= 1;
+                                        }
+
+                                        const newItemAssignments = { ...itemAssignments, [item.id]: newAssignment };
+                                        setItemAssignments(newItemAssignments);
+
+                                        // Recalculate splitCash and splitCard
+                                        let newCash = 0;
+                                        let newCard = 0;
+                                        cart.forEach(cartItem => {
+                                            const asgn = newItemAssignments[cartItem.id] || { cash: 0, card: 0 };
+                                            const up = cartItem.price * (1 - discountRate / 100);
+                                            newCash += asgn.cash * up;
+                                            newCard += asgn.card * up;
+                                        });
+                                        setSplitCash(Number(newCash.toFixed(2)));
+                                        setSplitCard(Number(newCard.toFixed(2)));
+                                    };
+
+                                    return (
+                                        <div key={item.id} className="bg-white p-3 rounded-lg border border-gray-100 flex flex-col gap-2">
+                                            <div className="flex justify-between items-start">
+                                                <div>
+                                                    <p className="font-bold text-gray-800 text-sm leading-tight">{item.name}</p>
+                                                    <p className="text-[10px] text-gray-500">{item.size} • ₺{unitPrice.toFixed(2)}/adet</p>
+                                                </div>
+                                                <div className="text-xs font-bold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
+                                                    {assignment.cash + assignment.card}/{item.quantity}
+                                                </div>
+                                            </div>
+
+                                            <div className="grid grid-cols-2 gap-2">
+                                                <div className="flex items-center justify-between bg-green-50 p-1.5 rounded-lg border border-green-100">
+                                                    <div className="flex items-center gap-1.5">
+                                                        <FaMoneyBillWave className="text-green-600 text-xs" />
+                                                        <span className="text-[11px] font-bold text-green-700">NAKİT</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <button onClick={() => updateAssignment('cash', -1)} className="w-5 h-5 flex items-center justify-center rounded-full bg-white text-green-600 border border-green-200 hover:bg-green-100">-</button>
+                                                        <span className="text-xs font-bold text-green-800 w-3 text-center">{assignment.cash}</span>
+                                                        <button onClick={() => updateAssignment('cash', 1)} className="w-5 h-5 flex items-center justify-center rounded-full bg-white text-green-600 border border-green-200 hover:bg-green-100">+</button>
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex items-center justify-between bg-blue-50 p-1.5 rounded-lg border border-blue-100">
+                                                    <div className="flex items-center gap-1.5">
+                                                        <FaCreditCard className="text-blue-600 text-xs" />
+                                                        <span className="text-[11px] font-bold text-blue-700">KART</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <button onClick={() => updateAssignment('card', -1)} className="w-5 h-5 flex items-center justify-center rounded-full bg-white text-blue-600 border border-blue-200 hover:bg-blue-100">-</button>
+                                                        <span className="text-xs font-bold text-blue-800 w-3 text-center">{assignment.card}</span>
+                                                        <button onClick={() => updateAssignment('card', 1)} className="w-5 h-5 flex items-center justify-center rounded-full bg-white text-blue-600 border border-blue-200 hover:bg-blue-100">+</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
 
                             <div className="space-y-4">
                                 <div>
@@ -708,6 +818,7 @@ export default function POSPage() {
                                 onClick={() => {
                                     setSplitCash(0);
                                     setSplitCard(0);
+                                    setItemAssignments({});
                                     setShowSplitModal(true);
                                 }}
                                 disabled={cart.length === 0 || processingPayment}
