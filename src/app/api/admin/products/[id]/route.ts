@@ -51,10 +51,10 @@ export async function PUT(
     if (name !== undefined) updateData.name = name;
     if (description !== undefined) updateData.description = description;
     if (category !== undefined) updateData.category = category;
-    if (price !== undefined) updateData.price = parseFloat(price);
+    if (price !== undefined) updateData.price = typeof price === 'number' ? price : parseFloat(price?.toString() || '0');
     if (imageUrl !== undefined) updateData.imageUrl = imageUrl;
-    if (stock !== undefined) updateData.stock = parseInt(stock);
-    if (isActive !== undefined) updateData.isActive = isActive;
+    if (stock !== undefined) updateData.stock = typeof stock === 'number' ? stock : parseInt(stock?.toString() || '0');
+    if (isActive !== undefined) updateData.isActive = isActive === 'on' || isActive === 'true' || isActive === true;
     if (unit !== undefined) updateData.unit = unit;
     if (prices !== undefined) updateData.prices = typeof prices === 'string' ? JSON.parse(prices) : prices;
 

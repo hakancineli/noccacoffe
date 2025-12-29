@@ -119,7 +119,10 @@ export default function ProductsManagement() {
           category: formData.get('category'),
           price: formData.get('price'),
           imageUrl: formData.get('imageUrl'),
-          stock: formData.get('stock'),
+          stock: formData.get('stock') || 0,
+          unit: formData.get('unit') || 'adet',
+          prices: formData.get('prices') ? JSON.parse(formData.get('prices') as string) : null,
+          isActive: true
         }),
       });
 
@@ -143,8 +146,10 @@ export default function ProductsManagement() {
           category: formData.get('category'),
           price: formData.get('price'),
           imageUrl: formData.get('imageUrl'),
-          stock: formData.get('stock'),
-          isActive: formData.get('isActive') !== null,
+          stock: formData.get('stock') || 0,
+          isActive: formData.get('isActive') === 'on' || formData.get('isActive') === 'true',
+          unit: formData.get('unit') || 'adet',
+          prices: formData.get('prices') ? JSON.parse(formData.get('prices') as string) : null,
         }),
       });
 
@@ -195,34 +200,38 @@ export default function ProductsManagement() {
     }
   };
 
+  const fetchProductRecipes = async (productId: string) => {
+    try {
+      const res = await fetch(`/api/admin/recipes?productId=${productId}`);
+      if (res.ok) {
+        const recipes = await res.json();
+        setCurrentProductRecipes(recipes);
+        return recipes;
+      }
+    } catch (error) {
+      console.error('Failed to fetch recipes:', error);
+    }
+    return [];
+  };
+
   const openRecipeModal = async (product: Product) => {
     setSelectedProductForRecipe(product);
     await fetchIngredients();
 
     // Fetch existing recipes for this product
-    try {
-      const res = await fetch(`/api/admin/recipes?productId=${product.id}`);
-      if (res.ok) {
-        const recipes = await res.json();
-        setCurrentProductRecipes(recipes);
-
-        if (recipes.length > 0) {
-          // Load first recipe (or you can let user select which size)
-          const recipe = recipes[0];
-          setRecipeFormData({
-            size: recipe.size || '',
-            items: recipe.items.map((item: RecipeItem) => ({
-              ingredientId: item.ingredientId,
-              quantity: item.quantity
-            }))
-          });
-        } else {
-          setRecipeFormData({ size: '', items: [] });
-        }
-      }
-    } catch (error) {
-      console.error('Failed to fetch recipes:', error);
-      setCurrentProductRecipes([]);
+    const recipes = await fetchProductRecipes(product.id);
+    if (recipes.length > 0) {
+      // Load first recipe (or you can let user select which size)
+      const recipe = recipes[0];
+      setRecipeFormData({
+        size: recipe.size || '',
+        items: recipe.items.map((item: RecipeItem) => ({
+          ingredientId: item.ingredientId,
+          quantity: item.quantity
+        }))
+      });
+    } else {
+      setRecipeFormData({ size: '', items: [] });
     }
 
     setIsRecipeModalOpen(true);
@@ -264,24 +273,29 @@ export default function ProductsManagement() {
       });
 
       if (res.ok) {
-        // If we deleted the currently viewed recipe size
-        if (currentProductRecipes.find(r => r.id === recipeId)?.size === recipeFormData.size ||
-          (!currentProductRecipes.find(r => r.id === recipeId)?.size && !recipeFormData.size)) {
-          setRecipeFormData({ size: recipeFormData.size, items: [] });
-        }
-
-        // Refresh recipes list
-        if (selectedProductForRecipe) {
-          const resRecipes = await fetch(`/api/admin/recipes?productId=${selectedProductForRecipe.id}`);
-          if (resRecipes.ok) {
-            const recipes = await resRecipes.json();
-            setCurrentProductRecipes(recipes);
-          }
-        }
+        fetchProductRecipes(selectedProductForRecipe!.id);
         fetchProducts(); // Update product status in table
       }
     } catch (error) {
       console.error('Failed to delete recipe:', error);
+    }
+  };
+
+  const updateIngredientUnit = async (ingredientId: string, newUnit: string) => {
+    try {
+      const res = await fetch('/api/admin/ingredients', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: ingredientId, unit: newUnit })
+      });
+      if (res.ok) {
+        // Refresh ingredients list
+        const ingredientsRes = await fetch('/api/admin/ingredients');
+        const ingredientsData = await ingredientsRes.json();
+        setIngredients(ingredientsData.items || ingredientsData);
+      }
+    } catch (error) {
+      console.error('Failed to update ingredient unit:', error);
     }
   };
 
@@ -705,6 +719,7 @@ export default function ProductsManagement() {
         calculateRecipeCost={calculateRecipeCost}
         saveRecipe={saveRecipe}
         deleteRecipe={deleteRecipe}
+        updateIngredientUnit={updateIngredientUnit}
       />
     </div >
   );
@@ -1110,7 +1125,8 @@ function RecipeModal({
   removeRecipeItem,
   calculateRecipeCost,
   saveRecipe,
-  deleteRecipe
+  deleteRecipe,
+  updateIngredientUnit
 }: {
   isOpen: boolean;
   onClose: () => void;
@@ -1125,6 +1141,7 @@ function RecipeModal({
   calculateRecipeCost: () => number;
   saveRecipe: () => void;
   deleteRecipe: (recipeId: string) => void;
+  updateIngredientUnit: (ingredientId: string, newUnit: string) => void;
 }) {
   if (!isOpen || !product) return null;
 
@@ -1206,9 +1223,17 @@ function RecipeModal({
                     className="w-24 px-3 py-2 border rounded-lg text-sm"
                     placeholder="Miktar"
                   />
-                  <span className="text-sm text-gray-600 w-12">
-                    {ingredients.find(i => i.id === item.ingredientId)?.unit}
-                  </span>
+                  <select
+                    value={ingredients.find(i => i.id === item.ingredientId)?.unit || 'adet'}
+                    onChange={(e) => updateIngredientUnit(item.ingredientId, e.target.value)}
+                    className="text-[10px] bg-gray-100 border-none rounded cursor-pointer hover:bg-gray-200 w-16 h-8"
+                  >
+                    <option value="gram">gram</option>
+                    <option value="adet">adet</option>
+                    <option value="ml">ml</option>
+                    <option value="kg">kg</option>
+                    <option value="lt">lt</option>
+                  </select>
                   <button
                     type="button"
                     onClick={() => removeRecipeItem(index)}

@@ -162,12 +162,12 @@ export async function POST(request: NextRequest) {
         name,
         description,
         category,
-        price: parseFloat(price),
+        price: typeof price === 'number' ? price : parseFloat(price?.toString() || '0'),
         imageUrl,
-        stock: parseInt(stock),
-        isActive: isActive,
+        stock: typeof stock === 'number' ? stock : parseInt(stock?.toString() || '0'),
+        isActive: isActive === 'on' || isActive === 'true' || isActive === true || isActive === undefined, // Default true if undefined in POST
         unit: unit || 'adet',
-        prices: prices ? JSON.stringify(prices) : null
+        prices: prices ? (typeof prices === 'string' ? JSON.parse(prices) : prices) : null
       },
     });
 

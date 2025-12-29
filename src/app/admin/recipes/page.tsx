@@ -161,6 +161,24 @@ export default function RecipesPage() {
         });
     };
 
+    const updateIngredientUnit = async (ingredientId: string, newUnit: string) => {
+        try {
+            const res = await fetch('/api/admin/ingredients', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: ingredientId, unit: newUnit })
+            });
+            if (res.ok) {
+                // Refresh ingredients list
+                const ingredientsRes = await fetch('/api/admin/ingredients');
+                const ingredientsData = await ingredientsRes.json();
+                setIngredients(ingredientsData.items || ingredientsData);
+            }
+        } catch (error) {
+            console.error('Failed to update ingredient unit:', error);
+        }
+    };
+
     const resetForm = () => {
         setFormData({ productId: '', size: '', items: [] });
         setEditingRecipe(null);
@@ -336,9 +354,17 @@ export default function RecipesPage() {
                                                 className="w-24 px-3 py-2 border rounded-lg text-sm"
                                                 placeholder="Miktar"
                                             />
-                                            <span className="text-sm text-gray-600 w-12">
-                                                {ingredients.find(i => i.id === item.ingredientId)?.unit}
-                                            </span>
+                                            <select
+                                                value={ingredients.find(i => i.id === item.ingredientId)?.unit || 'adet'}
+                                                onChange={(e) => updateIngredientUnit(item.ingredientId, e.target.value)}
+                                                className="text-[10px] bg-gray-100 border-none rounded cursor-pointer hover:bg-gray-200 w-16 h-8"
+                                            >
+                                                <option value="gram">gram</option>
+                                                <option value="adet">adet</option>
+                                                <option value="ml">ml</option>
+                                                <option value="kg">kg</option>
+                                                <option value="lt">lt</option>
+                                            </select>
                                             <button
                                                 type="button"
                                                 onClick={() => removeRecipeItem(index)}
