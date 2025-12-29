@@ -68,8 +68,12 @@ export default function POSPage() {
         fetchProducts();
     }, []);
 
+    const getDbProduct = (name: string) => {
+        return dbProducts.find(p => p.name === name);
+    };
+
     const getStockInfo = (name: string) => {
-        const found = dbProducts.find(p => p.name === name);
+        const found = getDbProduct(name);
         // Safety: If not found in DB (sync issue), assume OUT OF STOCK to prevent errors
         if (!found) return { stock: 0, isAvailable: false, hasRecipe: false };
         return {
@@ -103,9 +107,13 @@ export default function POSPage() {
             return;
         }
 
+        const dbProduct = getDbProduct(product.name);
+        const sizes = dbProduct?.prices && Array.isArray(dbProduct.prices) ? dbProduct.prices : product.sizes;
+
         // If product has sizes, open selection modal
-        if (product.sizes && product.sizes.length > 0) {
-            setSelectedProductForSize(product);
+        if (sizes && sizes.length > 0) {
+            // Enrich product with DB sizes for the modal
+            setSelectedProductForSize({ ...product, sizes });
         } else {
             // Otherwise add directly
             addToCart(product);
@@ -115,10 +123,17 @@ export default function POSPage() {
     const addToCart = (product: MenuItem, size?: string) => {
         if (lastOrder) setLastOrder(null); // Clear old receipt when starting new order
 
-        let price = product.price || 0;
-        if (size && product.sizes) {
-            const sizeObj = product.sizes.find(s => s.size === size);
-            if (sizeObj) price = sizeObj.price;
+        const dbProduct = getDbProduct(product.name);
+        const dbPrices = dbProduct?.prices && Array.isArray(dbProduct.prices) ? dbProduct.prices : null;
+
+        let price = dbProduct?.price || product.price || 0;
+
+        if (size) {
+            const sizes = dbPrices || product.sizes;
+            if (sizes) {
+                const sizeObj = sizes.find((s: any) => s.size === size);
+                if (sizeObj) price = sizeObj.price;
+            }
         }
 
         const cartItemId = `${product.id}-${size || 'std'}`;
@@ -510,7 +525,12 @@ export default function POSPage() {
                                             <h3 className="font-semibold text-gray-800 text-sm line-clamp-2">{item.name}</h3>
                                             <div className="flex justify-between items-end mt-1">
                                                 <p className="text-nocca-green font-bold">
-                                                    {item.price ? `₺${item.price}` : (item.sizes ? `₺${item.sizes[0].price}` : '-')}
+                                                    {(() => {
+                                                        const dbProduct = getDbProduct(item.name);
+                                                        const price = dbProduct?.price || item.price;
+                                                        const sizes = dbProduct?.prices || item.sizes;
+                                                        return price ? `₺${price}` : (sizes?.length > 0 ? `₺${sizes[0].price}` : '-');
+                                                    })()}
                                                 </p>
                                             </div>
                                         </div>

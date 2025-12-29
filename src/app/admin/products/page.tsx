@@ -731,12 +731,17 @@ function ProductModal({
     if (product && product.prices) {
       try {
         const parsed = typeof product.prices === 'string' ? JSON.parse(product.prices) : product.prices;
-        if (Array.isArray(parsed)) {
+        if (Array.isArray(parsed) && parsed.length > 0) {
           setSizePrices(parsed);
+          return;
         }
       } catch (e) {
         console.error("Failed to parse prices", e);
       }
+    }
+    // Fallback: if product has a single price, treat it as medium size
+    if (product && product.price !== undefined) {
+      setSizePrices([{ size: 'M', price: Number(product.price) }]);
     } else {
       setSizePrices([]);
     }
