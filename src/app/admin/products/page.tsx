@@ -41,6 +41,7 @@ interface Product {
   soldCount: number;
   salesBySize?: { size: string; count: number }[];
   prices?: any; // JSON field
+  unit?: string;
 }
 
 export default function ProductsManagement() {
@@ -845,6 +846,21 @@ function ProductModal({
                 {categories.map(cat => (
                   <option key={cat} value={cat}>{cat}</option>
                 ))}
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor="product-unit" className="block text-sm font-medium text-gray-700">Birim</label>
+              <select
+                id="product-unit"
+                name="unit"
+                defaultValue={product?.unit || 'adet'}
+                required
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
+              >
+                <option value="adet">Adet</option>
+                <option value="gram">Gram</option>
+                <option value="ml">Mililitre</option>
               </select>
             </div>
 

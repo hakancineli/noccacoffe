@@ -24,7 +24,7 @@ export default function IngredientsPage() {
 
     const [formData, setFormData] = useState({
         name: '',
-        unit: 'g',
+        unit: 'gram',
         stock: 0,
         costPerUnit: 0
     });
@@ -114,7 +114,7 @@ export default function IngredientsPage() {
     };
 
     const resetForm = () => {
-        setFormData({ name: '', unit: 'g', stock: 0, costPerUnit: 0 });
+        setFormData({ name: '', unit: 'gram', stock: 0, costPerUnit: 0 });
         setEditingIngredient(null);
     };
 
@@ -274,7 +274,7 @@ export default function IngredientsPage() {
                                     onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
                                     className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
                                 >
-                                    <option value="g">Gram (g)</option>
+                                    <option value="gram">Gram (gram)</option>
                                     <option value="ml">Mililitre (ml)</option>
                                     <option value="adet">Adet</option>
                                     <option value="kg">Kilogram (kg)</option>

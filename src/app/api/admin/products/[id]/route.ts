@@ -43,6 +43,7 @@ export async function PUT(
       imageUrl,
       stock,
       isActive,
+      unit,
       prices, // Added prices field
     } = body;
 
@@ -54,6 +55,8 @@ export async function PUT(
     if (imageUrl !== undefined) updateData.imageUrl = imageUrl;
     if (stock !== undefined) updateData.stock = parseInt(stock);
     if (isActive !== undefined) updateData.isActive = isActive;
+    if (unit !== undefined) updateData.unit = unit;
+    if (prices !== undefined) updateData.prices = typeof prices === 'string' ? JSON.parse(prices) : prices;
 
     const userId = request.headers.get('x-user-id') || undefined;
     const userEmail = request.headers.get('x-user-email') || undefined;

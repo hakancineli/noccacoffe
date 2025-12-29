@@ -144,6 +144,7 @@ export async function POST(request: NextRequest) {
       imageUrl,
       stock,
       isActive,
+      unit,
       prices
     } = body;
 
@@ -165,6 +166,7 @@ export async function POST(request: NextRequest) {
         imageUrl,
         stock: parseInt(stock),
         isActive: isActive,
+        unit: unit || 'adet',
         prices: prices ? JSON.stringify(prices) : null
       },
     });

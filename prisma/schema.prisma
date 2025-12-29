@@ -184,6 +184,7 @@ model Product {
   price       Float
   imageUrl    String?     @map("image_url")
   isActive    Boolean     @default(true) @map("is_active")
+  unit        String      @default("adet")
   prices      Json?       @map("prices") // Stores size-based pricing: [{size: "S", price: 140}, ...]
   stock       Int         @default(0)
   createdAt   DateTime    @default(now()) @map("created_at")
