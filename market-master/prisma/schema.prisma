@@ -3,14 +3,14 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
 model Merchant {
   id        String   @id @default(cuid())
   name      String
-  plan      String   @default("FREE") // FREE, PRO, ENTERPRISE
+  plan      String   @default("FREE")
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -21,7 +21,7 @@ model Merchant {
   customers Customer[]
   caris     Cari[]
 
-  @@map("merchants")
+  @@map("mm_merchants")
 }
 
 model Branch {
@@ -38,24 +38,24 @@ model Branch {
   stocks     Stock[]
   sales      Sale[]
 
-  @@map("branches")
+  @@map("mm_branches")
 }
 
 model User {
   id           String   @id @default(cuid())
   merchantId   String
-  branchId     String? // If null, has access to all branches (Merchant Admin)
+  branchId     String?
   email        String   @unique
   passwordHash String
   name         String?
-  role         Role     @default(STAFF)
+  role         String   @default("STAFF") // OWNER, ADMIN, MANAGER, STAFF
   isActive     Boolean  @default(true)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
   merchant     Merchant @relation(fields: [merchantId], references: [id])
   
-  @@map("users")
+  @@map("mm_users")
 }
 
 model Product {
@@ -67,8 +67,8 @@ model Product {
   description String?
   category    String?
   brand       String?
-  baseUnit    String   @default("adet") // adet, mt, kg, pkt
-  units       Json?    // Conversion rates: [{ unit: "paket", factor: 50 }, { unit: "koli", factor: 1000 }]
+  baseUnit    String   @default("adet")
+  units       String?  // Stringified JSON: [{ unit: "paket", factor: 50 }]
   buyPrice    Float    @default(0)
   sellPrice   Float    @default(0)
   taxRate     Float    @default(20)
@@ -80,7 +80,7 @@ model Product {
   stocks      Stock[]
   saleItems   SaleItem[]
 
-  @@map("products")
+  @@map("mm_products")
 }
 
 model Stock {
@@ -94,7 +94,7 @@ model Stock {
   branch    Branch   @relation(fields: [branchId], references: [id])
 
   @@unique([productId, branchId])
-  @@map("stocks")
+  @@map("mm_stocks")
 }
 
 model Customer {
@@ -106,28 +106,29 @@ model Customer {
   address    String?
   taxOffice  String?
   taxNumber  String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
 
   merchant   Merchant @relation(fields: [merchantId], references: [id])
   caris      Cari[]
   sales      Sale[]
 
-  @@map("customers")
+  @@map("mm_customers")
 }
 
 model Cari {
   id          String   @id @default(cuid())
   merchantId  String
   customerId  String
-  balance     Float    @default(0) // Borç bakiyesi
-  limit       Float    @default(0) // Borç limiti
+  balance     Float    @default(0) 
+  limit       Float    @default(0) 
   updatedAt   DateTime @updatedAt
 
   merchant    Merchant @relation(fields: [merchantId], references: [id])
   customer    Customer @relation(fields: [customerId], references: [id])
 
-  @@map("caris")
+  @@unique([customerId, merchantId], name: "customerId_merchantId")
+  @@map("mm_caris")
 }
 
 model Sale {
@@ -137,7 +138,7 @@ model Sale {
   totalAmount   Float
   discount      Float       @default(0)
   finalAmount   Float
-  paymentMethod String      // CASH, CARD, CARI
+  paymentMethod String      
   status        String      @default("COMPLETED")
   createdAt     DateTime    @default(now())
 
@@ -145,7 +146,7 @@ model Sale {
   customer      Customer?   @relation(fields: [customerId], references: [id])
   items         SaleItem[]
 
-  @@map("sales")
+  @@map("mm_sales")
 }
 
 model SaleItem {
@@ -154,19 +155,12 @@ model SaleItem {
   productId String
   quantity  Float
   unit      String
-  buyPrice  Float    // Captured at time of sale for profit reporting
+  buyPrice  Float    
   unitPrice Float
   total     Float
 
   sale      Sale     @relation(fields: [saleId], references: [id])
   product   Product  @relation(fields: [productId], references: [id])
 
-  @@map("sale_items")
-}
-
-enum Role {
-  OWNER
-  ADMIN
-  MANAGER
-  STAFF
+  @@map("mm_sale_items")
 }
