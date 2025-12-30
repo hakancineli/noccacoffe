@@ -56,15 +56,28 @@ export async function POST(request: Request) {
 
             // 3. Handle Cari (Veresiye)
             if (paymentMethod === 'CARI' && customerId) {
-                await tx.cari.upsert({
-                    where: { customerId_merchantId: { customerId, merchantId: body.merchantId || 'test-merchant' } }, // Note: needs composite key or unique on customerId if 1:1
+                const merchantId = body.merchantId || 'test-merchant';
+                const cari = await tx.cari.upsert({
+                    where: { customerId_merchantId: { customerId, merchantId } },
                     update: {
                         balance: { increment: finalAmount }
                     },
                     create: {
-                        merchantId: body.merchantId || 'test-merchant',
+                        merchantId,
                         customerId,
                         balance: finalAmount
+                    }
+                });
+
+                // Record the debit transaction
+                await tx.cariTransaction.create({
+                    data: {
+                        merchantId,
+                        customerId,
+                        cariId: cari.id,
+                        amount: finalAmount,
+                        type: 'DEBIT',
+                        description: `Satış #${newSale.id.slice(-6)}`
                     }
                 });
             }

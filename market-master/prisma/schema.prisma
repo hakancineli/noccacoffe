@@ -20,6 +20,8 @@ model Merchant {
   users     User[]
   customers Customer[]
   caris     Cari[]
+  cariTransactions CariTransaction[]
+  merchantTransactions MerchantTransaction[]
 
   @@map("mm_merchants")
 }
@@ -37,6 +39,7 @@ model Branch {
   merchant   Merchant @relation(fields: [merchantId], references: [id])
   stocks     Stock[]
   sales      Sale[]
+  merchantTransactions MerchantTransaction[]
 
   @@map("mm_branches")
 }
@@ -112,6 +115,7 @@ model Customer {
   merchant   Merchant @relation(fields: [merchantId], references: [id])
   caris      Cari[]
   sales      Sale[]
+  cariTransactions CariTransaction[]
 
   @@map("mm_customers")
 }
@@ -126,9 +130,27 @@ model Cari {
 
   merchant    Merchant @relation(fields: [merchantId], references: [id])
   customer    Customer @relation(fields: [customerId], references: [id])
+  transactions CariTransaction[]
 
   @@unique([customerId, merchantId], name: "customerId_merchantId")
   @@map("mm_caris")
+}
+
+model CariTransaction {
+  id          String   @id @default(cuid())
+  merchantId  String
+  customerId  String
+  cariId      String
+  amount      Float
+  type        String   // PAYMENT, DEBIT
+  description String?
+  createdAt   DateTime @default(now())
+
+  merchant    Merchant @relation(fields: [merchantId], references: [id])
+  customer    Customer @relation(fields: [customerId], references: [id])
+  cari        Cari     @relation(fields: [cariId], references: [id])
+
+  @@map("mm_cari_transactions")
 }
 
 model Sale {
@@ -163,4 +185,20 @@ model SaleItem {
   product   Product  @relation(fields: [productId], references: [id])
 
   @@map("mm_sale_items")
+}
+
+model MerchantTransaction {
+  id          String   @id @default(cuid())
+  merchantId  String
+  branchId    String?
+  amount      Float
+  type        String   // INCOME, EXPENSE
+  category    String   
+  description String?
+  createdAt   DateTime @default(now())
+
+  merchant    Merchant @relation(fields: [merchantId], references: [id])
+  branch      Branch?  @relation(fields: [branchId], references: [id])
+
+  @@map("mm_transactions")
 }

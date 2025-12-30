@@ -11,7 +11,8 @@ import {
     Settings,
     LogOut,
     ChevronRight,
-    Warehouse
+    Warehouse,
+    DollarSign
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -20,6 +21,7 @@ const MENU_ITEMS = [
     { name: 'Stok Yönetimi', icon: <Box size={20} />, href: '/admin/inventory' },
     { name: 'Satışlar', icon: <ShoppingCart size={20} />, href: '/admin/sales' },
     { name: 'Cari Hesaplar', icon: <Users size={20} />, href: '/admin/cari' },
+    { name: 'Finanslar', icon: <DollarSign size={20} />, href: '/admin/financials' },
     { name: 'Raporlar', icon: <BarChart3 size={20} />, href: '/admin/reports' },
 ];
 
@@ -48,8 +50,8 @@ export default function Sidebar() {
                             key={item.href}
                             href={item.href}
                             className={`flex items-center justify-between px-4 py-3 rounded-2xl transition-all group ${isActive
-                                    ? 'bg-teal-500/10 text-teal-400 border border-teal-500/20'
-                                    : 'text-gray-500 hover:bg-white/5 hover:text-white'
+                                ? 'bg-teal-500/10 text-teal-400 border border-teal-500/20'
+                                : 'text-gray-500 hover:bg-white/5 hover:text-white'
                                 }`}
                         >
                             <div className="flex items-center gap-3">
