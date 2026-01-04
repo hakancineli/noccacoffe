@@ -82,8 +82,8 @@ export async function GET(request: NextRequest) {
         }, {});
 
         // 6. Prepare Prompt
-        // Explicitly use v1 to avoid 404 on v1beta for gemini-1.5-flash
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }, { apiVersion: 'v1' });
+        // Use gemini-2.0-flash as it is confirmed available for this key
+        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" }, { apiVersion: 'v1' });
 
         const prompt = `
             Sen Nocca Coffee'nin profesyonel AI iş danışmanısın. Aşağıdaki aylık işletme verilerini bir cafe sahibi gözüyle analiz et.
