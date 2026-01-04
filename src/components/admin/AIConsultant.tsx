@@ -73,10 +73,39 @@ export default function AIConsultant() {
                         </div>
                     </div>
                     <div className="flex items-center gap-2 bg-white/5 p-1.5 rounded-xl border border-white/10">
-                        <select value={month} onChange={(e) => { setMonth(Number(e.target.value)); fetchAnalysis(Number(e.target.value), year); }} className="bg-transparent text-xs font-black px-2 py-1 outline-none">
-                            {Array.from({ length: 12 }, (_, i) => <option key={i + 1} value={i + 1} className="text-black">{new Date(2000, i, 1).toLocaleDateString('tr-TR', { month: 'long' })}</option>)}
+                        <select
+                            value={month}
+                            onChange={(e) => {
+                                const m = Number(e.target.value);
+                                setMonth(m);
+                                fetchAnalysis(m, year);
+                            }}
+                            className="bg-transparent text-xs font-black px-2 py-1 outline-none cursor-pointer"
+                        >
+                            {Array.from({ length: 12 }, (_, i) => (
+                                <option key={i + 1} value={i + 1} className="text-black">
+                                    {new Date(2000, i, 1).toLocaleDateString('tr-TR', { month: 'long' })}
+                                </option>
+                            ))}
                         </select>
-                        <button onClick={() => fetchAnalysis()} className="p-2 hover:bg-white/10 rounded-lg transition-all">
+
+                        <div className="w-px h-3 bg-white/20"></div>
+
+                        <select
+                            value={year}
+                            onChange={(e) => {
+                                const y = Number(e.target.value);
+                                setYear(y);
+                                fetchAnalysis(month, y);
+                            }}
+                            className="bg-transparent text-xs font-black px-2 py-1 outline-none cursor-pointer"
+                        >
+                            {[2024, 2025, 2026].map(y => (
+                                <option key={y} value={y} className="text-black">{y}</option>
+                            ))}
+                        </select>
+
+                        <button onClick={() => fetchAnalysis(month, year)} className="p-2 hover:bg-white/10 rounded-lg transition-all ml-1">
                             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
                         </button>
                     </div>
