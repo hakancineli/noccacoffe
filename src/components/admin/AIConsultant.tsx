@@ -23,6 +23,8 @@ interface AIResponse {
         churnCount: number;
         financials: { revenue: number, expenses: number, profit: number };
     };
+    error?: string;
+    details?: string;
 }
 
 export default function AIConsultant() {
@@ -134,6 +136,15 @@ export default function AIConsultant() {
 
             <div className="p-8">
                 {/* Content Sections */}
+                {data?.error && (
+                    <div className="p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 text-red-600 mb-6 animate-pulse">
+                        <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                        <div className="text-xs font-bold leading-tight">
+                            <p className="uppercase tracking-widest mb-1 font-black">Sistem Analiz Hatası</p>
+                            <p className="font-medium opacity-80">{data.error}</p>
+                        </div>
+                    </div>
+                )}
                 {activeTab === 'overview' && data?.advancedStats && (
                     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
