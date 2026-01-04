@@ -21,7 +21,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": [
-        "./src/*"
+        "./src/*",
+        "./market-master/*"
       ]
     },
     "plugins": [
