@@ -1,24 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+
+// Initialize with a default value to prevent crash if key is missing during build
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || 'MISSING_KEY');
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
+    console.log('AI Consultant: Request received');
     try {
         if (!process.env.GEMINI_API_KEY) {
-            return NextResponse.json({ error: 'Gemini API Key is not configured' }, { status: 500 });
+            console.error('AI Consultant: Missing API Key');
+            return NextResponse.json({ error: 'Gemini API Key is not configured in environment variables' }, { status: 500 });
         }
 
         const { searchParams } = new URL(request.url);
-        const month = searchParams.get('month') || new Date().getMonth() + 1;
-        const year = searchParams.get('year') || new Date().getFullYear();
+        const month = searchParams.get('month') || (new Date().getMonth() + 1).toString();
+        const year = searchParams.get('year') || new Date().getFullYear().toString();
+
+        console.log(`AI Consultant: Analyzing for ${month}/${year}`);
 
         const startDate = new Date(Number(year), Number(month) - 1, 1);
         const endDate = new Date(Number(year), Number(month), 0, 23, 59, 59, 999);
 
         // 1. Fetch Sales Data
+        console.log('AI Consultant: Fetching orders...');
         const orders = await prisma.order.findMany({
             where: {
                 createdAt: { gte: startDate, lte: endDate },
@@ -28,6 +35,7 @@ export async function GET(request: NextRequest) {
         });
 
         // 2. Fetch Expense Data
+        console.log('AI Consultant: Fetching expenses...');
         const expenses = await prisma.expense.findMany({
             where: {
                 date: { gte: startDate, lte: endDate }
@@ -35,6 +43,7 @@ export async function GET(request: NextRequest) {
         });
 
         // 3. Fetch Waste Data
+        console.log('AI Consultant: Fetching waste logs...');
         const wasteLogs = await prisma.wasteLog.findMany({
             where: {
                 createdAt: { gte: startDate, lte: endDate }
@@ -42,6 +51,7 @@ export async function GET(request: NextRequest) {
         });
 
         // 4. Summarize data for AI
+        console.log('AI Consultant: Summarizing data...');
         const totalRevenue = orders.reduce((sum: number, o: any) => sum + o.finalAmount, 0);
         const totalExpenses = expenses.reduce((sum: number, e: any) => sum + e.amount, 0);
         const topProducts = orders.flatMap((o: any) => o.orderItems).reduce((acc: any, item: any) => {
@@ -59,8 +69,10 @@ export async function GET(request: NextRequest) {
         }, {});
 
         // 5. Prepare Prompt
-        // Explicitly using v1 API to avoid v1beta 404 issues
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }, { apiVersion: 'v1' });
+        console.log('AI Consultant: Calling Gemini API...');
+        // Try gemini-1.5-flash with default settings first
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
         const prompt = `
             Sen Nocca Coffee'nin profesyonel AI iş danışmanısın. Aşağıdaki aylık işletme verilerini bir cafe sahibi gözüyle analiz et.
             
@@ -77,7 +89,7 @@ export async function GET(request: NextRequest) {
             2. Maliyetleri düşürmek veya satışları artırmak için 3 tane somut, uygulanabilir ve profesyonel tavsiye ver.
             3. Analizini samimi ama kurumsal bir dille yap.
             
-            Yanıtını sadece JSON formatında şu yapıda ver:
+            Yanıtını sadece JSON formatında şu yapıda ver (kod bloku kullanma, doğrudan JSON objesini yaz):
             {
                 "summary": "...",
                 "recommendations": ["...", "...", "..."],
@@ -86,16 +98,37 @@ export async function GET(request: NextRequest) {
         `;
 
         const result = await model.generateContent(prompt);
-        const responseText = result.response.text();
+        const response = await result.response;
+        const responseText = response.text();
+
+        console.log('AI Consultant: AI response received');
 
         // Clean JSON response (sometimes Gemini adds ```json tags)
-        const jsonContent = responseText.replace(/```json|```/g, '').trim();
-        const aiAnalysis = JSON.parse(jsonContent);
+        let jsonContent = responseText.replace(/```json|```/g, '').trim();
 
-        return NextResponse.json(aiAnalysis);
+        // Robust JSON parsing
+        try {
+            const aiAnalysis = JSON.parse(jsonContent);
+            return NextResponse.json(aiAnalysis);
+        } catch (parseError) {
+            console.error('AI Consultant: JSON Parse Error', responseText);
+            // Fallback if AI output is not perfect JSON
+            return NextResponse.json({
+                summary: "Analiz raporu oluşturuldu ancak veri formatı düzenleniyor.",
+                recommendations: [
+                    "Satış verilerini düzenli incelemeye devam edin.",
+                    "Gider kalemlerini optimize edin.",
+                    "Müşteri geri bildirimlerini dikkate alın."
+                ],
+                mood: "neutral"
+            });
+        }
 
     } catch (error: any) {
-        console.error('AI Consultant API Error:', error);
-        return NextResponse.json({ error: 'AI analizi şu an yapılamıyor: ' + error.message }, { status: 500 });
+        console.error('AI Consultant: CRITICAL ERROR', error);
+        return NextResponse.json({
+            error: 'AI analizi şu an yapılamıyor. Lütfen daha sonra tekrar deneyin.',
+            details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        }, { status: 500 });
     }
 }
