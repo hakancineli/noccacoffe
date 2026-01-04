@@ -203,7 +203,20 @@ export async function GET(request: NextRequest) {
             }
         } catch (aiError: any) {
             console.error('AI Consultant: Gemini Error:', aiError.message);
-            aiAnalysis.summary = "AI servisi şu an yanıt vermiyor, ancak verileri aşağıda görebilirsiniz.";
+            // FALLBACK LOGIC: Generate local insights if AI fails
+            const profitMargin = totalRevenue > 0 ? (totalRevenue - totalExpenses) / totalRevenue : 0;
+            const topProduct = menuEngineering.sort((a, b) => b.sold - a.sold)[0]?.name || "Ürün";
+
+            aiAnalysis = {
+                summary: `Aralık ayı ${totalRevenue.toLocaleString('tr-TR')} TL ciro ve %${(profitMargin * 100).toFixed(0)} kar marjı ile tamamlandı. ${topProduct} en popüler ürün olarak öne çıkıyor.`,
+                insights: {
+                    finance: profitMargin > 0.2 ? "Kar marjınız sağlıklı seviyede, sabit giderleri kontrol altında tutmaya devam edin." : "Kar marjı düşük görünüyor, maliyetleri düşürmek için tedarikçilerle görüşün.",
+                    menu: `${topProduct} satışları çok iyi, yanına yüksek kar marjlı bir eşlikçi ürün (cookie vb.) önerin.`,
+                    stock: "Popüler ürünlerin stok seviyelerini haftalık olarak kontrol edip sürpriz bitişleri engelleyin.",
+                    loyalty: "Düzenli müşteriler için '5. Kahve Bedava' gibi agresif bir kampanya başlatarak sadakati artırın."
+                },
+                mood: profitMargin > 0.15 ? "positive" : profitMargin > 0 ? "neutral" : "warning"
+            };
         }
 
         return NextResponse.json({
@@ -219,11 +232,17 @@ export async function GET(request: NextRequest) {
     } catch (error: any) {
         console.error('AI Consultant CRITICAL Error:', error);
         return NextResponse.json({
-            summary: "Sistem hatası: " + error.message,
-            insights: { finance: "", menu: "", stock: "", loyalty: "" },
+            // Fallback for CRITICAL errors (DB connection etc)
+            summary: "Sistem verileri şu an işlenemiyor.",
+            insights: {
+                finance: "Veri hatası.",
+                menu: "Veri hatası.",
+                stock: "Veri hatası.",
+                loyalty: "Veri hatası."
+            },
             mood: "warning",
             error: error.message,
             advancedStats: null
-        }, { status: 200 }); // Return 200 to allow UI to handle it
+        }, { status: 200 });
     }
 }
