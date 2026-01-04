@@ -1,5 +1,3 @@
-'use client';
-
 import React, { useState, useEffect } from 'react';
 import { Sparkles, TrendingUp, AlertCircle, Coffee, Loader2, RefreshCw } from 'lucide-react';
 
@@ -13,12 +11,14 @@ export default function AIConsultant() {
     const [data, setData] = useState<AIResponse | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [month, setMonth] = useState(new Date().getMonth() + 1);
+    const [year, setYear] = useState(new Date().getFullYear());
 
-    const fetchAnalysis = async () => {
+    const fetchAnalysis = async (m = month, y = year) => {
         setLoading(true);
         setError(null);
         try {
-            const res = await fetch('/api/admin/ai-consultant');
+            const res = await fetch(`/api/admin/ai-consultant?month=${m}&year=${y}`);
             const result = await res.json();
             if (result.error) throw new Error(result.error);
             setData(result);
@@ -53,13 +53,45 @@ export default function AIConsultant() {
                         <p className="text-xs text-gray-500 mt-1 uppercase tracking-widest font-semibold">Aylık Performans Analizi</p>
                     </div>
                 </div>
-                <button
-                    onClick={fetchAnalysis}
-                    disabled={loading}
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-400 hover:text-gray-900"
-                >
-                    <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-                </button>
+                <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2">
+                        <select
+                            value={month}
+                            onChange={(e) => {
+                                const newMonth = parseInt(e.target.value);
+                                setMonth(newMonth);
+                                fetchAnalysis(newMonth, year);
+                            }}
+                            className="bg-white border border-gray-200 rounded-lg text-xs font-bold px-2 py-1 outline-none hover:border-black transition-colors"
+                        >
+                            {Array.from({ length: 12 }, (_, i) => (
+                                <option key={i + 1} value={i + 1}>
+                                    {new Date(2000, i, 1).toLocaleDateString('tr-TR', { month: 'long' })}
+                                </option>
+                            ))}
+                        </select>
+                        <select
+                            value={year}
+                            onChange={(e) => {
+                                const newYear = parseInt(e.target.value);
+                                setYear(newYear);
+                                fetchAnalysis(month, newYear);
+                            }}
+                            className="bg-white border border-gray-200 rounded-lg text-xs font-bold px-2 py-1 outline-none hover:border-black transition-colors"
+                        >
+                            {[2024, 2025, 2026].map(y => (
+                                <option key={y} value={y}>{y}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <button
+                        onClick={() => fetchAnalysis(month, year)}
+                        disabled={loading}
+                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-400 hover:text-gray-900"
+                    >
+                        <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                    </button>
+                </div>
             </div>
 
             <div className="p-6">
@@ -103,13 +135,15 @@ export default function AIConsultant() {
 
                         <div className="pt-4 border-t border-gray-50 flex items-center justify-between">
                             <span className="text-[10px] font-bold text-gray-400 uppercase">Powered by Gemini 1.5 Flash</span>
-                            <span className="text-[10px] font-bold text-gray-400 uppercase">{new Date().toLocaleDateString('tr-TR', { month: 'long', year: 'numeric' })}</span>
+                            <span className="text-[10px] font-bold text-gray-400 uppercase">
+                                {new Date(year, month - 1).toLocaleDateString('tr-TR', { month: 'long', year: 'numeric' })}
+                            </span>
                         </div>
                     </div>
                 ) : (
                     <div className="py-12 text-center">
                         <button
-                            onClick={fetchAnalysis}
+                            onClick={() => fetchAnalysis()}
                             className="px-6 py-2 bg-black text-white rounded-xl text-sm font-bold hover:bg-gray-800 transition-all"
                         >
                             Analizi Başlat
