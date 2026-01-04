@@ -171,7 +171,7 @@ export default function AIConsultant() {
 
                         {/* Secondary Stats: Top Products & Traffic */}
                         {data.stats && (
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 gap-8">
                                 {/* Top Products */}
                                 <div className="space-y-3">
                                     <div className="flex items-center gap-2 px-1">
