@@ -22,15 +22,15 @@ export async function GET(request: Request) {
             include: { items: true, payments: true }
         });
 
-        const totalRevenue = sales.reduce((sum, s) => sum + s.finalAmount, 0);
-        const totalDiscount = sales.reduce((sum, s) => sum + s.discount, 0);
+        const totalRevenue = sales.reduce((sum: number, s: any) => sum + s.finalAmount, 0);
+        const totalDiscount = sales.reduce((sum: number, s: any) => sum + s.discount, 0);
         const orderCount = sales.length;
 
         // 2. Calculate Costs and Profit
         // We need to match sale items with buy prices to get true profit
         let totalCost = 0;
-        sales.forEach(sale => {
-            sale.items.forEach(item => {
+        sales.forEach((sale: any) => {
+            sale.items.forEach((item: any) => {
                 totalCost += (item.buyPrice || 0) * item.quantity;
             });
         });
@@ -43,7 +43,7 @@ export async function GET(request: Request) {
                 createdAt: { gte: startDate }
             }
         });
-        const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
+        const totalExpenses = expenses.reduce((sum: number, e: any) => sum + e.amount, 0);
 
         // 4. Sales by Category (Pie Chart Data)
         // This requires joining SaleItem -> Product -> Category
@@ -55,24 +55,24 @@ export async function GET(request: Request) {
                     createdAt: { gte: startDate }
                 }
             },
-            include: { product: { include: { category: true } } }
+            include: { product: true }
         });
 
-        saleItems.forEach(item => {
-            const catName = item.product.category?.name || 'Diğer';
+        saleItems.forEach((item: any) => {
+            const catName = item.product.category || 'Diğer';
             salesByCategory[catName] = (salesByCategory[catName] || 0) + item.total;
         });
 
         // 5. Daily Sales Trend (Line Chart Data)
         const trend: Record<string, number> = {};
-        sales.forEach(s => {
+        sales.forEach((s: any) => {
             const dateStr = s.createdAt.toISOString().split('T')[0];
             trend[dateStr] = (trend[dateStr] || 0) + s.finalAmount;
         });
 
         // 6. Top 5 Products
         const productStats: Record<string, { name: string, qty: number, revenue: number }> = {};
-        saleItems.forEach(item => {
+        saleItems.forEach((item: any) => {
             if (!productStats[item.productId]) {
                 productStats[item.productId] = { name: item.product.name, qty: 0, revenue: 0 };
             }
