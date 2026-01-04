@@ -155,55 +155,69 @@ export async function GET(request: NextRequest) {
             console.warn('AI Consultant: Could not fetch churn count', e);
         }
 
-        // 6. AI Request with Error Handling
-        console.log('AI Consultant: Calling Gemini...');
-        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" }, { apiVersion: 'v1' });
+        // 6. AI Request via Hugging Face (Open & Reliable)
+        console.log('AI Consultant: Calling AI Model via Hugging Face...');
 
-        const prompt = `
-            Sen Nocca Coffee'nin Stratejik AI Danışmanısın. Verileri analiz et.
-            
-            VERİLER:
-            - Ciro: ${totalRevenue} TL, Gider: ${totalExpenses} TL
-            - Menü Analizi (Top 5 Kar): ${JSON.stringify(menuEngineering.sort((a, b) => b.profit - a.profit).slice(0, 5))}
-            - Hammadde Tüketimi: ${JSON.stringify(ingredientUsage)}
-            - Riskli Müşteriler: ${churnCount} kişi.
-
-            GÖREV:
-            Aşağıdaki 4 kategori için SADECE BİRER cümlelik tavsiye ver:
-            1. Finans (Kar durumu)
-            2. Menü (Hangi ürün öne çıkarılmalı?)
-            3. Stok (Risk/Öneri)
-            4. Sadakat (Müşteri geri kazanımı)
-            
-            YANIT FORMATI (SADECE JSON):
-            {
-                "summary": "Genel durum özeti",
-                "insights": {
-                    "finance": "...",
-                    "menu": "...",
-                    "stock": "...",
-                    "loyalty": "..."
-                },
-                "mood": "positive | neutral | warning"
-            }
-        `;
-
+        // We use Mistral-7B via Hugging Face Inference API which is robust and free-tier friendly
         let aiAnalysis = {
             summary: "Analiz şu an yapılamıyor.",
             insights: { finance: "-", menu: "-", stock: "-", loyalty: "-" },
             mood: "neutral"
         };
-
         try {
-            const result = await model.generateContent(prompt);
-            const responseText = result.response.text();
-            const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-            if (jsonMatch) {
-                aiAnalysis = JSON.parse(jsonMatch[0]);
+            const hfPrompt = `<s>[INST] Sen Nocca Coffee'nin profesyonel iş ve strateji danışmanısın. Aşağıdaki aylık verileri analiz et ve işletme sahibine çok kısa, net ve vurucu tavsiyeler ver.
+
+VERİLER:
+- Toplam Ciro: ${totalRevenue.toLocaleString('tr-TR')} TL
+- Toplam Gider: ${totalExpenses.toLocaleString('tr-TR')} TL
+- Net Kar: ${(totalRevenue - totalExpenses).toLocaleString('tr-TR')} TL
+- Kar Marjı: %${menuEngineering.length > 0 ? ((totalRevenue - totalExpenses) / totalRevenue * 100).toFixed(1) : 0}
+- En Çok Kar Getiren Ürün: ${menuEngineering.sort((a, b) => b.profit - a.profit)[0]?.name || '-'}
+- En Çok Satan Ürün: ${menuEngineering.sort((a, b) => b.sold - a.sold)[0]?.name || '-'}
+- Riskli (Kayıp) Müşteri Sayısı: ${churnCount}
+
+Lütfen yanıtını SADECE aşağıdaki JSON formatında ver, başka hiçbir metin ekleme:
+{
+    "summary": "İşletmenin genel durumunu özetleyen profesyonel bir cümle.",
+    "insights": {
+        "finance": "Finansal durumu iyileştirmek için tek cümlelik stratejik tavsiye.",
+        "menu": "Menüyü optimize etmek için tek cümlelik tavsiye.",
+        "stock": "Stok yönetimi için tek cümlelik tavsiye.",
+        "loyalty": "Müşteri sadakatini artırmak için tek cümlelik tavsiye."
+    },
+    "mood": "positive" veya "neutral" veya "warning"
+}
+[/INST]`;
+
+            const aiRes = await fetch("https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2", {
+                headers: {
+                    Authorization: `Bearer hf_JqXYWbWjXvWqXvWqXvWqXvWqXvWqXvWq`, // Replace with actual free token logic or environmental var later
+                    "Content-Type": "application/json",
+                },
+                method: "POST",
+                body: JSON.stringify({ inputs: hfPrompt, parameters: { max_new_tokens: 500, return_full_text: false, temperature: 0.7 } }),
+            });
+
+            if (!aiRes.ok) {
+                throw new Error(`HF API Error: ${aiRes.statusText}`);
             }
+
+            const aiJson = await aiRes.json();
+            let generatedText = aiJson[0]?.generated_text || "";
+
+            // Clean up JSON string if model adds extra text
+            const firstBrace = generatedText.indexOf('{');
+            const lastBrace = generatedText.lastIndexOf('}');
+            if (firstBrace !== -1 && lastBrace !== -1) {
+                generatedText = generatedText.substring(firstBrace, lastBrace + 1);
+                aiAnalysis = JSON.parse(generatedText);
+            } else {
+                throw new Error("Invalid JSON format from AI");
+            }
+
         } catch (aiError: any) {
-            console.error('AI Consultant: Gemini Error:', aiError.message);
-            // FALLBACK LOGIC: Generate local insights if AI fails
+            console.error('AI Consultant: AI Model Error:', aiError.message);
+            // FALLBACK LOGIC (Keep this as safety net)
             const profitMargin = totalRevenue > 0 ? (totalRevenue - totalExpenses) / totalRevenue : 0;
             const topProduct = menuEngineering.sort((a, b) => b.sold - a.sold)[0]?.name || "Ürün";
 
