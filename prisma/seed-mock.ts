@@ -13,6 +13,26 @@ async function main() {
 
     const staff = await prisma.barista.findFirst();
 
+    // Clean up existing mock data to avoid unique constraint errors
+    console.log('Cleaning up old mock data...');
+    await prisma.order.deleteMany({
+        where: {
+            orderNumber: { startsWith: 'MOCK-' }
+        }
+    });
+    await prisma.expense.deleteMany({
+        where: {
+            description: { in: ['Sarf Malzeme', 'Kira', 'Maaşlar', 'Elektrik'] },
+            date: { gte: new Date(2025, 11, 1) }
+        }
+    });
+    await prisma.wasteLog.deleteMany({
+        where: {
+            reason: 'Hatalı hazırlık',
+            createdAt: { gte: new Date(2025, 11, 1) }
+        }
+    });
+
     // Helper to generate a batch of orders for a day
     async function seedDay(year: number, month: number, day: number) {
         const orderCount = 35; // Fixed for speed
