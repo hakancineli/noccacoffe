@@ -288,28 +288,57 @@ export default function AIConsultant() {
                             </div>
                         </div>
 
-                        {/* Hourly Heatmap */}
+                        {/* Hourly Heatmap - Enhanced Visuals */}
                         <div>
-                            <h4 className="text-lg font-black text-gray-900 mb-6">Saatlik Yoğunluk Haritası</h4>
-                            <div className="h-32 flex items-end gap-1 sm:gap-2">
+                            <h4 className="text-lg font-black text-gray-900 mb-6 flex items-center gap-2">
+                                <Clock className="w-5 h-5 text-gray-400" />
+                                Saatlik Yoğunluk Haritası
+                            </h4>
+                            <div className="h-40 flex items-end gap-1 sm:gap-2 bg-gray-50/50 p-4 rounded-3xl border border-gray-100">
                                 {data.advancedStats.shiftInsights.hoursDistribution.map((count, i) => {
                                     const max = Math.max(...data!.advancedStats!.shiftInsights!.hoursDistribution);
-                                    const height = max > 0 ? (count / max) * 100 : 0;
+                                    // Make sure bars are always visible (min 10% height if there is data)
+                                    let height = 0;
+                                    if (count > 0) {
+                                        height = max > 0 ? (count / max) * 100 : 0;
+                                        height = Math.max(height, 15); // Min height boost
+                                    }
+
                                     const isPeak = height > 70;
+                                    const isZero = count === 0;
+
                                     return (
-                                        <div key={i} className="flex-1 flex flex-col items-center gap-2 group relative">
+                                        <div key={i} className="flex-1 flex flex-col items-center gap-2 group relative h-full justify-end">
                                             <div
-                                                className={`w-full rounded-t-lg transition-all duration-500 ${isPeak ? 'bg-indigo-500' : 'bg-gray-200 group-hover:bg-indigo-300'}`}
-                                                style={{ height: `${Math.max(height, 5)}%` }}
-                                            ></div>
-                                            <span className="text-[9px] font-bold text-gray-400 absolute -bottom-5 transform -rotate-45 sm:rotate-0">{i}:00</span>
+                                                className={`w-full rounded-md transition-all duration-500 relative ${isZero ? 'bg-gray-100 h-1.5' :
+                                                        isPeak ? 'bg-gradient-to-t from-indigo-600 to-indigo-400 shadow-lg shadow-indigo-500/30' :
+                                                            'bg-indigo-200 group-hover:bg-indigo-300'
+                                                    }`}
+                                                style={{ height: isZero ? '6px' : `${height}%` }}
+                                            >
+                                                {/* Bar Top Glow */}
+                                                {!isZero && <div className="absolute top-0 left-0 right-0 h-1bg-white/20 rounded-t-md"></div>}
+                                            </div>
+
+                                            {/* Hour Label - Only show even hours to save space */}
+                                            <span className={`text-[9px] font-bold ${isPeak ? 'text-indigo-600' : 'text-gray-300'} absolute -bottom-6`}>
+                                                {i % 2 === 0 ? `${i}` : ''}
+                                            </span>
+
                                             {/* Tooltip */}
-                                            <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
-                                                {count} Sipariş
+                                            <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all whitespace-nowrap z-20 shadow-xl flex flex-col items-center pointer-events-none transform group-hover:-translate-y-1">
+                                                <span className="text-gray-400 text-[8px] uppercase">Saat {i}:00</span>
+                                                <span>{count} Sipariş</span>
+                                                <div className="w-2 h-2 bg-gray-900 rotate-45 absolute -bottom-1"></div>
                                             </div>
                                         </div>
                                     );
                                 })}
+                            </div>
+                            <div className="flex justify-between mt-8 px-2">
+                                <span className="text-[10px] font-bold text-gray-300">00:00</span>
+                                <span className="text-[10px] font-bold text-gray-300">12:00</span>
+                                <span className="text-[10px] font-bold text-gray-300">23:00</span>
                             </div>
                         </div>
 
