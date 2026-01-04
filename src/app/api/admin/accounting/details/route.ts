@@ -10,11 +10,9 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: 'Date is required' }, { status: 400 });
         }
 
-        const startOfDay = new Date(dateStr);
-        startOfDay.setHours(0, 0, 0, 0);
-
-        const endOfDay = new Date(dateStr);
-        endOfDay.setHours(23, 59, 59, 999);
+        // Explicitly handle date as UTC to match grouping logic
+        const startOfDay = new Date(`${dateStr}T00:00:00.000Z`);
+        const endOfDay = new Date(`${dateStr}T23:59:59.999Z`);
 
         // Fetch Orders for the day
         const orders = await prisma.order.findMany({

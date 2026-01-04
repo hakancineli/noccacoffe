@@ -40,7 +40,6 @@ export async function GET(request: Request) {
             orderBy: {
                 date: 'desc'
             },
-            take: 200,
             include: {
                 staff: {
                     select: { name: true }
