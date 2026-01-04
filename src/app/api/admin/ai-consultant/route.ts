@@ -50,7 +50,21 @@ export async function GET(request: NextRequest) {
             }
         });
 
-        // 4. Summarize data for AI
+        // 4. Check for lack of data
+        if (orders.length === 0 && expenses.length === 0) {
+            console.log('AI Consultant: No data found for the period');
+            return NextResponse.json({
+                summary: "Bu ay için henüz yeterli işletme verisi bulunmuyor. Analiz için sipariş kayıtlarına veya gider girişlerine ihtiyacım var.",
+                recommendations: [
+                    "Sipariş almaya başladığınızda burada analizleri görebileceksiniz.",
+                    "Giderlerinizi kaydederek maliyet analizi yapmamı sağlayabilirsiniz.",
+                    "Zayiat kayıtlarını tutarak fire oranlarını düşürmeme yardımcı olabilirsiniz."
+                ],
+                mood: "neutral"
+            });
+        }
+
+        // 5. Summarize data for AI
         console.log('AI Consultant: Summarizing data...');
         const totalRevenue = orders.reduce((sum: number, o: any) => sum + o.finalAmount, 0);
         const totalExpenses = expenses.reduce((sum: number, e: any) => sum + e.amount, 0);
@@ -68,9 +82,8 @@ export async function GET(request: NextRequest) {
             return acc;
         }, {});
 
-        // 5. Prepare Prompt
+        // 6. Prepare Prompt
         console.log('AI Consultant: Calling Gemini API...');
-        // Try gemini-1.5-flash with default settings first
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
         const prompt = `
@@ -112,7 +125,6 @@ export async function GET(request: NextRequest) {
             return NextResponse.json(aiAnalysis);
         } catch (parseError) {
             console.error('AI Consultant: JSON Parse Error', responseText);
-            // Fallback if AI output is not perfect JSON
             return NextResponse.json({
                 summary: "Analiz raporu oluşturuldu ancak veri formatı düzenleniyor.",
                 recommendations: [
