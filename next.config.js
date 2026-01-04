@@ -29,6 +29,7 @@ const nextConfig = {
     config.resolve.alias = {
       ...config.resolve.alias,
       '@': path.resolve(__dirname, 'src'),
+      '@mm': path.resolve(__dirname, 'market-master'),
     };
     return config;
   },

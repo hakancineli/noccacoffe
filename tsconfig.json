@@ -21,7 +21,9 @@
     "baseUrl": ".",
     "paths": {
       "@/*": [
-        "./src/*",
+        "./src/*"
+      ],
+      "@mm/*": [
         "./market-master/*"
       ]
     },

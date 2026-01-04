@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   description: "Yüksek performanslı, şube bazlı yapı market yönetim sistemi.",
 };
 
-import ThemeInitializer from "@/components/ThemeInitializer";
+import ThemeInitializer from "@mm/components/ThemeInitializer";
 
 export default function RootLayout({
   children,

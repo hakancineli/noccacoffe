@@ -16,7 +16,7 @@ import {
     Loader2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import ProductModal from '@/components/admin/ProductModal';
+import ProductModal from '@mm/components/admin/ProductModal';
 
 export default function InventoryPage() {
     const [search, setSearch] = useState('');
