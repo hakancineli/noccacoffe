@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { GoogleGenerativeAI } from '@google/generative-ai';
-
 // Safe initialization
-const apiKey = process.env.GEMINI_API_KEY || '';
-const genAI = new GoogleGenerativeAI(apiKey || 'MISSING_KEY');
+// const apiKey = process.env.GEMINI_API_KEY || '';
+// const genAI = new GoogleGenerativeAI(apiKey || 'MISSING_KEY');
 
 export const dynamic = 'force-dynamic';
 
@@ -12,15 +10,7 @@ export async function GET(request: NextRequest) {
     try {
         console.log('AI Consultant: Starting ultra-resilient request');
 
-        if (!apiKey) {
-            console.error('AI Consultant: GEMINI_API_KEY is missing');
-            return NextResponse.json({
-                summary: "API Anahtarı bulunamadı. Lütfen .env dosyasını kontrol edin.",
-                insights: { finance: "", menu: "", stock: "", loyalty: "" },
-                mood: "neutral",
-                error: "Missing API Key"
-            }, { status: 200 }); // Return 200 to show message in UI
-        }
+        // Removed Gemini Key Check as we use Hugging Face fallback
 
         const { searchParams } = new URL(request.url);
         const month = searchParams.get('month') || (new Date().getMonth() + 1).toString();
