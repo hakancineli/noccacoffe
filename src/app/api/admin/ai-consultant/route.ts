@@ -155,13 +155,34 @@ export async function GET(request: NextRequest) {
             console.warn('AI Consultant: Could not fetch churn count', e);
         }
 
-        // 6. AI Request via Hugging Face (Open & Reliable)
+        // 6. Shift & Rush Hour Analysis
+        const hoursDistribution = new Array(24).fill(0);
+        const daysDistribution = new Array(7).fill(0);
+        // 0=Sun, 1=Mon...
+        const dayNames = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"];
+
+        orders.forEach(o => {
+            const d = new Date(o.createdAt);
+            // Simple adjustment for TR time (UTC+3 roughly check) - relying on server time for now or assume stored correctly
+            hoursDistribution[d.getHours()]++;
+            daysDistribution[d.getDay()]++;
+        });
+
+        const busiestHourIndex = hoursDistribution.indexOf(Math.max(...hoursDistribution));
+        const busiestDayIndex = daysDistribution.indexOf(Math.max(...daysDistribution));
+
+        const shiftInsights = {
+            busiestHour: `${busiestHourIndex}:00 - ${busiestHourIndex + 1}:00`,
+            busiestDay: dayNames[busiestDayIndex],
+            avgOrdersPerDay: Math.round(orders.length / 30), // Approx
+        };
+
+        // 7. AI Request via Hugging Face (Open & Reliable)
         console.log('AI Consultant: Calling AI Model via Hugging Face...');
 
-        // We use Mistral-7B via Hugging Face Inference API which is robust and free-tier friendly
         let aiAnalysis = {
             summary: "Analiz şu an yapılamıyor.",
-            insights: { finance: "-", menu: "-", stock: "-", loyalty: "-" },
+            insights: { finance: "-", menu: "-", stock: "-", loyalty: "-", staff: "-" },
             mood: "neutral"
         };
         try {
@@ -169,11 +190,11 @@ export async function GET(request: NextRequest) {
 
 VERİLER:
 - Toplam Ciro: ${totalRevenue.toLocaleString('tr-TR')} TL
-- Toplam Gider: ${totalExpenses.toLocaleString('tr-TR')} TL
 - Net Kar: ${(totalRevenue - totalExpenses).toLocaleString('tr-TR')} TL
-- Kar Marjı: %${menuEngineering.length > 0 ? ((totalRevenue - totalExpenses) / totalRevenue * 100).toFixed(1) : 0}
 - En Çok Kar Getiren Ürün: ${menuEngineering.sort((a, b) => b.profit - a.profit)[0]?.name || '-'}
 - En Çok Satan Ürün: ${menuEngineering.sort((a, b) => b.sold - a.sold)[0]?.name || '-'}
+- En Yoğun Gün: ${shiftInsights.busiestDay}
+- En Yoğun Saatler: ${shiftInsights.busiestHour}
 - Riskli (Kayıp) Müşteri Sayısı: ${churnCount}
 
 Lütfen yanıtını SADECE aşağıdaki JSON formatında ver, başka hiçbir metin ekleme:
@@ -183,7 +204,8 @@ Lütfen yanıtını SADECE aşağıdaki JSON formatında ver, başka hiçbir met
         "finance": "Finansal durumu iyileştirmek için tek cümlelik stratejik tavsiye.",
         "menu": "Menüyü optimize etmek için tek cümlelik tavsiye.",
         "stock": "Stok yönetimi için tek cümlelik tavsiye.",
-        "loyalty": "Müşteri sadakatini artırmak için tek cümlelik tavsiye."
+        "loyalty": "Müşteri sadakatini artırmak için tek cümlelik tavsiye.",
+        "staff": "Vardiya ve personel yönetimi için, yoğun saatlere (${shiftInsights.busiestHour}) odaklanan tek cümlelik tavsiye."
     },
     "mood": "positive" veya "neutral" veya "warning"
 }
@@ -227,7 +249,8 @@ Lütfen yanıtını SADECE aşağıdaki JSON formatında ver, başka hiçbir met
                     finance: profitMargin > 0.2 ? "Kar marjınız sağlıklı seviyede, sabit giderleri kontrol altında tutmaya devam edin." : "Kar marjı düşük görünüyor, maliyetleri düşürmek için tedarikçilerle görüşün.",
                     menu: `${topProduct} satışları çok iyi, yanına yüksek kar marjlı bir eşlikçi ürün (cookie vb.) önerin.`,
                     stock: "Popüler ürünlerin stok seviyelerini haftalık olarak kontrol edip sürpriz bitişleri engelleyin.",
-                    loyalty: "Düzenli müşteriler için '5. Kahve Bedava' gibi agresif bir kampanya başlatarak sadakati artırın."
+                    loyalty: "Düzenli müşteriler için '5. Kahve Bedava' gibi agresif bir kampanya başlatarak sadakati artırın.",
+                    staff: `${dayNames[busiestDayIndex]} günleri ${busiestHourIndex}:00 civarı yoğunluk artıyor, vardiya planını buna göre güçlendirin.`
                 },
                 mood: profitMargin > 0.15 ? "positive" : profitMargin > 0 ? "neutral" : "warning"
             };
@@ -239,7 +262,8 @@ Lütfen yanıtını SADECE aşağıdaki JSON formatında ver, başka hiçbir met
                 menuEngineering: menuEngineering.sort((a, b) => b.sold - a.sold),
                 ingredientUsage,
                 churnCount,
-                financials: { revenue: totalRevenue, expenses: totalExpenses, profit: totalRevenue - totalExpenses }
+                financials: { revenue: totalRevenue, expenses: totalExpenses, profit: totalRevenue - totalExpenses },
+                shiftInsights: { ...shiftInsights, hoursDistribution, daysDistribution }
             }
         });
 

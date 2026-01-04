@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, TrendingUp, AlertCircle, Coffee, Loader2, RefreshCw, Wallet, ShoppingBag, TrendingDown, Target, Package, Users, BarChart3, ChevronRight } from 'lucide-react';
+import { Sparkles, TrendingUp, AlertCircle, Coffee, Loader2, RefreshCw, Wallet, ShoppingBag, TrendingDown, Target, Package, Users, BarChart3, ChevronRight, Clock, CalendarDays } from 'lucide-react';
 
 interface MenuStat {
     name: string;
@@ -15,6 +15,7 @@ interface AIResponse {
         menu: string;
         stock: string;
         loyalty: string;
+        staff?: string;
     };
     mood: 'positive' | 'neutral' | 'warning';
     advancedStats?: {
@@ -22,6 +23,13 @@ interface AIResponse {
         ingredientUsage: Record<string, number>;
         churnCount: number;
         financials: { revenue: number, expenses: number, profit: number };
+        shiftInsights?: {
+            busiestHour: string;
+            busiestDay: string;
+            avgOrdersPerDay: number;
+            hoursDistribution: number[];
+            daysDistribution: number[];
+        };
     };
     error?: string;
     details?: string;
@@ -30,7 +38,7 @@ interface AIResponse {
 export default function AIConsultant() {
     const [data, setData] = useState<AIResponse | null>(null);
     const [loading, setLoading] = useState(false);
-    const [activeTab, setActiveTab] = useState<'overview' | 'menu' | 'stock' | 'customers'>('overview');
+    const [activeTab, setActiveTab] = useState<'overview' | 'menu' | 'stock' | 'customers' | 'shifts'>('overview');
     const [month, setMonth] = useState(new Date().getMonth() + 1);
     const [year, setYear] = useState(new Date().getFullYear());
 
@@ -120,6 +128,7 @@ export default function AIConsultant() {
                         { id: 'menu', label: 'Menü Analizi', icon: Target },
                         { id: 'stock', label: 'Stok Tahmini', icon: Package },
                         { id: 'customers', label: 'Müşteri Hub', icon: Users },
+                        { id: 'shifts', label: 'Vardiya & Ekip', icon: Clock },
                     ].map((tab) => (
                         <button
                             key={tab.id}
@@ -252,6 +261,68 @@ export default function AIConsultant() {
                                         KAMPANYA OLUŞTUR <ChevronRight className="w-4 h-4" />
                                     </button>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {activeTab === 'shifts' && data?.advancedStats?.shiftInsights && (
+                    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        {/* Hero Cards */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div className="p-6 bg-indigo-50 rounded-3xl border border-indigo-100 relative overflow-hidden group">
+                                <Clock className="absolute right-4 top-4 w-12 h-12 text-indigo-200 group-hover:scale-110 transition-transform" />
+                                <p className="text-[10px] font-black text-indigo-600 uppercase mb-2">En Yoğun Saatler</p>
+                                <h4 className="text-2xl font-black text-indigo-900">{data.advancedStats.shiftInsights.busiestHour}</h4>
+                                <p className="text-xs text-indigo-600/80 font-bold mt-1">Ekstra Barista Önerilir</p>
+                            </div>
+                            <div className="p-6 bg-rose-50 rounded-3xl border border-rose-100 relative overflow-hidden">
+                                <CalendarDays className="absolute right-4 top-4 w-12 h-12 text-rose-200" />
+                                <p className="text-[10px] font-black text-rose-600 uppercase mb-2">En Yoğun Gün</p>
+                                <h4 className="text-2xl font-black text-rose-900">{data.advancedStats.shiftInsights.busiestDay}</h4>
+                            </div>
+                            <div className="p-6 bg-teal-50 rounded-3xl border border-teal-100 relative overflow-hidden">
+                                <Users className="absolute right-4 top-4 w-12 h-12 text-teal-200" />
+                                <p className="text-[10px] font-black text-teal-600 uppercase mb-2">Günlük Ort. Sipariş</p>
+                                <h4 className="text-2xl font-black text-teal-900">{data.advancedStats.shiftInsights.avgOrdersPerDay}</h4>
+                            </div>
+                        </div>
+
+                        {/* Hourly Heatmap */}
+                        <div>
+                            <h4 className="text-lg font-black text-gray-900 mb-6">Saatlik Yoğunluk Haritası</h4>
+                            <div className="h-32 flex items-end gap-1 sm:gap-2">
+                                {data.advancedStats.shiftInsights.hoursDistribution.map((count, i) => {
+                                    const max = Math.max(...data!.advancedStats!.shiftInsights!.hoursDistribution);
+                                    const height = max > 0 ? (count / max) * 100 : 0;
+                                    const isPeak = height > 70;
+                                    return (
+                                        <div key={i} className="flex-1 flex flex-col items-center gap-2 group relative">
+                                            <div
+                                                className={`w-full rounded-t-lg transition-all duration-500 ${isPeak ? 'bg-indigo-500' : 'bg-gray-200 group-hover:bg-indigo-300'}`}
+                                                style={{ height: `${Math.max(height, 5)}%` }}
+                                            ></div>
+                                            <span className="text-[9px] font-bold text-gray-400 absolute -bottom-5 transform -rotate-45 sm:rotate-0">{i}:00</span>
+                                            {/* Tooltip */}
+                                            <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                                                {count} Sipariş
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        {/* AI Insight */}
+                        <div className="p-6 bg-indigo-900 rounded-[2rem] border border-indigo-800 flex gap-6 items-start shadow-xl shadow-indigo-900/20 text-white mt-12">
+                            <div className="p-3 bg-white/10 rounded-2xl">
+                                <Sparkles className="w-6 h-6 text-yellow-400 animate-pulse" />
+                            </div>
+                            <div>
+                                <h5 className="font-black text-white text-lg mb-2">Yapay Zeka Vardiya Tavsiyesi</h5>
+                                <p className="text-indigo-100 text-sm leading-relaxed font-medium">
+                                    {data.insights.staff || "Veriler analiz ediliyor..."}
+                                </p>
                             </div>
                         </div>
                     </div>
