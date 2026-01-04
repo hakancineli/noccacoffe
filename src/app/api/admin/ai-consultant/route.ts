@@ -2,63 +2,117 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || 'MISSING_KEY');
+// Safe initialization
+const apiKey = process.env.GEMINI_API_KEY || '';
+const genAI = new GoogleGenerativeAI(apiKey || 'MISSING_KEY');
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
     try {
-        console.log('AI Consultant: Starting ultra-enhanced request');
+        console.log('AI Consultant: Starting ultra-resilient request');
 
-        if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === 'MISSING_KEY') {
-            return NextResponse.json({ error: 'API anahtarı yapılandırılmamış.' }, { status: 500 });
+        if (!apiKey) {
+            console.error('AI Consultant: GEMINI_API_KEY is missing');
+            return NextResponse.json({
+                summary: "API Anahtarı bulunamadı. Lütfen .env dosyasını kontrol edin.",
+                insights: { finance: "", menu: "", stock: "", loyalty: "" },
+                mood: "neutral",
+                error: "Missing API Key"
+            }, { status: 200 }); // Return 200 to show message in UI
         }
 
         const { searchParams } = new URL(request.url);
         const month = searchParams.get('month') || (new Date().getMonth() + 1).toString();
         const year = searchParams.get('year') || new Date().getFullYear().toString();
 
+        console.log(`AI Consultant: Analyzing ${month}/${year}`);
+
         const startDate = new Date(Number(year), Number(month) - 1, 1);
         const endDate = new Date(Number(year), Number(month), 0, 23, 59, 59, 999);
 
-        // 1. Fetch Core Data
+        // 1. Fetch Core Data with necessary includes only
+        console.log('AI Consultant: Fetching orders...');
         const orders = await prisma.order.findMany({
-            where: { createdAt: { gte: startDate, lte: endDate }, status: 'COMPLETED' },
-            include: { orderItems: { include: { product: { include: { recipes: { include: { items: { include: { ingredient: true } } } } } } } } }
+            where: {
+                createdAt: { gte: startDate, lte: endDate },
+                status: 'COMPLETED'
+            },
+            include: {
+                orderItems: {
+                    include: {
+                        product: {
+                            include: {
+                                recipes: {
+                                    include: {
+                                        items: {
+                                            include: {
+                                                ingredient: true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         });
 
+        console.log(`AI Consultant: Found ${orders.length} orders`);
+
+        console.log('AI Consultant: Fetching expenses...');
         const expenses = await prisma.expense.findMany({
             where: { date: { gte: startDate, lte: endDate } }
         });
 
-        // 2. Performance & Financials
-        const totalRevenue = orders.reduce((sum: number, o: any) => sum + o.finalAmount, 0);
-        const totalExpenses = expenses.reduce((sum: number, e: any) => sum + e.amount, 0);
+        if (orders.length === 0 && expenses.length === 0) {
+            return NextResponse.json({
+                summary: "Bu dönem için henüz veri bulunmuyor. Analiz için sipariş alınması veya gider girilmesi gerekiyor.",
+                insights: {
+                    finance: "Veri girişi bekliyor.",
+                    menu: "Satış verisi yok.",
+                    stock: "Stok hareketi yok.",
+                    loyalty: "Müşteri verisi yok."
+                },
+                mood: "neutral",
+                advancedStats: null
+            });
+        }
 
-        // 3. Menu Engineering (Profitability vs Popularity)
-        const productAnalysis = orders.flatMap(o => o.orderItems).reduce((acc: any, item: any) => {
-            if (!acc[item.productId]) {
-                acc[item.productId] = {
-                    name: item.productName,
-                    sold: 0,
-                    revenue: 0,
-                    theoreticalCost: 0
-                };
-            }
-            acc[item.productId].sold += item.quantity;
-            acc[item.productId].revenue += item.totalPrice;
+        // 2. Calculations with safe navigation
+        const totalRevenue = orders.reduce((sum, o) => sum + (o.finalAmount || 0), 0);
+        const totalExpenses = expenses.reduce((sum, e) => sum + (e.amount || 0), 0);
 
-            // Calculate theoretical cost from recipe
-            const recipe = item.product.recipes.find((r: any) => r.size === item.size);
-            if (recipe) {
-                const cost = recipe.items.reduce((cAcc: number, rItem: any) => {
-                    return cAcc + (rItem.quantity * (rItem.ingredient.costPerUnit || 0));
-                }, 0);
-                acc[item.productId].theoreticalCost += cost * item.quantity;
-            }
+        // 3. Menu Engineering
+        const productAnalysis: Record<string, any> = {};
+        orders.forEach(o => {
+            (o.orderItems || []).forEach((item: any) => {
+                if (!item.productId) return;
 
-            return acc;
-        }, {});
+                if (!productAnalysis[item.productId]) {
+                    productAnalysis[item.productId] = {
+                        name: item.productName || 'Bilinmeyen Ürün',
+                        sold: 0,
+                        revenue: 0,
+                        theoreticalCost: 0
+                    };
+                }
+
+                productAnalysis[item.productId].sold += (item.quantity || 0);
+                productAnalysis[item.productId].revenue += (item.totalPrice || 0);
+
+                // Safe recipe cost calculation
+                const recipe = item.product?.recipes?.find((r: any) => r.size === item.size);
+                if (recipe && recipe.items) {
+                    const cost = recipe.items.reduce((cAcc: number, rItem: any) => {
+                        const unitCost = rItem.ingredient?.costPerUnit || 0;
+                        return cAcc + (rItem.quantity * unitCost);
+                    }, 0);
+                    productAnalysis[item.productId].theoreticalCost += cost * (item.quantity || 0);
+                }
+            });
+        });
 
         const menuEngineering = Object.values(productAnalysis).map((p: any) => ({
             ...p,
@@ -66,51 +120,60 @@ export async function GET(request: NextRequest) {
             margin: p.revenue > 0 ? ((p.revenue - p.theoreticalCost) / p.revenue) * 100 : 0
         }));
 
-        // 4. Inventory Forecast (Simplified: Usage in current month)
-        const ingredientUsage = orders.flatMap(o => o.orderItems).reduce((acc: any, item: any) => {
-            const recipe = item.product.recipes.find((r: any) => r.size === item.size);
-            if (recipe) {
-                recipe.items.forEach((rItem: any) => {
-                    if (!acc[rItem.ingredient.name]) acc[rItem.ingredient.name] = 0;
-                    acc[rItem.ingredient.name] += rItem.quantity * item.quantity;
-                });
-            }
-            return acc;
-        }, {});
+        // 4. Inventory Usage
+        const ingredientUsage: Record<string, number> = {};
+        orders.forEach(o => {
+            (o.orderItems || []).forEach((item: any) => {
+                const recipe = item.product?.recipes?.find((r: any) => r.size === item.size);
+                if (recipe && recipe.items) {
+                    recipe.items.forEach((rItem: any) => {
+                        const name = rItem.ingredient?.name;
+                        if (name) {
+                            ingredientUsage[name] = (ingredientUsage[name] || 0) + (rItem.quantity * (item.quantity || 0));
+                        }
+                    });
+                }
+            });
+        });
 
-        // 5. Customer Churn (At risk: last order > 14 days ago)
+        // 5. Churn Detection (Safe version)
+        console.log('AI Consultant: Checking churn...');
         const fourteenDaysAgo = new Date();
         fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
 
-        const atRiskCustomers = await prisma.user.findMany({
-            where: {
-                orders: {
-                    some: { createdAt: { lt: fourteenDaysAgo } },
-                    none: { createdAt: { gte: fourteenDaysAgo } }
+        let churnCount = 0;
+        try {
+            churnCount = await prisma.user.count({
+                where: {
+                    orders: {
+                        some: { createdAt: { lt: fourteenDaysAgo } },
+                        none: { createdAt: { gte: fourteenDaysAgo } }
+                    }
                 }
-            },
-            take: 5,
-            select: { firstName: true, email: true }
-        });
+            });
+        } catch (e) {
+            console.warn('AI Consultant: Could not fetch churn count', e);
+        }
 
-        // 6. AI Insights Request
+        // 6. AI Request with Error Handling
+        console.log('AI Consultant: Calling Gemini...');
         const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" }, { apiVersion: 'v1' });
 
         const prompt = `
-            Sen Nocca Coffee'nin Stratejik AI Danışmanısın. Aşağıdaki verileri kullanarak profesyonel analiz yap.
+            Sen Nocca Coffee'nin Stratejik AI Danışmanısın. Verileri analiz et.
             
             VERİLER:
             - Ciro: ${totalRevenue} TL, Gider: ${totalExpenses} TL
-            - Menü Analizi (En Karli/Popüler): ${JSON.stringify(menuEngineering.slice(0, 5))}
-            - Hammadde Tüketimi (Tahmin için): ${JSON.stringify(ingredientUsage)}
-            - Riskli Müşteriler (Churn): ${atRiskCustomers.length} kişi son 14 gündür gelmiyor.
+            - Menü Analizi (Top 5 Kar): ${JSON.stringify(menuEngineering.sort((a, b) => b.profit - a.profit).slice(0, 5))}
+            - Hammadde Tüketimi: ${JSON.stringify(ingredientUsage)}
+            - Riskli Müşteriler: ${churnCount} kişi.
 
             GÖREV:
-            Aşağıdaki 4 kategori için SADECE BİRER cümlelik, çok vurucu tavsiyeler ver:
-            1. Finans (Kar maksimizasyonu)
+            Aşağıdaki 4 kategori için SADECE BİRER cümlelik tavsiye ver:
+            1. Finans (Kar durumu)
             2. Menü (Hangi ürün öne çıkarılmalı?)
-            3. Stok (Tahmini risk var mı?)
-            4. Sadakat (Müşteriyi geri kazanmak için ne yapmalı?)
+            3. Stok (Risk/Öneri)
+            4. Sadakat (Müşteri geri kazanımı)
             
             YANIT FORMATI (SADECE JSON):
             {
@@ -125,25 +188,42 @@ export async function GET(request: NextRequest) {
             }
         `;
 
-        const result = await model.generateContent(prompt);
-        const responseText = result.response.text();
-        const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+        let aiAnalysis = {
+            summary: "Analiz şu an yapılamıyor.",
+            insights: { finance: "-", menu: "-", stock: "-", loyalty: "-" },
+            mood: "neutral"
+        };
 
-        if (!jsonMatch) throw new Error('Invalid AI response');
-        const aiAnalysis = JSON.parse(jsonMatch[0]);
+        try {
+            const result = await model.generateContent(prompt);
+            const responseText = result.response.text();
+            const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+            if (jsonMatch) {
+                aiAnalysis = JSON.parse(jsonMatch[0]);
+            }
+        } catch (aiError: any) {
+            console.error('AI Consultant: Gemini Error:', aiError.message);
+            aiAnalysis.summary = "AI servisi şu an yanıt vermiyor, ancak verileri aşağıda görebilirsiniz.";
+        }
 
         return NextResponse.json({
             ...aiAnalysis,
             advancedStats: {
-                menuEngineering,
+                menuEngineering: menuEngineering.sort((a, b) => b.sold - a.sold),
                 ingredientUsage,
-                churnCount: atRiskCustomers.length,
+                churnCount,
                 financials: { revenue: totalRevenue, expenses: totalExpenses, profit: totalRevenue - totalExpenses }
             }
         });
 
     } catch (error: any) {
-        console.error('AI Consultant API Error:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        console.error('AI Consultant CRITICAL Error:', error);
+        return NextResponse.json({
+            summary: "Sistem hatası: " + error.message,
+            insights: { finance: "", menu: "", stock: "", loyalty: "" },
+            mood: "warning",
+            error: error.message,
+            advancedStats: null
+        }, { status: 200 }); // Return 200 to allow UI to handle it
     }
 }
