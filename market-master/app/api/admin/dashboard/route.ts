@@ -53,6 +53,22 @@ export async function GET(request: Request) {
 
         const totalReceivables = caris._sum.balance || 0;
 
+        // 5. Low Stock Alerts
+        const allStocks = await prisma.stock.findMany({
+            where: { branch: { merchantId } },
+            include: { product: true, branch: true }
+        });
+        const lowStockItems = allStocks
+            .filter(s => s.quantity <= s.product.minStock)
+            .map(s => ({
+                id: s.id,
+                productName: s.product.name,
+                branchName: s.branch.name,
+                quantity: s.quantity,
+                minStock: s.product.minStock
+            }))
+            .slice(0, 5); // Just top 5 for dashboard
+
         return NextResponse.json({
             totalSales,
             totalCost,
@@ -61,7 +77,9 @@ export async function GET(request: Request) {
             netProfit: grossProfit - totalExpenses,
             totalReceivables,
             salesCount: sales.length,
-            margin: totalSales > 0 ? (grossProfit / totalSales) * 100 : 0
+            margin: totalSales > 0 ? (grossProfit / totalSales) * 100 : 0,
+            lowStockCount: allStocks.filter(s => s.quantity <= s.product.minStock).length,
+            lowStockItems
         });
     } catch (error) {
         console.error('Dashboard API Error:', error);

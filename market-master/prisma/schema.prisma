@@ -22,6 +22,9 @@ model Merchant {
   caris     Cari[]
   cariTransactions CariTransaction[]
   merchantTransactions MerchantTransaction[]
+  suppliers Supplier[]
+  supplierTransactions SupplierTransaction[]
+  stockTransfers StockTransfer[]
 
   @@map("mm_merchants")
 }
@@ -40,6 +43,9 @@ model Branch {
   stocks     Stock[]
   sales      Sale[]
   merchantTransactions MerchantTransaction[]
+  supplierTransactions SupplierTransaction[]
+  sentTransfers      StockTransfer[] @relation("FromBranch")
+  receivedTransfers  StockTransfer[] @relation("ToBranch")
 
   @@map("mm_branches")
 }
@@ -82,6 +88,7 @@ model Product {
   merchant    Merchant @relation(fields: [merchantId], references: [id])
   stocks      Stock[]
   saleItems   SaleItem[]
+  transferItems StockTransferItem[]
 
   @@map("mm_products")
 }
@@ -167,8 +174,21 @@ model Sale {
   branch        Branch      @relation(fields: [branchId], references: [id])
   customer      Customer?   @relation(fields: [customerId], references: [id])
   items         SaleItem[]
+  payments      SalePayment[]
 
   @@map("mm_sales")
+}
+
+model SalePayment {
+  id        String   @id @default(cuid())
+  saleId    String
+  method    String   // CASH, CARD, CARI
+  amount    Float
+  createdAt DateTime @default(now())
+
+  sale      Sale     @relation(fields: [saleId], references: [id])
+
+  @@map("mm_sale_payments")
 }
 
 model SaleItem {
@@ -201,4 +221,72 @@ model MerchantTransaction {
   branch      Branch?  @relation(fields: [branchId], references: [id])
 
   @@map("mm_transactions")
+}
+
+model Supplier {
+  id         String   @id @default(cuid())
+  merchantId String
+  name       String
+  contactName String?
+  phone      String?
+  email      String?
+  address    String?
+  taxOffice  String?
+  taxNumber  String?
+  balance    Float    @default(0) // Borç bakiyesi
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  merchant   Merchant @relation(fields: [merchantId], references: [id])
+  transactions SupplierTransaction[]
+
+  @@map("mm_suppliers")
+}
+
+model SupplierTransaction {
+  id          String   @id @default(cuid())
+  merchantId  String
+  branchId    String?
+  supplierId  String
+  amount      Float
+  type        String   // PURCHASE (Alım - Borç Artar), PAYMENT (Ödeme - Borç Azalır)
+  description String?
+  createdAt   DateTime @default(now())
+
+  merchant    Merchant @relation(fields: [merchantId], references: [id])
+  branch      Branch?  @relation(fields: [branchId], references: [id])
+  supplier    Supplier @relation(fields: [supplierId], references: [id])
+
+  @@map("mm_supplier_transactions")
+}
+
+model StockTransfer {
+  id            String   @id @default(cuid())
+  merchantId    String
+  fromBranchId  String
+  toBranchId    String
+  status        String   @default("COMPLETED") // PENDING, COMPLETED, CANCELLED
+  description   String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  merchant      Merchant @relation(fields: [merchantId], references: [id])
+  fromBranch    Branch   @relation("FromBranch", fields: [fromBranchId], references: [id])
+  toBranch      Branch   @relation("ToBranch", fields: [toBranchId], references: [id])
+  items         StockTransferItem[]
+
+  @@map("mm_stock_transfers")
+}
+
+model StockTransferItem {
+  id          String   @id @default(cuid())
+  transferId  String
+  productId   String
+  quantity    Float
+  unit        String
+
+  transfer    StockTransfer @relation(fields: [transferId], references: [id])
+  product     Product       @relation(fields: [productId], references: [id])
+
+  @@map("mm_stock_transfer_items")
 }

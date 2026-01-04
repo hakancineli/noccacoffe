@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import DailySalesStats from '@/components/admin/DailySalesStats';
+import AIConsultant from '@/components/admin/AIConsultant';
 
 export default function AdminDashboard() {
   const [isLoading, setIsLoading] = useState(true);
@@ -275,6 +276,9 @@ export default function AdminDashboard() {
             </div>
           </div>
         </div>
+
+        {/* AI Consultant Analysis */}
+        <AIConsultant />
 
         {/* Daily Stats Section */}
         <DailySalesStats />

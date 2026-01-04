@@ -10,14 +10,31 @@ export const metadata: Metadata = {
   description: "Yüksek performanslı, şube bazlı yapı market yönetim sistemi.",
 };
 
+import ThemeInitializer from "@/components/ThemeInitializer";
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="tr">
-      <body className={`${inter.variable} ${outfit.variable} antialiased`}>
+    <html lang="tr" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  const savedTheme = localStorage.getItem('theme') || 'dark';
+                  document.documentElement.setAttribute('data-theme', savedTheme);
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
+      </head>
+      <body className={`${inter.variable} ${outfit.variable} antialiased`} suppressHydrationWarning={true}>
+        <ThemeInitializer />
         {children}
       </body>
     </html>

@@ -6,12 +6,14 @@ export async function POST(request: Request) {
         const body = await request.json();
         const {
             branchId,
+            merchantId,
             customerId,
             items,
             totalAmount,
             discount,
             finalAmount,
-            paymentMethod
+            paymentMethod,
+            payments // Array of { method, amount }
         } = body;
 
         // Use transaction for atomic updates
@@ -32,8 +34,14 @@ export async function POST(request: Request) {
                             quantity: item.quantity,
                             unit: item.unit || 'adet',
                             buyPrice: item.buyPrice || 0,
-                            unitPrice: item.price,
-                            total: item.price * item.quantity
+                            unitPrice: item.price || item.sellPrice,
+                            total: (item.price || item.sellPrice) * item.quantity
+                        }))
+                    },
+                    payments: {
+                        create: payments.map((p: any) => ({
+                            method: p.method,
+                            amount: p.amount
                         }))
                     }
                 }
@@ -54,35 +62,40 @@ export async function POST(request: Request) {
                 });
             }
 
-            // 3. Handle Cari (Veresiye)
-            if (paymentMethod === 'CARI' && customerId) {
-                const merchantId = body.merchantId || 'test-merchant';
+            // 3. Handle Cari (Veresiye) for any payment with method 'CARI'
+            const cariPayments = payments.filter((p: any) => p.method === 'CARI');
+            if (cariPayments.length > 0 && customerId) {
+                const totalCariAmount = cariPayments.reduce((sum: number, p: any) => sum + p.amount, 0);
+                const effectiveMerchantId = merchantId || 'test-merchant';
+
                 const cari = await tx.cari.upsert({
-                    where: { customerId_merchantId: { customerId, merchantId } },
+                    where: { customerId_merchantId: { customerId, merchantId: effectiveMerchantId } },
                     update: {
-                        balance: { increment: finalAmount }
+                        balance: { increment: totalCariAmount }
                     },
                     create: {
-                        merchantId,
+                        merchantId: effectiveMerchantId,
                         customerId,
-                        balance: finalAmount
+                        balance: totalCariAmount
                     }
                 });
 
                 // Record the debit transaction
                 await tx.cariTransaction.create({
                     data: {
-                        merchantId,
+                        merchantId: effectiveMerchantId,
                         customerId,
                         cariId: cari.id,
-                        amount: finalAmount,
+                        amount: totalCariAmount,
                         type: 'DEBIT',
-                        description: `Satış #${newSale.id.slice(-6)}`
+                        description: `Satış #${newSale.id.slice(-6)} (Parçalı)`
                     }
                 });
             }
 
             return newSale;
+        }, {
+            timeout: 10000 // Increase timeout for complex transaction
         });
 
         return NextResponse.json(sale);

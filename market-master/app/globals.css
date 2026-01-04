@@ -3,37 +3,122 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 255, 255, 255;
-  --background-start-rgb: 10, 10, 12;
-  --background-end-rgb: 0, 0, 0;
+  /* Default: Garanti Pro (High-end Corporate) */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f0fdf4;
+  --bg-card: #ffffff;
+  --text-primary: #064e3b;
+  --text-secondary: #065f46;
+  --accent: #00ae42;
+  /* Garanti Green */
+  --accent-glow: rgba(0, 174, 66, 0.08);
+  --border-color: #dcfce7;
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --header-bg: rgba(255, 255, 255, 0.9);
+  --shadow-color: rgba(0, 68, 25, 0.04);
+}
 
-  --teal-accent: 20, 184, 166;
-  --blue-accent: 37, 99, 235;
-  --orange-accent: 234, 88, 12;
+[data-theme='dark'] {
+  --bg-primary: #000000;
+  --bg-secondary: #0d0d0f;
+  --bg-card: #0d0d0f;
+  --text-primary: #ffffff;
+  --text-secondary: #94a3b8;
+  --accent: #14b8a6;
+  --accent-glow: rgba(20, 184, 166, 0.2);
+  --border-color: rgba(255, 255, 255, 0.05);
+  --glass-bg: rgba(13, 13, 15, 0.7);
+  --header-bg: rgba(0, 0, 0, 0.8);
+  --shadow-color: rgba(0, 0, 0, 0.5);
+}
+
+[data-theme='light'] {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
+  --bg-card: #ffffff;
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+  --accent: #2563eb;
+  --accent-glow: rgba(37, 99, 235, 0.1);
+  --border-color: #e2e8f0;
+  --glass-bg: rgba(255, 255, 255, 0.8);
+  --header-bg: rgba(255, 255, 255, 0.8);
+  --shadow-color: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme='slate'] {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-card: #1e293b;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --accent: #38bdf8;
+  --accent-glow: rgba(56, 189, 248, 0.1);
+  --border-color: rgba(255, 255, 255, 0.08);
+  --glass-bg: rgba(30, 41, 59, 0.7);
+  --header-bg: rgba(15, 23, 42, 0.8);
+  --shadow-color: rgba(0, 0, 0, 0.4);
+}
+
+[data-theme='garanti'] {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f0fdf4;
+  --bg-card: #ffffff;
+  --text-primary: #064e3b;
+  --text-secondary: #065f46;
+  --accent: #00ae42;
+  /* Garanti Green */
+  --accent-glow: rgba(0, 174, 66, 0.1);
+  --border-color: #dcfce7;
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --header-bg: rgba(255, 255, 255, 0.9);
+  --shadow-color: rgba(0, 68, 25, 0.05);
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))) rgb(var(--background-start-rgb));
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-family: var(--font-inter), sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .glass-effect {
-  background: rgba(13, 13, 15, 0.7);
+  background: var(--glass-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
 }
 
 .font-outfit {
-  font-family: 'Outfit', sans-serif;
+  font-family: var(--font-outfit), sans-serif;
+}
+
+/* Base resets */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  color: inherit;
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+
+  .shadow-soft {
+    box-shadow: 0 10px 30px -10px var(--shadow-color);
+  }
+
+  .border-soft {
+    border: 1px solid var(--border-color);
   }
 }
 
@@ -48,10 +133,10 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--border-color);
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--accent);
 }

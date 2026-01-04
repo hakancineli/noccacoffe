@@ -4,9 +4,6 @@ import { useState, useEffect } from 'react';
 import {
     ShoppingCart,
     Search,
-    Filter,
-    ChevronRight,
-    Calendar,
     CreditCard,
     Wallet,
     Users,
@@ -30,10 +27,10 @@ export default function SalesPage() {
 
     const getMethodIcon = (method: string) => {
         switch (method) {
-            case 'CASH': return <Wallet size={14} className="text-emerald-400" />;
-            case 'CARD': return <CreditCard size={14} className="text-blue-400" />;
-            case 'CARI': return <Users size={14} className="text-orange-400" />;
-            default: return <Receipt size={14} />;
+            case 'CASH': return <Wallet size={14} className="text-emerald-500" />;
+            case 'CARD': return <CreditCard size={14} className="text-blue-500" />;
+            case 'CARI': return <Users size={14} className="text-orange-500" />;
+            default: return <Receipt size={14} className="text-muted" />;
         }
     };
 
@@ -47,74 +44,79 @@ export default function SalesPage() {
     };
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-8 pb-10 transition-colors duration-300">
             {/* Page Header */}
             <div className="flex justify-between items-end">
                 <div>
-                    <h1 className="text-4xl font-black uppercase tracking-tighter font-outfit">Satış <span className="text-teal-400">Geçmişi</span></h1>
-                    <p className="text-gray-500 mt-2 font-bold flex items-center gap-2 italic">
+                    <h1 className="text-4xl font-black uppercase tracking-tighter font-outfit text-foreground">Satış <span className="text-accent">Geçmişi</span></h1>
+                    <p className="text-muted mt-2 font-bold flex items-center gap-2 italic">
                         Tamamlanan tüm satışların dökümü.
                     </p>
                 </div>
             </div>
 
             {/* List */}
-            <div className="bg-[#0d0d0f] border border-white/5 rounded-[40px] overflow-hidden">
-                <div className="p-8 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
+            <div className="bg-card border border-border-color rounded-[40px] overflow-hidden shadow-sm">
+                <div className="p-8 border-b border-border-color flex justify-between items-center bg-foreground/[0.02]">
                     <div className="relative group w-96">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within:text-teal-400 transition-colors" />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted group-focus-within:text-accent transition-colors" />
                         <input
                             type="text"
                             placeholder="Fiş no, müşteri veya tutar ara..."
-                            className="bg-black/40 border border-white/10 rounded-2xl pl-12 pr-6 py-3 w-full outline-none focus:border-teal-500/50 transition-all font-medium"
+                            className="bg-secondary border border-border-color rounded-2xl pl-12 pr-6 py-3 w-full outline-none focus:border-accent/50 transition-all font-medium text-foreground shadow-inner"
                         />
                     </div>
                 </div>
 
                 {loading ? (
                     <div className="p-20 flex flex-col items-center justify-center gap-4">
-                        <Loader2 className="w-10 h-10 text-teal-500 animate-spin" />
+                        <Loader2 className="w-10 h-10 text-accent animate-spin" />
                     </div>
                 ) : (
                     <div className="overflow-x-auto">
                         <table className="w-full">
-                            <thead className="bg-white/[0.01]">
-                                <tr className="text-left border-b border-white/5">
-                                    <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-500">Fiş Bilgisi</th>
-                                    <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-500">Müşteri</th>
-                                    <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-500">Ödeme</th>
-                                    <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-500">Tarih</th>
-                                    <th className="px-8 py-5 text-right text-[10px] font-black uppercase tracking-widest text-gray-500">Tutar</th>
+                            <thead className="bg-foreground/[0.01]">
+                                <tr className="text-left border-b border-border-color">
+                                    <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-muted">Fiş Bilgisi</th>
+                                    <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-muted">Müşteri</th>
+                                    <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-muted">Ödeme</th>
+                                    <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-muted">Tarih</th>
+                                    <th className="px-8 py-5 text-right text-[10px] font-black uppercase tracking-widest text-muted">Tutar</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-white/5">
+                            <tbody className="divide-y divide-border-color">
                                 {sales.map((sale) => (
-                                    <tr key={sale.id} className="hover:bg-white/[0.02] transition-colors group">
+                                    <tr key={sale.id} className="hover:bg-foreground/[0.02] transition-colors group">
                                         <td className="px-8 py-6">
                                             <div className="flex flex-col">
-                                                <span className="font-black text-sm uppercase tracking-tight text-white group-hover:text-teal-400 transition-colors">#{sale.id.slice(-6)}</span>
-                                                <span className="text-[10px] text-gray-600 font-bold mt-1 uppercase tracking-widest">{sale.items.length} Kalem Ürün</span>
+                                                <span className="font-black text-sm uppercase tracking-tight text-foreground group-hover:text-accent transition-colors">#{sale.id.slice(-6)}</span>
+                                                <span className="text-[10px] text-muted font-bold mt-1 uppercase tracking-widest">{sale.items.length} Kalem Ürün</span>
                                             </div>
                                         </td>
                                         <td className="px-8 py-6">
-                                            <span className="text-[11px] font-black uppercase tracking-widest text-gray-400">
+                                            <span className="text-[11px] font-black uppercase tracking-widest text-muted">
                                                 {sale.customer?.name || 'PERAKENDE MÜŞTERİ'}
                                             </span>
                                         </td>
                                         <td className="px-8 py-6">
                                             <div className="flex items-center gap-2">
                                                 {getMethodIcon(sale.paymentMethod)}
-                                                <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">{getMethodLabel(sale.paymentMethod)}</span>
+                                                <span className="text-[10px] font-black uppercase tracking-widest text-muted">{getMethodLabel(sale.paymentMethod)}</span>
                                             </div>
                                         </td>
-                                        <td className="px-8 py-6 text-[11px] font-black uppercase text-gray-600">
+                                        <td className="px-8 py-6 text-[11px] font-black uppercase text-muted">
                                             {new Date(sale.createdAt).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
                                         </td>
                                         <td className="px-8 py-6 text-right">
-                                            <span className="text-xl font-black tracking-tighter text-white">₺{sale.finalAmount.toLocaleString()}</span>
+                                            <span className="text-xl font-black tracking-tighter text-foreground">₺{sale.finalAmount.toLocaleString()}</span>
                                         </td>
                                     </tr>
                                 ))}
+                                {sales.length === 0 && (
+                                    <tr>
+                                        <td colSpan={5} className="p-20 text-center text-muted font-black uppercase tracking-widest italic opacity-50">Henüz satış kaydı bulunmuyor.</td>
+                                    </tr>
+                                )}
                             </tbody>
                         </table>
                     </div>
