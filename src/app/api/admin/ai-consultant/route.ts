@@ -9,12 +9,11 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
     try {
-        console.log('AI Consultant: Starting request');
+        console.log('AI Consultant: Starting enhanced request');
 
         if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === 'MISSING_KEY') {
-            console.error('AI Consultant: GEMINI_API_KEY is not set');
             return NextResponse.json({
-                error: 'Sistem hatası: API anahtarı yapılandırılmamış. Lütfen Vercel ayarlarını kontrol edin.'
+                error: 'API anahtarı yapılandırılmamış.'
             }, { status: 500 });
         }
 
@@ -25,83 +24,75 @@ export async function GET(request: NextRequest) {
         const startDate = new Date(Number(year), Number(month) - 1, 1);
         const endDate = new Date(Number(year), Number(month), 0, 23, 59, 59, 999);
 
-        // 1. Fetch Sales Data
+        // Fetch Data
         const orders = await prisma.order.findMany({
-            where: {
-                createdAt: { gte: startDate, lte: endDate },
-                status: 'COMPLETED'
-            },
+            where: { createdAt: { gte: startDate, lte: endDate }, status: 'COMPLETED' },
             include: { orderItems: true }
         });
 
-        // 2. Fetch Expense Data
         const expenses = await prisma.expense.findMany({
-            where: {
-                date: { gte: startDate, lte: endDate }
-            }
+            where: { date: { gte: startDate, lte: endDate } }
         });
 
-        // 3. Fetch Waste Data
         const wasteLogs = await prisma.wasteLog.findMany({
-            where: {
-                createdAt: { gte: startDate, lte: endDate }
-            }
+            where: { createdAt: { gte: startDate, lte: endDate } }
         });
 
-        // 4. Check for lack of data
         if (orders.length === 0 && expenses.length === 0) {
             return NextResponse.json({
-                summary: "Bu ay için henüz yeterli işletme verisi bulunmuyor. Analiz için sipariş kayıtlarına veya gider girişlerine ihtiyacım var.",
-                recommendations: [
-                    "Sipariş almaya başladığınızda burada analizleri görebileceksiniz.",
-                    "Giderlerinizi kaydederek maliyet analizi yapmamı sağlayabilirsiniz.",
-                    "Zayiat kayıtlarını tutarak fire oranlarını düşürmeme yardımcı olabilirsiniz."
-                ],
-                mood: "neutral"
+                summary: "Bu dönem için yeterli veri bulunamadı.",
+                recommendations: ["Analiz için veri girişine devam edin."],
+                mood: "neutral",
+                stats: null
             });
         }
 
-        // 5. Summarize data for AI
+        // Calculations
         const totalRevenue = orders.reduce((sum: number, o: any) => sum + o.finalAmount, 0);
         const totalExpenses = expenses.reduce((sum: number, e: any) => sum + e.amount, 0);
-        const topProducts = orders.flatMap((o: any) => {
-            if (!o.orderItems) return [];
-            return o.orderItems;
-        }).reduce((acc: any, item: any) => {
+        const profit = totalRevenue - totalExpenses;
+
+        // Top Products
+        const productMap = orders.flatMap((o: any) => o.orderItems || []).reduce((acc: any, item: any) => {
             acc[item.productName] = (acc[item.productName] || 0) + item.quantity;
             return acc;
         }, {});
-
-        const sortedProducts = Object.entries(topProducts)
+        const topProducts = Object.entries(productMap)
             .sort(([, a]: any, [, b]: any) => b - a)
-            .slice(0, 5);
+            .slice(0, 3)
+            .map(([name, quantity]) => ({ name, quantity }));
 
-        const wasteSummary = wasteLogs.reduce((acc: any, w: any) => {
-            acc[w.reason || 'Diğer'] = (acc[w.reason || 'Diğer'] || 0) + w.quantity;
+        // Daily Traffic
+        const dailyCounts = orders.reduce((acc: any, o: any) => {
+            const dateStr = o.createdAt.toISOString().split('T')[0];
+            acc[dateStr] = (acc[dateStr] || 0) + 1;
             return acc;
         }, {});
+        const sortedDays = Object.entries(dailyCounts).sort(([, a]: any, [, b]: any) => b - a);
 
-        // 6. Prepare Prompt
-        // Use gemini-2.0-flash as it is confirmed available for this key
+        const busiestDay = sortedDays.length > 0 ? { date: sortedDays[0][0], count: sortedDays[0][1] } : null;
+        const quietestDay = sortedDays.length > 0 ? { date: sortedDays[sortedDays.length - 1][0], count: sortedDays[sortedDays.length - 1][1] } : null;
+
+        // AI Request
         const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" }, { apiVersion: 'v1' });
 
         const prompt = `
-            Sen Nocca Coffee'nin profesyonel AI iş danışmanısın. Aşağıdaki aylık işletme verilerini bir cafe sahibi gözüyle analiz et.
+            Sen Nocca Coffee AI İş Danışmanısın. Verileri analiz et ve JSON dön.
             
             VERİLER (${month}/${year}):
-            - Toplam Ciro: ${totalRevenue.toLocaleString('tr-TR')} TL
-            - Toplam Gider: ${totalExpenses.toLocaleString('tr-TR')} TL
-            - En Çok Satan 5 Ürün: ${JSON.stringify(sortedProducts)}
-            - Gider Kategorileri: ${JSON.stringify(expenses.reduce((acc: any, e: any) => { acc[e.category] = (acc[e.category] || 0) + e.amount; return acc; }, {}))}
-            - Zayiat/Fire Sebepleri: ${JSON.stringify(wasteSummary)}
-            - Tamamlanan Sipariş Sayısı: ${orders.length}
+            - Ciro: ${totalRevenue.toLocaleString('tr-TR')} TL
+            - Gider: ${totalExpenses.toLocaleString('tr-TR')} TL
+            - Kar/Zarar: ${profit.toLocaleString('tr-TR')} TL
+            - En Çok Satan: ${JSON.stringify(topProducts)}
+            - En Yoğun Gün: ${busiestDay?.date} (${busiestDay?.count} sipariş)
+            - En Sakin Gün: ${quietestDay?.date} (${quietestDay?.count} sipariş)
+            - Zayiat Özet: ${JSON.stringify(wasteLogs.length)} kayıt.
 
             GÖREV:
-            1. İşletmenin bu ayki performansını 2 cümlede özetle.
-            2. Maliyetleri düşürmek veya satışları artırmak için 3 tane somut, uygulanabilir ve profesyonel tavsiye ver.
-            3. Analizini samimi ama kurumsal bir dille yap.
+            1. Performansı 2 cümlede özetle.
+            2. Karlılığı artırmak veya yoğunluğu yönetmek için 3 somut tavsiye ver.
             
-            Yanıtını SADECE JSON formatında şu yapıda ver (kod bloku kullanma, başka hiçbir metin ekleme):
+            YANIT FORMATI (SADECE JSON):
             {
                 "summary": "...",
                 "recommendations": ["...", "...", "..."],
@@ -110,28 +101,32 @@ export async function GET(request: NextRequest) {
         `;
 
         const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const responseText = response.text();
-
-        // Improved Regex-based JSON extraction
+        const responseText = result.response.text();
         const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-        if (!jsonMatch) {
-            throw new Error('AI geçerli bir JSON formatı döndürmedi.');
-        }
 
+        if (!jsonMatch) throw new Error('Invalid AI response');
         const aiAnalysis = JSON.parse(jsonMatch[0]);
-        return NextResponse.json(aiAnalysis);
+
+        return NextResponse.json({
+            ...aiAnalysis,
+            stats: {
+                revenue: totalRevenue,
+                expenses: totalExpenses,
+                profit: profit,
+                topProducts,
+                busiestDay,
+                quietestDay
+            }
+        });
 
     } catch (error: any) {
-        console.error('AI Consultant API Critical Error:', error);
-
-        // Return a 200 status with an error field to avoid browser 500 noise and show a helpful message
+        console.error('AI Consultant API Error:', error);
         return NextResponse.json({
-            error: 'AI servisi şu an meşgul veya yapılandırma hatası var.',
-            details: error.message,
+            error: error.message,
+            summary: "Veri analizi sırasında bir hata oluştu.",
+            recommendations: ["Lütfen verileri kontrol edip tekrar deneyin."],
             mood: 'neutral',
-            summary: "Şu an analiz yapılamıyor: " + error.message,
-            recommendations: ["Lütfen bir süre sonra tekrar deneyin.", "API ayarlarını kontrol edin."]
-        }, { status: 200 }); // Changed to 200 to help frontend handle it gracefully
+            stats: null
+        }, { status: 200 });
     }
 }
