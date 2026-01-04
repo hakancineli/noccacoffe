@@ -59,7 +59,8 @@ export async function GET(request: NextRequest) {
         }, {});
 
         // 5. Prepare Prompt
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+        // Explicitly using v1 API to avoid v1beta 404 issues
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }, { apiVersion: 'v1' });
         const prompt = `
             Sen Nocca Coffee'nin profesyonel AI iş danışmanısın. Aşağıdaki aylık işletme verilerini bir cafe sahibi gözüyle analiz et.
             
