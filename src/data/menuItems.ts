@@ -715,7 +715,7 @@ export const allMenuItems: MenuItem[] = [
     description: 'Kiraz sapı çayı',
     category: 'Bitki Çayları',
     price: 160,
-    image: '/images/products/Iced Matcha Latte.jpeg',
+    image: '/images/products/Kiraz Sapı.jpeg',
   },
   {
     id: 64,
