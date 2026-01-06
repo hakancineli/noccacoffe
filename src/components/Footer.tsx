@@ -97,6 +97,8 @@ const Footer = () => {
             <div className="flex space-x-6">
               <Link href="/privacy" className="text-sm text-gray-400 hover:text-white">Gizlilik Politikası</Link>
               <Link href="/terms" className="text-sm text-gray-400 hover:text-white">Kullanım Koşulları</Link>
+              <Link href="/mesafeli-satis-sozlesmesi" className="text-sm text-gray-400 hover:text-white">Mesafeli Satış Sözleşmesi</Link>
+              <Link href="/iptal-iade-kosullari" className="text-sm text-gray-400 hover:text-white">İptal ve İade Koşulları</Link>
               <Link href="/cookies" className="text-sm text-gray-400 hover:text-white">Çerez Tercihleri</Link>
               <Link href="/kvkk" className="text-sm text-gray-400 hover:text-white">KVKK Aydınlatma Metni</Link>
             </div>

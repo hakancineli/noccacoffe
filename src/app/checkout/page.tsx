@@ -27,6 +27,7 @@ export default function CheckoutPage() {
     });
 
     const [isEditing, setIsEditing] = useState(true);
+    const [acceptedAgreement, setAcceptedAgreement] = useState(false);
 
     // Check for logged in user to auto-fill AND logic for birthday
     useEffect(() => {
@@ -114,6 +115,12 @@ export default function CheckoutPage() {
                 setLoading(false);
                 return;
             }
+        }
+
+        if (!acceptedAgreement) {
+            setError('Lütfen Mesafeli Satış Sözleşmesi ve Ön Bilgilendirme Formunu onaylayınız.');
+            setLoading(false);
+            return;
         }
 
         try {
@@ -369,6 +376,19 @@ export default function CheckoutPage() {
 
                                 {error && <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg">{error}</div>}
 
+                                <div className="flex items-start py-4">
+                                    <input
+                                        type="checkbox"
+                                        id="agreement-edit"
+                                        checked={acceptedAgreement}
+                                        onChange={(e) => setAcceptedAgreement(e.target.checked)}
+                                        className="mt-1 h-4 w-4 text-nocca-green focus:ring-nocca-green border-gray-300 rounded cursor-pointer"
+                                    />
+                                    <label htmlFor="agreement-edit" className="ml-2 block text-sm text-gray-700 select-none cursor-pointer">
+                                        <Link href="/mesafeli-satis-sozlesmesi" target="_blank" className="font-medium text-nocca-green hover:underline">Mesafeli Satış Sözleşmesi'ni</Link> ve <Link href="/iptal-iade-kosullari" target="_blank" className="font-medium text-nocca-green hover:underline">İptal İade Koşulları'nı</Link> okudum, onaylıyorum.
+                                    </label>
+                                </div>
+
                                 <button
                                     type="submit"
                                     disabled={loading}
@@ -391,6 +411,19 @@ export default function CheckoutPage() {
                                 </div>
 
                                 {error && <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg">{error}</div>}
+
+                                <div className="flex items-start py-4">
+                                    <input
+                                        type="checkbox"
+                                        id="agreement-view"
+                                        checked={acceptedAgreement}
+                                        onChange={(e) => setAcceptedAgreement(e.target.checked)}
+                                        className="mt-1 h-4 w-4 text-nocca-green focus:ring-nocca-green border-gray-300 rounded cursor-pointer"
+                                    />
+                                    <label htmlFor="agreement-view" className="ml-2 block text-sm text-gray-700 select-none cursor-pointer">
+                                        <Link href="/mesafeli-satis-sozlesmesi" target="_blank" className="font-medium text-nocca-green hover:underline">Mesafeli Satış Sözleşmesi'ni</Link> ve <Link href="/iptal-iade-kosullari" target="_blank" className="font-medium text-nocca-green hover:underline">İptal İade Koşulları'nı</Link> okudum, onaylıyorum.
+                                    </label>
+                                </div>
 
                                 <button
                                     onClick={handleSubmit}
