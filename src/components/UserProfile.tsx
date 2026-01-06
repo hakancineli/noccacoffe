@@ -355,10 +355,19 @@ const UserProfileComponent = () => {
                     <div>
                       <label className="block text-xs font-black text-gray-400 uppercase mb-2 tracking-widest">Doğum Tarihi</label>
                       <input
-                        type="text"
-                        value={userProfile.birthDate}
-                        readOnly
-                        className="w-full px-5 py-4 rounded-2xl border-2 border-gray-50 bg-gray-50 text-gray-700 font-medium"
+                        type={isEditing ? "date" : "text"}
+                        value={isEditing ? (userProfile.birthDate?.split('.').reverse().join('-')) : (userProfile.birthDate || 'Belirtilmedi')}
+                        readOnly={!isEditing}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          if (userProfile) {
+                            setUserProfile({
+                              ...userProfile,
+                              birthDate: val ? new Date(val).toLocaleDateString('tr-TR') : ''
+                            });
+                          }
+                        }}
+                        className={`w-full px-5 py-4 rounded-2xl border-2 transition-all font-medium ${isEditing ? 'border-nocca-green bg-white shadow-lg shadow-green-100' : 'border-gray-50 bg-gray-50 text-gray-700'}`}
                       />
                     </div>
                     <div>
@@ -377,21 +386,33 @@ const UserProfileComponent = () => {
               {/* Rewards Summary in Content if on profile */}
               <div className="mt-12 p-8 rounded-3xl bg-gradient-to-br from-nocca-green to-nocca-light-green text-white shadow-xl shadow-green-100 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl"></div>
-                <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-6">
-                  <div>
-                    <h3 className="text-xl font-black mb-2 uppercase tracking-tight">Kazanılan Puan</h3>
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-5xl font-black">{userProfile.points}</span>
-                      <span className="text-lg font-bold opacity-80 uppercase tracking-widest">Puan</span>
+
+                <div className="relative z-10 space-y-8">
+                  <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div>
+                      <h3 className="text-xl font-black mb-2 uppercase tracking-tight">Kazanılan Puan</h3>
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-5xl font-black">{userProfile.points}</span>
+                        <span className="text-lg font-bold opacity-80 uppercase tracking-widest">Puan</span>
+                      </div>
+                    </div>
+                    <div className="flex-1 w-full max-w-xs">
+                      <div className="flex justify-between text-xs font-black uppercase tracking-widest mb-2">
+                        <span>{userProfile.level}</span>
+                        <span>Sonraki Seviye</span>
+                      </div>
+                      <div className="w-full bg-white/10 h-3 rounded-full overflow-hidden p-0.5">
+                        <div className="bg-white h-full rounded-full" style={{ width: `${getLevelProgress()}%` }}></div>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex-1 w-full max-w-xs">
-                    <div className="flex justify-between text-xs font-black uppercase tracking-widest mb-2">
-                      <span>{userProfile.level}</span>
-                      <span>Sonraki Seviye</span>
-                    </div>
-                    <div className="w-full bg-white/20 h-3 rounded-full overflow-hidden p-0.5">
-                      <div className="bg-white h-full rounded-full" style={{ width: `${getLevelProgress()}%` }}></div>
+
+                  {/* Kampanya Bilgisi */}
+                  <div className="p-4 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 flex items-center space-x-4 animate-pulse">
+                    <span className="text-3xl">🎁</span>
+                    <div>
+                      <h4 className="font-extrabold text-sm uppercase tracking-wider">Doğum Günü Hediyesi</h4>
+                      <p className="text-xs font-medium opacity-90 leading-tight">Sana harika bir haberimiz var! Doğum gününde en ucuz kahven bizden hediye. 🎉</p>
                     </div>
                   </div>
                 </div>
