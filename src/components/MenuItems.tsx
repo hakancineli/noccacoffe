@@ -18,7 +18,7 @@ const MenuItems = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await fetch('/api/admin/products?limit=1000');
+        const res = await fetch('/api/products?limit=1000');
         if (res.ok) {
           const data = await res.json();
           setDbProducts(data.products || []);

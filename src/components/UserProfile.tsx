@@ -48,6 +48,8 @@ interface UserProfile {
 const UserProfileComponent = () => {
   const [loading, setLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [activeTab, setActiveTab] = useState<'profile' | 'preferences' | 'addresses' | 'payment' | 'favorites'>('profile');
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -118,8 +120,7 @@ const UserProfileComponent = () => {
     );
   }
 
-  const [activeTab, setActiveTab] = useState<'profile' | 'preferences' | 'addresses' | 'payment' | 'favorites'>('profile');
-  const [isEditing, setIsEditing] = useState(false);
+
 
   const handleSaveProfile = () => {
     setIsEditing(false);
