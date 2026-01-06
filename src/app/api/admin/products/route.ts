@@ -78,26 +78,11 @@ export async function GET(request: NextRequest) {
       (prisma as any).product.count({ where }),
     ]);
 
-    // Calculate sales breakdown by size
-    const productsWithSales = await Promise.all(products.map(async (p: any) => {
-      const salesBySize = await (prisma as any).orderItem.groupBy({
-        by: ['size'],
-        where: {
-          productId: p.id,
-          order: { status: { not: 'CANCELLED' } }
-        },
-        _sum: { quantity: true }
-      });
+    // Calculate sales breakdown by size - OPTIMIZED: Removed N+1 query.
+    // We already maintain soldCount on product model. 
+    // If detailed breakdown is needed, it should be a separate analytics endpoint.
 
-      // Format: { size: 'Large', count: 5 }
-      const salesBreakdown = salesBySize.map((s: any) => ({
-        size: s.size || 'Standart',
-        count: s._sum.quantity || 0
-      }));
-
-      // Calculate total sold dynamically to ensure consistency
-      const realTotalSold = salesBreakdown.reduce((sum: number, item: any) => sum + item.count, 0);
-
+    const productsWithSales = products.map((p: any) => {
       // Check ingredient availability
       let isAvailable = p.stock > 0;
 
@@ -107,8 +92,7 @@ export async function GET(request: NextRequest) {
         isAvailable = p.recipes.some((recipe: any) => {
           // A recipe is viable if ALL its items have sufficient ingredient stock
           return recipe.items.every((ri: any) => {
-            // ri.ingredient might be null if DB is inconsistent, check carefully
-            if (!ri.ingredient) return true; // Assume available if ingredient record missing? 
+            if (!ri.ingredient) return true;
             return ri.ingredient.stock >= ri.quantity;
           });
         });
@@ -119,17 +103,14 @@ export async function GET(request: NextRequest) {
         isAvailable = false;
       }
 
-      // If stock is > 0 OR recipes exist and are viable, it will be true.
-      // Most products start with stock: 100 in seed.
-
       return {
         ...p,
-        soldCount: realTotalSold, // Use dynamic total from OrderItems for accuracy
-        salesBySize: salesBreakdown,
-        isAvailable, // New flag for POS
-        hasRecipe: p.recipes && p.recipes.length > 0 // Flag for recipe status
+        // soldCount is already in p (from findMany), no need to recalculate
+        salesBySize: [], // optimize: remove this heavy calculation for list views
+        isAvailable,
+        hasRecipe: p.recipes && p.recipes.length > 0
       };
-    }));
+    });
 
     return NextResponse.json({
       products: productsWithSales,
