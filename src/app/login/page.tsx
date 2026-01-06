@@ -16,11 +16,18 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e?: React.SyntheticEvent) => {
     if (e) e.preventDefault();
     console.log('Login form submitted', { email, isLogin });
+
+    if (!isLogin && !acceptedTerms) {
+      setError('Lütfen sözleşmeleri onaylayınız.');
+      return;
+    }
+
     setLoading(true);
     setError('');
     setSuccess('');
@@ -240,6 +247,29 @@ const LoginPage = () => {
             )}
 
 
+            {/* Terms Checkbox for Register */}
+            {!isLogin && (
+              <div className="flex items-start my-4">
+                <div className="flex items-center h-5">
+                  <input
+                    id="terms"
+                    name="terms"
+                    type="checkbox"
+                    checked={acceptedTerms}
+                    onChange={(e) => setAcceptedTerms(e.target.checked)}
+                    className="focus:ring-nocca-green h-4 w-4 text-nocca-green border-gray-300 rounded"
+                  />
+                </div>
+                <div className="ml-3 text-sm">
+                  <label htmlFor="terms" className="text-gray-600">
+                    <a href="/terms" target="_blank" className="font-medium text-[#704d39] hover:underline">Üyelik Sözleşmesi</a>,{' '}
+                    <a href="/privacy" target="_blank" className="font-medium text-[#704d39] hover:underline">Gizlilik Politikası</a> ve{' '}
+                    <a href="/kvkk" target="_blank" className="font-medium text-[#704d39] hover:underline">KVKK Metni</a>'ni okudum ve onaylıyorum.
+                  </label>
+                </div>
+              </div>
+            )}
+
             <div>
               <button
                 type="button"
@@ -314,19 +344,7 @@ const LoginPage = () => {
             </button>
           </div>
 
-          {!isLogin && (
-            <div className="mt-4 text-xs text-gray-500 text-center">
-              Üye olarak{' '}
-              <a href="#" className="text-[#704d39] hover:text-[#5a3d2a]">
-                Kullanım Koşulları
-              </a>
-              {' '}ve{' '}
-              <a href="#" className="text-[#704d39] hover:text-[#5a3d2a]">
-                Gizlilik Politikası
-              </a>
-              {' '}nı kabul etmiş olursunuz.
-            </div>
-          )}
+
         </div>
       </div>
     </div>
