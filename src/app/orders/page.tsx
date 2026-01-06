@@ -66,6 +66,33 @@ const OrdersPage = () => {
     return () => clearInterval(interval);
   }, [router]);
 
+  const handleCancelOrder = async (orderId: string) => {
+    if (!confirm('Siparişinizi iptal etmek istediğinize emin misiniz?')) return;
+
+    try {
+      const token = localStorage.getItem('authToken');
+      const res = await fetch(`/api/orders/${orderId}/cancel`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (res.ok) {
+        alert('Siparişiniz iptal edildi.');
+        // Update local state
+        setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: 'cancelled' } : o));
+        setSelectedOrder(null);
+      } else {
+        const d = await res.json();
+        alert(d.error || 'İptal edilemedi. Sipariş hazırlanıyor olabilir.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('İptal işlemi sırasında bir hata oluştu');
+    }
+  };
+
   const getStatusColor = (status: string) => {
     const s = status?.toUpperCase();
     switch (s) {
@@ -268,6 +295,18 @@ const OrdersPage = () => {
                     </div>
                   </div>
                 </div>
+
+                {selectedOrder.status.toLowerCase() === 'pending' && (
+                  <div className="mt-6 pt-4 border-t">
+                    <button
+                      onClick={() => handleCancelOrder(selectedOrder.id)}
+                      className="w-full bg-red-50 text-red-600 py-3 rounded-lg font-bold hover:bg-red-100 transition-colors"
+                    >
+                      Siparişi İptal Et
+                    </button>
+                    <p className="text-xs text-red-400 text-center mt-2">Siparişi iptal etmek için tıklayın.</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
