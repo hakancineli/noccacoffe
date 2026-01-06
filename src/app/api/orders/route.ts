@@ -283,13 +283,13 @@ export async function POST(request: Request) {
                 const size = item.size || 'Medium';
 
                 if (isCold) {
-                    if (['Small', 'S'].includes(size)) cupName = 'Bardak: Şeffaf Small 12oz';
-                    else if (['Medium', 'M'].includes(size)) cupName = 'Orta Bardak (14oz)';
-                    else if (['Large', 'L'].includes(size)) cupName = 'Büyük Bardak (16oz)';
+                    if (['Small', 'S'].includes(size)) cupName = 'Şeffaf Bardak: Small (12oz)';
+                    else if (['Medium', 'M'].includes(size)) cupName = 'Şeffaf Bardak: Medium (14oz)';
+                    else if (['Large', 'L'].includes(size)) cupName = 'Şeffaf Bardak: Large (16oz)';
                 } else {
-                    if (['Small', 'S'].includes(size)) cupName = 'Bardak: Sıcak küçük (8oz)';
-                    else if (['Medium', 'M'].includes(size)) cupName = 'Bardak: Sıcak (14oz)';
-                    else if (['Large', 'L'].includes(size)) cupName = 'Bardak: Sıcak (16oz)';
+                    if (['Small', 'S'].includes(size)) cupName = 'Karton Bardak: Small (8oz)';
+                    else if (['Medium', 'M'].includes(size)) cupName = 'Karton Bardak: Medium (14oz)';
+                    else if (['Large', 'L'].includes(size)) cupName = 'Karton Bardak: Large (16oz)';
                 }
 
                 if (cupName) {
