@@ -6,9 +6,9 @@ export default function DistanceSalesAgreement() {
                 <p><strong>MADDE 1 – TARAFLAR</strong></p>
                 <p><strong>SATICI:</strong><br />
                     Ünvanı: Nocca Coffee<br />
-                    Adres: [Adresiniz Buraya Gelecek]<br />
-                    Telefon: [Telefonunuz]<br />
-                    E-posta: [Emailiniz]</p>
+                    Adres: Fevzi çakmak mahallesi, Yıldırım Beyazıt Caddesi, no: 84 Bahçelievler / İstanbul<br />
+                    Telefon: +90 554 172 96 43<br />
+                    E-posta: info@noccacoffee.com.tr</p>
 
                 <p><strong>ALICI:</strong><br />
                     Müşteri sipariş verirken bildirdiği ad ve iletişim bilgilerini esas alır.</p>
