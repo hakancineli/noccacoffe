@@ -806,11 +806,22 @@ export const allMenuItems: MenuItem[] = [
   { id: 106, name: 'Su', description: 'Pet Şişe 0.5L', category: 'Meşrubatlar', price: 20, image: '/images/products/su.jpeg' },
   { id: 107, name: 'Sade Soda', description: 'Maden Suyu', category: 'Meşrubatlar', price: 30, image: '/images/products/sade soda.jpeg' },
   { id: 108, name: 'Limonlu Soda', description: 'Meyveli Maden Suyu', category: 'Meşrubatlar', price: 35, image: '/images/products/limonlu soda.jpeg' },
+  // TATLILAR
+  { id: 110, name: 'San Sebastian', description: 'Meşhur yanık cheesecake', category: 'Tatlılar', price: 180, image: '/images/products/san-sebastian.jpg' },
+  { id: 111, name: 'Sade Kruvasan', description: 'Taze pişmiş sade kruvasan', category: 'Tatlılar', price: 90, image: '/images/products/kruvasan.jpg' },
+  { id: 112, name: 'Çikolatalı Kruvasan', description: 'Çikolata dolgulu kruvasan', category: 'Tatlılar', price: 110, image: '/images/products/cikolatali-kruvasan.jpg' },
+  { id: 113, name: 'Çikolata Soslu Kruvasan', description: 'Üzerine çikolata sosu dökülmüş kruvasan', category: 'Tatlılar', price: 120, image: '/images/products/cikolatali-kruvasan.jpg' },
+  { id: 114, name: 'Peynirli Kruvasan', description: 'Peynirli sıcak kruvasan', category: 'Tatlılar', price: 100, image: '/images/products/kruvasan.jpg' },
+  { id: 115, name: 'Fıstıklı Snickers', description: 'Fıstıklı ve karamelli özel tatlı', category: 'Tatlılar', price: 150, image: '/images/products/tatli_tabagi.jpg' },
+  { id: 116, name: 'Orman Meyveli Tart', description: 'Taze orman meyveli tart', category: 'Tatlılar', price: 140, image: '/images/products/tatli_tabagi.jpg' },
+  { id: 117, name: 'Bella Vista', description: 'Özel katmanlı meyveli pasta', category: 'Tatlılar', price: 160, image: '/images/products/tatli_tabagi.jpg' },
+  { id: 118, name: 'Nocca Tatlı', description: 'İmza tatlımız', category: 'Tatlılar', price: 170, image: '/images/products/tatli_tabagi.jpg' },
 ];
 
 // Category list for filtering
 export const categories = [
   'Tümü',
+  'Tatlılar',
   'Soğuk Kahveler',
   'Sıcak Kahveler',
   'Soğuk İçecekler',

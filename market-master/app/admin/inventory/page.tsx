@@ -26,7 +26,8 @@ export default function InventoryPage() {
     const [branches, setBranches] = useState<any[]>([]);
     const [selectedBranch, setSelectedBranch] = useState<string>('all');
     const [isLoading, setIsLoading] = useState(true);
-    const [filterType, setFilterType] = useState<string>('all');
+    const [filterType, setFilterType] = useState<string>('all'); // 'all' | 'low'
+    const [activeCategory, setActiveCategory] = useState<string>('all');
 
     useEffect(() => {
         fetchData();
@@ -59,13 +60,20 @@ export default function InventoryPage() {
         setIsModalOpen(true);
     };
 
+    const uniqueCategories = Array.from(new Set(inventory.map(p => p.category).filter(Boolean))).sort();
+
     const filteredInventory = inventory.filter(p => {
         const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase()) ||
             (p.sku && p.sku.toLowerCase().includes(search.toLowerCase())) ||
             (p.barcode && p.barcode.includes(search));
 
-        if (filterType === 'low') return matchesSearch && p.isLowStock;
-        return matchesSearch;
+        let matchesType = true;
+        if (filterType === 'low') matchesType = p.isLowStock;
+
+        let matchesCategory = true;
+        if (activeCategory !== 'all') matchesCategory = p.category === activeCategory;
+
+        return matchesSearch && matchesType && matchesCategory;
     });
 
     const totalValue = inventory.reduce((sum, p) => sum + (p.totalStock * p.buyPrice), 0);
@@ -126,10 +134,18 @@ export default function InventoryPage() {
                             onChange={e => setSearch(e.target.value)}
                         />
                     </div>
-                    <div className="flex gap-3 overflow-x-auto w-full md:w-auto pb-2 md:pb-0">
-                        <FilterButton label="Tümü" active={filterType === 'all'} onClick={() => setFilterType('all')} />
-                        <FilterButton label="Düşük Stok" active={filterType === 'low'} onClick={() => setFilterType('low')} />
-                        {/* Categories could be dynamic here */}
+                    <div className="flex gap-3 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 scrollbar-hide items-center">
+                        <FilterButton label="Tümü" active={filterType === 'all' && activeCategory === 'all'} onClick={() => { setFilterType('all'); setActiveCategory('all'); }} />
+                        <FilterButton label="Düşük Stok" active={filterType === 'low'} onClick={() => setFilterType(filterType === 'low' ? 'all' : 'low')} />
+                        <div className="w-px h-6 bg-border-color mx-2 shrink-0"></div>
+                        {uniqueCategories.map(cat => (
+                            <FilterButton
+                                key={cat}
+                                label={cat}
+                                active={activeCategory === cat}
+                                onClick={() => setActiveCategory(activeCategory === cat ? 'all' : cat)}
+                            />
+                        ))}
                     </div>
                 </div>
 
