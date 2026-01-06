@@ -211,535 +211,415 @@ const UserProfileComponent = () => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">Kullanıcı Profili</h2>
-        <button
-          onClick={() => setIsEditing(!isEditing)}
-          className={`px-4 py-2 rounded-md font-medium transition-colors ${isEditing
-            ? 'bg-gray-300 text-gray-700'
-            : 'bg-nocca-light-green text-white hover:bg-nocca-green'
-            }`}
-        >
-          {isEditing ? 'İptal' : 'Düzenle'}
-        </button>
-      </div>
+    <div className="flex flex-col lg:flex-row gap-8 items-start">
+      {/* Sol Sidebar - Kullanıcı Özeti ve Navigasyon */}
+      <aside className="w-full lg:w-80 lg:sticky lg:top-24 space-y-6">
+        <div className="bg-white rounded-3xl shadow-xl shadow-gray-100/50 border border-gray-100 p-8 text-center overflow-hidden relative">
+          <div className="absolute top-0 left-0 w-full h-2 bg-nocca-green"></div>
 
-      {/* Profil Bilgileri */}
-      <div className="grid md:grid-cols-3 gap-6 mb-8">
-        <div className="md:col-span-2 space-y-6">
-          {/* Kullanıcı Bilgileri */}
-          <div className="bg-gray-50 rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Kişisel Bilgiler</h3>
+          <div className="relative inline-block mb-4">
+            <div className="w-24 h-24 rounded-full border-4 border-green-50 overflow-hidden mx-auto shadow-inner">
+              <Image
+                src="/images/logo/noccacoffee.jpeg"
+                alt="Profil"
+                width={96}
+                height={96}
+                className="object-cover w-full h-full"
+              />
+            </div>
+            {isEditing && (
+              <button className="absolute bottom-0 right-0 bg-nocca-green text-white p-2 rounded-full border-2 border-white hover:scale-110 transition-transform">
+                <FaCamera className="h-3 w-3" />
+              </button>
+            )}
+          </div>
 
-            <div className="flex items-center space-x-4 mb-6">
-              <div className="relative">
-                <Image
-                  src="/images/logo/noccacoffee.jpeg"
-                  alt="Profil"
-                  width={80}
-                  height={80}
-                  className="rounded-full object-cover"
-                />
+          <h3 className="text-xl font-bold text-gray-900">{userProfile.name}</h3>
+          <p className="text-sm text-gray-500 mb-6">{userProfile.email}</p>
+
+          <div className="bg-green-50 rounded-2xl p-4 mb-6">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-xs font-bold text-green-800 uppercase tracking-wider">Seviye</span>
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-black text-white ${levelColors[userProfile.level as keyof typeof levelColors]}`}>
+                {userProfile.level.toUpperCase()}
+              </span>
+            </div>
+            <div className="flex justify-between items-end">
+              <div className="text-left">
+                <span className="text-2xl font-black text-nocca-green">{userProfile.points}</span>
+                <span className="text-[10px] text-green-600 block font-bold uppercase">Puan</span>
+              </div>
+              <div className="w-24 bg-green-200 h-1.5 rounded-full overflow-hidden">
+                <div
+                  className="bg-nocca-green h-full transition-all duration-1000"
+                  style={{ width: `${getLevelProgress()}%` }}
+                ></div>
+              </div>
+            </div>
+          </div>
+
+          {/* Menü */}
+          <nav className="space-y-1 text-left">
+            <button
+              onClick={() => setActiveTab('profile')}
+              className={`w-full flex items-center px-4 py-3 rounded-xl transition-all ${activeTab === 'profile' ? 'bg-nocca-green text-white shadow-lg shadow-green-100' : 'text-gray-600 hover:bg-gray-50'}`}
+            >
+              <FaUser className={`mr-3 ${activeTab === 'profile' ? 'text-white' : 'text-gray-400'}`} />
+              <span className="font-semibold text-sm">Profilim</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('preferences')}
+              className={`w-full flex items-center px-4 py-3 rounded-xl transition-all ${activeTab === 'preferences' ? 'bg-nocca-green text-white shadow-lg shadow-green-100' : 'text-gray-600 hover:bg-gray-50'}`}
+            >
+              <FaBell className={`mr-3 ${activeTab === 'preferences' ? 'text-white' : 'text-gray-400'}`} />
+              <span className="font-semibold text-sm">Tercihler</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('addresses')}
+              className={`w-full flex items-center px-4 py-3 rounded-xl transition-all ${activeTab === 'addresses' ? 'bg-nocca-green text-white shadow-lg shadow-green-100' : 'text-gray-600 hover:bg-gray-50'}`}
+            >
+              <FaMapMarkerAlt className={`mr-3 ${activeTab === 'addresses' ? 'text-white' : 'text-gray-400'}`} />
+              <span className="font-semibold text-sm">Adresler</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('payment')}
+              className={`w-full flex items-center px-4 py-3 rounded-xl transition-all ${activeTab === 'payment' ? 'bg-nocca-green text-white shadow-lg shadow-green-100' : 'text-gray-600 hover:bg-gray-50'}`}
+            >
+              <FaCreditCard className={`mr-3 ${activeTab === 'payment' ? 'text-white' : 'text-gray-400'}`} />
+              <span className="font-semibold text-sm">Ödeme Yöntemleri</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('favorites')}
+              className={`w-full flex items-center px-4 py-3 rounded-xl transition-all ${activeTab === 'favorites' ? 'bg-nocca-green text-white shadow-lg shadow-green-100' : 'text-gray-600 hover:bg-gray-50'}`}
+            >
+              <span className={`mr-3 ${activeTab === 'favorites' ? '' : 'grayscale opacity-50'}`}>❤️</span>
+              <span className="font-semibold text-sm">Favoriler</span>
+            </button>
+          </nav>
+        </div>
+      </aside>
+
+      {/* Sağ İçerik Alanı */}
+      <main className="flex-1 w-full bg-white rounded-3xl shadow-xl shadow-gray-100/50 border border-gray-100 overflow-hidden min-h-[600px]">
+        <div className="p-8 md:p-10">
+
+          {/* PROFIL TAB */}
+          {activeTab === 'profile' && (
+            <div className="animate-in fade-in slide-in-from-right-4 duration-500">
+              <div className="flex justify-between items-center mb-8 pb-4 border-b border-gray-50">
+                <h2 className="text-2xl font-black text-gray-900">Kişisel Bilgiler</h2>
                 <button
-                  className="absolute bottom-0 right-0 bg-nocca-light-green text-white p-2 rounded-full hover:bg-nocca-green transition-colors"
-                  aria-label="Profil fotoğrafını değiştir"
+                  onClick={() => setIsEditing(!isEditing)}
+                  className={`flex items-center space-x-2 px-6 py-2.5 rounded-full font-bold transition-all ${isEditing ? 'bg-gray-100 text-gray-500' : 'bg-black text-white hover:bg-gray-800'}`}
                 >
-                  <FaCamera className="h-4 w-4" />
+                  {isEditing ? <span>İptal</span> : <><FaEdit /> <span>Düzenle</span></>}
                 </button>
               </div>
 
-              <div className="flex-1">
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Ad Soyad</label>
-                  <input
-                    type="text"
-                    value={userProfile.name}
-                    onChange={(e) => {/* Profil güncelleme logic */ }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-nocca-light-green focus:border-transparent"
-                    disabled={!isEditing}
-                    placeholder="Adınızı ve soyadınızı girin"
-                    aria-label="Ad Soyad"
-                  />
-                </div>
-
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">E-posta</label>
-                  <div className="flex items-center">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-xs font-black text-gray-400 uppercase mb-2 tracking-widest">Ad Soyad</label>
+                    <input
+                      type="text"
+                      value={userProfile.name}
+                      readOnly={!isEditing}
+                      onChange={() => { }}
+                      className={`w-full px-5 py-4 rounded-2xl border-2 transition-all font-medium ${isEditing ? 'border-nocca-green bg-white shadow-lg shadow-green-50' : 'border-gray-50 bg-gray-50 text-gray-700'}`}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-black text-gray-400 uppercase mb-2 tracking-widest">E-posta</label>
                     <input
                       type="email"
                       value={userProfile.email}
-                      onChange={(e) => {/* E-posta güncelleme logic */ }}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-nocca-light-green focus:border-transparent"
-                      disabled={!isEditing}
-                      placeholder="E-posta adresinizi girin"
-                      aria-label="E-posta"
+                      readOnly={!isEditing}
+                      onChange={() => { }}
+                      className={`w-full px-5 py-4 rounded-2xl border-2 transition-all font-medium ${isEditing ? 'border-nocca-green bg-white' : 'border-gray-50 bg-gray-50 text-gray-700'}`}
                     />
-                    <FaEnvelope className="h-5 w-5 text-gray-400 ml-2" />
                   </div>
                 </div>
 
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Telefon</label>
-                  <div className="flex items-center">
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-xs font-black text-gray-400 uppercase mb-2 tracking-widest">Telefon</label>
                     <input
                       type="tel"
                       value={userProfile.phone}
-                      onChange={(e) => {/* Telefon güncelleme logic */ }}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-nocca-light-green focus:border-transparent"
-                      disabled={!isEditing}
-                      placeholder="Telefon numaranızı girin"
-                      aria-label="Telefon"
-                    />
-                    <FaPhone className="h-5 w-5 text-gray-400 ml-2" />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Doğum Tarihi</label>
-                    <input
-                      type="date"
-                      value={userProfile.birthDate}
-                      onChange={(e) => {/* Doğum tarihi güncelleme logic */ }}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-nocca-light-green focus:border-transparent"
-                      disabled={!isEditing}
-                      aria-label="Doğum Tarihi"
+                      readOnly={!isEditing}
+                      onChange={() => { }}
+                      className={`w-full px-5 py-4 rounded-2xl border-2 transition-all font-medium ${isEditing ? 'border-nocca-green bg-white' : 'border-gray-50 bg-gray-50 text-gray-700'}`}
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Üyelik Tarihi</label>
-                    <input
-                      type="date"
-                      value={userProfile.joinDate}
-                      onChange={(e) => {/* Üyelik tarihi güncelleme logic */ }}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-nocca-light-green focus:border-transparent"
-                      disabled={!isEditing}
-                      aria-label="Üyelik Tarihi"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Seviye ve Puan Bilgileri */}
-            <div className="bg-gray-50 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">NOCCA REWARDS</h3>
-
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <p className="text-2xl font-bold text-nocca-green">{userProfile.points.toLocaleString('tr-TR')}</p>
-                  <p className="text-sm text-gray-600">Mevcut Puan</p>
-                </div>
-                <div className="text-right">
-                  <div className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${levelColors[userProfile.level as keyof typeof levelColors]}`}>
-                    {userProfile.level}
-                  </div>
-                  <p className="text-sm text-gray-500 mt-1">Seviye {userProfile.level}</p>
-                </div>
-              </div>
-
-              <div className="mb-4">
-                <div className="flex justify-between text-sm mb-2">
-                  <span>Sıradaki Seviye</span>
-                  <span>5000 puan</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-nocca-light-green h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${getLevelProgress()}%` }}
-                  ></div>
-                </div>
-              </div>
-
-              <div className="text-center">
-                <p className="text-sm text-gray-600">
-                  <span className="font-medium">{(5000 - userProfile.points).toLocaleString('tr-TR')}</span> puan sonraki seviyeye
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Seviye Avantajları */}
-        <div className="md:col-span-1">
-          <div className="bg-gray-50 rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Seviye Avantajları</h3>
-
-            <div className="space-y-3">
-              {userProfile.level === 'Bronz' && (
-                <div className="flex items-center p-3 bg-orange-50 rounded-lg">
-                  <span className="text-2xl mr-3">🥉</span>
-                  <div>
-                    <p className="font-semibold">Bronz Seviyesi</p>
-                    <p className="text-sm text-gray-600">0-999 puan arası</p>
-                  </div>
-                </div>
-              )}
-
-              {userProfile.level === 'Gümüş' && (
-                <div className="flex items-center p-3 bg-gray-400 rounded-lg">
-                  <span className="text-2xl mr-3">🥈</span>
-                  <div>
-                    <p className="font-semibold">Gümüş Seviyesi</p>
-                    <p className="text-sm text-gray-600">1000-4999 puan arası</p>
-                  </div>
-                </div>
-              )}
-
-              {userProfile.level === 'Altın' && (
-                <div className="flex items-center p-3 bg-yellow-50 rounded-lg">
-                  <span className="text-2xl mr-3">🥇</span>
-                  <div>
-                    <p className="font-semibold">Altın Seviyesi</p>
-                    <p className="text-sm text-gray-600">5000-9999 puan arası</p>
-                  </div>
-                </div>
-              )}
-
-              {userProfile.level === 'Platin' && (
-                <div className="flex items-center p-3 bg-purple-50 rounded-lg">
-                  <span className="text-2xl mr-3">🏆</span>
-                  <div>
-                    <p className="font-semibold">Platin Seviyesi</p>
-                    <p className="text-sm text-gray-600">10000+ puan arası</p>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Tab Navigation */}
-      <div className="flex space-x-1 mb-6 border-b border-gray-200">
-        <button
-          onClick={() => setActiveTab('profile')}
-          className={`px-4 py-2 font-medium transition-colors border-b-2 ${activeTab === 'profile'
-            ? 'text-nocca-light-green border-nocca-light-green'
-            : 'text-gray-600 border-transparent hover:text-nocca-light-green'
-            }`}
-        >
-          <FaUser className="inline mr-2" />
-          Profil
-        </button>
-        <button
-          onClick={() => setActiveTab('preferences')}
-          className={`px-4 py-2 font-medium transition-colors border-b-2 ${activeTab === 'preferences'
-            ? 'text-nocca-light-green border-nocca-light-green'
-            : 'text-gray-600 border-transparent hover:text-nocca-light-green'
-            }`}
-        >
-          <FaBell className="inline mr-2" />
-          Tercihler
-        </button>
-        <button
-          onClick={() => setActiveTab('addresses')}
-          className={`px-4 py-2 font-medium transition-colors border-b-2 ${activeTab === 'addresses'
-            ? 'text-nocca-light-green border-nocca-light-green'
-            : 'text-gray-600 border-transparent hover:text-nocca-light-green'
-            }`}
-        >
-          <FaMapMarkerAlt className="inline mr-2" />
-          Adresler
-        </button>
-        <button
-          onClick={() => setActiveTab('payment')}
-          className={`px-4 py-2 font-medium transition-colors border-b-2 ${activeTab === 'payment'
-            ? 'text-nocca-light-green border-nocca-light-green'
-            : 'text-gray-600 border-transparent hover:text-nocca-light-green'
-            }`}
-        >
-          <FaCreditCard className="inline mr-2" />
-          Ödeme Yöntemleri
-        </button>
-        <button
-          onClick={() => setActiveTab('favorites')}
-          className={`px-4 py-2 font-medium transition-colors border-b-2 ${activeTab === 'favorites'
-            ? 'text-nocca-light-green border-nocca-light-green'
-            : 'text-gray-600 border-transparent hover:text-nocca-light-green'
-            }`}
-        >
-          <span className="inline mr-2">❤️</span>
-          Favoriler
-        </button>
-      </div>
-
-      {/* Tab Content */}
-      {activeTab === 'preferences' && (
-        <div className="space-y-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Tercihler</h3>
-
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">E-posta Bildirimleri</p>
-                <p className="text-sm text-gray-600">Promosyonlar ve kampanya hakkında bilgi alın</p>
-              </div>
-              <button
-                onClick={() => handlePreferenceChange('emailNotifications', !userProfile.preferences.emailNotifications)}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full ${userProfile.preferences.emailNotifications ? 'bg-nocca-light-green' : 'bg-gray-200'
-                  } transition-colors`}
-              >
-                <span className="sr-only">E-posta bildirimleri</span>
-                <span
-                  className={`inline-block h-4 w-4 rounded-full bg-white transform transition-transform ${userProfile.preferences.emailNotifications ? 'translate-x-1' : 'translate-x-0'
-                    }`}
-                ></span>
-              </button>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">SMS Bildirimleri</p>
-                <p className="text-sm text-gray-600">Özel teklifler hakkında SMS ile bilgi alın</p>
-              </div>
-              <button
-                onClick={() => handlePreferenceChange('smsNotifications', !userProfile.preferences.smsNotifications)}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full ${userProfile.preferences.smsNotifications ? 'bg-nocca-light-green' : 'bg-gray-200'
-                  } transition-colors`}
-              >
-                <span className="sr-only">SMS bildirimleri</span>
-                <span
-                  className={`inline-block h-4 w-4 rounded-full bg-white transform transition-transform ${userProfile.preferences.smsNotifications ? 'translate-x-1' : 'translate-x-0'
-                    }`}
-                ></span>
-              </button>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">Promosyon E-postaları</p>
-                <p className="text-sm text-gray-600">Ortakam ve özel teklifler</p>
-              </div>
-              <button
-                onClick={() => handlePreferenceChange('promotionalEmails', !userProfile.preferences.promotionalEmails)}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full ${userProfile.preferences.promotionalEmails ? 'bg-nocca-light-green' : 'bg-gray-200'
-                  } transition-colors`}
-              >
-                <span className="sr-only">Promosyon e-postaları</span>
-                <span
-                  className={`inline-block h-4 w-4 rounded-full bg-white transform transition-transform ${userProfile.preferences.promotionalEmails ? 'translate-x-1' : 'translate-x-0'
-                    }`}
-                ></span>
-              </button>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">Konum Paylaşımı</p>
-                <p className="text-sm text-gray-600">Yakındaki mağazaları göster</p>
-              </div>
-              <button
-                onClick={() => handlePreferenceChange('locationSharing', !userProfile.preferences.locationSharing)}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full ${userProfile.preferences.locationSharing ? 'bg-nocca-light-green' : 'bg-gray-200'
-                  } transition-colors`}
-              >
-                <span className="sr-only">Konum paylaşımı</span>
-                <span
-                  className={`inline-block h-4 w-4 rounded-full bg-white transform transition-transform ${userProfile.preferences.locationSharing ? 'translate-x-1' : 'translate-x-0'
-                    }`}
-                ></span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {activeTab === 'addresses' && (
-        <div className="space-y-6">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold text-gray-800">Adreslerim</h3>
-            <button
-              onClick={handleAddAddress}
-              className="bg-nocca-light-green text-white px-4 py-2 rounded-md hover:bg-nocca-green transition-colors font-medium"
-            >
-              + Yeni Adres Ekle
-            </button>
-          </div>
-
-          <div className="space-y-4">
-            {userProfile.addresses.map((address) => (
-              <div key={address.id} className="bg-white border border-gray-200 rounded-lg p-4">
-                <div className="flex justify-between items-start mb-2">
-                  <div>
-                    <p className="font-semibold">{address.title}</p>
-                    {address.isDefault && (
-                      <span className="ml-2 px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Varsayılan</span>
-                    )}
-                  </div>
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() => handleEditAddress(address.id)}
-                      className="text-nocca-light-green hover:text-nocca-green p-1"
-                      aria-label="Adresi düzenle"
-                    >
-                      <FaEdit />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteAddress(address.id)}
-                      className="text-red-600 hover:text-red-800 p-1"
-                    >
-                      Sil
-                    </button>
-                  </div>
-                </div>
-
-                <p className="text-gray-600 mb-1">{address.address}</p>
-                <p className="text-sm text-gray-500">{address.city} {address.postalCode}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {activeTab === 'payment' && (
-        <div className="space-y-6">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold text-gray-800">Ödeme Yöntemleri</h3>
-            <button
-              onClick={handleAddPaymentMethod}
-              className="bg-nocca-light-green text-white px-4 py-2 rounded-md hover:bg-nocca-green transition-colors font-medium"
-            >
-              + Yeni Ödeme Yöntemi Ekle
-            </button>
-          </div>
-
-          <div className="space-y-4">
-            {userProfile.paymentMethods.map((method) => (
-              <div key={method.id} className="bg-white border border-gray-200 rounded-lg p-4">
-                <div className="flex justify-between items-center mb-2">
-                  <div>
-                    <div className="flex items-center">
-                      {method.type === 'credit_card' && <FaCreditCard className="h-5 w-5 text-gray-600 mr-2" />}
-                      {method.type === 'debit_card' && <FaCreditCard className="h-5 w-5 text-blue-600 mr-2" />}
-                      {method.type === 'paypal' && <span className="text-blue-600 mr-2">💰</span>}
-                      {method.type === 'apple_pay' && <span className="text-gray-800 mr-2">🍎</span>}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-black text-gray-400 uppercase mb-2 tracking-widest">Doğum Tarihi</label>
+                      <input
+                        type="text"
+                        value={userProfile.birthDate}
+                        readOnly
+                        className="w-full px-5 py-4 rounded-2xl border-2 border-gray-50 bg-gray-50 text-gray-700 font-medium"
+                      />
                     </div>
                     <div>
-                      <p className="font-medium">{method.brand}</p>
-                      <p className="text-sm text-gray-600">•••• {method.lastFour}</p>
+                      <label className="block text-xs font-black text-gray-400 uppercase mb-2 tracking-widest">Üyelik</label>
+                      <input
+                        type="text"
+                        value={userProfile.joinDate}
+                        readOnly
+                        className="w-full px-5 py-4 rounded-2xl border-2 border-gray-50 bg-gray-50 text-gray-700 font-medium"
+                      />
                     </div>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    {!method.isDefault && (
-                      <button
-                        onClick={() => {/* Varsayılan yapma logic */ }}
-                        className="text-nocca-light-green hover:text-nocca-green p-1"
-                      >
-                        Varsayılan Yap
-                      </button>
-                    )}
+                </div>
+              </div>
+
+              {/* Rewards Summary in Content if on profile */}
+              <div className="mt-12 p-8 rounded-3xl bg-gradient-to-br from-nocca-green to-nocca-light-green text-white shadow-xl shadow-green-100 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+                <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-6">
+                  <div>
+                    <h3 className="text-xl font-black mb-2 uppercase tracking-tight">Kazanılan Puan</h3>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-5xl font-black">{userProfile.points}</span>
+                      <span className="text-lg font-bold opacity-80 uppercase tracking-widest">Puan</span>
+                    </div>
+                  </div>
+                  <div className="flex-1 w-full max-w-xs">
+                    <div className="flex justify-between text-xs font-black uppercase tracking-widest mb-2">
+                      <span>{userProfile.level}</span>
+                      <span>Sonraki Seviye</span>
+                    </div>
+                    <div className="w-full bg-white/20 h-3 rounded-full overflow-hidden p-0.5">
+                      <div className="bg-white h-full rounded-full" style={{ width: `${getLevelProgress()}%` }}></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TERCIHLER TAB */}
+          {activeTab === 'preferences' && (
+            <div className="animate-in fade-in slide-in-from-right-4 duration-500">
+              <h2 className="text-2xl font-black text-gray-900 mb-8 pb-4 border-b border-gray-50">Hesap Tercihleri</h2>
+              <div className="space-y-4">
+                {[
+                  { id: 'emailNotifications', label: 'E-posta Bildirimleri', desc: 'Promosyonlar ve kampanyalar hakkında bilgi alın.', val: userProfile.preferences.emailNotifications },
+                  { id: 'smsNotifications', label: 'SMS Bildirimleri', desc: 'Siparişlerinizle ilgili SMS bilgilendirmesi.', val: userProfile.preferences.smsNotifications },
+                  { id: 'promotionalEmails', label: 'Özel Teklifler', desc: 'Size özel hazırlanan fırsatları kaçırmayın.', val: userProfile.preferences.promotionalEmails },
+                  { id: 'locationSharing', label: 'Konum Paylaşımı', desc: 'En yakın şubelerimizi keşfetmek için.', val: userProfile.preferences.locationSharing },
+                ].map((pref) => (
+                  <div key={pref.id} className="flex items-center justify-between p-6 rounded-3xl bg-gray-50 border border-gray-100 hover:bg-white hover:shadow-xl hover:shadow-gray-100 transition-all group">
+                    <div>
+                      <p className="font-bold text-gray-800 text-lg">{pref.label}</p>
+                      <p className="text-sm text-gray-500">{pref.desc}</p>
+                    </div>
                     <button
-                      onClick={() => handleDeletePaymentMethod(method.id)}
-                      className="text-red-600 hover:text-red-800 p-1"
+                      onClick={() => handlePreferenceChange(pref.id as any, !pref.val)}
+                      className={`relative inline-flex h-8 w-14 items-center rounded-full transition-all duration-300 ${pref.val ? 'bg-nocca-green shadow-lg shadow-green-100' : 'bg-gray-300'}`}
                     >
-                      Sil
+                      <span className={`inline-block h-6 w-6 rounded-full bg-white transition-all transform ${pref.val ? 'translate-x-7' : 'translate-x-1'}`} />
                     </button>
                   </div>
-                </div>
-
-                {method.expiryDate && (
-                  <p className="text-sm text-gray-500 mt-2">Son Kullanım: {method.expiryDate}</p>
-                )}
+                ))}
               </div>
-            ))}
-          </div>
-        </div>
-      )}
+            </div>
+          )}
 
-      {activeTab === 'favorites' && (
-        <div className="space-y-6">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold text-gray-800">Favori Ürünlerim</h3>
-            <button
-              onClick={handleAddFavorite}
-              className="bg-nocca-light-green text-white px-4 py-2 rounded-md hover:bg-nocca-green transition-colors font-medium"
-            >
-              Favorilere Ekle
-            </button>
-          </div>
+          {/* ADRESLER TAB */}
+          {activeTab === 'addresses' && (
+            <div className="animate-in fade-in slide-in-from-right-4 duration-500">
+              <div className="flex justify-between items-center mb-8">
+                <h2 className="text-2xl font-black text-gray-900">Kayıtlı Adresler</h2>
+                <button
+                  onClick={handleAddAddress}
+                  className="bg-black text-white px-6 py-3 rounded-full font-bold hover:bg-gray-800 transition-all flex items-center space-x-2"
+                >
+                  <span>+ Yeni Ekle</span>
+                </button>
+              </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {userProfile.favoriteProducts.map((product) => (
-              <div key={product.id} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                <div className="flex items-start space-x-4">
-                  <div className="relative w-16 h-16">
-                    <Image
-                      src={product.image}
-                      alt={product.name}
-                      fill
-                      className="object-cover rounded-lg"
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-gray-800">{product.name}</h4>
-                    <p className="text-sm text-gray-600 mb-1">{product.category}</p>
-                    <p className="text-lg font-bold text-nocca-green">₺{product.price.toFixed(2)}</p>
-                  </div>
+              {userProfile.addresses.length === 0 ? (
+                <div className="bg-gray-50 rounded-3xl p-12 text-center border-2 border-dashed border-gray-200">
+                  <span className="text-5xl block mb-4">📍</span>
+                  <h3 className="text-lg font-bold text-gray-800 mb-2">Henüz adres kaydetmediniz</h3>
+                  <button onClick={handleAddAddress} className="text-nocca-green font-bold underline">İlk adresinizi hemen ekleyin</button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {userProfile.addresses.map((addr) => (
+                    <div key={addr.id} className="p-6 rounded-3xl bg-white border-2 border-gray-50 hover:border-nocca-green transition-all group relative overflow-hidden shadow-sm">
+                      <div className="flex justify-between items-start mb-4">
+                        <div className="flex items-center">
+                          <span className="p-3 bg-green-50 rounded-xl mr-3 group-hover:bg-nocca-green group-hover:text-white transition-colors">
+                            <FaMapMarkerAlt />
+                          </span>
+                          <h4 className="font-black text-gray-800">{addr.title}</h4>
+                        </div>
+                        <div className="flex space-x-2">
+                          <button className="text-gray-400 hover:text-nocca-green transition-colors"><FaEdit /></button>
+                          <button className="text-gray-400 hover:text-red-500 transition-colors">×</button>
+                        </div>
+                      </div>
+                      <p className="text-gray-500 text-sm leading-relaxed mb-4">{addr.address}</p>
+                      {addr.isDefault && <span className="text-[10px] font-black uppercase tracking-widest text-nocca-green flex items-center"><span className="w-1.5 h-1.5 bg-nocca-green rounded-full mr-2"></span>Varsayılan Adres</span>}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ÖDEME YÖNTEMLERİ TAB */}
+          {activeTab === 'payment' && (
+            <div className="animate-in fade-in slide-in-from-right-4 duration-500">
+              <div className="flex justify-between items-center mb-8">
+                <h2 className="text-2xl font-black text-gray-900">Ödeme Yöntemleri</h2>
+                <button
+                  onClick={handleAddPaymentMethod}
+                  className="bg-black text-white px-6 py-3 rounded-full font-bold hover:bg-gray-800 transition-all flex items-center space-x-2 shadow-lg shadow-gray-200"
+                >
+                  <span>+ Yeni Kart Ekle</span>
+                </button>
+              </div>
+
+              {userProfile.paymentMethods.length === 0 ? (
+                <div className="bg-gray-100/50 rounded-3xl p-16 text-center border-2 border-dashed border-gray-200">
+                  <span className="text-5xl block mb-6 outline-none">💳</span>
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">Kayıtlı kartınız bulunmuyor</h3>
+                  <p className="text-gray-500 mb-8 max-w-xs mx-auto text-sm">Hızlı ve güvenli ödeme için kredi veya banka kartınızı hemen ekleyebilirsiniz.</p>
                   <button
-                    onClick={() => handleRemoveFavorite(product.id)}
-                    className="text-red-600 hover:text-red-800 p-1"
+                    onClick={handleAddPaymentMethod}
+                    className="bg-nocca-green text-white px-8 py-4 rounded-2xl font-black hover:scale-105 transition-transform"
                   >
-                    Kaldır
+                    YENİ KART EKLE
                   </button>
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {userProfile.paymentMethods.map((method) => (
+                    <div key={method.id} className="relative p-8 rounded-[2rem] bg-gradient-to-br from-gray-900 to-gray-800 text-white overflow-hidden shadow-2xl group">
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 blur-xl"></div>
+                      <div className="flex justify-between items-start mb-12">
+                        <div className="text-2xl italic font-black">{method.brand}</div>
+                        <FaCreditCard className="text-3xl opacity-50" />
+                      </div>
+                      <div className="text-xl tracking-[0.2em] font-mono mb-8">•••• •••• •••• {method.lastFour}</div>
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <p className="text-[10px] opacity-50 uppercase font-black tracking-widest mb-1">SKT</p>
+                          <p className="font-bold">{method.expiryDate}</p>
+                        </div>
+                        <div className="flex space-x-3">
+                          <button className="text-xs font-black uppercase opacity-60 hover:opacity-100 transition-opacity">SİL</button>
+                          {method.isDefault && <span className="bg-white/20 px-3 py-1 rounded-full text-[10px] font-black tracking-widest">VARSAYILAN</span>}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
-      {/* Kaydet Butonu */}
-      {isEditing && (
-        <div className="mt-6">
-          <button
-            onClick={handleSaveProfile}
-            className="w-full bg-nocca-light-green text-white py-3 px-4 rounded-md hover:bg-nocca-green transition-colors font-medium"
-          >
-            Değişiklikleri Kaydet
-          </button>
+          {/* FAVORİLER TAB */}
+          {activeTab === 'favorites' && (
+            <div className="animate-in fade-in slide-in-from-right-4 duration-500">
+              <h2 className="text-2xl font-black text-gray-900 mb-8 pb-4 border-b border-gray-50">❤️ Favori Ürünler</h2>
+
+              {userProfile.favoriteProducts.length === 0 ? (
+                <div className="text-center py-20 bg-pink-50/30 rounded-3xl border border-pink-100">
+                  <span className="text-6xl block mb-6">☕</span>
+                  <h3 className="text-xl font-bold text-gray-800 mb-2">Henüz favori lezzetiniz yok</h3>
+                  <p className="text-gray-500 mb-8">En sevdiğiniz kahveleri favorilere ekleyerek hızlıca sipariş verebilirsiniz.</p>
+                  <button onClick={() => window.location.href = '/menu'} className="bg-black text-white px-8 py-3 rounded-full font-bold">Menüyü Keşfet</button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {userProfile.favoriteProducts.map((product) => (
+                    <div key={product.id} className="flex items-center p-4 bg-white border border-gray-100 rounded-3xl hover:shadow-xl transition-all group">
+                      <div className="relative w-24 h-24 rounded-2xl overflow-hidden shadow-md mr-4">
+                        <Image src={product.image} alt={product.name} fill className="object-cover group-hover:scale-110 transition-transform duration-500" />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-black text-gray-900">{product.name}</h4>
+                        <p className="text-xs text-gray-500 mb-2 uppercase tracking-tighter">{product.category}</p>
+                        <p className="text-nocca-green font-black">₺{product.price.toFixed(2)}</p>
+                      </div>
+                      <button className="p-3 text-red-500 hover:bg-red-50 rounded-full transition-colors"><span className="text-xl">×</span></button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
-      )}
+
+        {/* Kaydet Butonu - Edit Modu Alt Kısım */}
+        {isEditing && (
+          <div className="p-8 bg-gray-50 border-t border-gray-100 flex justify-end">
+            <button
+              onClick={handleSaveProfile}
+              className="bg-nocca-green text-white py-4 px-12 rounded-2xl font-black hover:scale-105 transition-transform shadow-lg shadow-green-100"
+            >
+              DEĞİŞİKLİKLERİ KAYDET
+            </button>
+          </div>
+        )}
+      </main>
+
       {/* Ödeme Yöntemi Ekleme Modalı */}
       {isAddingPayment && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full animate-in zoom-in duration-300">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-bold text-gray-900">Yeni Kart Ekle</h3>
-              <button onClick={() => setIsAddingPayment(false)} className="text-gray-400 hover:text-gray-600 font-bold text-xl">&times;</button>
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[100] p-4">
+          <div className="bg-white rounded-[3rem] shadow-2xl p-10 max-w-md w-full animate-in zoom-in duration-300 relative">
+            <button
+              onClick={() => setIsAddingPayment(false)}
+              className="absolute top-8 right-8 text-gray-400 hover:text-black hover:rotate-90 transition-all font-black text-2xl"
+            >
+              ×
+            </button>
+
+            <div className="text-center mb-10">
+              <div className="w-20 h-20 bg-green-50 rounded-3xl flex items-center justify-center mx-auto mb-4 text-3xl">💳</div>
+              <h3 className="text-2xl font-black text-gray-900">Yeni Kart Ekle</h3>
+              <p className="text-gray-500 text-sm">Hızlı ödeme için kart bilgilerinizi girin.</p>
             </div>
 
-            <form onSubmit={handleSaveCard} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Kart Üzerindeki İsim</label>
-                <input type="text" required placeholder="Ad Soyad" className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-nocca-green" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Kart Numarası</label>
-                <input type="text" required placeholder="0000 0000 0000 0000" maxLength={19} className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-nocca-green" />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
+            <form onSubmit={handleSaveCard} className="space-y-6">
+              <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">STK (AA/YY)</label>
-                  <input type="text" required placeholder="MM/YY" maxLength={5} className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-nocca-green" />
+                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-4">Kart Sahibi</label>
+                  <input type="text" required placeholder="AD SOYAD" className="w-full px-6 py-4 bg-gray-50 border-2 border-transparent focus:border-nocca-green focus:bg-white rounded-2xl transition-all outline-none font-bold" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">CVV</label>
-                  <input type="text" required placeholder="123" maxLength={3} className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-nocca-green" />
+                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-4">Kart Numarası</label>
+                  <input type="text" required placeholder="0000 0000 0000 0000" maxLength={19} className="w-full px-6 py-4 bg-gray-50 border-2 border-transparent focus:border-nocca-green focus:bg-white rounded-2xl transition-all outline-none font-mono font-bold" />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-4">SKT</label>
+                    <input type="text" required placeholder="AA/YY" maxLength={5} className="w-full px-6 py-4 bg-gray-50 border-2 border-transparent focus:border-nocca-green focus:bg-white rounded-2xl transition-all outline-none font-bold" />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-4">CVV</label>
+                    <input type="text" required placeholder="123" maxLength={3} className="w-full px-6 py-4 bg-gray-50 border-2 border-transparent focus:border-nocca-green focus:bg-white rounded-2xl transition-all outline-none font-bold" />
+                  </div>
                 </div>
               </div>
 
-              <div className="pt-4">
+              <div className="pt-6">
                 <button
                   type="submit"
-                  className="w-full bg-nocca-green text-white py-3 rounded-xl font-bold hover:bg-nocca-light-green transition-colors"
+                  className="w-full bg-nocca-green text-white py-5 rounded-3xl font-black text-lg hover:shadow-xl hover:shadow-green-100 transition-all hover:-translate-y-1"
                 >
-                  Kartı Kaydet
+                  KARTI GÜVENLEYLE KAYDET
                 </button>
-                <p className="text-[10px] text-gray-400 text-center mt-3">
-                  Kart bilgileriniz iyzico/PayTR güvencesiyle şifrelenir ve tarafımızca saklanmaz.
-                </p>
+                <div className="flex items-center justify-center mt-6 space-x-4 opacity-30 grayscale">
+                  <span className="text-xs font-black tracking-widest">VISA</span>
+                  <span className="text-xs font-black tracking-widest">MASTERCARD</span>
+                  <span className="text-xs font-black tracking-widest">TROY</span>
+                </div>
               </div>
             </form>
           </div>
