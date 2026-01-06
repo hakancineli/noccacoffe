@@ -50,6 +50,7 @@ const UserProfileComponent = () => {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [activeTab, setActiveTab] = useState<'profile' | 'preferences' | 'addresses' | 'payment' | 'favorites'>('profile');
   const [isEditing, setIsEditing] = useState(false);
+  const [isAddingPayment, setIsAddingPayment] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -120,8 +121,6 @@ const UserProfileComponent = () => {
     );
   }
 
-
-
   const handleSaveProfile = () => {
     setIsEditing(false);
     // Profil kaydetme logic
@@ -144,7 +143,32 @@ const UserProfileComponent = () => {
   };
 
   const handleAddPaymentMethod = () => {
-    // Yeni ödeme yöntemi ekleme logic
+    setIsAddingPayment(true);
+  };
+
+  const handleSaveCard = (e: React.FormEvent) => {
+    e.preventDefault();
+    // In a real app, this would involve iyzico/PayTR tokenization
+    alert('Kart başarıyla eklendi! (Test Modu)');
+    setIsAddingPayment(false);
+
+    // Mock update local state
+    if (userProfile) {
+      setUserProfile({
+        ...userProfile,
+        paymentMethods: [
+          ...userProfile.paymentMethods,
+          {
+            id: Math.random().toString(),
+            type: 'credit_card',
+            brand: 'Visa',
+            lastFour: '4242',
+            expiryDate: '12/26',
+            isDefault: userProfile.paymentMethods.length === 0
+          }
+        ]
+      });
+    }
   };
 
   const handleEditPaymentMethod = (id: string) => {
@@ -675,6 +699,50 @@ const UserProfileComponent = () => {
           >
             Değişiklikleri Kaydet
           </button>
+        </div>
+      )}
+      {/* Ödeme Yöntemi Ekleme Modalı */}
+      {isAddingPayment && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full animate-in zoom-in duration-300">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-bold text-gray-900">Yeni Kart Ekle</h3>
+              <button onClick={() => setIsAddingPayment(false)} className="text-gray-400 hover:text-gray-600 font-bold text-xl">&times;</button>
+            </div>
+
+            <form onSubmit={handleSaveCard} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Kart Üzerindeki İsim</label>
+                <input type="text" required placeholder="Ad Soyad" className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-nocca-green" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Kart Numarası</label>
+                <input type="text" required placeholder="0000 0000 0000 0000" maxLength={19} className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-nocca-green" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">STK (AA/YY)</label>
+                  <input type="text" required placeholder="MM/YY" maxLength={5} className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-nocca-green" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">CVV</label>
+                  <input type="text" required placeholder="123" maxLength={3} className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-nocca-green" />
+                </div>
+              </div>
+
+              <div className="pt-4">
+                <button
+                  type="submit"
+                  className="w-full bg-nocca-green text-white py-3 rounded-xl font-bold hover:bg-nocca-light-green transition-colors"
+                >
+                  Kartı Kaydet
+                </button>
+                <p className="text-[10px] text-gray-400 text-center mt-3">
+                  Kart bilgileriniz iyzico/PayTR güvencesiyle şifrelenir ve tarafımızca saklanmaz.
+                </p>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>

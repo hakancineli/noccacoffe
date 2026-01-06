@@ -28,6 +28,13 @@ export default function CheckoutPage() {
 
     const [isEditing, setIsEditing] = useState(true);
     const [acceptedAgreement, setAcceptedAgreement] = useState(false);
+    const [paymentMethod, setPaymentMethod] = useState<'CREDIT_CARD' | 'BRANCH'>('CREDIT_CARD');
+    const [cardData, setCardData] = useState({
+        holderName: '',
+        cardNumber: '',
+        expiry: '',
+        cvv: ''
+    });
 
     // Check for logged in user to auto-fill AND logic for birthday
     useEffect(() => {
@@ -123,21 +130,26 @@ export default function CheckoutPage() {
             return;
         }
 
+        if (paymentMethod === 'CREDIT_CARD') {
+            if (!cardData.holderName || !cardData.cardNumber || !cardData.expiry || !cardData.cvv) {
+                setError('Lütfen tüm kart bilgilerini doldurunuz.');
+                setLoading(false);
+                return;
+            }
+            if (cardData.cardNumber.replace(/\s/g, '').length < 16) {
+                setError('Geçersiz kart numarası.');
+                setLoading(false);
+                return;
+            }
+        }
+
         try {
             // Apply discount to items payload
-            // We need to pass the discount info to backend or adjust prices here.
-            // Best approach: Adjust the price of the discounted item in the payload specifically.
+            // ... (rest of item mapping)
 
             const orderItems = items.map(item => {
                 let unitPrice = item.finalPrice;
                 let totalLinePrice = item.finalPrice * item.quantity;
-
-                // If this is the discounted item type
-                // Note: user might have 2 of the same item. We only want to discount 1 of them. 
-                // This logic is slightly complex with quantity > 1.
-                // Simplification for MVP: If they have multiple of cheapest, we discount 1 unit of it.
-                // We'll calculate the total amount manually.
-
                 return {
                     productId: item.id,
                     productName: item.name,
@@ -151,8 +163,9 @@ export default function CheckoutPage() {
             const orderData = {
                 ...formData,
                 items: orderItems,
-                totalAmount: totalPrice, // Original Total
-                finalAmount: finalTotal, // Discounted Total
+                paymentMethod: paymentMethod,
+                totalAmount: totalPrice,
+                finalAmount: finalTotal,
                 discount: birthdayDiscount ? {
                     type: 'BIRTHDAY',
                     amount: birthdayDiscount.amount,
@@ -374,6 +387,92 @@ export default function CheckoutPage() {
                                     />
                                 </div>
 
+                                <div className="pt-4 border-t">
+                                    <h2 className="text-xl font-semibold flex items-center mb-4 text-gray-900">
+                                        Ödeme Yöntemi
+                                    </h2>
+
+                                    <div className="grid grid-cols-2 gap-4 mb-6">
+                                        <button
+                                            type="button"
+                                            onClick={() => setPaymentMethod('CREDIT_CARD')}
+                                            className={`p-4 border-2 rounded-xl flex flex-col items-center justify-center transition-all ${paymentMethod === 'CREDIT_CARD' ? 'border-nocca-green bg-green-50 text-nocca-green' : 'border-gray-200 text-gray-500 hover:border-gray-300'}`}
+                                        >
+                                            <span className="text-2xl mb-2">💳</span>
+                                            <span className="font-bold text-sm text-center">Kredi / Banka Kartı</span>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setPaymentMethod('BRANCH')}
+                                            className={`p-4 border-2 rounded-xl flex flex-col items-center justify-center transition-all ${paymentMethod === 'BRANCH' ? 'border-nocca-green bg-green-50 text-nocca-green' : 'border-gray-200 text-gray-500 hover:border-gray-300'}`}
+                                        >
+                                            <span className="text-2xl mb-2">🏪</span>
+                                            <span className="font-bold text-sm text-center">Şubede Öde</span>
+                                        </button>
+                                    </div>
+
+                                    {paymentMethod === 'CREDIT_CARD' && (
+                                        <div className="space-y-4 animate-in fade-in duration-300">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">Kart Üzerindeki İsim</label>
+                                                <input
+                                                    type="text"
+                                                    required={paymentMethod === 'CREDIT_CARD'}
+                                                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-nocca-green uppercase"
+                                                    value={cardData.holderName}
+                                                    onChange={e => setCardData({ ...cardData, holderName: e.target.value.toUpperCase() })}
+                                                    placeholder="AD SOYAD"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">Kart Numarası</label>
+                                                <input
+                                                    type="text"
+                                                    required={paymentMethod === 'CREDIT_CARD'}
+                                                    maxLength={19}
+                                                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-nocca-green font-mono"
+                                                    value={cardData.cardNumber}
+                                                    onChange={e => {
+                                                        const val = e.target.value.replace(/\D/g, '').replace(/(.{4})/g, '$1 ').trim();
+                                                        setCardData({ ...cardData, cardNumber: val });
+                                                    }}
+                                                    placeholder="0000 0000 0000 0000"
+                                                />
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div>
+                                                    <label className="block text-sm font-medium text-gray-700 mb-1">SKT</label>
+                                                    <input
+                                                        type="text"
+                                                        required={paymentMethod === 'CREDIT_CARD'}
+                                                        maxLength={5}
+                                                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-nocca-green"
+                                                        value={cardData.expiry}
+                                                        onChange={e => {
+                                                            let val = e.target.value.replace(/\D/g, '');
+                                                            if (val.length > 2) val = val.substring(0, 2) + '/' + val.substring(2, 4);
+                                                            setCardData({ ...cardData, expiry: val });
+                                                        }}
+                                                        placeholder="AA/YY"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium text-gray-700 mb-1">CVV</label>
+                                                    <input
+                                                        type="text"
+                                                        required={paymentMethod === 'CREDIT_CARD'}
+                                                        maxLength={3}
+                                                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-nocca-green"
+                                                        value={cardData.cvv}
+                                                        onChange={e => setCardData({ ...cardData, cvv: e.target.value.replace(/\D/g, '') })}
+                                                        placeholder="123"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+
                                 {error && <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg">{error}</div>}
 
                                 <div className="flex items-start py-4">
@@ -408,6 +507,92 @@ export default function CheckoutPage() {
                                         onChange={e => setFormData({ ...formData, notes: e.target.value })}
                                         placeholder="Bardağa yazılacak İsim..."
                                     />
+                                </div>
+
+                                <div className="pt-4 border-t">
+                                    <h2 className="text-xl font-semibold mb-4 text-gray-900">
+                                        Ödeme Yöntemi
+                                    </h2>
+
+                                    <div className="grid grid-cols-2 gap-4 mb-6">
+                                        <button
+                                            type="button"
+                                            onClick={() => setPaymentMethod('CREDIT_CARD')}
+                                            className={`p-4 border-2 rounded-xl flex flex-col items-center justify-center transition-all ${paymentMethod === 'CREDIT_CARD' ? 'border-nocca-green bg-green-50 text-nocca-green' : 'border-gray-200 text-gray-500 hover:border-gray-300'}`}
+                                        >
+                                            <span className="text-2xl mb-2">💳</span>
+                                            <span className="font-bold text-sm text-center">Kredi / Banka Kartı</span>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setPaymentMethod('BRANCH')}
+                                            className={`p-4 border-2 rounded-xl flex flex-col items-center justify-center transition-all ${paymentMethod === 'BRANCH' ? 'border-nocca-green bg-green-50 text-nocca-green' : 'border-gray-200 text-gray-500 hover:border-gray-300'}`}
+                                        >
+                                            <span className="text-2xl mb-2">🏪</span>
+                                            <span className="font-bold text-sm text-center">Şubede Öde</span>
+                                        </button>
+                                    </div>
+
+                                    {paymentMethod === 'CREDIT_CARD' && (
+                                        <div className="space-y-4 animate-in fade-in duration-300">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">Kart Üzerindeki İsim</label>
+                                                <input
+                                                    type="text"
+                                                    required={paymentMethod === 'CREDIT_CARD'}
+                                                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-nocca-green uppercase"
+                                                    value={cardData.holderName}
+                                                    onChange={e => setCardData({ ...cardData, holderName: e.target.value.toUpperCase() })}
+                                                    placeholder="AD SOYAD"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">Kart Numarası</label>
+                                                <input
+                                                    type="text"
+                                                    required={paymentMethod === 'CREDIT_CARD'}
+                                                    maxLength={19}
+                                                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-nocca-green font-mono"
+                                                    value={cardData.cardNumber}
+                                                    onChange={e => {
+                                                        const val = e.target.value.replace(/\D/g, '').replace(/(.{4})/g, '$1 ').trim();
+                                                        setCardData({ ...cardData, cardNumber: val });
+                                                    }}
+                                                    placeholder="0000 0000 0000 0000"
+                                                />
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div>
+                                                    <label className="block text-sm font-medium text-gray-700 mb-1">SKT</label>
+                                                    <input
+                                                        type="text"
+                                                        required={paymentMethod === 'CREDIT_CARD'}
+                                                        maxLength={5}
+                                                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-nocca-green"
+                                                        value={cardData.expiry}
+                                                        onChange={e => {
+                                                            let val = e.target.value.replace(/\D/g, '');
+                                                            if (val.length > 2) val = val.substring(0, 2) + '/' + val.substring(2, 4);
+                                                            setCardData({ ...cardData, expiry: val });
+                                                        }}
+                                                        placeholder="AA/YY"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium text-gray-700 mb-1">CVV</label>
+                                                    <input
+                                                        type="text"
+                                                        required={paymentMethod === 'CREDIT_CARD'}
+                                                        maxLength={3}
+                                                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-nocca-green"
+                                                        value={cardData.cvv}
+                                                        onChange={e => setCardData({ ...cardData, cvv: e.target.value.replace(/\D/g, '') })}
+                                                        placeholder="123"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
 
                                 {error && <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg">{error}</div>}
