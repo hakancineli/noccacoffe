@@ -1,9 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
-import { FaSearch, FaUser, FaTrash, FaCreditCard, FaMoneyBillWave, FaTimes, FaPrint } from 'react-icons/fa';
+import { FaSearch, FaUser, FaTrash, FaCreditCard, FaMoneyBillWave, FaTimes, FaPrint, FaWifi, FaSync } from 'react-icons/fa';
 import { allMenuItems, categories, MenuItem } from '@/data/menuItems';
+import { noccaDB } from '@/lib/db';
+import { toast } from 'react-hot-toast';
 
 interface CartItem {
     id: string; // Unique ID for cart item (productID + size)
@@ -54,6 +56,31 @@ export default function POSPage() {
     // Assignments: { cartItemId: { cash: number, card: number } }
     const [itemAssignments, setItemAssignments] = useState<Record<string, { cash: number, card: number }>>({});
 
+    // Offline State
+    const [isOnline, setIsOnline] = useState(true);
+    const [pendingOrdersCount, setPendingOrdersCount] = useState(0);
+    const [isSyncing, setIsSyncing] = useState(false);
+
+    // Monitor Online Status
+    useEffect(() => {
+        const updateOnlineStatus = () => {
+            const online = navigator.onLine;
+            setIsOnline(online);
+            if (online) {
+                syncOfflineOrders();
+            }
+        };
+
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+        setIsOnline(navigator.onLine);
+
+        return () => {
+            window.removeEventListener('online', updateOnlineStatus);
+            window.removeEventListener('offline', updateOnlineStatus);
+        };
+    }, []);
+
     // Fetch DB products for stock check
     useEffect(() => {
         const fetchProducts = async () => {
@@ -61,14 +88,73 @@ export default function POSPage() {
                 const res = await fetch('/api/admin/products?limit=1000');
                 if (res.ok) {
                     const data = await res.json();
-                    setDbProducts(data.products || []);
+                    const products = data.products || [];
+                    setDbProducts(products);
+                    // Cache for offline
+                    await noccaDB.cacheProducts(products);
+                } else {
+                    // Try to load from cache if API fails
+                    const cached = await noccaDB.getCachedProducts();
+                    if (cached.length > 0) {
+                        setDbProducts(cached);
+                    }
                 }
             } catch (error) {
                 console.error('POS stock fetch error:', error);
+                // Load from cache on network error
+                const cached = await noccaDB.getCachedProducts();
+                if (cached.length > 0) {
+                    setDbProducts(cached);
+                }
             }
         };
         fetchProducts();
     }, []);
+
+    // Track pending orders count
+    useEffect(() => {
+        const checkPending = async () => {
+            const pending = await noccaDB.getPendingOrders();
+            setPendingOrdersCount(pending.length);
+        };
+        checkPending();
+        const interval = setInterval(checkPending, 10000); // Check every 10s
+        return () => clearInterval(interval);
+    }, []);
+
+    const syncOfflineOrders = useCallback(async () => {
+        if (!navigator.onLine || isSyncing) return;
+
+        const pending = await noccaDB.getPendingOrders();
+        if (pending.length === 0) return;
+
+        setIsSyncing(true);
+        console.log(`Syncing ${pending.length} offline orders...`);
+
+        for (const order of pending) {
+            try {
+                const res = await fetch('/api/orders', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(order.data)
+                });
+
+                if (res.ok) {
+                    await noccaDB.markOrderSynced(order.tempId);
+                }
+            } catch (error) {
+                console.error('Failed to sync order:', order.tempId, error);
+            }
+        }
+
+        const remaining = await noccaDB.getPendingOrders();
+        setPendingOrdersCount(remaining.length);
+        setIsSyncing(false);
+
+        if (remaining.length === 0) {
+            toast.success('Tüm çevrimdışı siparişler senkronize edildi!');
+        }
+    }, [isSyncing]);
 
     const getDbProduct = (name: string) => {
         return dbProducts.find(p => p.name === name);
@@ -229,31 +315,31 @@ export default function POSPage() {
     const handleCreateOrder = async (paymentMethod: 'CASH' | 'CREDIT_CARD' | 'SPLIT', customPayments?: any[]) => {
         if (cart.length === 0) return;
 
+        const orderData = {
+            items: cart.map(item => ({
+                productId: item.productId,
+                productName: item.name,
+                quantity: item.quantity,
+                unitPrice: item.price,
+                totalPrice: item.price * item.quantity,
+                size: item.size,
+                isPorcelain: item.isPorcelain
+            })),
+            totalAmount: cartTotal,
+            finalAmount: finalTotal,
+            discountAmount: discountAmount,
+            status: 'PENDING',
+            paymentMethod: paymentMethod === 'SPLIT' ? 'CASH' : paymentMethod,
+            payments: customPayments,
+            userId: selectedCustomer?.id || null,
+            customerName: selectedCustomer ? `${selectedCustomer.firstName} ${selectedCustomer.lastName}` : 'Misafir',
+            customerPhone: selectedCustomer?.phone || '',
+            customerEmail: selectedCustomer?.email || '',
+            notes: 'POS Satışı'
+        };
+
         setProcessingPayment(true);
         try {
-            const orderData = {
-                items: cart.map(item => ({
-                    productId: item.productId,
-                    productName: item.name,
-                    quantity: item.quantity,
-                    unitPrice: item.price,
-                    totalPrice: item.price * item.quantity,
-                    size: item.size,
-                    isPorcelain: item.isPorcelain
-                })),
-                totalAmount: cartTotal,
-                finalAmount: finalTotal,
-                discountAmount: discountAmount,
-                status: 'PENDING',
-                // For Split, we just say 'SPLIT' or 'CASH/CARD' generally, but backend relies on 'payments' array
-                paymentMethod: paymentMethod === 'SPLIT' ? 'CASH' : paymentMethod,
-                payments: customPayments, // <--- NEW: Pass split payments
-                userId: selectedCustomer?.id || null,
-                customerName: selectedCustomer ? `${selectedCustomer.firstName} ${selectedCustomer.lastName}` : 'Misafir',
-                customerPhone: selectedCustomer?.phone || '',
-                customerEmail: selectedCustomer?.email || '',
-                notes: 'POS Satışı'
-            };
 
             const res = await fetch('/api/orders', {
                 method: 'POST',
@@ -261,34 +347,82 @@ export default function POSPage() {
                 body: JSON.stringify(orderData)
             });
 
+            const tempId = `off_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
             if (res.ok) {
                 const createdOrder = await res.json();
 
+                // Still save for history/resilience if needed, or just proceed
+                await noccaDB.saveOrder(orderData, tempId);
+                await noccaDB.markOrderSynced(tempId);
+
                 // 1. Set receipt data (triggers useEffect -> print)
-                // API returns minimal data, so we combine it with local state
                 setLastOrder({
                     ...createdOrder,
                     items: cart,
-                    payments: customPayments, // Pass payment details for split orders
-                    itemAssignments: customPayments ? itemAssignments : null, // Pass per-item assignments
+                    payments: customPayments,
+                    itemAssignments: customPayments ? itemAssignments : null,
                     totalAmount: cartTotal,
                     finalAmount: finalTotal,
                     discountAmount: discountAmount,
                     customerName: orderData.customerName,
-                    creatorName: 'Kasa' // Default for now
+                    creatorName: 'Kasa'
                 });
 
-                // 2. Clear Cart & Reset State immediately (Auto-New Order)
                 setCart([]);
                 setSelectedCustomer(null);
                 setCustomerSearch('');
                 setDiscountRate(0);
             } else {
-                alert('Sipariş oluşturulurken hata oluştu.');
+                // SERVER ERROR - Save to offline for later sync
+                await noccaDB.saveOrder(orderData, tempId);
+                setPendingOrdersCount(prev => prev + 1);
+
+                // Show success to user even if offline
+                setLastOrder({
+                    id: tempId,
+                    items: cart,
+                    payments: customPayments,
+                    totalAmount: cartTotal,
+                    finalAmount: finalTotal,
+                    discountAmount: discountAmount,
+                    customerName: orderData.customerName,
+                    creatorName: 'Kasa (Offline)',
+                    createdAt: new Date().toISOString()
+                });
+
+                toast.error('Bağlantı sorunu: Sipariş lokale kaydedildi, internet gelince senkronize edilecek.', { duration: 5000 });
+
+                setCart([]);
+                setSelectedCustomer(null);
+                setCustomerSearch('');
+                setDiscountRate(0);
             }
         } catch (error) {
             console.error('POS Error:', error);
-            alert('Sistem hatası.');
+            // NETWORK ERROR - Save to offline
+            const tempId = `off_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            await noccaDB.saveOrder(orderData, tempId);
+            setPendingOrdersCount(prev => prev + 1);
+
+            setLastOrder({
+                id: tempId,
+                items: cart,
+                payments: customPayments,
+                totalAmount: cartTotal,
+                finalAmount: finalTotal,
+                discountAmount: discountAmount,
+                customerName: orderData.customerName,
+                creatorName: 'Kasa (Offline)',
+                createdAt: new Date().toISOString()
+            });
+
+            toast.error('İnternet yok: Sipariş lokale kaydedildi.', { duration: 5000 });
+
+            setCart([]);
+            setSelectedCustomer(null);
+            setCustomerSearch('');
+            setDiscountRate(0);
         } finally {
             setProcessingPayment(false);
         }
@@ -563,7 +697,23 @@ export default function POSPage() {
                     {/* Header / Categories */}
                     <div className="bg-white p-4 shadow-sm z-10">
                         <div className="flex justify-between items-center mb-4">
-                            <h1 className="text-2xl font-bold text-gray-800">Kasa Modu</h1>
+                            <div className="flex items-center space-x-4">
+                                <h1 className="text-2xl font-bold text-gray-800">Kasa Modu</h1>
+                                <div className={`flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${isOnline ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                    <FaWifi />
+                                    <span>{isOnline ? 'Çevrimiçi' : 'Çevrimdışı'}</span>
+                                </div>
+                                {pendingOrdersCount > 0 && (
+                                    <button
+                                        onClick={syncOfflineOrders}
+                                        disabled={isSyncing || !isOnline}
+                                        className={`flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-orange-100 text-orange-700 hover:bg-orange-200 transition-colors ${isSyncing ? 'animate-pulse' : ''}`}
+                                    >
+                                        <FaSync className={isSyncing ? 'animate-spin' : ''} />
+                                        <span>{pendingOrdersCount} Bekleyen Senk.</span>
+                                    </button>
+                                )}
+                            </div>
                             <div className="text-sm text-gray-500" suppressHydrationWarning>
                                 {new Date().toLocaleDateString('tr-TR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                             </div>

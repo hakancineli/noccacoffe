@@ -68,6 +68,21 @@ export default function RootLayout({
     <html lang="tr" suppressHydrationWarning>
       <head>
         <JsonLd />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js').then(function(registration) {
+                    console.log('SW registered: ', registration);
+                  }, function(err) {
+                    console.log('SW registration failed: ', err);
+                  });
+                });
+              }
+            `,
+          }}
+        />
       </head>
       <body className={inter.className}>
         <div className="min-h-screen bg-white">
