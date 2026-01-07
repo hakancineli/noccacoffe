@@ -1,5 +1,14 @@
+import { Metadata } from 'next';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+
+export const metadata: Metadata = {
+    title: 'Sıkça Sorulan Sorular',
+    description: 'NOCCA Coffee ile ilgili en çok merak edilen sorular. Sipariş, ödeme, ödüller ve ürünlerimiz hakkında bilgi alın.',
+    alternates: {
+        canonical: 'https://www.noccacoffee.com.tr/faq',
+    },
+};
 
 export default function FAQPage() {
     const faqs = [

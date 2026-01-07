@@ -1,5 +1,11 @@
+import { Metadata } from 'next';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+
+export const metadata: Metadata = {
+    title: 'KVKK Aydınlatma Metni',
+    description: 'Kişisel Verilerin Korunması Kanunu (KVKK) kapsamında aydınlatma metni.',
+};
 
 export default function KVKKPage() {
     return (

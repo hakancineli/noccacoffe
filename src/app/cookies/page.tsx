@@ -1,5 +1,11 @@
+import { Metadata } from 'next';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+
+export const metadata: Metadata = {
+    title: 'Çerez Politikası',
+    description: 'NOCCA Coffee çerez kullanımı ve tercihleri hakkında bilgilendirme.',
+};
 
 export default function CookiesPage() {
     return (

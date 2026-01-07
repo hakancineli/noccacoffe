@@ -1,6 +1,15 @@
+import { Metadata } from 'next';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import CampaignSection from '@/components/CampaignSection';
+
+export const metadata: Metadata = {
+    title: 'Kampanyalar',
+    description: 'NOCCA Coffee dünyasındaki en güncel fırsatlar, indirimler ve size özel sürpriz kampanyaları keşfedin.',
+    alternates: {
+        canonical: 'https://www.noccacoffee.com.tr/campaigns',
+    },
+};
 
 export default function CampaignsPage() {
     return (

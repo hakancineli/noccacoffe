@@ -1,6 +1,15 @@
+import { Metadata } from 'next';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import Image from 'next/image';
+
+export const metadata: Metadata = {
+    title: 'Hakkımızda',
+    description: 'NOCCA Coffee\'nin hikayesi, misyonu ve vizyonu. Kahve tutkumuzu ve kalite standartlarımızı keşfedin.',
+    alternates: {
+        canonical: 'https://www.noccacoffee.com.tr/about',
+    },
+};
 
 export default function AboutPage() {
     return (

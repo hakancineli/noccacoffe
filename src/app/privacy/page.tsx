@@ -1,5 +1,11 @@
+import { Metadata } from 'next';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+
+export const metadata: Metadata = {
+    title: 'Gizlilik Politikası',
+    description: 'NOCCA Coffee gizlilik politikası ve veri güvenliği hakkında bilgiler.',
+};
 
 export default function PrivacyPage() {
     return (

@@ -1,6 +1,15 @@
+import { Metadata } from 'next';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaClock } from 'react-icons/fa';
+
+export const metadata: Metadata = {
+    title: 'İletişim',
+    description: 'NOCCA Coffee ile iletişime geçin. Adres, telefon, e-posta ve çalışma saatlerimizi burada bulabilirsiniz.',
+    alternates: {
+        canonical: 'https://www.noccacoffee.com.tr/contact',
+    },
+};
 
 export default function ContactPage() {
     return (

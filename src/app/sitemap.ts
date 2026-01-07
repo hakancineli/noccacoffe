@@ -16,6 +16,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
         '/terms',
         '/cookies',
         '/kvkk',
+        '/iptal-iade-kosullari',
+        '/mesafeli-satis-sozlesmesi',
     ];
 
     return routes.map((route) => ({

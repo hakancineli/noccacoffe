@@ -1,6 +1,15 @@
+import { Metadata } from 'next';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { FaHandshake, FaBoxOpen, FaBirthdayCake, FaBuilding } from 'react-icons/fa';
+
+export const metadata: Metadata = {
+    title: 'Kurumsal',
+    description: 'NOCCA Coffee kurumsal çözümleri. Ofis kahve hizmeti, etkinlik catering ve toplu siparişleriniz için teklif alın.',
+    alternates: {
+        canonical: 'https://www.noccacoffee.com.tr/corporate',
+    },
+};
 
 export default function CorporatePage() {
     const services = [

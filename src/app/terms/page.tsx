@@ -1,5 +1,11 @@
+import { Metadata } from 'next';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+
+export const metadata: Metadata = {
+    title: 'Kullanım Koşulları',
+    description: 'NOCCA Coffee web sitesi kullanım koşulları ve şartları.',
+};
 
 export default function TermsPage() {
     return (
