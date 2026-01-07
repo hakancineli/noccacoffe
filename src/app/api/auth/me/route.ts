@@ -83,3 +83,48 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+export async function PUT(request: NextRequest) {
+  try {
+    let token = request.cookies.get('auth-token')?.value;
+
+    if (!token) {
+      const authHeader = request.headers.get('authorization');
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7);
+      }
+    }
+
+    if (!token) {
+      return NextResponse.json({ error: 'Oturum bulunamadı' }, { status: 401 });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret') as { userId: string };
+    const body = await request.json();
+    const { name, phone, birthDate } = body;
+
+    // Basic name splitting logic
+    const nameParts = name ? name.trim().split(' ') : [];
+    const firstName = nameParts.length > 0 ? nameParts[0] : undefined;
+    const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : undefined;
+
+    const updatedUser = await prisma.user.update({
+      where: { id: decoded.userId },
+      data: {
+        firstName: firstName,
+        lastName: lastName,
+        phone: phone,
+        birthDate: birthDate ? new Date(birthDate) : undefined,
+      }
+    });
+
+    const { passwordHash, ...userWithoutPassword } = updatedUser;
+    return NextResponse.json(userWithoutPassword);
+
+  } catch (error) {
+    console.error('Update profile error:', error);
+    return NextResponse.json(
+      { error: 'Profil güncellenemedi' },
+      { status: 500 }
+    );
+  }
+}

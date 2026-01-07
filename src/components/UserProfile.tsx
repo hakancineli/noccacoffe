@@ -121,9 +121,45 @@ const UserProfileComponent = () => {
     );
   }
 
-  const handleSaveProfile = () => {
-    setIsEditing(false);
-    // Profil kaydetme logic
+  const handleSaveProfile = async () => {
+    try {
+      if (!userProfile) return;
+
+      const token = localStorage.getItem('authToken');
+
+      // Convert DD.MM.YYYY to ISO for the API
+      let birthDateIso = undefined;
+      if (userProfile.birthDate) {
+        const parts = userProfile.birthDate.split('.');
+        if (parts.length === 3) {
+          birthDateIso = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`).toISOString();
+        }
+      }
+
+      const res = await fetch('/api/auth/me', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          name: userProfile.name,
+          phone: userProfile.phone,
+          birthDate: birthDateIso
+        })
+      });
+
+      if (res.ok) {
+        setIsEditing(false);
+        alert('Profiliniz başarıyla güncellendi!');
+      } else {
+        const error = await res.json();
+        alert('Hata: ' + (error.error || 'Profil güncellenemedi'));
+      }
+    } catch (error) {
+      console.error('Update profile error:', error);
+      alert('Bir hata oluştu. Lütfen tekrar deneyin.');
+    }
   };
 
   const handlePreferenceChange = (key: keyof UserProfile['preferences'], value: boolean) => {
@@ -324,7 +360,7 @@ const UserProfileComponent = () => {
                       type="text"
                       value={userProfile.name}
                       readOnly={!isEditing}
-                      onChange={() => { }}
+                      onChange={(e) => setUserProfile({ ...userProfile, name: e.target.value })}
                       className={`w-full px-5 py-4 rounded-2xl border-2 transition-all font-medium ${isEditing ? 'border-nocca-green bg-white shadow-lg shadow-green-50' : 'border-gray-50 bg-gray-50 text-gray-700'}`}
                     />
                   </div>
@@ -333,9 +369,9 @@ const UserProfileComponent = () => {
                     <input
                       type="email"
                       value={userProfile.email}
-                      readOnly={!isEditing}
-                      onChange={() => { }}
-                      className={`w-full px-5 py-4 rounded-2xl border-2 transition-all font-medium ${isEditing ? 'border-nocca-green bg-white' : 'border-gray-50 bg-gray-50 text-gray-700'}`}
+                      readOnly
+                      className="w-full px-5 py-4 rounded-2xl border-2 border-gray-50 bg-gray-50 text-gray-700 font-medium opacity-70"
+                      title="E-posta adresi değiştirilemez"
                     />
                   </div>
                 </div>
@@ -347,7 +383,7 @@ const UserProfileComponent = () => {
                       type="tel"
                       value={userProfile.phone}
                       readOnly={!isEditing}
-                      onChange={() => { }}
+                      onChange={(e) => setUserProfile({ ...userProfile, phone: e.target.value })}
                       className={`w-full px-5 py-4 rounded-2xl border-2 transition-all font-medium ${isEditing ? 'border-nocca-green bg-white' : 'border-gray-50 bg-gray-50 text-gray-700'}`}
                     />
                   </div>
@@ -361,9 +397,15 @@ const UserProfileComponent = () => {
                         onChange={(e) => {
                           const val = e.target.value;
                           if (userProfile) {
+                            // Convert YYYY-MM-DD to DD.MM.YYYY for internal state
+                            let formattedDate = '';
+                            if (val) {
+                              const d = new Date(val);
+                              formattedDate = `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()}`;
+                            }
                             setUserProfile({
                               ...userProfile,
-                              birthDate: val ? new Date(val).toLocaleDateString('tr-TR') : ''
+                              birthDate: formattedDate
                             });
                           }
                         }}
