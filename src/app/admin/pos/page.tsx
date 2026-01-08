@@ -85,6 +85,7 @@ export default function POSPage() {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
+                await noccaDB.init(); // <--- Ensure DB is ready
                 const res = await fetch('/api/admin/products?limit=1000');
                 if (res.ok) {
                     const data = await res.json();
@@ -102,9 +103,13 @@ export default function POSPage() {
             } catch (error) {
                 console.error('POS stock fetch error:', error);
                 // Load from cache on network error
-                const cached = await noccaDB.getCachedProducts();
-                if (cached.length > 0) {
-                    setDbProducts(cached);
+                try {
+                    const cached = await noccaDB.getCachedProducts();
+                    if (cached.length > 0) {
+                        setDbProducts(cached);
+                    }
+                } catch (e) {
+                    console.error('Cache load error:', e);
                 }
             }
         };

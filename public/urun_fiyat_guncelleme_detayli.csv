@@ -1,0 +1,202 @@
+﻿ID,Urun Adi,Kategori,Boyut,Mevcut Fiyat,YENI FIYAT
+66,"Hibiscus Çayı","Bitki Çayları",Standart,160,160
+62,"Kış Çayı","Bitki Çayları",Standart,160,160
+67,"Ihlamur","Bitki Çayları",Standart,180,180
+63,"Kiraz Sapı","Bitki Çayları",M,160,160
+61,"Papatya Çayı","Bitki Çayları",Standart,160,160
+64,"Yeşil Çay","Bitki Çayları",Standart,160,160
+65,"Yaseminli Yeşil Çay","Bitki Çayları",Standart,180,180
+48,"Blueorange Fresh","Bubble Tea",Standart,150,150
+47,"Air Lime Fresh","Bubble Tea",Standart,150,150
+49,"Coffeebon Milk","Bubble Tea",Standart,180,180
+50,"Chai Tea Coffee","Bubble Tea",Standart,210,210
+51,"Coffee Mocha Bubble","Bubble Tea",Standart,200,200
+52,"Coffee Caramel Macchiato Bubble","Bubble Tea",Standart,220,220
+46,"Queen Style Fresh","Bubble Tea",Standart,150,150
+double-espresso,"Double Espresso","Coffee",Standart,80,80
+33,"Double Espresso","Espresso",Standart,80,80
+36,"Türk Kahvesi","Espresso",Standart,100,100
+37,"Double Türk Kahvesi","Espresso",Standart,130,130
+35,"Espresso Macchiato","Espresso",Standart,120,120
+34,"Cortado","Espresso",Standart,135,135
+32,"Espresso","Espresso",Standart,100,100
+57,"Badem Sütü","Extra",Standart,40,40
+56,"Ekstra Süt","Extra",Standart,30,30
+custom-buzlu-bardak,"Buzlu Bardak","Extra",Standart,10,10
+59,"Şurup","Extra",Standart,40,40
+58,"Yulaf Sütü","Extra",Standart,40,40
+55,"Espresso Shot","Extra",Standart,40,40
+buzlu-bardak,"Buzlu Bardak","Extra",Standart,10,10
+60,"V60/Chemex","Extra",Standart,180,180
+45,"Beyaz Çikolata Frappe","Frappeler",S,180,180
+45,"Beyaz Çikolata Frappe","Frappeler",M,190,190
+45,"Beyaz Çikolata Frappe","Frappeler",L,200,200
+43,"Çikolata Frappe","Frappeler",S,180,180
+43,"Çikolata Frappe","Frappeler",M,190,190
+43,"Çikolata Frappe","Frappeler",L,200,200
+44,"Vanilla Frappe","Frappeler",S,180,180
+44,"Vanilla Frappe","Frappeler",M,190,190
+44,"Vanilla Frappe","Frappeler",L,200,200
+42,"Caramel Frappe","Frappeler",S,180,180
+42,"Caramel Frappe","Frappeler",M,190,190
+42,"Caramel Frappe","Frappeler",L,200,200
+101,"Espresso Çekirdeği (250g)","Kahve Çekirdekleri",Standart,450,450
+102,"Filtre Kahve Çekirdeği (250g)","Kahve Çekirdekleri",Standart,400,400
+103,"Türk Kahvesi Çekirdeği (250g)","Kahve Çekirdekleri",Standart,350,350
+54,"Matcha Latte","Matchalar",Standart,170,170
+53,"Çilekli Matcha Latte","Matchalar",Standart,180,180
+104,"Coca Cola","Meşrubatlar",Standart,60,60
+105,"Kola Turka","Meşrubatlar",Standart,50,50
+107,"Sade Soda","Meşrubatlar",Standart,30,30
+108,"Limonlu Soda","Meşrubatlar",Standart,35,35
+106,"Su","Meşrubatlar",Standart,20,20
+39,"Strawberry Milkshake","Milkshake",S,180,180
+39,"Strawberry Milkshake","Milkshake",M,190,190
+39,"Strawberry Milkshake","Milkshake",L,200,200
+38,"Chocolate Milkshake","Milkshake",S,180,180
+38,"Chocolate Milkshake","Milkshake",M,190,190
+38,"Chocolate Milkshake","Milkshake",L,200,200
+40,"Banana Milkshake","Milkshake",S,180,180
+40,"Banana Milkshake","Milkshake",M,190,190
+40,"Banana Milkshake","Milkshake",L,200,200
+41,"Vanilla Milkshake","Milkshake",S,180,180
+41,"Vanilla Milkshake","Milkshake",M,190,190
+41,"Vanilla Milkshake","Milkshake",L,200,200
+87,"Biscoff Püresi","Püreler",Standart,60,60
+84,"Çilek Püresi","Püreler",Standart,60,60
+85,"Mango Püresi","Püreler",Standart,60,60
+86,"Muz Püresi","Püreler",Standart,60,60
+88,"Antep Fıstığı Püresi","Püreler",Standart,80,80
+82,"Çikolata Sos","Soslar",Standart,50,50
+81,"Beyaz Çikolata Sos","Soslar",Standart,50,50
+83,"Salted Karamel Sos","Soslar",Standart,50,50
+80,"Karamel Sos","Soslar",Standart,50,50
+9,"Iced Cappuccino","Soğuk Kahveler",S,150,150
+9,"Iced Cappuccino","Soğuk Kahveler",M,160,160
+9,"Iced Cappuccino","Soğuk Kahveler",L,170,170
+7,"Iced White Mocha","Soğuk Kahveler",S,180,180
+7,"Iced White Mocha","Soğuk Kahveler",M,190,190
+7,"Iced White Mocha","Soğuk Kahveler",L,200,200
+4,"Iced Caramel Latte","Soğuk Kahveler",S,170,170
+4,"Iced Caramel Latte","Soğuk Kahveler",M,180,180
+4,"Iced Caramel Latte","Soğuk Kahveler",L,190,190
+11,"Iced Toffeenut Latte","Soğuk Kahveler",S,175,175
+11,"Iced Toffeenut Latte","Soğuk Kahveler",M,185,185
+11,"Iced Toffeenut Latte","Soğuk Kahveler",L,195,195
+13,"Cold Brew","Soğuk Kahveler",S,165,165
+13,"Cold Brew","Soğuk Kahveler",M,175,175
+13,"Cold Brew","Soğuk Kahveler",L,185,185
+6,"Iced Mocha","Soğuk Kahveler",S,180,180
+6,"Iced Mocha","Soğuk Kahveler",M,190,190
+6,"Iced Mocha","Soğuk Kahveler",L,200,200
+12,"Iced Chocolate Cookie Latte","Soğuk Kahveler",S,175,175
+12,"Iced Chocolate Cookie Latte","Soğuk Kahveler",M,185,185
+12,"Iced Chocolate Cookie Latte","Soğuk Kahveler",L,195,195
+8,"Iced Caramel Macchiato","Soğuk Kahveler",S,170,170
+8,"Iced Caramel Macchiato","Soğuk Kahveler",M,180,180
+8,"Iced Caramel Macchiato","Soğuk Kahveler",L,190,190
+2,"Iced Filtre Kahve","Soğuk Kahveler",S,135,135
+2,"Iced Filtre Kahve","Soğuk Kahveler",M,145,145
+2,"Iced Filtre Kahve","Soğuk Kahveler",L,155,155
+10,"Iced Chai Tea Latte","Soğuk Kahveler",S,165,165
+10,"Iced Chai Tea Latte","Soğuk Kahveler",M,175,175
+10,"Iced Chai Tea Latte","Soğuk Kahveler",L,185,185
+1,"Iced Americano","Soğuk Kahveler",S,145,145
+1,"Iced Americano","Soğuk Kahveler",M,155,155
+1,"Iced Americano","Soğuk Kahveler",L,165,165
+3,"Iced Latte","Soğuk Kahveler",S,150,150
+3,"Iced Latte","Soğuk Kahveler",M,160,160
+3,"Iced Latte","Soğuk Kahveler",L,170,170
+5,"Iced Salted Caramel Latte","Soğuk Kahveler",S,180,180
+5,"Iced Salted Caramel Latte","Soğuk Kahveler",M,190,190
+5,"Iced Salted Caramel Latte","Soğuk Kahveler",L,200,200
+31,"Oreo Nocca Special","Soğuk İçecekler",Standart,210,210
+28,"Cool Lime Fresh","Soğuk İçecekler",S,165,165
+28,"Cool Lime Fresh","Soğuk İçecekler",M,175,175
+28,"Cool Lime Fresh","Soğuk İçecekler",L,185,185
+29,"Hibiscus Fresh","Soğuk İçecekler",S,165,165
+29,"Hibiscus Fresh","Soğuk İçecekler",M,175,175
+29,"Hibiscus Fresh","Soğuk İçecekler",L,185,185
+30,"Orange Mango","Soğuk İçecekler",S,175,175
+30,"Orange Mango","Soğuk İçecekler",M,185,185
+30,"Orange Mango","Soğuk İçecekler",L,195,195
+hazelnut,"Hazelnut","Syrups",Standart,25,25
+cookie,"Cookie","Syrups",Standart,25,25
+mint,"Mint","Syrups",Standart,25,25
+custom-syrup-cookie,"Cookie","Syrups",Standart,25,25
+96,"Normal Süt","Sütler",Standart,0,0
+95,"Laktozsuz Süt","Sütler",Standart,30,30
+97,"Badem Sütü","Sütler",Standart,50,50
+98,"Yulaf Sütü","Sütler",Standart,50,50
+22,"Cappuccino","Sıcak Kahveler",S,140,140
+22,"Cappuccino","Sıcak Kahveler",M,150,150
+22,"Cappuccino","Sıcak Kahveler",L,160,160
+14,"Americano","Sıcak Kahveler",Standart,90,90
+15,"Filtre Kahve","Sıcak Kahveler",S,125,125
+15,"Filtre Kahve","Sıcak Kahveler",M,135,135
+15,"Filtre Kahve","Sıcak Kahveler",L,145,145
+20,"White Mocha","Sıcak Kahveler",S,180,180
+20,"White Mocha","Sıcak Kahveler",M,190,190
+20,"White Mocha","Sıcak Kahveler",L,200,200
+23,"Chai Tea Latte","Sıcak Kahveler",S,155,155
+23,"Chai Tea Latte","Sıcak Kahveler",M,165,165
+23,"Chai Tea Latte","Sıcak Kahveler",L,175,175
+26,"Flat White","Sıcak Kahveler",S,155,155
+26,"Flat White","Sıcak Kahveler",M,165,165
+26,"Flat White","Sıcak Kahveler",L,175,175
+16,"Latte","Sıcak Kahveler",S,140,140
+16,"Latte","Sıcak Kahveler",M,150,150
+16,"Latte","Sıcak Kahveler",L,160,160
+27,"Sıcak Çikolata","Sıcak Kahveler",S,160,160
+27,"Sıcak Çikolata","Sıcak Kahveler",M,180,180
+27,"Sıcak Çikolata","Sıcak Kahveler",L,200,200
+19,"Mocha","Sıcak Kahveler",S,170,170
+19,"Mocha","Sıcak Kahveler",M,180,180
+19,"Mocha","Sıcak Kahveler",L,190,190
+21,"Caramel Macchiato","Sıcak Kahveler",S,160,160
+21,"Caramel Macchiato","Sıcak Kahveler",M,170,170
+21,"Caramel Macchiato","Sıcak Kahveler",L,180,180
+24,"Toffeenut Latte","Sıcak Kahveler",S,165,165
+24,"Toffeenut Latte","Sıcak Kahveler",M,175,175
+24,"Toffeenut Latte","Sıcak Kahveler",L,185,185
+17,"Caramel Latte","Sıcak Kahveler",S,160,160
+17,"Caramel Latte","Sıcak Kahveler",M,170,170
+17,"Caramel Latte","Sıcak Kahveler",L,180,180
+25,"Chocolate Cookie Latte","Sıcak Kahveler",S,165,165
+25,"Chocolate Cookie Latte","Sıcak Kahveler",M,175,175
+25,"Chocolate Cookie Latte","Sıcak Kahveler",L,185,185
+18,"Salted Caramel Latte","Sıcak Kahveler",S,170,170
+18,"Salted Caramel Latte","Sıcak Kahveler",M,180,180
+18,"Salted Caramel Latte","Sıcak Kahveler",L,190,190
+cmk056bt00002joib0l0b5pjg,"Çikolata Soslu Kruvasan","Tatlılar",Standart,120,120
+cmk056c600003joibrlregnov,"Peynirli Kruvasan","Tatlılar",Standart,100,100
+cmk056cqf0004joib72b42302,"Fıstıklı Snickers","Tatlılar",Standart,150,150
+cmk056da00005joib8q79cytd,"Orman Meyveli Tart","Tatlılar",Standart,140,140
+cmk056dx20007joib80qx334y,"Bella Vista","Tatlılar",Standart,160,160
+cmk056egu0008joibwx9fp3e9,"Nocca Tatlı","Tatlılar",Standart,170,170
+cmk056di50006joibjwkuyjv3,"San Sebastian","Tatlılar",Standart,180,180
+cmk056aei0000joib9co0rpny,"Sade Kruvasan","Tatlılar",Standart,90,90
+cmk056blo0001joibqvxreljt,"Çikolatalı Kruvasan","Tatlılar",Standart,110,110
+90,"Muz Tozu","Tozlar",Standart,40,40
+91,"Çikolata Tozu","Tozlar",Standart,40,40
+94,"Frappe Tozu","Tozlar",Standart,50,50
+89,"Vanilya Tozu","Tozlar",Standart,40,40
+93,"Sıcak Çikolata Tozu","Tozlar",Standart,120,120
+92,"Salep","Tozlar",S,150,150
+92,"Salep","Tozlar",M,170,170
+92,"Salep","Tozlar",L,190,190
+100,"Kurutulmuş Limon","Yan Ürünler",Standart,0,0
+99,"Lokum","Yan Ürünler",Standart,0,0
+71,"Toffeenut Şurubu","Şuruplar",Standart,40,40
+70,"Vanilya Şurubu","Şuruplar",Standart,40,40
+69,"Fındık Şurubu","Şuruplar",Standart,40,40
+74,"Beyaz Çikolata Şurubu","Şuruplar",Standart,40,40
+75,"Nar Şurubu","Şuruplar",Standart,40,40
+73,"Chai Şurubu","Şuruplar",Standart,40,40
+77,"Muz Şurubu","Şuruplar",Standart,40,40
+78,"Çilek Şurubu","Şuruplar",Standart,40,40
+custom-syrup-hazelnut,"Şurup: Fındık","Şuruplar",M,25,25
+79,"Mint Şurubu","Şuruplar",Standart,40,40
+68,"Karamel Şurubu","Şuruplar",Standart,40,40
+76,"Menta Şurubu","Şuruplar",Standart,40,40
+72,"Çikolata Şurubu","Şuruplar",Standart,40,40

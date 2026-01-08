@@ -1,0 +1,126 @@
+ID,Urun Adi,Kategori,Mevcut Fiyat (Normal),Boyutlu Fiyatlar (JSON),Yeni Fiyat (Normal)
+66,"Hibiscus Çayı","Bitki Çayları",160,"",160
+62,"Kış Çayı","Bitki Çayları",160,"",160
+67,"Ihlamur","Bitki Çayları",180,"",180
+63,"Kiraz Sapı","Bitki Çayları",0,"[{""size"":""M"",""price"":160}]",0
+61,"Papatya Çayı","Bitki Çayları",160,"",160
+64,"Yeşil Çay","Bitki Çayları",160,"",160
+65,"Yaseminli Yeşil Çay","Bitki Çayları",180,"",180
+48,"Blueorange Fresh","Bubble Tea",150,"",150
+47,"Air Lime Fresh","Bubble Tea",150,"",150
+49,"Coffeebon Milk","Bubble Tea",180,"",180
+50,"Chai Tea Coffee","Bubble Tea",210,"",210
+51,"Coffee Mocha Bubble","Bubble Tea",200,"",200
+52,"Coffee Caramel Macchiato Bubble","Bubble Tea",220,"",220
+46,"Queen Style Fresh","Bubble Tea",150,"",150
+double-espresso,"Double Espresso","Coffee",80,"",80
+33,"Double Espresso","Espresso",80,"",80
+36,"Türk Kahvesi","Espresso",100,"",100
+37,"Double Türk Kahvesi","Espresso",130,"",130
+35,"Espresso Macchiato","Espresso",120,"",120
+34,"Cortado","Espresso",135,"",135
+32,"Espresso","Espresso",100,"",100
+57,"Badem Sütü","Extra",40,"",40
+56,"Ekstra Süt","Extra",30,"",30
+custom-buzlu-bardak,"Buzlu Bardak","Extra",10,"",10
+59,"Şurup","Extra",40,"",40
+58,"Yulaf Sütü","Extra",40,"",40
+55,"Espresso Shot","Extra",40,"",40
+buzlu-bardak,"Buzlu Bardak","Extra",10,"",10
+60,"V60/Chemex","Extra",180,"",180
+45,"Beyaz Çikolata Frappe","Frappeler",180,"[{""size"":""S"",""price"":180},{""size"":""M"",""price"":190},{""size"":""L"",""price"":200}]",180
+43,"Çikolata Frappe","Frappeler",180,"[{""size"":""S"",""price"":180},{""size"":""M"",""price"":190},{""size"":""L"",""price"":200}]",180
+44,"Vanilla Frappe","Frappeler",180,"[{""size"":""S"",""price"":180},{""size"":""M"",""price"":190},{""size"":""L"",""price"":200}]",180
+42,"Caramel Frappe","Frappeler",180,"[{""size"":""S"",""price"":180},{""size"":""M"",""price"":190},{""size"":""L"",""price"":200}]",180
+101,"Espresso Çekirdeği (250g)","Kahve Çekirdekleri",450,"",450
+102,"Filtre Kahve Çekirdeği (250g)","Kahve Çekirdekleri",400,"",400
+103,"Türk Kahvesi Çekirdeği (250g)","Kahve Çekirdekleri",350,"",350
+54,"Matcha Latte","Matchalar",170,"",170
+53,"Çilekli Matcha Latte","Matchalar",180,"",180
+104,"Coca Cola","Meşrubatlar",60,"",60
+105,"Kola Turka","Meşrubatlar",50,"",50
+107,"Sade Soda","Meşrubatlar",30,"",30
+108,"Limonlu Soda","Meşrubatlar",35,"",35
+106,"Su","Meşrubatlar",20,"",20
+39,"Strawberry Milkshake","Milkshake",180,"[{""size"":""S"",""price"":180},{""size"":""M"",""price"":190},{""size"":""L"",""price"":200}]",180
+38,"Chocolate Milkshake","Milkshake",180,"[{""size"":""S"",""price"":180},{""size"":""M"",""price"":190},{""size"":""L"",""price"":200}]",180
+40,"Banana Milkshake","Milkshake",180,"[{""size"":""S"",""price"":180},{""size"":""M"",""price"":190},{""size"":""L"",""price"":200}]",180
+41,"Vanilla Milkshake","Milkshake",180,"[{""size"":""S"",""price"":180},{""size"":""M"",""price"":190},{""size"":""L"",""price"":200}]",180
+87,"Biscoff Püresi","Püreler",60,"",60
+84,"Çilek Püresi","Püreler",60,"",60
+85,"Mango Püresi","Püreler",60,"",60
+86,"Muz Püresi","Püreler",60,"",60
+88,"Antep Fıstığı Püresi","Püreler",80,"",80
+82,"Çikolata Sos","Soslar",50,"",50
+81,"Beyaz Çikolata Sos","Soslar",50,"",50
+83,"Salted Karamel Sos","Soslar",50,"",50
+80,"Karamel Sos","Soslar",50,"",50
+9,"Iced Cappuccino","Soğuk Kahveler",150,"[{""size"":""S"",""price"":150},{""size"":""M"",""price"":160},{""size"":""L"",""price"":170}]",150
+7,"Iced White Mocha","Soğuk Kahveler",180,"[{""size"":""S"",""price"":180},{""size"":""M"",""price"":190},{""size"":""L"",""price"":200}]",180
+4,"Iced Caramel Latte","Soğuk Kahveler",170,"[{""size"":""S"",""price"":170},{""size"":""M"",""price"":180},{""size"":""L"",""price"":190}]",170
+11,"Iced Toffeenut Latte","Soğuk Kahveler",175,"[{""size"":""S"",""price"":175},{""size"":""M"",""price"":185},{""size"":""L"",""price"":195}]",175
+13,"Cold Brew","Soğuk Kahveler",165,"[{""size"":""S"",""price"":165},{""size"":""M"",""price"":175},{""size"":""L"",""price"":185}]",165
+6,"Iced Mocha","Soğuk Kahveler",180,"[{""size"":""S"",""price"":180},{""size"":""M"",""price"":190},{""size"":""L"",""price"":200}]",180
+12,"Iced Chocolate Cookie Latte","Soğuk Kahveler",175,"[{""size"":""S"",""price"":175},{""size"":""M"",""price"":185},{""size"":""L"",""price"":195}]",175
+8,"Iced Caramel Macchiato","Soğuk Kahveler",170,"[{""size"":""S"",""price"":170},{""size"":""M"",""price"":180},{""size"":""L"",""price"":190}]",170
+2,"Iced Filtre Kahve","Soğuk Kahveler",135,"[{""size"":""S"",""price"":135},{""size"":""M"",""price"":145},{""size"":""L"",""price"":155}]",135
+10,"Iced Chai Tea Latte","Soğuk Kahveler",165,"[{""size"":""S"",""price"":165},{""size"":""M"",""price"":175},{""size"":""L"",""price"":185}]",165
+1,"Iced Americano","Soğuk Kahveler",145,"[{""size"":""S"",""price"":145},{""size"":""M"",""price"":155},{""size"":""L"",""price"":165}]",145
+3,"Iced Latte","Soğuk Kahveler",150,"[{""size"":""S"",""price"":150},{""size"":""M"",""price"":160},{""size"":""L"",""price"":170}]",150
+5,"Iced Salted Caramel Latte","Soğuk Kahveler",180,"[{""size"":""S"",""price"":180},{""size"":""M"",""price"":190},{""size"":""L"",""price"":200}]",180
+31,"Oreo Nocca Special","Soğuk İçecekler",210,"",210
+28,"Cool Lime Fresh","Soğuk İçecekler",165,"[{""size"":""S"",""price"":165},{""size"":""M"",""price"":175},{""size"":""L"",""price"":185}]",165
+29,"Hibiscus Fresh","Soğuk İçecekler",165,"[{""size"":""S"",""price"":165},{""size"":""M"",""price"":175},{""size"":""L"",""price"":185}]",165
+30,"Orange Mango","Soğuk İçecekler",175,"[{""size"":""S"",""price"":175},{""size"":""M"",""price"":185},{""size"":""L"",""price"":195}]",175
+hazelnut,"Hazelnut","Syrups",25,"",25
+cookie,"Cookie","Syrups",25,"",25
+mint,"Mint","Syrups",25,"",25
+custom-syrup-cookie,"Cookie","Syrups",25,"",25
+96,"Normal Süt","Sütler",0,"",0
+95,"Laktozsuz Süt","Sütler",30,"",30
+97,"Badem Sütü","Sütler",50,"",50
+98,"Yulaf Sütü","Sütler",50,"",50
+22,"Cappuccino","Sıcak Kahveler",140,"[{""size"":""S"",""price"":140},{""size"":""M"",""price"":150},{""size"":""L"",""price"":160}]",140
+14,"Americano","Sıcak Kahveler",90,"",90
+15,"Filtre Kahve","Sıcak Kahveler",125,"[{""size"":""S"",""price"":125},{""size"":""M"",""price"":135},{""size"":""L"",""price"":145}]",125
+20,"White Mocha","Sıcak Kahveler",180,"[{""size"":""S"",""price"":180},{""size"":""M"",""price"":190},{""size"":""L"",""price"":200}]",180
+23,"Chai Tea Latte","Sıcak Kahveler",155,"[{""size"":""S"",""price"":155},{""size"":""M"",""price"":165},{""size"":""L"",""price"":175}]",155
+26,"Flat White","Sıcak Kahveler",155,"[{""size"":""S"",""price"":155},{""size"":""M"",""price"":165},{""size"":""L"",""price"":175}]",155
+16,"Latte","Sıcak Kahveler",150,"[{""size"":""S"",""price"":140},{""size"":""M"",""price"":150},{""size"":""L"",""price"":160}]",150
+27,"Sıcak Çikolata","Sıcak Kahveler",160,"[{""size"":""S"",""price"":160},{""size"":""M"",""price"":180},{""size"":""L"",""price"":200}]",160
+19,"Mocha","Sıcak Kahveler",170,"[{""size"":""S"",""price"":170},{""size"":""M"",""price"":180},{""size"":""L"",""price"":190}]",170
+21,"Caramel Macchiato","Sıcak Kahveler",160,"[{""size"":""S"",""price"":160},{""size"":""M"",""price"":170},{""size"":""L"",""price"":180}]",160
+24,"Toffeenut Latte","Sıcak Kahveler",165,"[{""size"":""S"",""price"":165},{""size"":""M"",""price"":175},{""size"":""L"",""price"":185}]",165
+17,"Caramel Latte","Sıcak Kahveler",160,"[{""size"":""S"",""price"":160},{""size"":""M"",""price"":170},{""size"":""L"",""price"":180}]",160
+25,"Chocolate Cookie Latte","Sıcak Kahveler",165,"[{""size"":""S"",""price"":165},{""size"":""M"",""price"":175},{""size"":""L"",""price"":185}]",165
+18,"Salted Caramel Latte","Sıcak Kahveler",170,"[{""size"":""S"",""price"":170},{""size"":""M"",""price"":180},{""size"":""L"",""price"":190}]",170
+cmk056bt00002joib0l0b5pjg,"Çikolata Soslu Kruvasan","Tatlılar",120,"",120
+cmk056c600003joibrlregnov,"Peynirli Kruvasan","Tatlılar",100,"",100
+cmk056cqf0004joib72b42302,"Fıstıklı Snickers","Tatlılar",150,"",150
+cmk056da00005joib8q79cytd,"Orman Meyveli Tart","Tatlılar",140,"",140
+cmk056dx20007joib80qx334y,"Bella Vista","Tatlılar",160,"",160
+cmk056egu0008joibwx9fp3e9,"Nocca Tatlı","Tatlılar",170,"",170
+cmk056di50006joibjwkuyjv3,"San Sebastian","Tatlılar",180,"",180
+cmk056aei0000joib9co0rpny,"Sade Kruvasan","Tatlılar",90,"",90
+cmk056blo0001joibqvxreljt,"Çikolatalı Kruvasan","Tatlılar",110,"",110
+90,"Muz Tozu","Tozlar",40,"",40
+91,"Çikolata Tozu","Tozlar",40,"",40
+94,"Frappe Tozu","Tozlar",50,"",50
+89,"Vanilya Tozu","Tozlar",40,"",40
+93,"Sıcak Çikolata Tozu","Tozlar",120,"",120
+92,"Salep","Tozlar",120,"[{""size"":""S"",""price"":150},{""size"":""M"",""price"":170},{""size"":""L"",""price"":190}]",120
+100,"Kurutulmuş Limon","Yan Ürünler",0,"",0
+99,"Lokum","Yan Ürünler",0,"",0
+71,"Toffeenut Şurubu","Şuruplar",40,"",40
+70,"Vanilya Şurubu","Şuruplar",40,"",40
+69,"Fındık Şurubu","Şuruplar",40,"",40
+74,"Beyaz Çikolata Şurubu","Şuruplar",40,"",40
+75,"Nar Şurubu","Şuruplar",40,"",40
+73,"Chai Şurubu","Şuruplar",40,"",40
+77,"Muz Şurubu","Şuruplar",40,"",40
+78,"Çilek Şurubu","Şuruplar",40,"",40
+custom-syrup-hazelnut,"Şurup: Fındık","Şuruplar",0,"[{""size"":""M"",""price"":25}]",0
+79,"Mint Şurubu","Şuruplar",40,"",40
+68,"Karamel Şurubu","Şuruplar",40,"",40
+76,"Menta Şurubu","Şuruplar",40,"",40
+72,"Çikolata Şurubu","Şuruplar",40,"",40

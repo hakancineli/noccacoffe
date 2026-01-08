@@ -7,7 +7,11 @@
     "build": "npx prisma generate --schema=prisma/schema.prisma && npx prisma generate --schema=market-master/prisma/schema.prisma && next build",
     "start": "next start",
     "lint": "next lint",
-    "db:seed": "tsx prisma/seed.ts"
+    "db:seed": "tsx prisma/seed.ts",
+    "electron-dev": "concurrently \"npm run dev\" \"wait-on http://localhost:3000 && electron .\"",
+    "electron-pack": "electron-builder build --dir",
+    "electron-dist-win": "electron-builder build --win --x64",
+    "electron-dist-mac": "electron-builder build --mac --universal"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -43,11 +47,55 @@
     "@types/react": "^18.2.37",
     "@types/react-dom": "^18.2.15",
     "autoprefixer": "^10.4.16",
+    "concurrently": "^9.2.1",
+    "electron": "^39.2.7",
+    "electron-builder": "^26.4.0",
     "eslint": "^8.53.0",
     "eslint-config-next": "14.0.3",
     "postcss": "^8.4.31",
     "tailwindcss": "^3.3.5",
     "tsx": "^4.20.6",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "wait-on": "^9.0.3"
+  },
+  "main": "electron/main.js",
+  "build": {
+    "appId": "com.noccacoffee.pos",
+    "productName": "NOCCA Coffee POS",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "public/images/logo/noccacoffee.jpeg"
+    },
+    "mac": {
+      "category": "public.app-category.lifestyle",
+      "icon": "public/images/logo/noccacoffee.jpeg",
+      "target": [
+        "dmg",
+        "zip"
+      ]
+    },
+    "dmg": {
+      "contents": [
+        {
+          "x": 410,
+          "y": 150,
+          "type": "link",
+          "path": "/Applications"
+        },
+        {
+          "x": 130,
+          "y": 150,
+          "type": "file"
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "shortcutName": "NOCCA Coffee POS"
+    }
   }
 }

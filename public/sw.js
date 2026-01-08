@@ -1,5 +1,5 @@
 
-const CACHE_NAME = 'nocca-cache-v1';
+const CACHE_NAME = 'nocca-cache-v3';
 const ASSETS_TO_CACHE = [
     '/',
     '/admin/pos',
@@ -7,38 +7,70 @@ const ASSETS_TO_CACHE = [
     '/images/logo/noccacoffee.jpeg',
 ];
 
+// Install Event - Cache basic assets
 self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
             return cache.addAll(ASSETS_TO_CACHE);
         })
     );
+    self.skipWaiting();
 });
 
+// Activate Event - Clean old caches
 self.addEventListener('activate', (event) => {
     event.waitUntil(
         caches.keys().then((cacheNames) => {
             return Promise.all(
-                cacheNames.filter((name) => name !== CACHE_NAME).map((name) => caches.delete(name))
+                cacheNames.map((cache) => {
+                    if (cache !== CACHE_NAME) {
+                        return caches.delete(cache);
+                    }
+                })
             );
         })
     );
 });
 
+// Fetch Event
 self.addEventListener('fetch', (event) => {
-    // Pass through for API requests (we handle offline API in the app logic)
-    if (event.request.url.includes('/api/')) {
+    const { request } = event;
+    const url = new URL(request.url);
+
+    // Skip POST requests and certain APIs
+    if (request.method !== 'GET' || url.pathname.includes('/api/orders')) {
         return;
     }
 
+    // Handle Strategy: Stale-While-Revalidate for images and static assets
     event.respondWith(
-        caches.match(event.request).then((response) => {
-            return response || fetch(event.request).catch(() => {
-                // Fallback for navigation requests
-                if (event.request.mode === 'navigate') {
-                    return caches.match('/');
-                }
-            });
+        caches.match(request).then((cachedResponse) => {
+            const fetchPromise = fetch(request)
+                .then((networkResponse) => {
+                    // Cache successful responses for images and local assets
+                    if (
+                        networkResponse.ok &&
+                        (url.pathname.startsWith('/images/') ||
+                            url.pathname.includes('_next/image') ||
+                            ASSETS_TO_CACHE.includes(url.pathname))
+                    ) {
+                        const responseToCache = networkResponse.clone();
+                        caches.open(CACHE_NAME).then((cache) => {
+                            cache.put(request, responseToCache);
+                        });
+                    }
+                    return networkResponse;
+                })
+                .catch((err) => {
+                    // If network fails and we have no cache, return a fallback for navigation
+                    if (request.mode === 'navigate') {
+                        return caches.match('/admin/pos') || caches.match('/');
+                    }
+                    // Return nothing (let it fail) or a placeholder if it's an image
+                    return cachedResponse;
+                });
+
+            return cachedResponse || fetchPromise;
         })
     );
 });
