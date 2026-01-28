@@ -4,25 +4,32 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-    console.log('🔄 Veritabanı fiyat güncellemeleri başlatılıyor...');
+    console.log('🔄 Düzeltilmiş Veritabanı fiyat güncellemeleri başlatılıyor...');
 
-    const priceUpdates: Record<string, { price?: number, prices?: any }> = {
+    // Veritabanı şu formatı bekliyor: [{"size": "S", "price": 160}, {"size": "M", "price": 170}, {"size": "L", "price": 180}]
+    const createPrices = (s: number, m: number, l: number) => [
+        { size: 'S', price: s },
+        { size: 'M', price: m },
+        { size: 'L', price: l }
+    ];
+
+    const priceUpdates: Record<string, { price: number, prices?: any }> = {
         // Sıcak Kahveler
-        'Americano': { prices: { S: 160, M: 170, L: 180 }, price: 160 },
-        'Filtre Kahve': { prices: { S: 150, M: 160, L: 170 }, price: 150 },
-        'Latte': { prices: { S: 170, M: 180, L: 190 }, price: 170 },
-        'Caramel Latte': { prices: { S: 190, M: 200, L: 210 }, price: 190 },
-        'Salted Caramel Latte': { prices: { S: 200, M: 210, L: 220 }, price: 200 },
-        'Mocha': { prices: { S: 200, M: 210, L: 220 }, price: 200 },
-        'White Mocha': { prices: { S: 210, M: 220, L: 230 }, price: 210 },
-        'Caramel Macchiato': { prices: { S: 220, M: 230, L: 240 }, price: 220 },
-        'Cappuccino': { prices: { S: 170, M: 180, L: 190 }, price: 170 },
-        'Chai Tea Latte': { prices: { S: 190, M: 200, L: 210 }, price: 190 },
-        'Toffeenut Latte': { prices: { S: 190, M: 200, L: 210 }, price: 190 },
-        'Chocolate Cookie Latte': { prices: { S: 190, M: 200, L: 210 }, price: 190 },
-        'Flat White': { prices: { S: 185, M: 195, L: 205 }, price: 185 },
-        'Sıcak Çikolata': { prices: { S: 190, M: 210, L: 230 }, price: 190 },
-        'Salep': { prices: { S: 150, M: 170, L: 190 }, price: 150 },
+        'Americano': { price: 160, prices: createPrices(160, 170, 180) },
+        'Filtre Kahve': { price: 150, prices: createPrices(150, 160, 170) },
+        'Latte': { price: 170, prices: createPrices(170, 180, 190) },
+        'Caramel Latte': { price: 190, prices: createPrices(190, 200, 210) },
+        'Salted Caramel Latte': { price: 200, prices: createPrices(200, 210, 220) },
+        'Mocha': { price: 200, prices: createPrices(200, 210, 220) },
+        'White Mocha': { price: 210, prices: createPrices(210, 220, 230) },
+        'Caramel Macchiato': { price: 220, prices: createPrices(220, 230, 240) },
+        'Cappuccino': { price: 170, prices: createPrices(170, 180, 190) },
+        'Chai Tea Latte': { price: 190, prices: createPrices(190, 200, 210) },
+        'Toffeenut Latte': { price: 190, prices: createPrices(190, 200, 210) },
+        'Chocolate Cookie Latte': { price: 190, prices: createPrices(190, 200, 210) },
+        'Flat White': { price: 185, prices: createPrices(185, 195, 205) },
+        'Sıcak Çikolata': { price: 190, prices: createPrices(190, 210, 230) },
+        'Salep': { price: 150, prices: createPrices(150, 170, 190) },
 
         'Espresso': { price: 120 },
         'Double Espresso': { price: 140 },
@@ -32,37 +39,37 @@ async function main() {
         'Double Türk Kahvesi': { price: 150 },
 
         // Soğuk Kahveler (Sıcak + 10 TL)
-        'Iced Americano': { prices: { S: 170, M: 180, L: 190 }, price: 170 },
-        'Iced Filtre Kahve': { prices: { S: 160, M: 170, L: 180 }, price: 160 },
-        'Iced Latte': { prices: { S: 180, M: 190, L: 200 }, price: 180 },
-        'Iced Caramel Latte': { prices: { S: 200, M: 210, L: 220 }, price: 200 },
-        'Iced Salted Caramel Latte': { prices: { S: 210, M: 220, L: 230 }, price: 210 },
-        'Iced Mocha': { prices: { S: 210, M: 220, L: 230 }, price: 210 },
-        'Iced White Mocha': { prices: { S: 220, M: 230, L: 240 }, price: 220 },
-        'Iced Caramel Macchiato': { prices: { S: 230, M: 240, L: 250 }, price: 230 },
-        'Iced Cappuccino': { prices: { S: 180, M: 190, L: 200 }, price: 180 },
-        'Iced Chai Tea Latte': { prices: { S: 200, M: 210, L: 220 }, price: 200 },
-        'Iced Toffeenut Latte': { prices: { S: 200, M: 210, L: 220 }, price: 200 },
-        'Iced Chocolate Cookie Latte': { prices: { S: 200, M: 210, L: 220 }, price: 200 },
-        'Cold Brew': { prices: { S: 175, M: 185, L: 195 }, price: 175 },
+        'Iced Americano': { price: 170, prices: createPrices(170, 180, 190) },
+        'Iced Filtre Kahve': { price: 160, prices: createPrices(160, 170, 180) },
+        'Iced Latte': { price: 180, prices: createPrices(180, 190, 200) },
+        'Iced Caramel Latte': { price: 200, prices: createPrices(200, 210, 220) },
+        'Iced Salted Caramel Latte': { price: 210, prices: createPrices(210, 220, 230) },
+        'Iced Mocha': { price: 210, prices: createPrices(210, 220, 230) },
+        'Iced White Mocha': { price: 220, prices: createPrices(220, 230, 240) },
+        'Iced Caramel Macchiato': { price: 230, prices: createPrices(230, 240, 250) },
+        'Iced Cappuccino': { price: 180, prices: createPrices(180, 190, 200) },
+        'Iced Chai Tea Latte': { price: 200, prices: createPrices(200, 210, 220) },
+        'Iced Toffeenut Latte': { price: 200, prices: createPrices(200, 210, 220) },
+        'Iced Chocolate Cookie Latte': { price: 200, prices: createPrices(200, 210, 220) },
+        'Cold Brew': { price: 175, prices: createPrices(175, 185, 195) },
 
         // Soft İçecekler & Matchalar
-        'Cool Lime Fresh': { prices: { S: 190, M: 200, L: 210 }, price: 190 },
-        'Hibiscus Fresh': { prices: { S: 180, M: 200, L: 210 }, price: 180 },
-        'Orange Mango': { prices: { S: 210, M: 220, L: 230 }, price: 210 },
-        'Ored Mocca Special': { prices: { S: 250, M: 260, L: 270 }, price: 250 },
-        'Matcha Latte': { prices: { S: 200, M: 210, L: 220 }, price: 200 },
-        'Çilekli Matcha Latte': { prices: { S: 210, M: 220, L: 230 }, price: 210 },
+        'Cool Lime Fresh': { price: 190, prices: createPrices(190, 200, 210) },
+        'Hibiscus Fresh': { price: 180, prices: createPrices(180, 200, 210) },
+        'Orange Mango': { price: 210, prices: createPrices(210, 220, 230) },
+        'Ored Mocca Special': { price: 250, prices: createPrices(250, 260, 270) },
+        'Matcha Latte': { price: 200, prices: createPrices(200, 210, 220) },
+        'Çilekli Matcha Latte': { price: 210, prices: createPrices(210, 220, 230) },
 
         // Milkshake & Frappe
-        'Chocolate Milkshake': { prices: { S: 240, M: 250, L: 260 }, price: 240 },
-        'Strawberry Milkshake': { prices: { S: 240, M: 250, L: 260 }, price: 240 },
-        'Banana Milkshake': { prices: { S: 240, M: 250, L: 260 }, price: 240 },
-        'Vanilla Milkshake': { prices: { S: 240, M: 250, L: 260 }, price: 240 },
-        'Caramel Frappe': { prices: { S: 240, M: 250, L: 260 }, price: 240 },
-        'Çikolata Frappe': { prices: { S: 240, M: 250, L: 260 }, price: 240 },
-        'Vanilla Frappe': { prices: { S: 240, M: 250, L: 260 }, price: 240 },
-        'Beyaz Çikolata Frappe': { prices: { S: 240, M: 250, L: 260 }, price: 240 },
+        'Chocolate Milkshake': { price: 240, prices: createPrices(240, 250, 260) },
+        'Strawberry Milkshake': { price: 240, prices: createPrices(240, 250, 260) },
+        'Banana Milkshake': { price: 240, prices: createPrices(240, 250, 260) },
+        'Vanilla Milkshake': { price: 240, prices: createPrices(240, 250, 260) },
+        'Caramel Frappe': { price: 240, prices: createPrices(240, 250, 260) },
+        'Çikolata Frappe': { price: 240, prices: createPrices(240, 250, 260) },
+        'Vanilla Frappe': { price: 240, prices: createPrices(240, 250, 260) },
+        'Beyaz Çikolata Frappe': { price: 240, prices: createPrices(240, 250, 260) },
 
         // Bitki Çayları
         'Papatya Çayı': { price: 160 },
@@ -83,27 +90,34 @@ async function main() {
     };
 
     let updatedCount = 0;
-    for (const [name, update] of Object.entries(priceUpdates)) {
-        const product = await (prisma as any).product.findFirst({
-            where: { name: { contains: name, mode: 'insensitive' } }
-        });
 
-        if (product) {
-            await (prisma as any).product.update({
-                where: { id: product.id },
-                data: {
-                    price: update.price,
-                    prices: update.prices ? JSON.stringify(update.prices) : product.prices
-                }
-            });
-            console.log(`✅ Güncellendi: ${name} -> ${update.price} TL`);
-            updatedCount++;
+    // Tüm ürünleri çekelim (insensitivity için)
+    const allProducts = await (prisma as any).product.findMany();
+
+    for (const [name, update] of Object.entries(priceUpdates)) {
+        // İsim tam eşleşmeli ürünleri bulalım
+        const matchedProducts = allProducts.filter((p: any) =>
+            p.name.toLowerCase().trim() === name.toLowerCase().trim()
+        );
+
+        if (matchedProducts.length > 0) {
+            for (const product of matchedProducts) {
+                await (prisma as any).product.update({
+                    where: { id: product.id },
+                    data: {
+                        price: update.price,
+                        prices: update.prices || product.prices // Direkt obje gönderiyoruz (stringify yok!)
+                    }
+                });
+                console.log(`✅ Güncellendi: ${product.name} (ID: ${product.id}) -> ${update.price} TL`);
+                updatedCount++;
+            }
         } else {
             console.log(`⚠️ Bulunamadı: ${name}`);
         }
     }
 
-    console.log(`\n📊 Özet: ${updatedCount} ürün güncellendi.`);
+    console.log(`\n📊 Özet: ${updatedCount} ürün kaydı güncellendi.`);
 }
 
 main()
