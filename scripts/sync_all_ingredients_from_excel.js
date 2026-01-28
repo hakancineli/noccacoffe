@@ -57,7 +57,7 @@ const ingredientsFromExcel = [
     { name: 'Şurup: Fındık', unit: 'ml', stock: 6750, costPerUnit: 0.794666667 },
     { name: 'Şurup: Karamel', unit: 'ml', stock: 750, costPerUnit: 0.794666667 },
     { name: 'Şurup: Menta', unit: 'ml', stock: 6000, costPerUnit: 0.794666667 },
-    { name: 'Şurup: ocean', unit: 'ml', stock: 2250, costPerUnit: 596 },
+    { name: 'Şurup: ocean', unit: 'ml', stock: 2250, costPerUnit: 0.794666667 },
     { name: 'Şurup: Muz', unit: 'ml', stock: 3370, costPerUnit: 0.794666667 },
     { name: 'Şurup: Nar', unit: 'ml', stock: 3750, costPerUnit: 0.794666667 },
     { name: 'Şurup: Vanilya', unit: 'ml', stock: 6335, costPerUnit: 0.795666667 },

@@ -86,7 +86,7 @@ export default function POSPage() {
         const fetchProducts = async () => {
             try {
                 await noccaDB.init(); // <--- Ensure DB is ready
-                const res = await fetch('/api/admin/products?limit=1000');
+                const res = await fetch('/api/admin/products?limit=1000&active=true');
                 if (res.ok) {
                     const data = await res.json();
                     const products = data.products || [];
@@ -171,8 +171,9 @@ export default function POSPage() {
         if (!found) return { stock: 0, isAvailable: false, hasRecipe: false };
         return {
             stock: found.stock,
-            isAvailable: found.isAvailable ?? true,
-            hasRecipe: found.hasRecipe ?? false
+            isAvailable: (found.isAvailable ?? true) && (found.isActive !== false),
+            hasRecipe: found.hasRecipe ?? false,
+            isActive: found.isActive ?? true
         };
     };
 
@@ -187,7 +188,8 @@ export default function POSPage() {
 
         // Unit-based products only need stock, not recipes
         const isUnitBased = UNIT_BASED_CATEGORIES.includes(item.category);
-        const canBeSold = stockInfo.hasRecipe || (isUnitBased && stockInfo.isAvailable);
+        // A product must be active to be sold
+        const canBeSold = (stockInfo.hasRecipe || (isUnitBased && stockInfo.isAvailable)) && (stockInfo as any).isActive !== false;
 
         return matchesCategory && matchesSearch && canBeSold;
     });

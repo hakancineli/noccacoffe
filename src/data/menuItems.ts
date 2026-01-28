@@ -20,9 +20,9 @@ export const allMenuItems: MenuItem[] = [
     description: 'Espresso ve soğuk suyun ferahlatıcı buluşması',
     category: 'Soğuk Kahveler',
     sizes: [
-      { size: 'S', price: 145 },
-      { size: 'M', price: 155 },
-      { size: 'L', price: 165 }
+      { size: 'S', price: 170 },
+      { size: 'M', price: 180 },
+      { size: 'L', price: 190 }
     ],
     image: '/images/products/iced-americano.jpg',
     isIced: true,
@@ -33,9 +33,9 @@ export const allMenuItems: MenuItem[] = [
     description: 'Özenle demlenen filtre kahvenin soğuk versiyonu',
     category: 'Soğuk Kahveler',
     sizes: [
-      { size: 'S', price: 135 },
-      { size: 'M', price: 145 },
-      { size: 'L', price: 155 }
+      { size: 'S', price: 160 },
+      { size: 'M', price: 170 },
+      { size: 'L', price: 180 }
     ],
     image: '/images/products/cold-brew.jpg',
     isIced: true,
@@ -46,9 +46,9 @@ export const allMenuItems: MenuItem[] = [
     description: 'Espresso, süt ve buzun ferahlatıcı uyumu',
     category: 'Soğuk Kahveler',
     sizes: [
-      { size: 'S', price: 150 },
-      { size: 'M', price: 160 },
-      { size: 'L', price: 170 }
+      { size: 'S', price: 180 },
+      { size: 'M', price: 190 },
+      { size: 'L', price: 200 }
     ],
     image: '/images/products/buzlu-latte.jpeg',
     isIced: true,
@@ -59,9 +59,9 @@ export const allMenuItems: MenuItem[] = [
     description: 'Espresso, süt ve karamel şurubu ile buzlu lezzet',
     category: 'Soğuk Kahveler',
     sizes: [
-      { size: 'S', price: 170 },
-      { size: 'M', price: 180 },
-      { size: 'L', price: 190 }
+      { size: 'S', price: 200 },
+      { size: 'M', price: 210 },
+      { size: 'L', price: 220 }
     ],
     image: '/images/products/caramel-macchiato.jpg',
     isIced: true,
@@ -72,9 +72,9 @@ export const allMenuItems: MenuItem[] = [
     description: 'Tuzlu karamel şurubu ile zenginleştirilmiş buzlu latte',
     category: 'Soğuk Kahveler',
     sizes: [
-      { size: 'S', price: 180 },
-      { size: 'M', price: 190 },
-      { size: 'L', price: 200 }
+      { size: 'S', price: 210 },
+      { size: 'M', price: 220 },
+      { size: 'L', price: 230 }
     ],
     image: '/images/products/caramel-macchiato.jpg',
     isIced: true,
@@ -85,9 +85,9 @@ export const allMenuItems: MenuItem[] = [
     description: 'Espresso, süt, çikolata şurubu ve buz',
     category: 'Soğuk Kahveler',
     sizes: [
-      { size: 'S', price: 180 },
-      { size: 'M', price: 190 },
-      { size: 'L', price: 200 }
+      { size: 'S', price: 210 },
+      { size: 'M', price: 220 },
+      { size: 'L', price: 230 }
     ],
     image: '/images/products/buzlu-mocha.jpeg',
     isIced: true,
@@ -98,9 +98,9 @@ export const allMenuItems: MenuItem[] = [
     description: 'Espresso, süt, beyaz çikolata şurubu ve buz',
     category: 'Soğuk Kahveler',
     sizes: [
-      { size: 'S', price: 180 },
-      { size: 'M', price: 190 },
-      { size: 'L', price: 200 }
+      { size: 'S', price: 220 },
+      { size: 'M', price: 230 },
+      { size: 'L', price: 240 }
     ],
     image: '/images/products/buzlu-white-mocha.jpeg',
     isIced: true,
@@ -111,9 +111,9 @@ export const allMenuItems: MenuItem[] = [
     description: 'Vanilya şurubu, süt, buz, espresso ve karamel sosu',
     category: 'Soğuk Kahveler',
     sizes: [
-      { size: 'S', price: 170 },
-      { size: 'M', price: 180 },
-      { size: 'L', price: 190 }
+      { size: 'S', price: 230 },
+      { size: 'M', price: 240 },
+      { size: 'L', price: 250 }
     ],
     image: '/images/products/caramel-macchiato.jpg',
     isIced: true,
@@ -124,9 +124,9 @@ export const allMenuItems: MenuItem[] = [
     description: 'Espresso, soğuk süt ve buz ile hafif köpüklü içecek',
     category: 'Soğuk Kahveler',
     sizes: [
-      { size: 'S', price: 150 },
-      { size: 'M', price: 160 },
-      { size: 'L', price: 170 }
+      { size: 'S', price: 180 },
+      { size: 'M', price: 190 },
+      { size: 'L', price: 200 }
     ],
     image: '/images/products/buzlu-latte.jpeg',
     isIced: true,
@@ -137,9 +137,9 @@ export const allMenuItems: MenuItem[] = [
     description: 'Baharatlı chai çayı ve soğuk süt',
     category: 'Soğuk Kahveler',
     sizes: [
-      { size: 'S', price: 165 },
-      { size: 'M', price: 175 },
-      { size: 'L', price: 185 }
+      { size: 'S', price: 200 },
+      { size: 'M', price: 210 },
+      { size: 'L', price: 220 }
     ],
     image: '/images/products/Iced Matcha Latte.jpeg',
     isIced: true,
@@ -150,9 +150,9 @@ export const allMenuItems: MenuItem[] = [
     description: 'Toffeenut şurubu ile tatlandırılmış buzlu latte',
     category: 'Soğuk Kahveler',
     sizes: [
-      { size: 'S', price: 175 },
-      { size: 'M', price: 185 },
-      { size: 'L', price: 195 }
+      { size: 'S', price: 200 },
+      { size: 'M', price: 210 },
+      { size: 'L', price: 220 }
     ],
     image: '/images/products/caramel-macchiato.jpg',
     isIced: true,
@@ -163,9 +163,9 @@ export const allMenuItems: MenuItem[] = [
     description: 'Çikolatalı kurabiye aromalı buzlu latte',
     category: 'Soğuk Kahveler',
     sizes: [
-      { size: 'S', price: 175 },
-      { size: 'M', price: 185 },
-      { size: 'L', price: 195 }
+      { size: 'S', price: 200 },
+      { size: 'M', price: 210 },
+      { size: 'L', price: 220 }
     ],
     image: '/images/products/buzlu-mocha.jpeg',
     isIced: true,
@@ -176,9 +176,9 @@ export const allMenuItems: MenuItem[] = [
     description: 'Soğuk suda 12 saat demlenen yumuşak kahve',
     category: 'Soğuk Kahveler',
     sizes: [
-      { size: 'S', price: 165 },
-      { size: 'M', price: 175 },
-      { size: 'L', price: 185 }
+      { size: 'S', price: 175 },
+      { size: 'M', price: 185 },
+      { size: 'L', price: 195 }
     ],
     image: '/images/products/cold-brew.jpg',
     isIced: true,
@@ -191,9 +191,9 @@ export const allMenuItems: MenuItem[] = [
     description: 'Espresso ve sıcak suyun klasik buluşması',
     category: 'Sıcak Kahveler',
     sizes: [
-      { size: 'S', price: 140 },
-      { size: 'M', price: 150 },
-      { size: 'L', price: 160 }
+      { size: 'S', price: 160 },
+      { size: 'M', price: 170 },
+      { size: 'L', price: 180 }
     ],
     image: '/images/products/iced-americano.jpg',
   },
@@ -203,9 +203,9 @@ export const allMenuItems: MenuItem[] = [
     description: 'Özenle demlenen taze filtre kahve',
     category: 'Sıcak Kahveler',
     sizes: [
-      { size: 'S', price: 125 },
-      { size: 'M', price: 135 },
-      { size: 'L', price: 145 }
+      { size: 'S', price: 150 },
+      { size: 'M', price: 160 },
+      { size: 'L', price: 170 }
     ],
     image: '/images/products/cold-brew.jpg',
   },
@@ -215,9 +215,9 @@ export const allMenuItems: MenuItem[] = [
     description: 'Zengin espresso ve sıcak sütün lezzet dolu buluşması',
     category: 'Sıcak Kahveler',
     sizes: [
-      { size: 'S', price: 140 },
-      { size: 'M', price: 150 },
-      { size: 'L', price: 160 }
+      { size: 'S', price: 170 },
+      { size: 'M', price: 180 },
+      { size: 'L', price: 190 }
     ],
     image: '/images/products/CaffeLatte.jpeg',
   },
@@ -227,9 +227,9 @@ export const allMenuItems: MenuItem[] = [
     description: 'Espresso, sıcak süt ve karamel şurubu',
     category: 'Sıcak Kahveler',
     sizes: [
-      { size: 'S', price: 160 },
-      { size: 'M', price: 170 },
-      { size: 'L', price: 180 }
+      { size: 'S', price: 190 },
+      { size: 'M', price: 200 },
+      { size: 'L', price: 210 }
     ],
     image: '/images/products/caramel-macchiato.jpg',
   },
@@ -239,9 +239,9 @@ export const allMenuItems: MenuItem[] = [
     description: 'Tuzlu karamel şurubu ile zenginleştirilmiş latte',
     category: 'Sıcak Kahveler',
     sizes: [
-      { size: 'S', price: 170 },
-      { size: 'M', price: 180 },
-      { size: 'L', price: 190 }
+      { size: 'S', price: 200 },
+      { size: 'M', price: 210 },
+      { size: 'L', price: 220 }
     ],
     image: '/images/products/caramel-macchiato.jpg',
   },
@@ -251,9 +251,9 @@ export const allMenuItems: MenuItem[] = [
     description: 'Espresso, sıcak süt ve çikolata şurubu',
     category: 'Sıcak Kahveler',
     sizes: [
-      { size: 'S', price: 170 },
-      { size: 'M', price: 180 },
-      { size: 'L', price: 190 }
+      { size: 'S', price: 200 },
+      { size: 'M', price: 210 },
+      { size: 'L', price: 220 }
     ],
     image: '/images/products/mocha.jpeg',
   },
@@ -263,9 +263,9 @@ export const allMenuItems: MenuItem[] = [
     description: 'Espresso, sıcak süt ve beyaz çikolata şurubu',
     category: 'Sıcak Kahveler',
     sizes: [
-      { size: 'S', price: 180 },
-      { size: 'M', price: 190 },
-      { size: 'L', price: 200 }
+      { size: 'S', price: 210 },
+      { size: 'M', price: 220 },
+      { size: 'L', price: 230 }
     ],
     image: '/images/products/white-mocha.jpeg',
   },
@@ -275,9 +275,9 @@ export const allMenuItems: MenuItem[] = [
     description: 'Vanilya şurubu, taze süt, espresso ve karamel sosu',
     category: 'Sıcak Kahveler',
     sizes: [
-      { size: 'S', price: 160 },
-      { size: 'M', price: 170 },
-      { size: 'L', price: 180 }
+      { size: 'S', price: 220 },
+      { size: 'M', price: 230 },
+      { size: 'L', price: 240 }
     ],
     image: '/images/products/caramel-macchiato.jpg',
   },
@@ -287,9 +287,9 @@ export const allMenuItems: MenuItem[] = [
     description: 'Espresso, sıcak süt ve yoğun süt köpüğü',
     category: 'Sıcak Kahveler',
     sizes: [
-      { size: 'S', price: 140 },
-      { size: 'M', price: 150 },
-      { size: 'L', price: 160 }
+      { size: 'S', price: 170 },
+      { size: 'M', price: 180 },
+      { size: 'L', price: 190 }
     ],
     image: '/images/products/CaffeLatte.jpeg',
   },
@@ -299,9 +299,9 @@ export const allMenuItems: MenuItem[] = [
     description: 'Baharatlı chai çayı ve sıcak süt',
     category: 'Sıcak Kahveler',
     sizes: [
-      { size: 'S', price: 155 },
-      { size: 'M', price: 165 },
-      { size: 'L', price: 175 }
+      { size: 'S', price: 190 },
+      { size: 'M', price: 200 },
+      { size: 'L', price: 210 }
     ],
     image: '/images/products/Iced Matcha Latte.jpeg',
   },
@@ -311,9 +311,9 @@ export const allMenuItems: MenuItem[] = [
     description: 'Toffeenut şurubu ile tatlandırılmış latte',
     category: 'Sıcak Kahveler',
     sizes: [
-      { size: 'S', price: 165 },
-      { size: 'M', price: 175 },
-      { size: 'L', price: 185 }
+      { size: 'S', price: 190 },
+      { size: 'M', price: 200 },
+      { size: 'L', price: 210 }
     ],
     image: '/images/products/caramel-macchiato.jpg',
   },
@@ -323,9 +323,9 @@ export const allMenuItems: MenuItem[] = [
     description: 'Çikolatalı kurabiye aromalı latte',
     category: 'Sıcak Kahveler',
     sizes: [
-      { size: 'S', price: 165 },
-      { size: 'M', price: 175 },
-      { size: 'L', price: 185 }
+      { size: 'S', price: 190 },
+      { size: 'M', price: 200 },
+      { size: 'L', price: 210 }
     ],
     image: '/images/products/mocha.jpeg',
   },
@@ -335,9 +335,9 @@ export const allMenuItems: MenuItem[] = [
     description: 'Çift espresso ve kremsi süt köpüğü',
     category: 'Sıcak Kahveler',
     sizes: [
-      { size: 'S', price: 155 },
-      { size: 'M', price: 165 },
-      { size: 'L', price: 175 }
+      { size: 'S', price: 185 },
+      { size: 'M', price: 195 },
+      { size: 'L', price: 205 }
     ],
     image: '/images/products/Flat White.jpeg',
   },
@@ -347,9 +347,9 @@ export const allMenuItems: MenuItem[] = [
     description: 'Zengin sıcak çikolata ve krema',
     category: 'Sıcak Kahveler',
     sizes: [
-      { size: 'S', price: 160 },
-      { size: 'M', price: 180 },
-      { size: 'L', price: 200 }
+      { size: 'S', price: 190 },
+      { size: 'M', price: 210 },
+      { size: 'L', price: 230 }
     ],
     image: '/images/products/mocha.jpeg',
   },
@@ -373,9 +373,9 @@ export const allMenuItems: MenuItem[] = [
     description: 'Ferahlatıcı limon ve nane karışımı',
     category: 'Soğuk İçecekler',
     sizes: [
-      { size: 'S', price: 165 },
-      { size: 'M', price: 175 },
-      { size: 'L', price: 185 }
+      { size: 'S', price: 190 },
+      { size: 'M', price: 200 },
+      { size: 'L', price: 210 }
     ],
     image: '/images/products/Iced Matcha Latte.jpeg',
   },
@@ -385,9 +385,9 @@ export const allMenuItems: MenuItem[] = [
     description: 'Hibiskus çayı ve taze meyve karışımı',
     category: 'Soğuk İçecekler',
     sizes: [
-      { size: 'S', price: 165 },
-      { size: 'M', price: 175 },
-      { size: 'L', price: 185 }
+      { size: 'S', price: 180 },
+      { size: 'M', price: 200 },
+      { size: 'L', price: 210 }
     ],
     image: '/images/products/Iced Matcha Latte.jpeg',
   },
@@ -397,9 +397,9 @@ export const allMenuItems: MenuItem[] = [
     description: 'Portakal ve mango karışımı',
     category: 'Soğuk İçecekler',
     sizes: [
-      { size: 'S', price: 175 },
-      { size: 'M', price: 185 },
-      { size: 'L', price: 195 }
+      { size: 'S', price: 210 },
+      { size: 'M', price: 220 },
+      { size: 'L', price: 230 }
     ],
     image: '/images/products/Iced Spanish Latte.jpeg',
   },
@@ -409,9 +409,9 @@ export const allMenuItems: MenuItem[] = [
     description: 'Özel mocca karışımı',
     category: 'Soğuk İçecekler',
     sizes: [
-      { size: 'S', price: 210 },
-      { size: 'M', price: 220 },
-      { size: 'L', price: 230 }
+      { size: 'S', price: 250 },
+      { size: 'M', price: 260 },
+      { size: 'L', price: 270 }
     ],
     image: '/images/products/buzlu-mocha.jpeg',
   },
@@ -422,7 +422,7 @@ export const allMenuItems: MenuItem[] = [
     name: 'Espresso',
     description: 'Yoğun ve sert aromalı klasik espresso',
     category: 'Espresso',
-    price: 100,
+    price: 120,
     image: '/images/products/SBX20190617_Espresso_Single.jpeg',
   },
   {
@@ -430,7 +430,7 @@ export const allMenuItems: MenuItem[] = [
     name: 'Double Espresso',
     description: 'Çift shot espresso',
     category: 'Espresso',
-    price: 120,
+    price: 140,
     image: '/images/products/SBX20190617_Espresso_Single.jpeg',
   },
   {
@@ -438,7 +438,7 @@ export const allMenuItems: MenuItem[] = [
     name: 'Cortado',
     description: 'Eşit miktarda espresso ve ısıtılmış süt',
     category: 'Espresso',
-    price: 135,
+    price: 160,
     image: '/images/products/Cortado.jpeg',
   },
   {
@@ -446,7 +446,7 @@ export const allMenuItems: MenuItem[] = [
     name: 'Espresso Macchiato',
     description: 'Espresso ve süt köpüğü',
     category: 'Espresso',
-    price: 120,
+    price: 140,
     image: '/images/products/Espresso Macchiato.jpeg',
   },
   {
@@ -454,7 +454,7 @@ export const allMenuItems: MenuItem[] = [
     name: 'Türk Kahvesi',
     description: 'Geleneksel Türk kahvesi',
     category: 'Espresso',
-    price: 100,
+    price: 120,
     image: '/images/products/Espress.jpeg',
   },
   {
@@ -462,7 +462,7 @@ export const allMenuItems: MenuItem[] = [
     name: 'Double Türk Kahvesi',
     description: 'Çift Türk kahvesi',
     category: 'Espresso',
-    price: 130,
+    price: 150,
     image: '/images/products/Espress.jpeg',
   },
 
@@ -473,9 +473,9 @@ export const allMenuItems: MenuItem[] = [
     description: 'Yoğun çikolatalı milkshake',
     category: 'Milkshake',
     sizes: [
-      { size: 'S', price: 180 },
-      { size: 'M', price: 190 },
-      { size: 'L', price: 200 }
+      { size: 'S', price: 240 },
+      { size: 'M', price: 250 },
+      { size: 'L', price: 260 }
     ],
     image: '/images/products/mocha.jpeg',
   },
@@ -485,9 +485,9 @@ export const allMenuItems: MenuItem[] = [
     description: 'Taze çilekli milkshake',
     category: 'Milkshake',
     sizes: [
-      { size: 'S', price: 180 },
-      { size: 'M', price: 190 },
-      { size: 'L', price: 200 }
+      { size: 'S', price: 240 },
+      { size: 'M', price: 250 },
+      { size: 'L', price: 260 }
     ],
     image: '/images/products/Iced Spanish Latte.jpeg',
   },
@@ -497,9 +497,9 @@ export const allMenuItems: MenuItem[] = [
     description: 'Muzlu milkshake',
     category: 'Milkshake',
     sizes: [
-      { size: 'S', price: 180 },
-      { size: 'M', price: 190 },
-      { size: 'L', price: 200 }
+      { size: 'S', price: 240 },
+      { size: 'M', price: 250 },
+      { size: 'L', price: 260 }
     ],
     image: '/images/products/Iced Spanish Latte.jpeg',
   },
@@ -509,9 +509,9 @@ export const allMenuItems: MenuItem[] = [
     description: 'Vanilyalı milkshake',
     category: 'Milkshake',
     sizes: [
-      { size: 'S', price: 180 },
-      { size: 'M', price: 190 },
-      { size: 'L', price: 200 }
+      { size: 'S', price: 240 },
+      { size: 'M', price: 250 },
+      { size: 'L', price: 260 }
     ],
     image: '/images/products/white-mocha.jpeg',
   },
@@ -523,9 +523,9 @@ export const allMenuItems: MenuItem[] = [
     description: 'Karamelli buzlu kahve',
     category: 'Frappeler',
     sizes: [
-      { size: 'S', price: 180 },
-      { size: 'M', price: 190 },
-      { size: 'L', price: 200 }
+      { size: 'S', price: 240 },
+      { size: 'M', price: 250 },
+      { size: 'L', price: 260 }
     ],
     image: '/images/products/caramel-macchiato.jpg',
   },
@@ -535,9 +535,9 @@ export const allMenuItems: MenuItem[] = [
     description: 'Çikolatalı buzlu kahve',
     category: 'Frappeler',
     sizes: [
-      { size: 'S', price: 180 },
-      { size: 'M', price: 190 },
-      { size: 'L', price: 200 }
+      { size: 'S', price: 240 },
+      { size: 'M', price: 250 },
+      { size: 'L', price: 260 }
     ],
     image: '/images/products/buzlu-mocha.jpeg',
   },
@@ -547,9 +547,9 @@ export const allMenuItems: MenuItem[] = [
     description: 'Vanilyalı buzlu kahve',
     category: 'Frappeler',
     sizes: [
-      { size: 'S', price: 180 },
-      { size: 'M', price: 190 },
-      { size: 'L', price: 200 }
+      { size: 'S', price: 240 },
+      { size: 'M', price: 250 },
+      { size: 'L', price: 260 }
     ],
     image: '/images/products/buzlu-white-mocha.jpeg',
   },
@@ -559,9 +559,9 @@ export const allMenuItems: MenuItem[] = [
     description: 'Beyaz çikolatalı buzlu kahve',
     category: 'Frappeler',
     sizes: [
-      { size: 'S', price: 180 },
-      { size: 'M', price: 190 },
-      { size: 'L', price: 200 }
+      { size: 'S', price: 240 },
+      { size: 'M', price: 250 },
+      { size: 'L', price: 260 }
     ],
     image: '/images/products/Beyaz Çikolata Frappuccino.jpeg',
   },
@@ -630,7 +630,11 @@ export const allMenuItems: MenuItem[] = [
     name: 'Çilekli Matcha Latte',
     description: 'Japon matcha çayı ve çilek',
     category: 'Matchalar',
-    price: 180,
+    sizes: [
+      { size: 'S', price: 210 },
+      { size: 'M', price: 220 },
+      { size: 'L', price: 230 }
+    ],
     image: '/images/products/Iced Spanish Latte.jpeg',
   },
   {
@@ -638,7 +642,11 @@ export const allMenuItems: MenuItem[] = [
     name: 'Matcha Latte',
     description: 'Japon matcha çayı ve süt',
     category: 'Matchalar',
-    price: 170,
+    sizes: [
+      { size: 'S', price: 200 },
+      { size: 'M', price: 210 },
+      { size: 'L', price: 220 }
+    ],
     image: '/images/products/Iced Matcha Latte.jpeg',
   },
 
@@ -648,7 +656,7 @@ export const allMenuItems: MenuItem[] = [
     name: 'Espresso Shot',
     description: 'Ekstra espresso shot',
     category: 'Extra',
-    price: 40,
+    price: 50,
     image: '/images/products/SBX20190617_Espresso_Single.jpeg',
   },
   {
@@ -656,7 +664,7 @@ export const allMenuItems: MenuItem[] = [
     name: 'Ekstra Süt',
     description: 'Ekstra süt ekleme',
     category: 'Extra',
-    price: 30,
+    price: 40,
     image: '/images/products/CaffeLatte.jpeg',
   },
   {
@@ -664,7 +672,7 @@ export const allMenuItems: MenuItem[] = [
     name: 'Badem Sütü',
     description: 'Badem sütü ile hazırlama',
     category: 'Extra',
-    price: 40,
+    price: 50,
     image: '/images/products/CaffeLatte.jpeg',
   },
   {
@@ -672,7 +680,7 @@ export const allMenuItems: MenuItem[] = [
     name: 'Yulaf Sütü',
     description: 'Yulaf sütü ile hazırlama',
     category: 'Extra',
-    price: 40,
+    price: 50,
     image: '/images/products/CaffeLatte.jpeg',
   },
   {
@@ -680,7 +688,7 @@ export const allMenuItems: MenuItem[] = [
     name: 'Şurup',
     description: 'Ekstra şurup ekleme',
     category: 'Extra',
-    price: 40,
+    price: 50,
     image: '/images/products/caramel-macchiato.jpg',
   },
   {
@@ -688,7 +696,7 @@ export const allMenuItems: MenuItem[] = [
     name: 'V60/Chemex',
     description: 'Özel demleme yöntemi',
     category: 'Extra',
-    price: 180,
+    price: 190,
     image: '/images/products/v60-chemex.jpeg',
   },
 
@@ -706,7 +714,7 @@ export const allMenuItems: MenuItem[] = [
     name: 'Kış Çayı',
     description: 'Baharatlı kış çayı',
     category: 'Bitki Çayları',
-    price: 160,
+    price: 180,
     image: '/images/products/kis-cayi.jpeg',
   },
   {
@@ -722,7 +730,7 @@ export const allMenuItems: MenuItem[] = [
     name: 'Yeşil Çay',
     description: 'Taze yeşil çay',
     category: 'Bitki Çayları',
-    price: 160,
+    price: 170,
     image: '/images/products/yesil-cay.jpeg',
   },
   {
@@ -730,7 +738,7 @@ export const allMenuItems: MenuItem[] = [
     name: 'Yaseminli Yeşil Çay',
     description: 'Yasemin aromalı yeşil çay',
     category: 'Bitki Çayları',
-    price: 180,
+    price: 200,
     image: '/images/products/yaseminli-yesil-cay.jpeg',
   },
   {
@@ -738,7 +746,7 @@ export const allMenuItems: MenuItem[] = [
     name: 'Hibiscus Çayı',
     description: 'Hibiskus çayı',
     category: 'Bitki Çayları',
-    price: 160,
+    price: 180,
     image: '/images/products/hibiscus-cayi.jpeg',
   },
   {
@@ -746,7 +754,7 @@ export const allMenuItems: MenuItem[] = [
     name: 'Ihlamur',
     description: 'Ihlamur çayı',
     category: 'Bitki Çayları',
-    price: 180,
+    price: 200,
     image: '/images/products/ihlamur.jpeg',
   },
 

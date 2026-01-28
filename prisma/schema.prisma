@@ -117,16 +117,16 @@ model Order {
   user           User?          @relation(fields: [userId], references: [id])
   payments       Payment[]
 
-  @@map("orders")
   @@index([userId])
   @@index([createdAt])
   @@index([status])
+  @@map("orders")
 }
 
 model AuditLog {
   id        String   @id @default(cuid())
-  action    String   // e.g., "DELETE_ORDER", "UPDATE_PRODUCT"
-  entity    String   // e.g., "Order", "Product"
+  action    String
+  entity    String
   entityId  String   @map("entity_id")
   oldData   Json?    @map("old_data")
   newData   Json?    @map("new_data")
@@ -153,14 +153,6 @@ model WasteLog {
   @@map("waste_logs")
 }
 
-enum OrderSource {
-  POS
-  WEBSITE
-  TRENDYOL
-  GETIR
-  YEMEKSEPETI
-}
-
 model OrderItem {
   id          String   @id @default(cuid())
   orderId     String   @map("order_id")
@@ -176,8 +168,8 @@ model OrderItem {
   order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
 
-  @@map("order_items")
   @@index([productId])
+  @@map("order_items")
 }
 
 model Product {
@@ -188,12 +180,12 @@ model Product {
   price       Float
   imageUrl    String?     @map("image_url")
   isActive    Boolean     @default(true) @map("is_active")
-  unit        String      @default("adet")
-  prices      Json?       @map("prices") // Stores size-based pricing: [{size: "S", price: 140}, ...]
   stock       Int         @default(0)
   createdAt   DateTime    @default(now()) @map("created_at")
   updatedAt   DateTime    @updatedAt @map("updated_at")
   soldCount   Int         @default(0) @map("sold_count")
+  prices      Json?       @map("prices")
+  unit        String      @default("adet")
   orderItems  OrderItem[]
   recipes     Recipe[]
 
@@ -280,8 +272,31 @@ model Expense {
   staffId     String?         @map("staff_id")
   staff       Barista?        @relation(fields: [staffId], references: [id])
 
-  @@map("expenses")
   @@index([date])
+  @@map("expenses")
+}
+
+model Fixture {
+  id            String    @id @default(cuid())
+  name          String
+  category      String?
+  quantity      Int       @default(1)
+  purchasePrice Float?    @map("purchase_price")
+  purchaseDate  DateTime? @map("purchase_date") @db.Date
+  status        String    @default("Kullanımda")
+  notes         String?
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  @@map("fixtures")
+}
+
+enum OrderSource {
+  POS
+  WEBSITE
+  TRENDYOL
+  GETIR
+  YEMEKSEPETI
 }
 
 enum Tier {
@@ -365,19 +380,4 @@ enum ExpenseCategory {
   MARKETING
   ADVANCE
   WASTE
-}
-
-model Fixture {
-  id            String    @id @default(cuid())
-  name          String
-  category      String?
-  quantity      Int       @default(1)
-  purchasePrice Float?    @map("purchase_price")
-  purchaseDate  DateTime? @map("purchase_date") @db.Date
-  status        String    @default("Kullanımda") // e.g., Kullanımda, Arızalı, Depoda, Hurda
-  notes         String?
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
-
-  @@map("fixtures")
 }

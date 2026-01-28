@@ -1,33 +1,74 @@
 ﻿hammadde_stok_listesi;;;;;
-Espresso Çekirdeği;g;8500;0.8;?;?
+Hammadde Adı;Birim;Mevcut Stok;Mevcut Birim Maliyet;YENİ STOK (?);YENİ BİRİM MALİYET (?)
+Bardak: Şeffaf Large;adet;3300;5.25;?;?
+Bardak: Şeffaf Medium14oz;adet;3100;4.95;?;?
+Bardak: Şeffaf Small 12oz;adet;1200;4.85;?;?
+Bardak: Sıcak (16oz);adet;1441;5.25;?;?
+;;;;?;?
+Espresso Çekirdeği;g;8500;0,8;?;?
+;;;;?;?
+Garnitür: Kurutulmuş Limon;adet;30;;?;?
 Hibiscus Çayı;G;170;;?;?
 Ihlamur;G;50;;?;?
 Kiraz Sapı;G;104;;?;?
+;;;;?;?
+ Bardak: Sıcak küçük (8oz);adet;2000;4.55;?;?
 Kış Çayı;G;634;;?;?
+;;;;?;?
+;;;;?;?
+Meşrubat: Coca Cola;adet;62;                          31.25;?;?
+;adet;;;?;?
+Meşrubat: Limonlu Soda;adet;144;7.90;?;?
+Meşrubat: Sade Soda;adet;108;7.08;?;?
+Meşrubat: Su;adet;168;3.75;?;?
+Meşrubat : çobanpınar;;;2.83;?;?
+;;;;?;?
+Bardak: Sıcak  (14oz);adet;2000;4.95;?;?
 Papatya Çayı;adet;279;;?;?
+Püre: Antep Fıstığı;gram;1478;1,125;?;?
+Püre: Biscoff;gram;500;0;?;?
+Püre: Mango;ml;3000;0.48;?;?
+Püre: Muz;ml;1500;0;?;?
 Püre: Çilek;ml;1500;0;?;?
+Püre: Şeftali;Ml;4000;                            0.44;?;?
+Püre: Passion;Ml;4000;0,984;?;
 Sos: Beyaz Çikolata;ml;3800;0;?;?
 Sos: Karamel;ml;0;0;?;?
 Sos: Salted Karamel;ml;14800;0;?;?
 Sos: Çikolata;ml;8700;0;?;?
+;;;;?;?
+Süt: Badem;ml;0;;?;?
 Süt: Laktozsuz;ml;3000;;?;?
-Süt: Normal (Tam Yağlı);ml;118000;0.04495;?;?
-Toz: Frappe;gr;1403;0.288;?;?
+Süt: Normal (Tam Yağlı);ml;118000;0,04495;?;?
+Süt: Yulaf;ml;3000;;?;?
+Püre: Böğürtlen;Ml;2000;;?;?
+Toz: Frappe;gr;1403;0,288;?;?
 Toz: Muz;gr;1300;0;?;?
+Toz: Salep;gr;2120;0;?;?
 Toz: Sıcak Çikolata;gr;;                            0.86;?;?
 Toz: Vanilya;gr;1400;;?;?
 Toz: Çikolata;gr;300;0;?;?
+Püre: MixBerry;ml;3000;0,984;;
 Yaseminli Yeşil Çay;adet;168;;?;?
 Yeşil Çay;G;400;;?;?
 Çekirdek: Filtre Kahve;gr;1000;1;?;?
 Çekirdek: Türk Kahvesi;gr;5200;0.8;?;?
-Şurup: Beyaz Çikolata;ml;5200;0.794666667;?;?
+Öz: Ananas Suyu ;ml;2500;;?;?
+Bisküvi: oreo;Adet;30;;?;?
+;;;;?;?
+İkram: Lokum;adet;0;0;?;?
+Şurup: Beyaz Çikolata;ml;5200;0,794666667;?;?
 Şurup: CHAI;ml;5600;                1.11466667;?;?
-Şurup: Cookie;ml;650;0.794666667;?;?
-Şurup: Fındık;ml;6750;0.794666667;?;?
-Şurup: Karamel;ml;750;0.794666667;?;?
-Şurup: Menta;ml;6000;0.794666667;?;?
-Şurup: Nar;ml;3750;0.794666667;?;?
-Şurup: Vanilya;ml;6335;0.795666667;?;?
-Şurup: Çikolata;ml;4100;0.794666667;?;?
-Şurup: Çilek;ml;6100;0.794666667;?;?
+Şurup: Cookie;ml;650;0,794666667;?;?
+Şurup: Fındık;ml;6750;0,794666667;?;?
+;ml;;;?;?
+Şurup: Karamel;ml;750;0,794666667;?;?
+Şurup: Menta;ml;6000;0,794666667;?;?
+Şurup: ocean;ml;2250;596;?;?
+Şurup: Muz;ml;3370;0,794666667;?;?
+;ml;;;?;?
+Şurup: Nar;ml;3750;0,794666667;?;?
+;;;;?;?
+Şurup: Vanilya;ml;6335;0,795666667;?;?
+Şurup: Çikolata;ml;4100;0,794666667;?;?
+Şurup: Çilek;ml;6100;0,794666667;?;?
