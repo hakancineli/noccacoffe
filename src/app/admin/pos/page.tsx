@@ -136,6 +136,9 @@ export default function POSPage() {
         setIsSyncing(true);
         console.log(`Syncing ${pending.length} offline orders...`);
 
+        let errorCount = 0;
+        let lastErrorMessage = '';
+
         for (const order of pending) {
             try {
                 const res = await fetch('/api/orders', {
@@ -146,9 +149,16 @@ export default function POSPage() {
 
                 if (res.ok) {
                     await noccaDB.markOrderSynced(order.tempId);
+                } else {
+                    errorCount++;
+                    const errorData = await res.json().catch(() => ({}));
+                    lastErrorMessage = errorData.error || 'Sunucu hatası';
+                    console.error('Sync failed for order:', order.tempId, lastErrorMessage);
                 }
             } catch (error) {
-                console.error('Failed to sync order:', order.tempId, error);
+                errorCount++;
+                lastErrorMessage = 'Ağ hatası';
+                console.error('Failed to sync order due to network:', order.tempId, error);
             }
         }
 
@@ -158,6 +168,8 @@ export default function POSPage() {
 
         if (remaining.length === 0) {
             toast.success('Tüm çevrimdışı siparişler senkronize edildi!');
+        } else if (errorCount > 0) {
+            toast.error(`${errorCount} sipariş senkronize edilemedi: ${lastErrorMessage}`, { duration: 6000 });
         }
     }, [isSyncing]);
 
@@ -723,10 +735,10 @@ export default function POSPage() {
                                     <button
                                         onClick={syncOfflineOrders}
                                         disabled={isSyncing || !isOnline}
-                                        className={`flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-orange-100 text-orange-700 hover:bg-orange-200 transition-colors ${isSyncing ? 'animate-pulse' : ''}`}
+                                        className={`flex items-center space-x-2 px-3 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider bg-orange-500 text-white hover:bg-orange-600 transition-all shadow-lg hover:scale-105 active:scale-95 ${isSyncing ? 'animate-pulse' : ''}`}
                                     >
                                         <FaSync className={isSyncing ? 'animate-spin' : ''} />
-                                        <span>{pendingOrdersCount} Bekleyen Senk.</span>
+                                        <span>{pendingOrdersCount} Bekleyen Satış</span>
                                     </button>
                                 )}
                             </div>
