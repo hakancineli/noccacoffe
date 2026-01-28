@@ -347,7 +347,7 @@ export default function POSPage() {
             totalAmount: cartTotal,
             finalAmount: finalTotal,
             discountAmount: discountAmount,
-            status: 'PENDING',
+            status: 'COMPLETED',
             paymentMethod: paymentMethod === 'SPLIT' ? 'CASH' : paymentMethod,
             payments: customPayments,
             userId: selectedCustomer?.id || null,
