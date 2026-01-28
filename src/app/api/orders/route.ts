@@ -146,11 +146,8 @@ export async function POST(request: Request) {
                 return NextResponse.json({ success: false, error: `Ürün bulunamadı: ${item.productName}` }, { status: 400 });
             }
 
-            // Normalize Size
+            // Use size directly as it matches DB ('S', 'M', 'L', 'Standart' or null)
             let normalizedSize = item.size;
-            if (normalizedSize === 'S') normalizedSize = 'Small';
-            if (normalizedSize === 'M') normalizedSize = 'Medium';
-            if (normalizedSize === 'L') normalizedSize = 'Large';
 
             // Find matching recipe in memory
             let recipe = productInDb.recipes.find(r => r.size === normalizedSize);
@@ -237,11 +234,8 @@ export async function POST(request: Request) {
         for (const item of items) {
             const productInDb = productMap.get(item.productId.toString())!;
 
-            // Normalize Size
+            // Use size directly
             let normalizedSize = item.size;
-            if (normalizedSize === 'S') normalizedSize = 'Small';
-            if (normalizedSize === 'M') normalizedSize = 'Medium';
-            if (normalizedSize === 'L') normalizedSize = 'Large';
 
             let recipe = productInDb.recipes.find(r => r.size === normalizedSize) || productInDb.recipes.find(r => r.size === null);
 

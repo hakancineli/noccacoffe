@@ -381,29 +381,38 @@ export default function POSPage() {
                 setCustomerSearch('');
                 setDiscountRate(0);
             } else {
-                // SERVER ERROR - Save to offline for later sync
-                await noccaDB.saveOrder(orderData, tempId);
-                setPendingOrdersCount(prev => prev + 1);
+                // SERVER ERROR - Check if it's a validation error (400) or other
+                const errorData = await res.json().catch(() => ({}));
+                const errorMessage = errorData.error || 'Bilinmeyen bir hata oluştu.';
 
-                // Show success to user even if offline
-                setLastOrder({
-                    id: tempId,
-                    items: cart,
-                    payments: customPayments,
-                    totalAmount: cartTotal,
-                    finalAmount: finalTotal,
-                    discountAmount: discountAmount,
-                    customerName: orderData.customerName,
-                    creatorName: 'Kasa (Offline)',
-                    createdAt: new Date().toISOString()
-                });
+                if (res.status === 400) {
+                    // Validation error - Don't save to offline, show to user
+                    toast.error(`Sipariş Hatası: ${errorMessage}`, { duration: 6000 });
+                } else {
+                    // Actual server error or timeout - Save to offline for later sync
+                    await noccaDB.saveOrder(orderData, tempId);
+                    setPendingOrdersCount(prev => prev + 1);
 
-                toast.error('Bağlantı sorunu: Sipariş lokale kaydedildi, internet gelince senkronize edilecek.', { duration: 5000 });
+                    // Show success to user even if offline
+                    setLastOrder({
+                        id: tempId,
+                        items: cart,
+                        payments: customPayments,
+                        totalAmount: cartTotal,
+                        finalAmount: finalTotal,
+                        discountAmount: discountAmount,
+                        customerName: orderData.customerName,
+                        creatorName: 'Kasa (Offline)',
+                        createdAt: new Date().toISOString()
+                    });
 
-                setCart([]);
-                setSelectedCustomer(null);
-                setCustomerSearch('');
-                setDiscountRate(0);
+                    toast.error(`Bağlantı sorunu: ${errorMessage} (Sipariş lokale kaydedildi)`, { duration: 5000 });
+
+                    setCart([]);
+                    setSelectedCustomer(null);
+                    setCustomerSearch('');
+                    setDiscountRate(0);
+                }
             }
         } catch (error) {
             console.error('POS Error:', error);
