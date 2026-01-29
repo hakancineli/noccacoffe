@@ -1,0 +1,533 @@
+[
+  {
+    "id": "cmky80j2d001rk91f05fppsi7",
+    "name": "Şurup: Menta",
+    "unit": "ml",
+    "stock": 5980,
+    "costPerUnit": 0.794666667,
+    "createdAt": "2026-01-28T16:09:28.453Z",
+    "updatedAt": "2026-01-29T08:54:59.967Z"
+  },
+  {
+    "id": "cmky80i3m001mk91f2dwvqf5u",
+    "name": "Şurup: CHAI",
+    "unit": "ml",
+    "stock": 5550,
+    "costPerUnit": 1.11466667,
+    "createdAt": "2026-01-28T16:09:27.202Z",
+    "updatedAt": "2026-01-29T08:46:27.233Z"
+  },
+  {
+    "id": "cmky80k7f001xk91fg8oo9bjc",
+    "name": "Şurup: Vanilya",
+    "unit": "ml",
+    "stock": 6235,
+    "costPerUnit": 0.795666667,
+    "createdAt": "2026-01-28T16:09:29.932Z",
+    "updatedAt": "2026-01-29T08:54:59.974Z"
+  },
+  {
+    "id": "cmky80fu2001bk91fg9y1d52c",
+    "name": "Toz: Çikolata",
+    "unit": "gr",
+    "stock": 240,
+    "costPerUnit": 0,
+    "createdAt": "2026-01-28T16:09:24.266Z",
+    "updatedAt": "2026-01-29T08:54:59.971Z"
+  },
+  {
+    "id": "cmky80b4a000ok91fcqvr9q3k",
+    "name": "Papatya Çayı",
+    "unit": "adet",
+    "stock": 279,
+    "costPerUnit": 0,
+    "createdAt": "2026-01-28T16:09:18.155Z",
+    "updatedAt": "2026-01-29T06:58:49.447Z"
+  },
+  {
+    "id": "cmky80iak001nk91f3azbzu56",
+    "name": "Şurup: Cookie",
+    "unit": "ml",
+    "stock": 610,
+    "costPerUnit": 0.794666667,
+    "createdAt": "2026-01-28T16:09:27.453Z",
+    "updatedAt": "2026-01-29T08:46:27.234Z"
+  },
+  {
+    "id": "cmky80hwd001lk91f1a0fdnri",
+    "name": "Şurup: Beyaz Çikolata",
+    "unit": "ml",
+    "stock": 5165,
+    "costPerUnit": 0.794666667,
+    "createdAt": "2026-01-28T16:09:26.942Z",
+    "updatedAt": "2026-01-29T08:54:59.974Z"
+  },
+  {
+    "id": "cmky80fcm0019k91fffiiri2t",
+    "name": "Toz: Sıcak Çikolata",
+    "unit": "gr",
+    "stock": 955,
+    "costPerUnit": 0.86,
+    "createdAt": "2026-01-28T16:09:23.639Z",
+    "updatedAt": "2026-01-29T08:46:27.234Z"
+  },
+  {
+    "id": "cmky80ivl001qk91ffw29v88g",
+    "name": "Şurup: Karamel",
+    "unit": "ml",
+    "stock": 545,
+    "costPerUnit": 0.794666667,
+    "createdAt": "2026-01-28T16:09:28.210Z",
+    "updatedAt": "2026-01-29T08:54:59.972Z"
+  },
+  {
+    "id": "cmky80bb4000pk91fdt3onmby",
+    "name": "Püre: Antep Fıstığı",
+    "unit": "gram",
+    "stock": 1478,
+    "costPerUnit": 1.125,
+    "createdAt": "2026-01-28T16:09:18.401Z",
+    "updatedAt": "2026-01-28T16:09:18.401Z"
+  },
+  {
+    "id": "cmky80bik000qk91fq43ea9ta",
+    "name": "Püre: Biscoff",
+    "unit": "gram",
+    "stock": 500,
+    "costPerUnit": 0,
+    "createdAt": "2026-01-28T16:09:18.669Z",
+    "updatedAt": "2026-01-28T16:09:18.669Z"
+  },
+  {
+    "id": "cmky80d4r000yk91furc2f2d9",
+    "name": "Sos: Salted Karamel",
+    "unit": "ml",
+    "stock": 14570,
+    "costPerUnit": 0,
+    "createdAt": "2026-01-28T16:09:20.764Z",
+    "updatedAt": "2026-01-29T08:54:59.972Z"
+  },
+  {
+    "id": "cmky806qt0005k91fz2tollum",
+    "name": "Espresso Çekirdeği",
+    "unit": "g",
+    "stock": 7609,
+    "costPerUnit": 0.8,
+    "createdAt": "2026-01-28T16:09:12.486Z",
+    "updatedAt": "2026-01-29T08:54:59.974Z"
+  },
+  {
+    "id": "cmky80cxg000xk91fm8meku92",
+    "name": "Sos: Karamel",
+    "unit": "ml",
+    "stock": 0,
+    "costPerUnit": 0,
+    "createdAt": "2026-01-28T16:09:20.500Z",
+    "updatedAt": "2026-01-28T16:09:20.500Z"
+  },
+  {
+    "id": "cmky80flv001ak91fch8kwrsi",
+    "name": "Toz: Vanilya",
+    "unit": "gr",
+    "stock": 1350,
+    "costPerUnit": 0,
+    "createdAt": "2026-01-28T16:09:23.972Z",
+    "updatedAt": "2026-01-29T08:54:59.973Z"
+  },
+  {
+    "id": "cmky80dx80012k91fjosejhyx",
+    "name": "Süt: Laktozsuz",
+    "unit": "ml",
+    "stock": 2650,
+    "costPerUnit": 0,
+    "createdAt": "2026-01-28T16:09:21.788Z",
+    "updatedAt": "2026-01-29T08:46:27.234Z"
+  },
+  {
+    "id": "cmky80e3y0013k91f2fhy19ye",
+    "name": "Süt: Normal (Tam Yağlı)",
+    "unit": "ml",
+    "stock": 103845,
+    "costPerUnit": 0.04495,
+    "createdAt": "2026-01-28T16:09:22.030Z",
+    "updatedAt": "2026-01-29T08:54:59.974Z"
+  },
+  {
+    "id": "cmky80cq7000wk91ftxczpz89",
+    "name": "Sos: Beyaz Çikolata",
+    "unit": "ml",
+    "stock": 3735,
+    "costPerUnit": 0,
+    "createdAt": "2026-01-28T16:09:20.240Z",
+    "updatedAt": "2026-01-29T08:54:59.974Z"
+  },
+  {
+    "id": "cmky80ihv001ok91f8d5kowv1",
+    "name": "Şurup: Fındık",
+    "unit": "ml",
+    "stock": 6720,
+    "costPerUnit": 0.794666667,
+    "createdAt": "2026-01-28T16:09:27.715Z",
+    "updatedAt": "2026-01-29T08:46:27.234Z"
+  },
+  {
+    "id": "cmky80epk0016k91fkj8jv351",
+    "name": "Toz: Frappe",
+    "unit": "gr",
+    "stock": 1383,
+    "costPerUnit": 0.288,
+    "createdAt": "2026-01-28T16:09:22.809Z",
+    "updatedAt": "2026-01-29T08:54:59.974Z"
+  },
+  {
+    "id": "cmky80hpa001kk91fdsdq7kr6",
+    "name": "İkram: Lokum",
+    "unit": "adet",
+    "stock": 0,
+    "costPerUnit": 0,
+    "createdAt": "2026-01-28T16:09:26.686Z",
+    "updatedAt": "2026-01-28T16:09:26.686Z"
+  },
+  {
+    "id": "cmky80dbf000zk91f4g25x5iu",
+    "name": "Sos: Çikolata",
+    "unit": "ml",
+    "stock": 8590,
+    "costPerUnit": 0,
+    "createdAt": "2026-01-28T16:09:21.003Z",
+    "updatedAt": "2026-01-29T08:54:59.974Z"
+  },
+  {
+    "id": "cmky80ewx0017k91f3xsvjwml",
+    "name": "Toz: Muz",
+    "unit": "gr",
+    "stock": 1250,
+    "costPerUnit": 0,
+    "createdAt": "2026-01-28T16:09:23.073Z",
+    "updatedAt": "2026-01-29T08:54:59.973Z"
+  },
+  {
+    "id": "cmky807bq0008k91fy1mw2mji",
+    "name": "Hibiscus Çayı",
+    "unit": "G",
+    "stock": 120,
+    "costPerUnit": 0,
+    "createdAt": "2026-01-28T16:09:13.238Z",
+    "updatedAt": "2026-01-29T08:54:59.967Z"
+  },
+  {
+    "id": "cmky80jts001vk91fgw93dfew",
+    "name": "Şurup: Nar",
+    "unit": "ml",
+    "stock": 3730,
+    "costPerUnit": 0.794666667,
+    "createdAt": "2026-01-28T16:09:29.440Z",
+    "updatedAt": "2026-01-29T08:54:59.967Z"
+  },
+  {
+    "id": "cmky805pn0000k91f0j9mvewn",
+    "name": "Bardak: Şeffaf Large",
+    "unit": "adet",
+    "stock": 3300,
+    "costPerUnit": 5.25,
+    "createdAt": "2026-01-28T16:09:11.148Z",
+    "updatedAt": "2026-01-28T16:19:13.775Z"
+  },
+  {
+    "id": "cmky80c4p000tk91fqwvjydtr",
+    "name": "Püre: Çilek",
+    "unit": "ml",
+    "stock": 1400,
+    "costPerUnit": 0,
+    "createdAt": "2026-01-28T16:09:19.465Z",
+    "updatedAt": "2026-01-29T08:54:59.973Z"
+  },
+  {
+    "id": "cmky8074q0007k91f8ovr1k7r",
+    "name": "Garnitür: Kurutulmuş Limon",
+    "unit": "adet",
+    "stock": 30,
+    "costPerUnit": 0,
+    "createdAt": "2026-01-28T16:09:12.986Z",
+    "updatedAt": "2026-01-28T16:19:16.366Z"
+  },
+  {
+    "id": "cmky807j10009k91f82um9j9b",
+    "name": "Ihlamur",
+    "unit": "G",
+    "stock": 50,
+    "costPerUnit": 0,
+    "createdAt": "2026-01-28T16:09:13.501Z",
+    "updatedAt": "2026-01-28T18:28:32.479Z"
+  },
+  {
+    "id": "cmky807pw000ak91fjyhblzdu",
+    "name": "Kiraz Sapı",
+    "unit": "G",
+    "stock": 104,
+    "costPerUnit": 0,
+    "createdAt": "2026-01-28T16:09:13.748Z",
+    "updatedAt": "2026-01-28T18:28:33.006Z"
+  },
+  {
+    "id": "cmky808cb000dk91fq1xm0ujb",
+    "name": "Kış Çayı",
+    "unit": "G",
+    "stock": 634,
+    "costPerUnit": 0,
+    "createdAt": "2026-01-28T16:09:14.556Z",
+    "updatedAt": "2026-01-28T18:28:33.742Z"
+  },
+  {
+    "id": "cmky808z2000gk91fs33nsqd4",
+    "name": "Meşrubat: Coca Cola",
+    "unit": "adet",
+    "stock": 62,
+    "costPerUnit": 31.25,
+    "createdAt": "2026-01-28T16:09:15.374Z",
+    "updatedAt": "2026-01-28T16:19:19.636Z"
+  },
+  {
+    "id": "cmky809dj000ik91fho23gfwk",
+    "name": "Meşrubat: Limonlu Soda",
+    "unit": "adet",
+    "stock": 144,
+    "costPerUnit": 7.9,
+    "createdAt": "2026-01-28T16:09:15.895Z",
+    "updatedAt": "2026-01-28T16:19:20.312Z"
+  },
+  {
+    "id": "cmky809kk000jk91fj5t9uqtk",
+    "name": "Meşrubat: Sade Soda",
+    "unit": "adet",
+    "stock": 108,
+    "costPerUnit": 7.08,
+    "createdAt": "2026-01-28T16:09:16.149Z",
+    "updatedAt": "2026-01-28T16:19:20.827Z"
+  },
+  {
+    "id": "cmky809rq000kk91fspuyq58m",
+    "name": "Meşrubat: Su",
+    "unit": "adet",
+    "stock": 168,
+    "costPerUnit": 3.75,
+    "createdAt": "2026-01-28T16:09:16.407Z",
+    "updatedAt": "2026-01-28T16:19:21.332Z"
+  },
+  {
+    "id": "cmky80bpx000rk91f73mkc84w",
+    "name": "Püre: Mango",
+    "unit": "ml",
+    "stock": 3000,
+    "costPerUnit": 0.48,
+    "createdAt": "2026-01-28T16:09:18.934Z",
+    "updatedAt": "2026-01-28T16:19:23.956Z"
+  },
+  {
+    "id": "cmky80bxi000sk91fngnoi2ru",
+    "name": "Püre: Muz",
+    "unit": "ml",
+    "stock": 1500,
+    "costPerUnit": 0,
+    "createdAt": "2026-01-28T16:09:19.206Z",
+    "updatedAt": "2026-01-28T16:19:24.459Z"
+  },
+  {
+    "id": "cmky80dq10011k91fgjwjv1xk",
+    "name": "Süt: Badem",
+    "unit": "ml",
+    "stock": 0,
+    "costPerUnit": 0,
+    "createdAt": "2026-01-28T16:09:21.529Z",
+    "updatedAt": "2026-01-28T16:19:28.552Z"
+  },
+  {
+    "id": "cmky80ebi0014k91fyjoc4f79",
+    "name": "Süt: Yulaf",
+    "unit": "ml",
+    "stock": 3000,
+    "costPerUnit": 0,
+    "createdAt": "2026-01-28T16:09:22.303Z",
+    "updatedAt": "2026-01-28T16:19:30.158Z"
+  },
+  {
+    "id": "cmky80f3q0018k91f5sk8zs8s",
+    "name": "Toz: Salep",
+    "unit": "gr",
+    "stock": 2120,
+    "costPerUnit": 0,
+    "createdAt": "2026-01-28T16:09:23.319Z",
+    "updatedAt": "2026-01-28T16:19:32.168Z"
+  },
+  {
+    "id": "cmky80g7u001dk91fy2h6hfqn",
+    "name": "Yaseminli Yeşil Çay",
+    "unit": "adet",
+    "stock": 168,
+    "costPerUnit": 0,
+    "createdAt": "2026-01-28T16:09:24.762Z",
+    "updatedAt": "2026-01-28T16:19:34.801Z"
+  },
+  {
+    "id": "cmky80gep001ek91fs0iuj2gr",
+    "name": "Yeşil Çay",
+    "unit": "G",
+    "stock": 400,
+    "costPerUnit": 0,
+    "createdAt": "2026-01-28T16:09:25.009Z",
+    "updatedAt": "2026-01-28T16:19:35.312Z"
+  },
+  {
+    "id": "cmky80gnr001fk91fg463iuel",
+    "name": "Çekirdek: Filtre Kahve",
+    "unit": "gr",
+    "stock": 1000,
+    "costPerUnit": 1,
+    "createdAt": "2026-01-28T16:09:25.272Z",
+    "updatedAt": "2026-01-28T16:19:35.833Z"
+  },
+  {
+    "id": "cmky80gvd001gk91fm8vsz4e4",
+    "name": "Çekirdek: Türk Kahvesi",
+    "unit": "gr",
+    "stock": 5200,
+    "costPerUnit": 0.8,
+    "createdAt": "2026-01-28T16:09:25.610Z",
+    "updatedAt": "2026-01-28T16:19:36.345Z"
+  },
+  {
+    "id": "cmky80jfy001tk91fnzm0yv8w",
+    "name": "Şurup: Muz",
+    "unit": "ml",
+    "stock": 3370,
+    "costPerUnit": 0.794666667,
+    "createdAt": "2026-01-28T16:09:28.942Z",
+    "updatedAt": "2026-01-28T16:19:41.762Z"
+  },
+  {
+    "id": "cmky8d3420000k9yrw6o5lv7f",
+    "name": "Bardak: Şeffaf Medium14oz",
+    "unit": "adet",
+    "stock": 3100,
+    "costPerUnit": 4.95,
+    "createdAt": "2026-01-28T16:19:14.306Z",
+    "updatedAt": "2026-01-28T16:19:14.306Z"
+  },
+  {
+    "id": "cmky8d3iy0001k9yrs8414nhi",
+    "name": "Bardak: Şeffaf Small 12oz",
+    "unit": "adet",
+    "stock": 1200,
+    "costPerUnit": 4.85,
+    "createdAt": "2026-01-28T16:19:14.843Z",
+    "updatedAt": "2026-01-28T16:19:14.843Z"
+  },
+  {
+    "id": "cmky8d3x80002k9yrttafyoy3",
+    "name": "Bardak: Sıcak (16oz)",
+    "unit": "adet",
+    "stock": 1441,
+    "costPerUnit": 5.25,
+    "createdAt": "2026-01-28T16:19:15.356Z",
+    "updatedAt": "2026-01-28T16:19:15.356Z"
+  },
+  {
+    "id": "cmky8d6bf0003k9yrq15n9e86",
+    "name": "Bardak: Sıcak küçük (8oz)",
+    "unit": "adet",
+    "stock": 2000,
+    "costPerUnit": 4.55,
+    "createdAt": "2026-01-28T16:19:18.460Z",
+    "updatedAt": "2026-01-28T16:19:18.460Z"
+  },
+  {
+    "id": "cmky8dbqq0006k9yriq4yqppt",
+    "name": "Püre: Şeftali",
+    "unit": "Ml",
+    "stock": 4000,
+    "costPerUnit": 0.44,
+    "createdAt": "2026-01-28T16:19:25.490Z",
+    "updatedAt": "2026-01-28T16:19:25.490Z"
+  },
+  {
+    "id": "cmky8dcav0007k9yr59abiblr",
+    "name": "Püre: Passion",
+    "unit": "Ml",
+    "stock": 4000,
+    "costPerUnit": 0.984,
+    "createdAt": "2026-01-28T16:19:26.215Z",
+    "updatedAt": "2026-01-28T16:19:26.215Z"
+  },
+  {
+    "id": "cmky8dfq10008k9yraa9m4vhr",
+    "name": "Püre: Böğürtlen",
+    "unit": "Ml",
+    "stock": 2000,
+    "costPerUnit": 0,
+    "createdAt": "2026-01-28T16:19:30.650Z",
+    "updatedAt": "2026-01-28T16:19:30.650Z"
+  },
+  {
+    "id": "cmky8dij80009k9yrxb54tqzb",
+    "name": "Püre: MixBerry",
+    "unit": "ml",
+    "stock": 3000,
+    "costPerUnit": 0.984,
+    "createdAt": "2026-01-28T16:19:34.292Z",
+    "updatedAt": "2026-01-28T16:19:34.292Z"
+  },
+  {
+    "id": "cmky8dkii000ak9yr8fxn0cx0",
+    "name": "Öz: Ananas Suyu",
+    "unit": "ml",
+    "stock": 2500,
+    "costPerUnit": 0,
+    "createdAt": "2026-01-28T16:19:36.859Z",
+    "updatedAt": "2026-01-28T16:19:36.859Z"
+  },
+  {
+    "id": "cmky8dkwk000bk9yr1rkxa9ar",
+    "name": "Bisküvi: oreo",
+    "unit": "Adet",
+    "stock": 30,
+    "costPerUnit": 0,
+    "createdAt": "2026-01-28T16:19:37.364Z",
+    "updatedAt": "2026-01-28T16:19:37.364Z"
+  },
+  {
+    "id": "cmky80kli001zk91fxe6x9aw5",
+    "name": "Şurup: Çilek",
+    "unit": "ml",
+    "stock": 6075,
+    "costPerUnit": 0.794666667,
+    "createdAt": "2026-01-28T16:09:30.439Z",
+    "updatedAt": "2026-01-29T08:54:59.973Z"
+  },
+  {
+    "id": "cmky80kej001yk91fqmoyjpmz",
+    "name": "Şurup: Çikolata",
+    "unit": "ml",
+    "stock": 4045,
+    "costPerUnit": 0.794666667,
+    "createdAt": "2026-01-28T16:09:30.188Z",
+    "updatedAt": "2026-01-29T08:54:59.974Z"
+  },
+  {
+    "id": "cmky8d8xu0004k9yrs5nmm8sc",
+    "name": "Meşrubat : çobanpınar",
+    "unit": "adet",
+    "stock": 0,
+    "costPerUnit": 2.83,
+    "createdAt": "2026-01-28T16:19:21.858Z",
+    "updatedAt": "2026-01-28T18:28:35.669Z"
+  },
+  {
+    "id": "cmky8dnwi000ck9yrsjkp43l1",
+    "name": "Şurup: ocean",
+    "unit": "ml",
+    "stock": 2250,
+    "costPerUnit": 0.59,
+    "createdAt": "2026-01-28T16:19:41.250Z",
+    "updatedAt": "2026-01-28T18:33:54.907Z"
+  }
+]
