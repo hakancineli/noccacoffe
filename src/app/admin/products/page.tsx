@@ -349,6 +349,7 @@ export default function ProductsManagement() {
   };
 
   const categories = [
+    'Tatlılar',
     'Soğuk Kahveler',
     'Sıcak Kahveler',
     'Soğuk İçecekler',
@@ -358,15 +359,9 @@ export default function ProductsManagement() {
     'Bubble Tea',
     'Matchalar',
     'Bitki Çayları',
-    'Şuruplar',
-    'Soslar',
-    'Püreler',
-    'Tozlar',
-    'Sütler',
     'Yan Ürünler',
     'Kahve Çekirdekleri',
     'Meşrubatlar',
-    'Extra',
   ];
 
   return (
