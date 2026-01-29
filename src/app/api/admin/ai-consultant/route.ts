@@ -150,9 +150,10 @@ export async function GET(request: NextRequest) {
         const dayNames = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"];
 
         orders.forEach(o => {
-            const d = new Date(o.createdAt);
-            hoursDistribution[d.getHours()]++;
-            daysDistribution[d.getDay()]++;
+            // Adjust for TR time (UTC+3)
+            const d = new Date(o.createdAt.getTime() + (3 * 60 * 60 * 1000));
+            hoursDistribution[d.getUTCHours()]++;
+            daysDistribution[d.getUTCDay()]++;
         });
 
         const busiestHourIndex = hoursDistribution.indexOf(Math.max(...hoursDistribution));
