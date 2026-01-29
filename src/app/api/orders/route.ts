@@ -132,7 +132,7 @@ export async function POST(request: Request) {
         const productMap = new Map(existingProducts.map(p => [p.id, p]));
 
         // Categories that don't require recipes (unit-based products or simple stock tracking)
-        const UNIT_BASED_CATEGORIES = ['Meşrubatlar', 'Yan Ürünler', 'Kahve Çekirdekleri', 'Bitki Çayları', 'Şuruplar', 'Soslar', 'Püreler', 'Tozlar', 'Sütler'];
+        const UNIT_BASED_CATEGORIES = ['Meşrubatlar', 'Yan Ürünler', 'Kahve Çekirdekleri', 'Çaylar', 'Şuruplar', 'Soslar', 'Püreler', 'Tozlar', 'Sütler'];
         // Categories typically served cold (for cup logic)
         const COLD_CATEGORIES = ['Soğuk Kahveler', 'Soğuk İçecekler', 'Frappeler', 'Bubble Tea', 'Milkshake'];
 

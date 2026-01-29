@@ -260,12 +260,12 @@ export default function POSPage() {
             }
             return [...prev, {
                 id: cartItemId,
-                productId: product.id,
+                productId: dbProduct?.id || product.id,
                 name: product.name,
                 price,
                 quantity: 1,
                 size,
-                isPorcelain: product.name.includes('Cortado') // Default to porcelain for Cortado
+                isPorcelain: product.name.includes('Cortado')
             }];
         });
 
