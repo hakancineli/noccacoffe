@@ -151,8 +151,11 @@ export async function POST(request: Request) {
 
             // Find matching recipe in memory
             let recipe = productInDb.recipes.find(r => r.size === normalizedSize);
-            // Fallback to size-less recipe if exists
-            if (!recipe) recipe = productInDb.recipes.find(r => r.size === null);
+
+            // Fallback for single-size products (null or 'Standart')
+            if (!recipe && !normalizedSize) {
+                recipe = productInDb.recipes.find(r => r.size === null || r.size === 'Standart');
+            }
 
             if (recipe) {
                 // Check ingredients
