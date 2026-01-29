@@ -5,15 +5,19 @@ const prisma = new PrismaClient();
 async function main() {
     console.log('Starting dessert recipe & stock setup...');
 
-    // Fetch all products in the 'Tatlılar' category
-    const desserts = await prisma.product.findMany({
-        where: { category: 'Tatlılar' }
+    // Fetch all products in the 'Tatlılar' and 'Çaylar' categories
+    const products = await prisma.product.findMany({
+        where: {
+            category: {
+                in: ['Tatlılar', 'Çaylar']
+            }
+        }
     });
 
-    console.log(`Found ${desserts.length} desserts.`);
+    console.log(`Found ${products.length} products to process.`);
 
-    for (const dessert of desserts) {
-        const ingredientName = `${dessert.name} Hammaddesi`;
+    for (const prod of products) {
+        const ingredientName = `${prod.name} Hammaddesi`;
 
         // 1. Create or Update Ingredient
         let ingredient = await prisma.ingredient.findFirst({
@@ -39,45 +43,52 @@ async function main() {
 
         // 2. Create or Update Recipe
         // We assume standard size (null or 'Standart') for desserts
-        const size = null;
-        let recipe = await prisma.recipe.findFirst({
-            where: {
-                productId: dessert.id,
-                size: size
-            }
-        });
+        const size = prod.name === 'Çay' ? 'Küçük' : null; // Handle Çay separately or iterate sizes
 
-        if (!recipe) {
-            console.log(`Creating recipe for ${dessert.name}...`);
-            recipe = await prisma.recipe.create({
-                data: {
-                    productId: dessert.id,
-                    size: size
+        // Actually, let's make this more robust. If it has prices (sizes), we need recipes for all sizes.
+        const prices = prod.prices as any[];
+        const sizes = (prices && prices.length > 0) ? prices.map(p => p.size) : [null];
+
+        for (const s of sizes) {
+            let recipe = await prisma.recipe.findFirst({
+                where: {
+                    productId: prod.id,
+                    size: s
                 }
             });
-        }
 
-        // 3. Link Ingredient to Recipe
-        const existingRecipeItem = await prisma.recipeItem.findFirst({
-            where: {
-                recipeId: recipe.id,
-                ingredientId: ingredient.id
+            if (!recipe) {
+                console.log(`Creating recipe for ${prod.name} (${s || 'Standart'})...`);
+                recipe = await prisma.recipe.create({
+                    data: {
+                        productId: prod.id,
+                        size: s
+                    }
+                });
             }
-        });
 
-        if (!existingRecipeItem) {
-            console.log(`Linking ${dessert.name} to its ingredient...`);
-            await prisma.recipeItem.create({
-                data: {
+            // 3. Link Ingredient to Recipe
+            const existingRecipeItem = await prisma.recipeItem.findFirst({
+                where: {
                     recipeId: recipe.id,
-                    ingredientId: ingredient.id,
-                    quantity: 1
+                    ingredientId: ingredient.id
                 }
             });
+
+            if (!existingRecipeItem) {
+                console.log(`Linking ${prod.name} (${s || 'Standart'}) to its ingredient...`);
+                await prisma.recipeItem.create({
+                    data: {
+                        recipeId: recipe.id,
+                        ingredientId: ingredient.id,
+                        quantity: 1
+                    }
+                });
+            }
         }
     }
 
-    console.log('Dessert recipe & stock setup completed successfully!');
+    console.log('Recipe & stock setup completed successfully!');
 }
 
 main()
