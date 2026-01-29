@@ -700,6 +700,19 @@ export const allMenuItems: MenuItem[] = [
     image: '/images/products/v60-chemex.jpeg',
   },
 
+  // ÇAYLAR
+  {
+    id: 137,
+    name: 'Çay',
+    description: 'Demleme taze siyah çay',
+    category: 'Bitki Çayları',
+    sizes: [
+      { size: 'Küçük', price: 60 },
+      { size: 'Büyük', price: 80 }
+    ],
+    image: '/images/products/yaseminli-yesil-cay.jpeg',
+  },
+
   // BİTKİ ÇAYLARI (HERBAL TEAS)
   {
     id: 61,
@@ -809,21 +822,39 @@ export const allMenuItems: MenuItem[] = [
   { id: 103, name: 'Türk Kahvesi Çekirdeği (250g)', description: 'Geleneksel Türk kahvesi çekirdeği', category: 'Kahve Çekirdekleri', price: 350, image: '/images/products/coffee-beans-collection.png' },
 
   // MEŞRUBATLAR
-  { id: 104, name: 'Coca Cola', description: 'Kutu 330ml', category: 'Meşrubatlar', price: 60, image: '/images/products/Coca Cola Kutu 330ml.jpeg' },
+  { id: 104, name: 'Coca Cola', description: 'Kutu 330ml', category: 'Meşrubatlar', price: 90, image: '/images/products/Coca Cola Kutu 330ml.jpeg' },
   { id: 105, name: 'Kola Turka', description: 'Kutu 330ml', category: 'Meşrubatlar', price: 50, image: '/images/products/kola-turka.jpeg' },
-  { id: 106, name: 'Su', description: 'Pet Şişe 0.5L', category: 'Meşrubatlar', price: 20, image: '/images/products/su.jpeg' },
-  { id: 107, name: 'Sade Soda', description: 'Maden Suyu', category: 'Meşrubatlar', price: 30, image: '/images/products/sade soda.jpeg' },
-  { id: 108, name: 'Limonlu Soda', description: 'Meyveli Maden Suyu', category: 'Meşrubatlar', price: 35, image: '/images/products/limonlu soda.jpeg' },
+  { id: 106, name: 'Su', description: 'Pet Şişe 0.5L', category: 'Meşrubatlar', price: 30, image: '/images/products/su.jpeg' },
+  { id: 107, name: 'Sade Soda', description: 'Maden Suyu', category: 'Meşrubatlar', price: 50, image: '/images/products/sade soda.jpeg' },
+  { id: 108, name: 'Limonlu Soda', description: 'Meyveli Maden Suyu', category: 'Meşrubatlar', price: 70, image: '/images/products/limonlu soda.jpeg' },
   // TATLILAR
-  { id: 110, name: 'San Sebastian', description: 'Meşhur yanık cheesecake', category: 'Tatlılar', price: 180, image: '/images/products/san-sebastian.jpg' },
+  { id: 110, name: 'San Sebastian', description: 'Meşhur yanık cheesecake', category: 'Tatlılar', price: 250, image: '/images/products/san-sebastian.jpg' },
   { id: 111, name: 'Sade Kruvasan', description: 'Taze pişmiş sade kruvasan', category: 'Tatlılar', price: 90, image: '/images/products/kruvasan.jpg' },
   { id: 112, name: 'Çikolatalı Kruvasan', description: 'Çikolata dolgulu kruvasan', category: 'Tatlılar', price: 110, image: '/images/products/cikolatali-kruvasan.jpg' },
   { id: 113, name: 'Çikolata Soslu Kruvasan', description: 'Üzerine çikolata sosu dökülmüş kruvasan', category: 'Tatlılar', price: 120, image: '/images/products/cikolatali-kruvasan.jpg' },
   { id: 114, name: 'Peynirli Kruvasan', description: 'Peynirli sıcak kruvasan', category: 'Tatlılar', price: 100, image: '/images/products/kruvasan.jpg' },
   { id: 115, name: 'Fıstıklı Snickers', description: 'Fıstıklı ve karamelli özel tatlı', category: 'Tatlılar', price: 150, image: '/images/products/tatli_tabagi.jpg' },
   { id: 116, name: 'Orman Meyveli Tart', description: 'Taze orman meyveli tart', category: 'Tatlılar', price: 140, image: '/images/products/tatli_tabagi.jpg' },
-  { id: 117, name: 'Bella Vista', description: 'Özel katmanlı meyveli pasta', category: 'Tatlılar', price: 160, image: '/images/products/tatli_tabagi.jpg' },
+  { id: 117, name: 'Bella Vista', description: 'Özel katmanlı meyveli pasta', category: 'Tatlılar', price: 250, image: '/images/products/tatli_tabagi.jpg' },
   { id: 118, name: 'Nocca Tatlı', description: 'İmza tatlımız', category: 'Tatlılar', price: 170, image: '/images/products/tatli_tabagi.jpg' },
+  { id: 119, name: 'Paris Brest', description: 'Özel kremalı Paris usulü tatlı', category: 'Tatlılar', price: 250, image: '/images/products/tatli_tabagi.jpg' },
+  { id: 120, name: 'İbiza Muzlu Magnolia', description: 'Muzlu ve bisküvili taze magnolia', category: 'Tatlılar', price: 250, image: '/images/products/tatli_tabagi.jpg' },
+  { id: 121, name: 'Çilekli Magnolia', description: 'Taze çilekli magnolia', category: 'Tatlılar', price: 250, image: '/images/products/tatli_tabagi.jpg' },
+  { id: 122, name: 'Tiramisu Cup', description: 'Bardakta pratik tiramisu lezzeti', category: 'Tatlılar', price: 250, image: '/images/products/tatli_tabagi.jpg' },
+  { id: 123, name: 'Magnum - Kitkat Cup', description: 'Kitkat ve Magnum lezzetli bardak tatlısı', category: 'Tatlılar', price: 250, image: '/images/products/tatli_tabagi.jpg' },
+  { id: 124, name: 'Lotus Cheesecake', description: 'Lotus bisküvili eşsiz cheesecake', category: 'Tatlılar', price: 250, image: '/images/products/tatli_tabagi.jpg' },
+  { id: 125, name: 'Muzlu Rulo', description: 'Yumuşak kekli muzlu rulo pasta', category: 'Tatlılar', price: 250, image: '/images/products/tatli_tabagi.jpg' },
+  { id: 126, name: 'Cookie', description: 'Taze pişmiş dev kurabiye', category: 'Tatlılar', price: 150, image: '/images/products/tatli_tabagi.jpg' },
+  { id: 127, name: 'Dereotlu Poğaça', description: 'Taze dereotlu ev poğaçası', category: 'Tatlılar', price: 100, image: '/images/products/kruvasan.jpg' },
+  { id: 128, name: 'Sandviç', description: 'Günlük taze sandviç', category: 'Tatlılar', price: 180, image: '/images/products/kruvasan.jpg' },
+  { id: 129, name: 'Saçaklı Poğaça', description: 'Peynirli saçaklı poğaça', category: 'Tatlılar', price: 100, image: '/images/products/kruvasan.jpg' },
+  { id: 130, name: 'Çikolatalı San Sebastian', description: 'Çikolata soslu San Sebastian cheesecake', category: 'Tatlılar', price: 250, image: '/images/products/san-sebastian.jpg' },
+  { id: 131, name: 'Muzlu Kubbe', description: 'Muzlu kubbe pasta', category: 'Tatlılar', price: 250, image: '/images/products/tatli_tabagi.jpg' },
+  { id: 132, name: 'Fıstıklı Tart', description: 'Antep fıstıklı tart', category: 'Tatlılar', price: 250, image: '/images/products/tatli_tabagi.jpg' },
+  { id: 133, name: 'Yer Fıstıklı Pasta', description: 'Yer fıstıklı lezzet dolu pasta', category: 'Tatlılar', price: 250, image: '/images/products/tatli_tabagi.jpg' },
+  { id: 134, name: 'Latte Mono', description: 'Latte aromalı tek porsiyonluk pasta', category: 'Tatlılar', price: 250, image: '/images/products/tatli_tabagi.jpg' },
+  { id: 135, name: 'Beyaz Çikolatalı Brownie', description: 'Beyaz çikolatalı brownie', category: 'Tatlılar', price: 250, image: '/images/products/tatli_tabagi.jpg' },
+  { id: 136, name: 'Frambuazlı Limonlu Cheesecake', description: 'Frambuaz ve limon ferahlığında cheesecake', category: 'Tatlılar', price: 250, image: '/images/products/tatli_tabagi.jpg' },
 ];
 
 // Category list for filtering
