@@ -155,7 +155,7 @@ export default function OrdersManagement() {
 
   // Audio Alarm Logic
   const [hasPending, setHasPending] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
   const audioContextRef = useRef<AudioContext | null>(null);
   const alarmIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const [hasInteracted, setHasInteracted] = useState(false);
@@ -624,21 +624,14 @@ export default function OrdersManagement() {
                           >
                             Detay
                           </button>
-                          {order.status === 'PENDING' ? (
+                          {order.status !== 'CANCELLED' && order.status !== 'COMPLETED' && (
                             <button
                               onClick={() => updateOrderStatus(order.id, 'COMPLETED')}
                               className="bg-blue-600 text-white px-3 py-1 rounded text-xs font-bold hover:bg-blue-700"
                             >
                               Tamamla
                             </button>
-                          ) : order.status !== 'CANCELLED' && order.status !== 'COMPLETED' ? (
-                            <button
-                              onClick={() => updateOrderStatus(order.id, 'COMPLETED')}
-                              className="text-gray-500 hover:text-gray-700"
-                            >
-                              Kapat
-                            </button>
-                          ) : null}
+                          )}
                           <button
                             onClick={() => deleteOrder(order.id)}
                             className="text-red-300 hover:text-red-600 ml-1"
