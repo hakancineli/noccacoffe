@@ -41,12 +41,21 @@ export default function OrdersManagement() {
   const [filter, setFilter] = useState({
     status: 'all',
     search: '',
+    today: true,
   });
   const [pagination, setPagination] = useState({
     page: 1,
-    limit: 10,
+    limit: 50, // Increased limit for easier single-screen view
     total: 0,
     pages: 0,
+  });
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editFormData, setEditFormData] = useState({
+    customerName: '',
+    customerPhone: '',
+    notes: '',
+    finalAmount: 0,
+    paymentMethod: 'CASH'
   });
   const [isSyncing, setIsSyncing] = useState(false);
 
@@ -64,6 +73,7 @@ export default function OrdersManagement() {
         limit: pagination.limit.toString(),
         ...(filter.status !== 'all' && { status: filter.status }),
         ...(filter.search && { search: filter.search }),
+        ...(filter.today && { today: 'true' }),
       });
 
       const response = await fetch(`/api/admin/orders?${params}`);
@@ -271,6 +281,31 @@ export default function OrdersManagement() {
     }
   };
 
+  const handleUpdateOrder = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedOrder) return;
+
+    try {
+      const response = await fetch(`/api/admin/orders/${selectedOrder.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editFormData),
+      });
+
+      if (response.ok) {
+        fetchOrders();
+        setIsEditModalOpen(false);
+        alert('Sipariş başarıyla güncellendi.');
+      } else {
+        const data = await response.json();
+        alert(`Hata: ${data.error || 'Güncelleme başarısız'}`);
+      }
+    } catch (error) {
+      console.error('Order update error:', error);
+      alert('Bir hata oluştu.');
+    }
+  };
+
   const printReceipt = (order: Order) => {
     const receiptContent = `
             <html>
@@ -413,6 +448,20 @@ export default function OrdersManagement() {
         {/* Filters */}
         <div className="bg-white shadow rounded-lg mb-6 p-4">
           <div className="flex flex-col sm:flex-row gap-4">
+            <div className="sm:w-32">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Zaman
+              </label>
+              <button
+                onClick={() => setFilter(prev => ({ ...prev, today: !prev.today }))}
+                className={`w-full px-3 py-2 border rounded-md font-medium transition-colors ${filter.today
+                  ? 'bg-blue-600 text-white border-blue-600'
+                  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                  }`}
+              >
+                {filter.today ? 'Özel Gün: Bugün' : 'Tüm Zamanlar'}
+              </button>
+            </div>
             <div className="flex-1">
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Ara
@@ -539,46 +588,65 @@ export default function OrdersManagement() {
                         <span suppressHydrationWarning>{new Date(order.createdAt).toLocaleString('tr-TR')}</span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div className="flex space-x-2">
+                        <div className="flex space-x-3 items-center">
+                          <button
+                            onClick={() => printReceipt(order)}
+                            className="text-gray-400 hover:text-blue-600 transition-colors"
+                            title="Fiş Yazdır"
+                          >
+                            <FaPrint size={18} />
+                          </button>
+                          <button
+                            onClick={() => {
+                              setSelectedOrder(order);
+                              setEditFormData({
+                                customerName: order.customerName || '',
+                                customerPhone: order.customerPhone || '',
+                                notes: order.notes || '',
+                                finalAmount: order.finalAmount || 0,
+                                paymentMethod: order.paymentMethod || 'CASH'
+                              });
+                              setIsEditModalOpen(true);
+                            }}
+                            className="text-gray-400 hover:text-green-600 transition-colors"
+                            title="Düzenle"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                              <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                            </svg>
+                          </button>
                           <button
                             onClick={() => {
                               setSelectedOrder(order);
                               setIsModalOpen(true);
                             }}
-                            className="text-green-600 hover:text-green-900"
+                            className="bg-green-50 text-green-700 px-2 py-1 rounded text-xs font-bold border border-green-200 hover:bg-green-100"
                           >
                             Detay
                           </button>
-                          {order.status === 'PENDING' && (
-                            <button
-                              onClick={() => updateOrderStatus(order.id, 'PREPARING')}
-                              className="text-blue-600 hover:text-blue-900 bg-blue-50 px-3 py-1 rounded border border-blue-200"
-                            >
-                              Hazırla
-                            </button>
-                          )}
-                          {order.status === 'PREPARING' && (
-                            <button
-                              onClick={() => updateOrderStatus(order.id, 'READY')}
-                              className="text-yellow-600 hover:text-yellow-900"
-                            >
-                              Hazır
-                            </button>
-                          )}
-                          {order.status === 'READY' && (
+                          {order.status === 'PENDING' ? (
                             <button
                               onClick={() => updateOrderStatus(order.id, 'COMPLETED')}
-                              className="text-gray-600 hover:text-gray-900"
+                              className="bg-blue-600 text-white px-3 py-1 rounded text-xs font-bold hover:bg-blue-700"
                             >
                               Tamamla
                             </button>
-                          )}
+                          ) : order.status !== 'CANCELLED' && order.status !== 'COMPLETED' ? (
+                            <button
+                              onClick={() => updateOrderStatus(order.id, 'COMPLETED')}
+                              className="text-gray-500 hover:text-gray-700"
+                            >
+                              Kapat
+                            </button>
+                          ) : null}
                           <button
                             onClick={() => deleteOrder(order.id)}
-                            className="text-red-400 hover:text-red-600 ml-2"
+                            className="text-red-300 hover:text-red-600 ml-1"
                             title="Siparişi Sil"
                           >
-                            Sil
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
                           </button>
                         </div>
                       </td>
@@ -728,6 +796,87 @@ export default function OrdersManagement() {
                   </button>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Modal */}
+      {isEditModalOpen && selectedOrder && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-[60]">
+          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div className="mt-3">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-medium text-gray-900">Siparişi Düzenle</h3>
+                <button onClick={() => setIsEditModalOpen(false)} className="text-gray-400 hover:text-gray-500">✕</button>
+              </div>
+              <form onSubmit={handleUpdateOrder} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Müşteri Adı</label>
+                  <input
+                    type="text"
+                    value={editFormData.customerName}
+                    onChange={(e) => setEditFormData(prev => ({ ...prev, customerName: e.target.value }))}
+                    className="w-full px-3 py-2 border rounded-md text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Müşteri Telefon</label>
+                  <input
+                    type="text"
+                    value={editFormData.customerPhone}
+                    onChange={(e) => setEditFormData(prev => ({ ...prev, customerPhone: e.target.value }))}
+                    className="w-full px-3 py-2 border rounded-md text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Notlar</label>
+                  <textarea
+                    value={editFormData.notes}
+                    onChange={(e) => setEditFormData(prev => ({ ...prev, notes: e.target.value }))}
+                    className="w-full px-3 py-2 border rounded-md text-sm h-20"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Toplam Tutar</label>
+                    <input
+                      type="number"
+                      value={editFormData.finalAmount}
+                      onChange={(e) => setEditFormData(prev => ({ ...prev, finalAmount: parseFloat(e.target.value) }))}
+                      className="w-full px-3 py-2 border rounded-md text-sm font-bold"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Ödeme Tipi</label>
+                    <select
+                      value={editFormData.paymentMethod}
+                      onChange={(e) => setEditFormData(prev => ({ ...prev, paymentMethod: e.target.value }))}
+                      className="w-full px-3 py-2 border rounded-md text-sm"
+                    >
+                      <option value="CASH">Nakit</option>
+                      <option value="CREDIT_CARD">Kredi Kartı</option>
+                      <option value="MULTINET">Multinet</option>
+                      <option value="SODOXO">Sodexo</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="flex justify-end pt-4 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsEditModalOpen(false)}
+                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md text-sm font-medium"
+                  >
+                    Vazgeç
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700"
+                  >
+                    Kaydet
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         </div>

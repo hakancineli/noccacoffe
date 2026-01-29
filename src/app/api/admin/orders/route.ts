@@ -11,13 +11,24 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '10');
     const status = searchParams.get('status');
     const search = searchParams.get('search');
+    const today = searchParams.get('today') === 'true';
 
     const skip = (page - 1) * limit;
 
     // Build where clause
     const where: Prisma.OrderWhereInput = {
-      isDeleted: false // Always filter out soft-deleted orders
+      isDeleted: false
     };
+
+    if (today) {
+      const now = new Date();
+      const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+      where.createdAt = {
+        gte: startOfDay,
+        lte: endOfDay
+      };
+    }
 
     if (status && status !== 'all') {
       const allowedStatuses = status.includes(',')

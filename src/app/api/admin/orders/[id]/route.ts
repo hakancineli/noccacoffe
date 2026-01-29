@@ -53,11 +53,19 @@ export async function PUT(
 ) {
   try {
     const body = await request.json();
-    const { status, notes } = body;
+    const {
+      status,
+      notes,
+      customerName,
+      customerEmail,
+      customerPhone,
+      finalAmount,
+      paymentMethod
+    } = body;
     const userId = request.headers.get('x-user-id') || undefined;
     const userEmail = request.headers.get('x-user-email') || undefined;
 
-    // Validate status
+    // Validate status if provided
     const validStatuses: OrderStatus[] = ['PENDING', 'PREPARING', 'READY', 'COMPLETED', 'CANCELLED'];
     if (status && !validStatuses.includes(status)) {
       return NextResponse.json(
@@ -79,6 +87,11 @@ export async function PUT(
     const updateData: any = {};
     if (status) updateData.status = status;
     if (notes !== undefined) updateData.notes = notes;
+    if (customerName !== undefined) updateData.customerName = customerName;
+    if (customerEmail !== undefined) updateData.customerEmail = customerEmail;
+    if (customerPhone !== undefined) updateData.customerPhone = customerPhone;
+    if (finalAmount !== undefined) updateData.finalAmount = parseFloat(finalAmount.toString());
+    if (paymentMethod !== undefined) updateData.paymentMethod = paymentMethod;
 
     const order = await prisma.order.update({
       where: { id: params.id },
@@ -97,21 +110,26 @@ export async function PUT(
       },
     });
 
-    // Handle Audit Logging for status change
-    if (status && status !== currentOrder.status) {
+    // Handle Audit Logging for sensitive changes
+    const changes: any = {};
+    if (status && status !== currentOrder.status) changes.status = { from: currentOrder.status, to: status };
+    if (customerName && customerName !== currentOrder.customerName) changes.customerName = { from: currentOrder.customerName, to: customerName };
+    if (finalAmount && parseFloat(finalAmount.toString()) !== currentOrder.finalAmount) changes.finalAmount = { from: currentOrder.finalAmount, to: finalAmount };
+
+    if (Object.keys(changes).length > 0) {
       await createAuditLog({
-        action: 'UPDATE_ORDER_STATUS',
+        action: 'UPDATE_ORDER',
         entity: 'Order',
         entityId: params.id,
-        oldData: { status: currentOrder.status },
-        newData: { status: status },
+        oldData: changes, // Log specific changes
+        newData: updateData,
         userId,
         userEmail
       });
     }
 
     // Handle Payment Status Sync
-    if (status === 'COMPLETED') {
+    if (status === 'COMPLETED' || (paymentMethod && !status)) {
       const existingPayments = await prisma.payment.findMany({
         where: { orderId: params.id }
       });
@@ -119,7 +137,11 @@ export async function PUT(
       if (existingPayments.length > 0) {
         await prisma.payment.updateMany({
           where: { orderId: params.id },
-          data: { status: 'COMPLETED' }
+          data: {
+            status: 'COMPLETED',
+            amount: updateData.finalAmount || order.finalAmount,
+            method: updateData.paymentMethod || order.paymentMethod || 'CASH'
+          }
         });
       } else {
         await prisma.payment.create({

@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import Image from 'next/image';
-import { FaSearch, FaUser, FaTrash, FaCreditCard, FaMoneyBillWave, FaTimes, FaPrint, FaWifi, FaSync } from 'react-icons/fa';
+import { FaSearch, FaUser, FaTrash, FaCreditCard, FaMoneyBillWave, FaTimes, FaPrint, FaWifi, FaSync, FaClipboardList } from 'react-icons/fa';
 import { allMenuItems, categories, MenuItem } from '@/data/menuItems';
 import { noccaDB } from '@/lib/db';
 import { toast } from 'react-hot-toast';
@@ -727,6 +728,13 @@ export default function POSPage() {
                         <div className="flex justify-between items-center mb-4">
                             <div className="flex items-center space-x-4">
                                 <h1 className="text-2xl font-bold text-gray-800">Kasa Modu</h1>
+                                <Link
+                                    href="/admin/orders"
+                                    className="flex items-center space-x-2 px-3 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider bg-gray-800 text-white hover:bg-black transition-all shadow-lg hover:scale-105 active:scale-95"
+                                >
+                                    <FaClipboardList />
+                                    <span>Siparişler</span>
+                                </Link>
                                 <div className={`flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${isOnline ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                                     <FaWifi />
                                     <span>{isOnline ? 'Çevrimiçi' : 'Çevrimdışı'}</span>

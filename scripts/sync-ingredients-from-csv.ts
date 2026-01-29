@@ -41,9 +41,9 @@ async function main() {
 
         if (existing) {
             // Update if values are different
-            const shouldUpdate = 
-                existing.unit !== unit || 
-                Math.abs(existing.stock - stock) > 0.0001 || 
+            const shouldUpdate =
+                existing.unit !== unit ||
+                Math.abs(existing.stock - stock) > 0.0001 ||
                 Math.abs(existing.costPerUnit - costPerUnit) > 0.0001;
 
             if (shouldUpdate) {
