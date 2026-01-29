@@ -189,8 +189,8 @@ export default function POSPage() {
         };
     };
 
-    // Categories that don't require recipes (unit-based products)
-    const UNIT_BASED_CATEGORIES = ['Meşrubatlar'];
+    // Categories that don't require recipes (unit-based products or simple stock tracking)
+    const UNIT_BASED_CATEGORIES = ['Meşrubatlar', 'Yan Ürünler', 'Kahve Çekirdekleri', 'Bitki Çayları', 'Şuruplar', 'Soslar', 'Püreler', 'Tozlar', 'Sütler'];
 
     // Filter products - show products with recipes OR unit-based categories with stock
     const filteredProducts = allMenuItems.filter(item => {

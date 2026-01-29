@@ -133,8 +133,8 @@ export async function POST(request: Request) {
         // 1.1 Map for fast lookup
         const productMap = new Map(existingProducts.map(p => [p.id, p]));
 
-        // Categories that don't require recipes (unit-based products)
-        const UNIT_BASED_CATEGORIES = ['Meşrubatlar', 'Yan Ürünler', 'Kahve Çekirdekleri', 'Bitki Çayları'];
+        // Categories that don't require recipes (unit-based products or simple stock tracking)
+        const UNIT_BASED_CATEGORIES = ['Meşrubatlar', 'Yan Ürünler', 'Kahve Çekirdekleri', 'Bitki Çayları', 'Şuruplar', 'Soslar', 'Püreler', 'Tozlar', 'Sütler'];
         // Categories typically served cold (for cup logic)
         const COLD_CATEGORIES = ['Soğuk Kahveler', 'Soğuk İçecekler', 'Frappeler', 'Bubble Tea', 'Milkshake'];
 
@@ -152,9 +152,21 @@ export async function POST(request: Request) {
             // Find matching recipe in memory
             let recipe = productInDb.recipes.find(r => r.size === normalizedSize);
 
-            // Fallback for single-size products (null or 'Standart')
-            if (!recipe && !normalizedSize) {
-                recipe = productInDb.recipes.find(r => r.size === null || r.size === 'Standart');
+            // Fallback strategy:
+            if (!recipe) {
+                // 1. Try 'Standart' fallback
+                recipe = productInDb.recipes.find(r => r.size === 'Standart');
+
+                // 2. Try null fallback
+                if (!recipe) {
+                    recipe = productInDb.recipes.find(r => r.size === null);
+                }
+
+                // 3. Last resort: Use ANY available recipe for this product instead of failing
+                if (!recipe && productInDb.recipes.length > 0) {
+                    recipe = productInDb.recipes[0];
+                    console.log(`[API] Using fallback recipe for product ${productInDb.name} (requested size ${normalizedSize} not found)`);
+                }
             }
 
             if (recipe) {
