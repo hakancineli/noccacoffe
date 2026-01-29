@@ -42,12 +42,10 @@ async function main() {
         }
 
         // 2. Create or Update Recipe
-        // We assume standard size (null or 'Standart') for desserts
-        const size = prod.name === 'Çay' ? 'Küçük' : null; // Handle Çay separately or iterate sizes
-
-        // Actually, let's make this more robust. If it has prices (sizes), we need recipes for all sizes.
+        // We use standard size (null) for all desserts and products unless they are specifically tea
         const prices = prod.prices as any[];
-        const sizes = (prices && prices.length > 0) ? prices.map(p => p.size) : [null];
+        // If it's 'Çay' (Main tea product), it has Small/Large. All others (including herbal teas) are now standard.
+        const sizes = prod.name === 'Çay' && prices && prices.length > 0 ? prices.map(p => p.size) : [null];
 
         for (const s of sizes) {
             let recipe = await prisma.recipe.findFirst({
