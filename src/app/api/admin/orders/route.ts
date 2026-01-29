@@ -20,7 +20,10 @@ export async function GET(request: NextRequest) {
     };
 
     if (status && status !== 'all') {
-      where.status = status as any;
+      const allowedStatuses = status.includes(',')
+        ? status.split(',')
+        : [status];
+      where.status = { in: allowedStatuses as any };
     }
 
     if (search) {

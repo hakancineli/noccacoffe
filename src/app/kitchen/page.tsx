@@ -136,12 +136,10 @@ export default function KitchenPage() {
 
     const fetchOrders = async () => {
         try {
-            const res = await fetch(`/api/admin/orders?status=all&limit=50&_t=${Date.now()}`);
+            const res = await fetch(`/api/admin/orders?status=PENDING,PREPARING&limit=100&_t=${Date.now()}`);
             if (res.ok) {
                 const data = await res.json();
-                const kitchenOrders = data.orders.filter((o: Order) =>
-                    ['PENDING', 'PREPARING'].includes(o.status)
-                );
+                const kitchenOrders = data.orders;
                 kitchenOrders.sort((a: Order, b: Order) => {
                     if (a.status === b.status) return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
                     return a.status === 'PENDING' ? -1 : 1;
