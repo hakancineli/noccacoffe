@@ -854,7 +854,8 @@ export const allMenuItems: MenuItem[] = [
   { id: 133, name: 'Yer Fıstıklı Pasta', description: 'Yer fıstıklı lezzet dolu pasta', category: 'Tatlılar', price: 250, image: '/images/products/tatli_tabagi.jpg' },
   { id: 134, name: 'Latte Mono', description: 'Latte aromalı tek porsiyonluk pasta', category: 'Tatlılar', price: 250, image: '/images/products/tatli_tabagi.jpg' },
   { id: 135, name: 'Beyaz Çikolatalı Brownie', description: 'Beyaz çikolatalı brownie', category: 'Tatlılar', price: 250, image: '/images/products/tatli_tabagi.jpg' },
-  { id: 136, name: 'Frambuazlı Limonlu Cheesecake', description: 'Frambuaz ve limon ferahlığında cheesecake', category: 'Tatlılar', price: 250, image: '/images/products/tatli_tabagi.jpg' },
+  { id: 136, name: 'Limonlu Cheesecake', description: 'Ferah limonlu cheesecake', category: 'Tatlılar', price: 250, image: '/images/products/tatli_tabagi.jpg' },
+  { id: 138, name: 'Frambuazlı Cheesecake', description: 'Taze frambuazlı cheesecake', category: 'Tatlılar', price: 250, image: '/images/products/tatli_tabagi.jpg' },
 ];
 
 // Category list for filtering
