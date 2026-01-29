@@ -1136,8 +1136,8 @@ export default function POSPage() {
 
                             <div className="my-4 flex justify-center">
                                 <img
-                                    src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://www.noccacoffee.com.tr/order/${lastOrder.orderNumber}`}
-                                    alt="Order QR"
+                                    src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://www.noccacoffee.com.tr/menu`}
+                                    alt="Menu QR"
                                     style={{
                                         width: '25mm',
                                         height: '25mm',
