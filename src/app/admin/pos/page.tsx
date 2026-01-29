@@ -193,6 +193,9 @@ export default function POSPage() {
     // Categories that don't require recipes (unit-based products or simple stock tracking)
     const UNIT_BASED_CATEGORIES = ['Meşrubatlar', 'Yan Ürünler', 'Kahve Çekirdekleri', 'Bitki Çayları', 'Şuruplar', 'Soslar', 'Püreler', 'Tozlar', 'Sütler', 'Extra'];
 
+    // Categories to hide from POS filter bar (technical/ingredient categories)
+    const HIDDEN_CATEGORIES = ['Şuruplar', 'Soslar', 'Püreler', 'Tozlar', 'Sütler', 'Extra'];
+
     // Filter products - show products with recipes OR unit-based categories with stock
     const filteredProducts = allMenuItems.filter(item => {
         const matchesCategory = activeCategory === 'Tümü' || item.category === activeCategory;
@@ -777,18 +780,20 @@ export default function POSPage() {
                         </div>
 
                         <div className="flex space-x-2 overflow-x-auto pb-2 scrollbar-hide">
-                            {categories.map(cat => (
-                                <button
-                                    key={cat}
-                                    onClick={() => setActiveCategory(cat)}
-                                    className={`px-4 py-2 rounded-full whitespace-nowrap font-medium text-sm transition-colors ${activeCategory === cat
-                                        ? 'bg-nocca-green text-white shadow-md'
-                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                        }`}
-                                >
-                                    {cat}
-                                </button>
-                            ))}
+                            {categories
+                                .filter(cat => !HIDDEN_CATEGORIES.includes(cat))
+                                .map(cat => (
+                                    <button
+                                        key={cat}
+                                        onClick={() => setActiveCategory(cat)}
+                                        className={`px-4 py-2 rounded-full whitespace-nowrap font-medium text-sm transition-colors ${activeCategory === cat
+                                            ? 'bg-nocca-green text-white shadow-md'
+                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                            }`}
+                                    >
+                                        {cat}
+                                    </button>
+                                ))}
                         </div>
                     </div>
 
