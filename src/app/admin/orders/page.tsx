@@ -156,9 +156,9 @@ export default function OrdersManagement() {
   // Audio Alarm Logic
   const [hasPending, setHasPending] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const alarmIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const [hasInteracted, setHasInteracted] = useState(false);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const lastPendingCountRef = useRef(0);
 
   const initAudio = () => {
     if (!audioContextRef.current) {
@@ -212,43 +212,28 @@ export default function OrdersManagement() {
   // Check for pending orders and trigger alarm
   useEffect(() => {
     const pendingCount = orders.filter(o => o.status === 'PENDING').length;
+
     if (pendingCount > 0) {
       setHasPending(true);
-      if (!isMuted) {
-        playAlarm();
+      // If a NEW order has arrived (count increased)
+      if (pendingCount > lastPendingCountRef.current && !isMuted && hasInteracted) {
+        playBellSound();
       }
     } else {
       setHasPending(false);
-      stopAlarm(); // Fix: Stop alarm when no pending orders
     }
-  }, [orders, isMuted]);
 
-  const playAlarm = () => {
-    if (!hasInteracted) return;
-    if (alarmIntervalRef.current) return;
-
-    // Play immediately then every 4 seconds
-    playBellSound();
-    alarmIntervalRef.current = setInterval(() => {
-      playBellSound();
-    }, 4000);
-  };
-
-  const stopAlarm = () => {
-    if (alarmIntervalRef.current) {
-      clearInterval(alarmIntervalRef.current);
-      alarmIntervalRef.current = null;
-    }
-  };
+    lastPendingCountRef.current = pendingCount;
+  }, [orders, isMuted, hasInteracted]);
 
   const handleInteraction = () => {
     if (!hasInteracted) {
       setHasInteracted(true);
       initAudio();
-      // If there were already pending orders, start alarm
+      // If there are pending orders, play once on first interaction
       const pendingCount = orders.filter(o => o.status === 'PENDING').length;
       if (pendingCount > 0 && !isMuted) {
-        playAlarm();
+        playBellSound();
       }
     }
   };
@@ -256,13 +241,7 @@ export default function OrdersManagement() {
 
 
   const toggleMute = () => {
-    if (isMuted) {
-      setIsMuted(false);
-      if (hasPending) playAlarm();
-    } else {
-      setIsMuted(true);
-      stopAlarm();
-    }
+    setIsMuted(!isMuted);
   };
 
   const deleteOrder = async (orderId: string) => {
