@@ -17,6 +17,8 @@ interface FinancialStats {
     revenue: number;
     expenses: number;
     profit: number;
+    stockValue?: number;
+    adjustedProfit?: number;
 }
 
 interface DailyStats {
@@ -159,7 +161,9 @@ export default function AccountingPage() {
                 setStats({
                     revenue: data.summary.totalRevenue,
                     expenses: data.summary.totalExpenses,
-                    profit: data.summary.netProfit
+                    profit: data.summary.netProfit,
+                    stockValue: data.summary.totalStockValue,
+                    adjustedProfit: data.summary.adjustedProfit
                 });
 
                 // Find today's stats for the modal
@@ -354,7 +358,7 @@ export default function AccountingPage() {
                 <div className="bg-white p-6 rounded-lg shadow border-l-4 border-blue-500 transition hover:shadow-lg">
                     <div className="flex justify-between items-start">
                         <div>
-                            <p className="text-sm font-medium text-gray-500 mb-1">Net Kâr (Ay)</p>
+                            <p className="text-sm font-medium text-gray-500 mb-1">Net Nakit Akışı (Ay)</p>
                             <h3 className={`text-2xl font-bold ${stats.profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                                 ₺{stats.profit.toLocaleString()}
                             </h3>
@@ -364,6 +368,36 @@ export default function AccountingPage() {
                         </div>
                     </div>
                 </div>
+
+                {stats.stockValue !== undefined && (
+                    <>
+                        <div className="bg-white p-6 rounded-lg shadow border-l-4 border-orange-500 transition hover:shadow-lg">
+                            <div className="flex justify-between items-start">
+                                <div>
+                                    <p className="text-sm font-medium text-gray-500 mb-1">Stoktaki Mal Değeri (Varlık)</p>
+                                    <h3 className="text-2xl font-bold text-gray-900">₺{stats.stockValue.toLocaleString()}</h3>
+                                </div>
+                                <div className="p-3 bg-orange-100 rounded-full text-orange-600">
+                                    <span className="text-xl">📦</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="bg-white p-6 rounded-lg shadow border-l-4 border-indigo-600 transition hover:shadow-lg">
+                            <div className="flex justify-between items-start">
+                                <div>
+                                    <p className="text-sm font-medium text-gray-500 mb-1">Stok Ayarlı Reel Kar</p>
+                                    <h3 className={`text-2xl font-bold ${stats.adjustedProfit! >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                        ₺{stats.adjustedProfit?.toLocaleString()}
+                                    </h3>
+                                </div>
+                                <div className="p-3 bg-indigo-100 rounded-full text-indigo-600">
+                                    <span className="text-xl">📈</span>
+                                </div>
+                            </div>
+                        </div>
+                    </>
+                )}
             </div>
 
             {/* Daily Sales Report Table - MOVED UP */}

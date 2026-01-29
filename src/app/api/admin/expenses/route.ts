@@ -125,12 +125,18 @@ export async function GET(request: Request) {
             // We will keep it Ascending here and let the UI sort for the table if needed.
             .sort((a, b) => a.date.localeCompare(b.date));
 
+        // 4. Get Current Stock Value (Total Asset)
+        const ingredients = await prisma.ingredient.findMany();
+        const totalStockValue = ingredients.reduce((sum, i) => sum + (i.stock * i.costPerUnit), 0);
+
         return NextResponse.json({
             expenses,
             summary: {
                 totalRevenue,
                 totalExpenses,
-                netProfit: totalRevenue - totalExpenses
+                netProfit: totalRevenue - totalExpenses,
+                totalStockValue,
+                adjustedProfit: (totalRevenue - totalExpenses) + totalStockValue
             },
             dailyBreakdown
         });
