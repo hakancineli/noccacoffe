@@ -530,6 +530,7 @@ export default function ProductsManagement() {
                             src={product.imageUrl}
                             alt={product.name}
                             className="h-12 w-12 rounded-lg object-cover"
+                            loading="lazy"
                           />
                         ) : (
                           <div className="h-12 w-12 rounded-lg bg-gray-200 flex items-center justify-center">
@@ -561,8 +562,15 @@ export default function ProductsManagement() {
                           </div>
                         )}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        ₺{product.price.toFixed(2)}
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold">
+                        {(() => {
+                          if (product.price > 0) return `₺${product.price.toFixed(2)}`;
+                          if (product.prices) {
+                            const p = typeof product.prices === 'string' ? JSON.parse(product.prices) : product.prices;
+                            if (Array.isArray(p) && p.length > 0) return `₺${p[0].price.toFixed(2)}`;
+                          }
+                          return '₺0.00';
+                        })()}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${product.isActive

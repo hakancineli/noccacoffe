@@ -819,17 +819,24 @@ export default function POSPage() {
                                             </div>
                                         )}
                                         <div className="relative w-full h-32 mb-2 rounded-md overflow-hidden bg-gray-50">
-                                            {item.image ? (
-                                                <Image
-                                                    src={item.image}
-                                                    alt={item.name}
-                                                    fill
-                                                    sizes="(max-width: 768px) 50vw, 25vw"
-                                                    className="object-contain p-1"
-                                                />
-                                            ) : (
-                                                <div className="w-full h-full flex items-center justify-center text-xs text-gray-400">Resim Yok</div>
-                                            )}
+                                            {(() => {
+                                                const dbProduct = getDbProduct(item.name);
+                                                const imgSource = dbProduct?.imageUrl || item.image;
+
+                                                if (imgSource) {
+                                                    return (
+                                                        <Image
+                                                            src={imgSource}
+                                                            alt={item.name}
+                                                            fill
+                                                            sizes="(max-width: 768px) 50vw, 25vw"
+                                                            className="object-contain p-1"
+                                                            unoptimized={imgSource.startsWith('data:')}
+                                                        />
+                                                    );
+                                                }
+                                                return <div className="w-full h-full flex items-center justify-center text-xs text-gray-400">Resim Yok</div>;
+                                            })()}
                                         </div>
                                         <div className="mt-auto">
                                             <h3 className="font-semibold text-gray-800 text-sm line-clamp-2">{item.name}</h3>
