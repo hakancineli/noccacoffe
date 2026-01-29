@@ -358,7 +358,7 @@ export default function ProductsManagement() {
     'Frappeler',
     'Bubble Tea',
     'Matchalar',
-    'Bitki Çayları',
+    'Çaylar',
     'Yan Ürünler',
     'Kahve Çekirdekleri',
     'Meşrubatlar',

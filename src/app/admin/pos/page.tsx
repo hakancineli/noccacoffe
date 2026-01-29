@@ -191,7 +191,7 @@ export default function POSPage() {
     };
 
     // Categories that don't require recipes (unit-based products or simple stock tracking)
-    const UNIT_BASED_CATEGORIES = ['Meşrubatlar', 'Yan Ürünler', 'Kahve Çekirdekleri', 'Bitki Çayları', 'Şuruplar', 'Soslar', 'Püreler', 'Tozlar', 'Sütler', 'Extra'];
+    const UNIT_BASED_CATEGORIES = ['Meşrubatlar', 'Yan Ürünler', 'Kahve Çekirdekleri', 'Çaylar', 'Şuruplar', 'Soslar', 'Püreler', 'Tozlar', 'Sütler', 'Extra'];
 
     // Categories to hide from POS filter bar (technical/ingredient categories)
     const HIDDEN_CATEGORIES = ['Şuruplar', 'Soslar', 'Püreler', 'Tozlar', 'Sütler', 'Extra'];
