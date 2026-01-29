@@ -1136,7 +1136,7 @@ export default function POSPage() {
                             </div>
 
                             <div className="text-base font-black tracking-widest">NOCCA COFFEE</div>
-                            <div className="text-[10px] mt-1 italic">Caddebostan, İstanbul</div>
+                            <div className="text-[10px] mt-1 italic">Yenibosna Bahçelievler İstanbul</div>
                             <div className="text-[10px]">www.noccacoffee.com.tr</div>
                             <div className="mt-4 text-[11px] font-bold">* AFİYET OLSUN *</div>
                             <div className="text-[9px] mt-4 opacity-70 italic">Mali değeri yoktur. Teşekkür ederiz.</div>

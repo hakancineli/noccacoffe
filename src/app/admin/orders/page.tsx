@@ -339,7 +339,7 @@ export default function OrdersManagement() {
                 <div class="footer">
                     <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://www.noccacoffee.com.tr/menu" style="width: 40mm; height: 40mm; margin: 0 auto 10px; display: block;" />
                     <div class="branding">NOCCA COFFEE</div>
-                    <p style="margin: 5px 0;">Caddebostan, İstanbul</p>
+                    <p style="margin: 5px 0;">Yenibosna Bahçelievler İstanbul</p>
                     <p style="font-weight: bold; margin-top: 10px;">* AFİYET OLSUN *</p>
                     <p style="font-style: italic; font-size: 9px; margin-top: 15px;">Mali değeri yoktur. Teşekkür ederiz.</p>
                 </div>
