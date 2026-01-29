@@ -1,16 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-// Safe initialization
-// const apiKey = process.env.GEMINI_API_KEY || '';
-// const genAI = new GoogleGenerativeAI(apiKey || 'MISSING_KEY');
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
     try {
         console.log('AI Consultant: Starting ultra-resilient request');
-
-        // Removed Gemini Key Check as we use Hugging Face fallback
 
         const { searchParams } = new URL(request.url);
         const month = searchParams.get('month') || (new Date().getMonth() + 1).toString();
@@ -20,8 +15,9 @@ export async function GET(request: NextRequest) {
 
         const startDate = new Date(Number(year), Number(month) - 1, 1);
         const endDate = new Date(Number(year), Number(month), 0, 23, 59, 59, 999);
+        const monthName = new Date(Number(year), Number(month) - 1, 1).toLocaleDateString('tr-TR', { month: 'long' });
 
-        // 1. Fetch Core Data with necessary includes only
+        // 1. Fetch Core Data
         console.log('AI Consultant: Fetching orders...');
         const orders = await prisma.order.findMany({
             where: {
@@ -50,12 +46,20 @@ export async function GET(request: NextRequest) {
             }
         });
 
-        console.log(`AI Consultant: Found ${orders.length} orders`);
-
-        console.log('AI Consultant: Fetching expenses...');
         const expenses = await prisma.expense.findMany({
             where: { date: { gte: startDate, lte: endDate } }
         });
+
+        // Current Stock Value (Asset)
+        const ingredients = await prisma.ingredient.findMany();
+        const totalStockValue = ingredients.reduce((sum, i) => sum + (i.stock * i.costPerUnit), 0);
+
+        const totalRevenue = orders.reduce((sum, o) => sum + (o.finalAmount || 0), 0);
+        const totalExpenses = expenses.reduce((sum, e) => sum + (e.amount || 0), 0);
+        const adjustedProfit = (totalRevenue - totalExpenses) + totalStockValue;
+
+        console.log(`AI Consultant: Revenue Trace - Orders: ${orders.length}, Total Amount: ${totalRevenue}, Stock Value: ${totalStockValue}`);
+        orders.forEach(o => console.log(` - Order ${o.orderNumber}: ${o.finalAmount} TL (Status: ${o.status}, Payment: ${o.paymentStatus})`));
 
         if (orders.length === 0 && expenses.length === 0) {
             return NextResponse.json({
@@ -70,10 +74,6 @@ export async function GET(request: NextRequest) {
                 advancedStats: null
             });
         }
-
-        // 2. Calculations with safe navigation
-        const totalRevenue = orders.reduce((sum, o) => sum + (o.finalAmount || 0), 0);
-        const totalExpenses = expenses.reduce((sum, e) => sum + (e.amount || 0), 0);
 
         // 3. Menu Engineering
         const productAnalysis: Record<string, any> = {};
@@ -93,7 +93,6 @@ export async function GET(request: NextRequest) {
                 productAnalysis[item.productId].sold += (item.quantity || 0);
                 productAnalysis[item.productId].revenue += (item.totalPrice || 0);
 
-                // Safe recipe cost calculation
                 const recipe = item.product?.recipes?.find((r: any) => r.size === item.size);
                 if (recipe && recipe.items) {
                     const cost = recipe.items.reduce((cAcc: number, rItem: any) => {
@@ -127,8 +126,7 @@ export async function GET(request: NextRequest) {
             });
         });
 
-        // 5. Churn Detection (Safe version)
-        console.log('AI Consultant: Checking churn...');
+        // 5. Churn Detection
         const fourteenDaysAgo = new Date();
         fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
 
@@ -149,12 +147,10 @@ export async function GET(request: NextRequest) {
         // 6. Shift & Rush Hour Analysis
         const hoursDistribution = new Array(24).fill(0);
         const daysDistribution = new Array(7).fill(0);
-        // 0=Sun, 1=Mon...
         const dayNames = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"];
 
         orders.forEach(o => {
             const d = new Date(o.createdAt);
-            // Simple adjustment for TR time (UTC+3 roughly check) - relying on server time for now or assume stored correctly
             hoursDistribution[d.getHours()]++;
             daysDistribution[d.getDay()]++;
         });
@@ -165,23 +161,24 @@ export async function GET(request: NextRequest) {
         const shiftInsights = {
             busiestHour: `${busiestHourIndex}:00 - ${busiestHourIndex + 1}:00`,
             busiestDay: dayNames[busiestDayIndex],
-            avgOrdersPerDay: Math.round(orders.length / 30), // Approx
+            avgOrdersPerDay: Math.round(orders.length / 30),
         };
 
-        // 7. AI Request via Hugging Face (Open & Reliable)
-        console.log('AI Consultant: Calling AI Model via Hugging Face...');
-
+        // 7. AI Request
         let aiAnalysis = {
             summary: "Analiz şu an yapılamıyor.",
             insights: { finance: "-", menu: "-", stock: "-", loyalty: "-", staff: "-" },
-            mood: "neutral"
+            mood: "neutral" as 'positive' | 'neutral' | 'warning'
         };
+
         try {
             const hfPrompt = `<s>[INST] Sen Nocca Coffee'nin profesyonel iş ve strateji danışmanısın. Aşağıdaki aylık verileri analiz et ve işletme sahibine çok kısa, net ve vurucu tavsiyeler ver.
 
 VERİLER:
 - Toplam Ciro: ${totalRevenue.toLocaleString('tr-TR')} TL
-- Net Kar: ${(totalRevenue - totalExpenses).toLocaleString('tr-TR')} TL
+- Net Kar (Nakit): ${(totalRevenue - totalExpenses).toLocaleString('tr-TR')} TL
+- Stok Değeri (Varlık): ${totalStockValue.toLocaleString('tr-TR')} TL
+- Stok Ayarlı Reel Kar: ${adjustedProfit.toLocaleString('tr-TR')} TL
 - En Çok Kar Getiren Ürün: ${menuEngineering.sort((a, b) => b.profit - a.profit)[0]?.name || '-'}
 - En Çok Satan Ürün: ${menuEngineering.sort((a, b) => b.sold - a.sold)[0]?.name || '-'}
 - En Yoğun Gün: ${shiftInsights.busiestDay}
@@ -198,44 +195,35 @@ Lütfen yanıtını SADECE aşağıdaki JSON formatında ver, başka hiçbir met
         "loyalty": "Müşteri sadakatini artırmak için tek cümlelik tavsiye.",
         "staff": "Vardiya ve personel yönetimi için, yoğun saatlere (${shiftInsights.busiestHour}) odaklanan tek cümlelik tavsiye."
     },
-    "mood": "positive" veya "neutral" veya "warning"
+    "mood": "positive"
 }
 [/INST]`;
 
             const aiRes = await fetch("https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2", {
                 headers: {
-                    Authorization: `Bearer hf_JqXYWbWjXvWqXvWqXvWqXvWqXvWqXvWq`, // Replace with actual free token logic or environmental var later
+                    Authorization: `Bearer hf_JqXYWbWjXvWqXvWqXvWqXvWqXvWqXvWq`,
                     "Content-Type": "application/json",
                 },
                 method: "POST",
                 body: JSON.stringify({ inputs: hfPrompt, parameters: { max_new_tokens: 500, return_full_text: false, temperature: 0.7 } }),
             });
 
-            if (!aiRes.ok) {
-                throw new Error(`HF API Error: ${aiRes.statusText}`);
+            if (aiRes.ok) {
+                const aiJson = await aiRes.json();
+                let generatedText = aiJson[0]?.generated_text || "";
+                const firstBrace = generatedText.indexOf('{');
+                const lastBrace = generatedText.lastIndexOf('}');
+                if (firstBrace !== -1 && lastBrace !== -1) {
+                    aiAnalysis = JSON.parse(generatedText.substring(firstBrace, lastBrace + 1));
+                }
             }
-
-            const aiJson = await aiRes.json();
-            let generatedText = aiJson[0]?.generated_text || "";
-
-            // Clean up JSON string if model adds extra text
-            const firstBrace = generatedText.indexOf('{');
-            const lastBrace = generatedText.lastIndexOf('}');
-            if (firstBrace !== -1 && lastBrace !== -1) {
-                generatedText = generatedText.substring(firstBrace, lastBrace + 1);
-                aiAnalysis = JSON.parse(generatedText);
-            } else {
-                throw new Error("Invalid JSON format from AI");
-            }
-
         } catch (aiError: any) {
             console.error('AI Consultant: AI Model Error:', aiError.message);
-            // FALLBACK LOGIC (Keep this as safety net)
-            const profitMargin = totalRevenue > 0 ? (totalRevenue - totalExpenses) / totalRevenue : 0;
+            const profitMargin = totalRevenue > 0 ? adjustedProfit / totalRevenue : 0;
             const topProduct = menuEngineering.sort((a, b) => b.sold - a.sold)[0]?.name || "Ürün";
 
             aiAnalysis = {
-                summary: `Aralık ayı ${totalRevenue.toLocaleString('tr-TR')} TL ciro ve %${(profitMargin * 100).toFixed(0)} kar marjı ile tamamlandı. ${topProduct} en popüler ürün olarak öne çıkıyor.`,
+                summary: `${monthName} ayı ${totalRevenue.toLocaleString('tr-TR')} TL ciro ve ₺${adjustedProfit.toLocaleString('tr-TR')} stok ayarlı reel kar ile tamamlandı. ${topProduct} en popüler ürün olarak öne çıkıyor.`,
                 insights: {
                     finance: profitMargin > 0.2 ? "Kar marjınız sağlıklı seviyede, sabit giderleri kontrol altında tutmaya devam edin." : "Kar marjı düşük görünüyor, maliyetleri düşürmek için tedarikçilerle görüşün.",
                     menu: `${topProduct} satışları çok iyi, yanına yüksek kar marjlı bir eşlikçi ürün (cookie vb.) önerin.`,
@@ -253,22 +241,28 @@ Lütfen yanıtını SADECE aşağıdaki JSON formatında ver, başka hiçbir met
                 menuEngineering: menuEngineering.sort((a, b) => b.sold - a.sold),
                 ingredientUsage,
                 churnCount,
-                financials: { revenue: totalRevenue, expenses: totalExpenses, profit: totalRevenue - totalExpenses },
+                financials: {
+                    revenue: totalRevenue,
+                    expenses: totalExpenses,
+                    profit: totalRevenue - totalExpenses,
+                    stockValue: totalStockValue,
+                    adjustedProfit: adjustedProfit
+                },
                 shiftInsights: { ...shiftInsights, hoursDistribution, daysDistribution }
+            }
+        }, {
+            headers: {
+                'Cache-Control': 'no-store, max-age=0, must-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0'
             }
         });
 
     } catch (error: any) {
         console.error('AI Consultant CRITICAL Error:', error);
         return NextResponse.json({
-            // Fallback for CRITICAL errors (DB connection etc)
             summary: "Sistem verileri şu an işlenemiyor.",
-            insights: {
-                finance: "Veri hatası.",
-                menu: "Veri hatası.",
-                stock: "Veri hatası.",
-                loyalty: "Veri hatası."
-            },
+            insights: { finance: "Veri hatası.", menu: "Veri hatası.", stock: "Veri hatası.", loyalty: "Veri hatası." },
             mood: "warning",
             error: error.message,
             advancedStats: null
