@@ -348,7 +348,7 @@ export default function POSPage() {
             totalAmount: cartTotal,
             finalAmount: finalTotal,
             discountAmount: discountAmount,
-            status: 'PENDING',
+            status: 'COMPLETED',
             paymentMethod: paymentMethod === 'SPLIT' ? 'CASH' : paymentMethod,
             payments: customPayments,
             userId: selectedCustomer?.id || null,
@@ -734,6 +734,13 @@ export default function POSPage() {
                                 >
                                     <FaClipboardList />
                                     <span>Siparişler</span>
+                                </Link>
+                                <Link
+                                    href="/admin/accounting?report=today"
+                                    className="flex items-center space-x-2 px-3 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider bg-amber-600 text-white hover:bg-amber-700 transition-all shadow-lg hover:scale-105 active:scale-95"
+                                >
+                                    <FaMoneyBillWave />
+                                    <span>Rapor</span>
                                 </Link>
                                 <div className={`flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${isOnline ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                                     <FaWifi />

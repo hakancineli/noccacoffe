@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { FaMoneyBillWave, FaArrowDown, FaArrowUp, FaPlus, FaChartLine, FaTrash, FaUsersCog, FaCalendarAlt, FaChevronLeft } from 'react-icons/fa';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface Expense {
@@ -128,6 +128,15 @@ export default function AccountingPage() {
     const [amount, setAmount] = useState('');
     const [category, setCategory] = useState('SUPPLIES');
     const [selectedStaffId, setSelectedStaffId] = useState('');
+
+    const searchParams = useSearchParams();
+    const reportParam = searchParams.get('report');
+
+    useEffect(() => {
+        if (!isLoading && reportParam === 'today' && todayStats && !showEndOfDayModal) {
+            setShowEndOfDayModal(true);
+        }
+    }, [isLoading, reportParam, todayStats]);
 
     useEffect(() => {
         fetchData();
