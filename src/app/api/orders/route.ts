@@ -103,14 +103,12 @@ export async function POST(request: Request) {
             }
         }
 
-        // Determine Order Status: Admin can set it (e.g. 'COMPLETED'), others default to 'PENDING'
-        const orderStatus = (isAdmin && status) ? status : 'PENDING';
-        const method = (isAdmin && paymentMethod) ? paymentMethod : 'CREDIT_CARD';
+        // Determine Order Status: Default to 'COMPLETED' for temporary kitchen bypass
+        const orderStatus = status || 'COMPLETED';
+        const method = paymentMethod || 'CREDIT_CARD';
 
-        // Determine Payment Status: If Admin/POS created it and method exists, it's paid.
-        // OR if order is completed.
-        const isPosOrder = isAdmin && !!paymentMethod;
-        const paymentStatus = (orderStatus === 'COMPLETED' || isPosOrder) ? 'COMPLETED' : 'PENDING';
+        // Determine Payment Status: Default to 'COMPLETED' if order is completed
+        const paymentStatus = (orderStatus === 'COMPLETED') ? 'COMPLETED' : 'PENDING';
 
         // 1. Validate all product IDs exist and check stock
         const productIds = items.map((item: any) => item.productId.toString());
