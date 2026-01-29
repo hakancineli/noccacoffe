@@ -322,10 +322,10 @@ export default function POSPage() {
     // Auto-print when order is created
     useEffect(() => {
         if (lastOrder) {
-            // Small delay to ensure DOM is updated
+            // Small delay to ensure DOM and external images (QR) are updated/loaded
             const timer = setTimeout(() => {
                 window.print();
-            }, 100);
+            }, 800);
             return () => clearTimeout(timer);
         }
     }, [lastOrder]);
@@ -1123,24 +1123,13 @@ export default function POSPage() {
                         </div>
 
                         <div className="text-center mt-6 pt-4 border-t border-dashed border-black">
-                            <img
-                                src="/images/logo/receipt-qr-logo.jpg"
-                                alt="NOCCA Logo"
-                                style={{
-                                    width: '35mm',
-                                    margin: '0 auto 10px',
-                                    filter: 'grayscale(100%) contrast(1.2) brightness(1.1)',
-                                    mixBlendMode: 'multiply'
-                                }}
-                            />
-
-                            <div className="my-4 flex justify-center">
+                            <div className="my-2 flex justify-center">
                                 <img
                                     src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://www.noccacoffee.com.tr/menu`}
                                     alt="Menu QR"
                                     style={{
-                                        width: '25mm',
-                                        height: '25mm',
+                                        width: '40mm',
+                                        height: '40mm',
                                         imageRendering: 'pixelated'
                                     }}
                                 />
