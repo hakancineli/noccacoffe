@@ -50,7 +50,7 @@ export default function IngredientsPage() {
     ];
 
     const getIngredientCategory = (name: string) => {
-        const lowerName = name.toLowerCase();
+        const lowerName = name.toLocaleLowerCase('tr');
         if (lowerName.startsWith('şurup:')) return 'Şuruplar';
         if (lowerName.startsWith('sos:')) return 'Soslar';
         if (lowerName.startsWith('toz:')) return 'Tozlar';

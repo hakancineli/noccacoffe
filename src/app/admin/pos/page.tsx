@@ -199,7 +199,7 @@ export default function POSPage() {
     // Filter products - show products with recipes OR unit-based categories with stock
     const filteredProducts = allMenuItems.filter(item => {
         const matchesCategory = activeCategory === 'Tümü' || item.category === activeCategory;
-        const matchesSearch = item.name.toLowerCase().includes(productSearch.toLowerCase());
+        const matchesSearch = item.name.toLocaleLowerCase('tr').includes(productSearch.toLocaleLowerCase('tr'));
         const stockInfo = getStockInfo(item.name);
 
         // Unit-based products only need stock, not recipes
