@@ -19,7 +19,6 @@ export default function IngredientsPage() {
     const [search, setSearch] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [editingIngredient, setEditingIngredient] = useState<Ingredient | null>(null);
-
     const [monthlyConsumption, setMonthlyConsumption] = useState(0);
 
     const [formData, setFormData] = useState({
@@ -29,9 +28,60 @@ export default function IngredientsPage() {
         costPerUnit: 0
     });
 
+    const [activeCategory, setActiveCategory] = useState('Tümü');
+    const [stockFilter, setStockFilter] = useState('Hepsi'); // Hepsi, Düşük Stok, Stokta Yok
+
     useEffect(() => {
         fetchIngredients();
     }, [search]);
+
+    const categories = [
+        'Tümü',
+        'Şuruplar',
+        'Soslar',
+        'Tozlar',
+        'Püreler',
+        'Sütler',
+        'Tatlılar',
+        'Çaylar',
+        'Meşrubatlar',
+        'Bardaklar',
+        'Diğer'
+    ];
+
+    const getIngredientCategory = (name: string) => {
+        const lowerName = name.toLowerCase();
+        if (lowerName.startsWith('şurup:')) return 'Şuruplar';
+        if (lowerName.startsWith('sos:')) return 'Soslar';
+        if (lowerName.startsWith('toz:')) return 'Tozlar';
+        if (lowerName.startsWith('püre:')) return 'Püreler';
+        if (lowerName.startsWith('süt:')) return 'Sütler';
+        if (lowerName.startsWith('meşrubat:')) return 'Meşrubatlar';
+        if (lowerName.startsWith('bardak:')) return 'Bardaklar';
+        if (lowerName.endsWith('hammaddesi')) {
+            if (lowerName.includes('çay')) return 'Çaylar';
+            return 'Tatlılar';
+        }
+        if (['ıhlamur', 'kış çayı', 'papatya çayı', 'yeşil çay', 'kiraz sapı', 'hibiscus çayı'].some(t => lowerName.includes(t))) return 'Çaylar';
+        return 'Diğer';
+    };
+
+    const filteredIngredients = ingredients.filter(ing => {
+        // Category Filter
+        if (activeCategory !== 'Tümü') {
+            const cat = getIngredientCategory(ing.name);
+            if (cat !== activeCategory) return false;
+        }
+
+        // Stock Filter
+        if (stockFilter === 'Düşük Stok') {
+            if (ing.stock >= 100) return false;
+        } else if (stockFilter === 'Stokta Yok') {
+            if (ing.stock > 0) return false;
+        }
+
+        return true;
+    });
 
     const fetchIngredients = async () => {
         try {
@@ -42,7 +92,6 @@ export default function IngredientsPage() {
             const res = await fetch(url);
             const data = await res.json();
 
-            // Handle new response format
             // Handle new response format
             if (data.items && Array.isArray(data.items)) {
                 setIngredients(data.items);
@@ -168,17 +217,43 @@ export default function IngredientsPage() {
                     </div>
                 </div>
 
-                {/* Search */}
-                <div className="bg-white p-4 rounded-lg shadow mb-6">
-                    <div className="relative">
-                        <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                        <input
-                            type="text"
-                            placeholder="Hammadde ara..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                        />
+                {/* Search & Filters */}
+                <div className="bg-white p-6 rounded-lg shadow mb-6 space-y-4">
+                    <div className="flex flex-col md:flex-row gap-4">
+                        <div className="relative flex-1">
+                            <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                            <input
+                                type="text"
+                                placeholder="Hammadde ara..."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                            />
+                        </div>
+                        <select
+                            value={stockFilter}
+                            onChange={(e) => setStockFilter(e.target.value)}
+                            className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none"
+                        >
+                            <option value="Hepsi">Tüm Stok Durumları</option>
+                            <option value="Düşük Stok">Düşük Stok (&lt;100)</option>
+                            <option value="Stokta Yok">Stokta Yok</option>
+                        </select>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2">
+                        {categories.map(cat => (
+                            <button
+                                key={cat}
+                                onClick={() => setActiveCategory(cat)}
+                                className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${activeCategory === cat
+                                    ? 'bg-green-600 text-white shadow-sm'
+                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                    }`}
+                            >
+                                {cat}
+                            </button>
+                        ))}
                     </div>
                 </div>
 
@@ -202,14 +277,14 @@ export default function IngredientsPage() {
                                         Yükleniyor...
                                     </td>
                                 </tr>
-                            ) : ingredients.length === 0 ? (
+                            ) : filteredIngredients.length === 0 ? (
                                 <tr>
                                     <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
                                         Hammadde bulunamadı
                                     </td>
                                 </tr>
                             ) : (
-                                ingredients.map((ingredient) => (
+                                filteredIngredients.map((ingredient) => (
                                     <tr key={ingredient.id} className="hover:bg-gray-50">
                                         <td className="px-6 py-4 font-medium text-gray-900">{ingredient.name}</td>
                                         <td className="px-6 py-4 text-gray-600">{ingredient.unit}</td>
