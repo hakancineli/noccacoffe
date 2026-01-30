@@ -250,7 +250,23 @@ export async function POST(request: Request) {
             // Use size directly
             let normalizedSize = item.size;
 
-            let recipe = productInDb.recipes.find(r => r.size === normalizedSize) || productInDb.recipes.find(r => r.size === null);
+            // Improved Recipe Lookup Logic (Sync with Validation Phase)
+            let recipe = productInDb.recipes.find(r => r.size === normalizedSize);
+
+            if (!recipe) {
+                // 1. Try 'Standart' fallback
+                recipe = productInDb.recipes.find(r => r.size === 'Standart');
+
+                // 2. Try null fallback
+                if (!recipe) {
+                    recipe = productInDb.recipes.find(r => r.size === null);
+                }
+
+                // 3. Last resort: Use ANY available recipe
+                if (!recipe && productInDb.recipes.length > 0) {
+                    recipe = productInDb.recipes[0];
+                }
+            }
 
             if (recipe) {
                 // Update sold count

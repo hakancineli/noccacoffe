@@ -98,7 +98,8 @@ async function main() {
                 data: {
                     productId: hibiscusTea.id,
                     size: 'Standart'
-                }
+                },
+                include: { items: true }
             });
         }
 
