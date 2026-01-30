@@ -1179,9 +1179,22 @@ function RecipeModal({
               className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
             >
               <option value="">Standart / Tek Boyut</option>
-              <option value="Small">Small</option>
-              <option value="Medium">Medium</option>
-              <option value="Large">Large</option>
+              {product.prices && Array.isArray(product.prices) ? (
+                product.prices.map((p: any) => (
+                  <option key={p.size} value={p.size}>
+                    {p.size === 'S' ? 'Small (S)' :
+                      p.size === 'M' ? 'Medium (M)' :
+                        p.size === 'L' ? 'Large (L)' :
+                          p.size}
+                  </option>
+                ))
+              ) : (
+                <>
+                  <option value="S">Small (S)</option>
+                  <option value="M">Medium (M)</option>
+                  <option value="L">Large (L)</option>
+                </>
+              )}
             </select>
           </div>
 
