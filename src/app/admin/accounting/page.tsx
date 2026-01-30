@@ -352,17 +352,6 @@ export default function AccountingPage() {
                     </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-lg shadow border-l-4 border-red-500 transition hover:shadow-lg">
-                    <div className="flex justify-between items-start">
-                        <div>
-                            <p className="text-sm font-medium text-gray-500 mb-1">Toplam Gider (Ay)</p>
-                            <h3 className="text-2xl font-bold text-gray-900">₺{stats.expenses.toLocaleString()}</h3>
-                        </div>
-                        <div className="p-3 bg-red-100 rounded-full text-red-600">
-                            <FaArrowDown />
-                        </div>
-                    </div>
-                </div>
 
                 <div className="bg-white p-6 rounded-lg shadow border-l-4 border-blue-500 transition hover:shadow-lg">
                     <div className="flex justify-between items-start">
