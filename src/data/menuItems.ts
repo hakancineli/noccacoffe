@@ -720,6 +720,14 @@ export const allMenuItems: MenuItem[] = [
     price: 60,
     image: '/images/products/yaseminli-yesil-cay.jpeg',
   },
+  {
+    id: 140,
+    name: 'Fincan Çay',
+    description: 'Porselen fincanda servis edilen taze demlenmiş çay',
+    category: 'Çaylar',
+    price: 80,
+    image: '/images/products/yaseminli-yesil-cay.jpeg',
+  },
 
   // BİTKİ ÇAYLARI (HERBAL TEAS)
   {
