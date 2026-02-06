@@ -16,6 +16,7 @@ interface CartItem {
     quantity: number;
     size?: string;
     isPorcelain?: boolean;
+    category?: string;
 }
 
 interface Customer {
@@ -195,6 +196,9 @@ export default function POSPage() {
         };
     };
 
+    // Categories that are likely hot drinks (needing porcelain option)
+    const HOT_DRINK_CATEGORIES = ['Sıcak Kahveler', 'Çaylar', 'Espresso', 'Matchalar'];
+
     // Categories that don't require recipes (unit-based products or simple stock tracking)
     const UNIT_BASED_CATEGORIES = ['Meşrubatlar', 'Yan Ürünler', 'Kahve Çekirdekleri', 'Çaylar', 'Şuruplar', 'Soslar', 'Püreler', 'Tozlar', 'Sütler', 'Extra'];
 
@@ -263,6 +267,8 @@ export default function POSPage() {
                         : item
                 );
             }
+            const isHot = HOT_DRINK_CATEGORIES.includes(product.category);
+
             return [...prev, {
                 id: cartItemId,
                 productId: dbProduct?.id || product.id,
@@ -270,7 +276,8 @@ export default function POSPage() {
                 price,
                 quantity: 1,
                 size,
-                isPorcelain: product.name.includes('Cortado')
+                category: product.category,
+                isPorcelain: isHot // Default to porcelain for hot drinks
             }];
         });
 
@@ -962,16 +969,36 @@ export default function POSPage() {
                                     <div key={item.id} className="flex justify-between items-center bg-white p-1.5 md:p-2 rounded border border-gray-100 shadow-sm">
                                         <div className="flex-1 min-w-0">
                                             <p className="font-semibold text-gray-800 text-[11px] md:text-sm truncate">{item.name}</p>
-                                            <div className="flex items-center gap-1 mt-0.5">
-                                                {item.size && <span className="text-[9px] md:text-xs text-gray-500 bg-gray-100 px-1 rounded truncate max-w-[50px]">{item.size}</span>}
-                                                <button
-                                                    onClick={() => togglePorcelain(item.id)}
-                                                    className={`text-[9px] md:text-xs px-1.5 py-0.5 rounded border transition-colors whitespace-nowrap ${item.isPorcelain
-                                                        ? 'bg-amber-100 text-amber-800 border-amber-200'
-                                                        : 'bg-gray-50 text-gray-400 border-gray-200'}`}
-                                                >
-                                                    {item.isPorcelain ? '☕ Fincan' : '🥡 Karton'}
-                                                </button>
+                                            <div className="flex items-center gap-2 mt-1">
+                                                {item.size && <span className="text-[10px] md:text-xs text-amber-600 bg-amber-50 font-bold px-1.5 py-0.5 rounded border border-amber-100 uppercase">{item.size}</span>}
+
+                                                {/* Only show cup selection for hot drinks */}
+                                                {HOT_DRINK_CATEGORIES.includes(item.category || '') && (
+                                                    <div className="flex gap-1">
+                                                        <button
+                                                            onClick={() => {
+                                                                setCart(prev => prev.map(p => p.id === item.id ? { ...p, isPorcelain: true } : p));
+                                                            }}
+                                                            className={`text-[10px] md:text-xs px-2 py-0.5 rounded-l border transition-all flex items-center gap-1 ${item.isPorcelain
+                                                                ? 'bg-amber-500 text-white border-amber-500 shadow-sm'
+                                                                : 'bg-white text-gray-400 border-gray-200 hover:bg-gray-50'}`}
+                                                        >
+                                                            <span>☕</span>
+                                                            <span className="hidden sm:inline">Fincan</span>
+                                                        </button>
+                                                        <button
+                                                            onClick={() => {
+                                                                setCart(prev => prev.map(p => p.id === item.id ? { ...p, isPorcelain: false } : p));
+                                                            }}
+                                                            className={`text-[10px] md:text-xs px-2 py-0.5 rounded-r border transition-all flex items-center gap-1 ${!item.isPorcelain
+                                                                ? 'bg-blue-500 text-white border-blue-500 shadow-sm'
+                                                                : 'bg-white text-gray-400 border-gray-200 hover:bg-gray-50'}`}
+                                                        >
+                                                            <span>🥡</span>
+                                                            <span className="hidden sm:inline">Karton</span>
+                                                        </button>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                         <div className="flex items-center space-x-1 md:space-x-3 ml-2">
