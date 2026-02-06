@@ -57,6 +57,11 @@ export default function POSPage() {
     // Assignments: { cartItemId: { cash: number, card: number } }
     const [itemAssignments, setItemAssignments] = useState<Record<string, { cash: number, card: number }>>({});
 
+    // Recent Orders State
+    const [showRecentOrders, setShowRecentOrders] = useState(false);
+    const [recentOrders, setRecentOrders] = useState<any[]>([]);
+    const [recentOrdersLoading, setRecentOrdersLoading] = useState(false);
+
     // Offline State
     const [isOnline, setIsOnline] = useState(true);
     const [pendingOrdersCount, setPendingOrdersCount] = useState(0);
@@ -323,6 +328,30 @@ export default function POSPage() {
         return () => clearTimeout(timeoutId);
     }, [customerSearch]);
 
+    // Fetch Recent Orders
+    const fetchRecentOrders = async () => {
+        setRecentOrdersLoading(true);
+        try {
+            const res = await fetch('/api/admin/orders?limit=10');
+            if (res.ok) {
+                const data = await res.json();
+                setRecentOrders(data.orders || []);
+            }
+        } catch (error) {
+            console.error('Failed to fetch recent orders', error);
+            toast.error('Geçmiş siparişler yüklenemedi.');
+        } finally {
+            setRecentOrdersLoading(false);
+        }
+    };
+
+    // Auto-load recent orders when modal opens
+    useEffect(() => {
+        if (showRecentOrders) {
+            fetchRecentOrders();
+        }
+    }, [showRecentOrders]);
+
     // Auto-print when order is created
     useEffect(() => {
         if (lastOrder) {
@@ -465,7 +494,7 @@ export default function POSPage() {
     return (
         <>
             {/* Screen UI - Hidden when printing */}
-            <div className="flex h-screen bg-gray-100 overflow-hidden relative print:hidden">
+            <div className="flex flex-col md:flex-row h-screen h-[100dvh] bg-gray-100 overflow-hidden relative print:hidden">
                 {/* Split Bill Modal */}
                 {showSplitModal && (
                     <div className="absolute inset-0 bg-black/50 z-50 flex items-center justify-center backdrop-blur-sm animate-fade-in">
@@ -725,68 +754,75 @@ export default function POSPage() {
                 )}
 
                 {/* LEFT: Product Grid */}
-                <div className="flex-1 flex flex-col h-full overflow-hidden">
+                <div className="flex-1 md:flex-1 h-[55vh] md:h-full flex flex-col overflow-hidden">
                     {/* Header / Categories */}
-                    <div className="bg-white p-4 shadow-sm z-10">
-                        <div className="flex justify-between items-center mb-4">
-                            <div className="flex items-center space-x-4">
-                                <h1 className="text-2xl font-bold text-gray-800">Kasa Modu</h1>
+                    <div className="bg-white p-2 md:p-4 shadow-sm z-10">
+                        <div className="flex justify-between items-center mb-2 md:mb-4">
+                            <div className="flex items-center space-x-1 md:space-x-4 flex-wrap gap-y-1">
+                                <h1 className="text-lg md:text-2xl font-bold text-gray-800">Kasa Modu</h1>
                                 <Link
                                     href="/admin/orders"
-                                    className="flex items-center space-x-2 px-3 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider bg-gray-800 text-white hover:bg-black transition-all shadow-lg hover:scale-105 active:scale-95"
+                                    className="flex items-center space-x-1 md:space-x-2 px-2 md:px-3 py-1 md:py-1.5 rounded-xl text-[10px] md:text-xs font-bold uppercase tracking-wider bg-gray-800 text-white hover:bg-black transition-all shadow-lg"
                                 >
-                                    <FaClipboardList />
-                                    <span>Siparişler</span>
+                                    <FaClipboardList className="text-xs" />
+                                    <span className="hidden md:inline">Siparişler</span>
                                 </Link>
                                 <Link
                                     href="/admin/accounting?report=today"
-                                    className="flex items-center space-x-2 px-3 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider bg-amber-600 text-white hover:bg-amber-700 transition-all shadow-lg hover:scale-105 active:scale-95"
+                                    className="flex items-center space-x-1 md:space-x-2 px-2 md:px-3 py-1 md:py-1.5 rounded-xl text-[10px] md:text-xs font-bold uppercase tracking-wider bg-amber-600 text-white hover:bg-amber-700 transition-all shadow-lg"
                                 >
-                                    <FaMoneyBillWave />
-                                    <span>Rapor</span>
+                                    <FaMoneyBillWave className="text-xs" />
+                                    <span className="hidden md:inline">Rapor</span>
                                 </Link>
+                                <button
+                                    onClick={() => setShowRecentOrders(true)}
+                                    className="flex items-center space-x-1 md:space-x-2 px-2 md:px-3 py-1 md:py-1.5 rounded-xl text-[10px] md:text-xs font-bold uppercase tracking-wider bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-lg"
+                                >
+                                    <FaSync className="text-xs" />
+                                    <span className="hidden md:inline">Son Siparişler</span>
+                                </button>
                                 <div className={`flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${isOnline ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                                     <FaWifi />
-                                    <span>{isOnline ? 'Çevrimiçi' : 'Çevrimdışı'}</span>
+                                    <span className="hidden md:inline">{isOnline ? 'Çevrimiçi' : 'Çevrimdışı'}</span>
                                 </div>
                                 {pendingOrdersCount > 0 && (
                                     <button
                                         onClick={syncOfflineOrders}
                                         disabled={isSyncing || !isOnline}
-                                        className={`flex items-center space-x-2 px-3 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider bg-orange-500 text-white hover:bg-orange-600 transition-all shadow-lg hover:scale-105 active:scale-95 ${isSyncing ? 'animate-pulse' : ''}`}
+                                        className={`flex items-center space-x-1 md:space-x-2 px-2 md:px-3 py-1 md:py-1.5 rounded-xl text-[10px] md:text-xs font-bold uppercase tracking-wider bg-orange-500 text-white hover:bg-orange-600 transition-all shadow-lg ${isSyncing ? 'animate-pulse' : ''}`}
                                     >
                                         <FaSync className={isSyncing ? 'animate-spin' : ''} />
-                                        <span>{pendingOrdersCount} Bekleyen Satış</span>
+                                        <span>{pendingOrdersCount}</span>
                                     </button>
                                 )}
                             </div>
-                            <div className="text-sm text-gray-500" suppressHydrationWarning>
+                            <div className="hidden md:block text-sm text-gray-500" suppressHydrationWarning>
                                 {new Date().toLocaleDateString('tr-TR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                             </div>
                         </div>
                     </div>
 
                     {/* Search Bar */}
-                    <div className="bg-white px-4 pb-4 shadow-sm z-10 border-t border-gray-100">
+                    <div className="bg-white px-2 md:px-4 pb-2 md:pb-4 shadow-sm z-10 border-t border-gray-100">
                         <div className="relative">
-                            <FaSearch className="absolute left-3 top-3 text-nocca-green" />
+                            <FaSearch className="absolute left-3 top-2 md:top-3 text-nocca-green text-sm" />
                             <input
                                 type="text"
-                                placeholder="Ürün Ara (örn: Latte, Mocha)..."
+                                placeholder="Ürün Ara..."
                                 value={productSearch}
                                 onChange={(e) => setProductSearch(e.target.value)}
-                                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:outline-none bg-gray-50 transition-all font-medium text-gray-800 placeholder-gray-400 opacity-90 hover:opacity-100" // Styled to match image
+                                className="w-full pl-8 md:pl-10 pr-4 py-1.5 md:py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:outline-none bg-gray-50 transition-all font-medium text-gray-800 placeholder-gray-400 text-sm"
                             />
                         </div>
 
-                        <div className="flex space-x-2 overflow-x-auto pb-2 scrollbar-hide">
+                        <div className="flex space-x-1 md:space-x-2 overflow-x-auto pb-1 md:pb-2 scrollbar-hide mt-1 md:mt-2">
                             {categories
                                 .filter(cat => !HIDDEN_CATEGORIES.includes(cat))
                                 .map(cat => (
                                     <button
                                         key={cat}
                                         onClick={() => setActiveCategory(cat)}
-                                        className={`px-4 py-2 rounded-full whitespace-nowrap font-medium text-sm transition-colors ${activeCategory === cat
+                                        className={`px-2 md:px-4 py-1 md:py-2 rounded-full whitespace-nowrap font-medium text-xs md:text-sm transition-colors ${activeCategory === cat
                                             ? 'bg-nocca-green text-white shadow-md'
                                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                             }`}
@@ -798,8 +834,8 @@ export default function POSPage() {
                     </div>
 
                     {/* Grid */}
-                    <div className="flex-1 overflow-y-auto p-4">
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <div className="flex-1 overflow-y-auto p-2 md:p-4">
+                        <div className="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4">
                             {filteredProducts.map(item => {
                                 const stockInfo = getStockInfo(item.name);
                                 const isOutOfStock = !stockInfo.isAvailable;
@@ -809,16 +845,16 @@ export default function POSPage() {
                                         key={item.id}
                                         onClick={() => handleProductClick(item)}
                                         disabled={isOutOfStock}
-                                        className={`bg-white p-3 rounded-lg shadow hover:shadow-md transition-all text-left flex flex-col h-full active:scale-95 border border-transparent hover:border-nocca-light-green relative ${isOutOfStock ? 'opacity-70 grayscale' : ''}`}
+                                        className={`bg-white p-1.5 md:p-3 rounded-lg shadow hover:shadow-md transition-all text-left flex flex-col h-full active:scale-95 border border-transparent hover:border-nocca-light-green relative ${isOutOfStock ? 'opacity-70 grayscale' : ''}`}
                                     >
                                         {isOutOfStock && (
                                             <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 z-10 flex justify-center pointer-events-none">
-                                                <span className="bg-red-600 text-white text-[10px] font-black px-2 py-1 rounded shadow-lg transform -rotate-12 border-2 border-white uppercase tracking-tighter">
+                                                <span className="bg-red-600 text-white text-[8px] md:text-[10px] font-black px-1.5 md:px-2 py-0.5 md:py-1 rounded shadow-lg transform -rotate-12 border border-white uppercase tracking-tighter">
                                                     TÜKENDİ
                                                 </span>
                                             </div>
                                         )}
-                                        <div className="relative w-full h-32 mb-2 rounded-md overflow-hidden bg-gray-50">
+                                        <div className="relative w-full h-16 md:h-32 mb-1 md:mb-2 rounded-md overflow-hidden bg-gray-50">
                                             {(() => {
                                                 const dbProduct = getDbProduct(item.name);
                                                 const imgSource = dbProduct?.imageUrl || item.image;
@@ -829,19 +865,19 @@ export default function POSPage() {
                                                             src={imgSource}
                                                             alt={item.name}
                                                             fill
-                                                            sizes="(max-width: 768px) 50vw, 25vw"
-                                                            className="object-contain p-1"
+                                                            sizes="(max-width: 768px) 33vw, 25vw"
+                                                            className="object-contain p-0.5 md:p-1"
                                                             unoptimized={imgSource.startsWith('data:')}
                                                         />
                                                     );
                                                 }
-                                                return <div className="w-full h-full flex items-center justify-center text-xs text-gray-400">Resim Yok</div>;
+                                                return <div className="w-full h-full flex items-center justify-center text-[10px] md:text-xs text-gray-400">Resim Yok</div>;
                                             })()}
                                         </div>
                                         <div className="mt-auto">
-                                            <h3 className="font-semibold text-gray-800 text-sm line-clamp-2">{item.name}</h3>
-                                            <div className="flex justify-between items-end mt-1">
-                                                <p className="text-nocca-green font-bold">
+                                            <h3 className="font-semibold text-gray-800 text-[10px] md:text-sm line-clamp-2 leading-tight">{item.name}</h3>
+                                            <div className="flex justify-between items-end mt-0.5 md:mt-1">
+                                                <p className="text-nocca-green font-bold text-xs md:text-base">
                                                     {(() => {
                                                         const dbProduct = getDbProduct(item.name);
                                                         const price = dbProduct?.price || item.price;
@@ -859,36 +895,36 @@ export default function POSPage() {
                 </div>
 
                 {/* RIGHT: Cart & Checkout */}
-                <div className="w-96 bg-white shadow-2xl flex flex-col h-full z-20 border-l border-gray-200">
+                <div className="w-full md:w-96 h-[45vh] md:h-full bg-white shadow-2xl flex flex-col z-20 border-t md:border-t-0 md:border-l border-gray-200">
                     {/* Customer Search */}
-                    <div className="p-4 border-b border-gray-100 bg-gray-50">
+                    <div className="p-2 md:p-4 border-b border-gray-100 bg-gray-50">
                         {selectedCustomer ? (
-                            <div className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
+                            <div className="flex items-center justify-between p-2 md:p-3 bg-green-50 border border-green-200 rounded-lg">
                                 <div className="flex items-center">
-                                    <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 mr-3">
-                                        <FaUser />
+                                    <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 mr-2 md:mr-3">
+                                        <FaUser className="text-xs md:text-base" />
                                     </div>
                                     <div>
-                                        <p className="font-semibold text-gray-800">{selectedCustomer.firstName} {selectedCustomer.lastName}</p>
+                                        <p className="font-semibold text-gray-800 text-xs md:text-sm">{selectedCustomer.firstName} {selectedCustomer.lastName}</p>
                                         {selectedCustomer.userPoints && (
-                                            <p className="text-xs text-green-600 font-medium">{selectedCustomer.userPoints.points} Puan ({selectedCustomer.userPoints.tier})</p>
+                                            <p className="text-[10px] text-green-600 font-medium">{selectedCustomer.userPoints.points} Puan ({selectedCustomer.userPoints.tier})</p>
                                         )}
                                     </div>
                                 </div>
                                 <button onClick={() => setSelectedCustomer(null)} className="text-gray-400 hover:text-red-500">
-                                    <FaTimes />
+                                    <FaTimes className="text-sm md:text-base" />
                                 </button>
                             </div>
                         ) : (
                             <div className="relative">
                                 <input
                                     type="text"
-                                    placeholder="Müşteri Ara (Tel / İsim)"
-                                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-nocca-light-green focus:border-transparent"
+                                    placeholder="Müşteri Ara..."
+                                    className="w-full pl-8 md:pl-10 pr-4 py-2 md:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-nocca-light-green focus:border-transparent text-sm"
                                     value={customerSearch}
                                     onChange={(e) => setCustomerSearch(e.target.value)}
                                 />
-                                <FaSearch className="absolute left-3 top-3.5 text-gray-400" />
+                                <FaSearch className="absolute left-3 top-2.5 md:top-3.5 text-gray-400 text-sm md:text-base" />
 
                                 {/* Search Results Dropdown */}
                                 {searchResults.length > 0 && (
@@ -901,10 +937,10 @@ export default function POSPage() {
                                                     setCustomerSearch('');
                                                     setSearchResults([]);
                                                 }}
-                                                className="w-full text-left px-4 py-3 hover:bg-gray-50 border-b border-gray-50 last:border-0"
+                                                className="w-full text-left px-4 py-2 md:py-3 hover:bg-gray-50 border-b border-gray-50 last:border-0"
                                             >
-                                                <p className="font-medium text-gray-800">{customer.firstName} {customer.lastName}</p>
-                                                <p className="text-xs text-gray-500">{customer.phone}</p>
+                                                <p className="font-medium text-gray-800 text-sm">{customer.firstName} {customer.lastName}</p>
+                                                <p className="text-[10px] md:text-xs text-gray-500">{customer.phone}</p>
                                             </button>
                                         ))}
                                     </div>
@@ -914,39 +950,41 @@ export default function POSPage() {
                     </div>
 
                     {/* Cart Items */}
-                    <div className="flex-1 overflow-y-auto p-4">
+                    <div className="flex-1 overflow-y-auto p-2 md:p-4">
                         {cart.length === 0 ? (
                             <div className="h-full flex flex-col items-center justify-center text-gray-400">
-                                <span className="text-4xl mb-2">🛒</span>
-                                <p>Sepet Boş</p>
+                                <span className="text-2xl md:text-4xl mb-2">🛒</span>
+                                <p className="text-sm md:text-base">Sepet Boş</p>
                             </div>
                         ) : (
-                            <div className="space-y-3">
+                            <div className="space-y-2 md:space-y-3">
                                 {cart.map(item => (
-                                    <div key={item.id} className="flex justify-between items-center bg-white p-2 rounded border border-gray-100">
-                                        <div className="flex-1">
-                                            <p className="font-medium text-gray-800 text-sm">{item.name}</p>
-                                            {item.size && <span className="text-xs text-gray-500 bg-gray-100 px-1 rounded mr-2">{item.size}</span>}
-                                            <button
-                                                onClick={() => togglePorcelain(item.id)}
-                                                className={`text-xs px-2 py-0.5 rounded border transition-colors ${item.isPorcelain
-                                                    ? 'bg-amber-100 text-amber-800 border-amber-200 hover:bg-amber-200'
-                                                    : 'bg-gray-50 text-gray-400 border-gray-200 hover:bg-gray-100'}`}
-                                            >
-                                                {item.isPorcelain ? '☕ Fincan' : '🥡 Karton'}
-                                            </button>
+                                    <div key={item.id} className="flex justify-between items-center bg-white p-1.5 md:p-2 rounded border border-gray-100 shadow-sm">
+                                        <div className="flex-1 min-w-0">
+                                            <p className="font-semibold text-gray-800 text-[11px] md:text-sm truncate">{item.name}</p>
+                                            <div className="flex items-center gap-1 mt-0.5">
+                                                {item.size && <span className="text-[9px] md:text-xs text-gray-500 bg-gray-100 px-1 rounded truncate max-w-[50px]">{item.size}</span>}
+                                                <button
+                                                    onClick={() => togglePorcelain(item.id)}
+                                                    className={`text-[9px] md:text-xs px-1.5 py-0.5 rounded border transition-colors whitespace-nowrap ${item.isPorcelain
+                                                        ? 'bg-amber-100 text-amber-800 border-amber-200'
+                                                        : 'bg-gray-50 text-gray-400 border-gray-200'}`}
+                                                >
+                                                    {item.isPorcelain ? '☕ Fincan' : '🥡 Karton'}
+                                                </button>
+                                            </div>
                                         </div>
-                                        <div className="flex items-center space-x-3">
+                                        <div className="flex items-center space-x-1 md:space-x-3 ml-2">
                                             <div className="flex items-center bg-gray-100 rounded">
-                                                <button onClick={() => updateQuantity(item.id, -1)} className="px-2 py-1 hover:bg-gray-200 text-gray-600">-</button>
-                                                <span className="px-2 text-sm font-medium">{item.quantity}</span>
-                                                <button onClick={() => updateQuantity(item.id, 1)} className="px-2 py-1 hover:bg-gray-200 text-gray-600">+</button>
+                                                <button onClick={() => updateQuantity(item.id, -1)} className="px-1.5 md:px-2 py-0.5 md:py-1 hover:bg-gray-200 text-gray-600 font-bold text-xs md:text-sm">-</button>
+                                                <span className="px-1 md:px-2 text-[11px] md:text-sm font-bold min-w-[15px] text-center">{item.quantity}</span>
+                                                <button onClick={() => updateQuantity(item.id, 1)} className="px-1.5 md:px-2 py-0.5 md:py-1 hover:bg-gray-200 text-gray-600 font-bold text-xs md:text-sm">+</button>
                                             </div>
-                                            <div className="text-right w-16">
-                                                <p className="font-bold text-gray-800">₺{((item.price ?? 0) * (item.quantity ?? 0)).toFixed(2)}</p>
+                                            <div className="text-right w-12 md:w-16">
+                                                <p className="font-bold text-gray-800 text-[11px] md:text-base">₺{((item.price ?? 0) * (item.quantity ?? 0)).toFixed(0)}</p>
                                             </div>
-                                            <button onClick={() => removeFromCart(item.id)} className="text-gray-400 hover:text-red-500">
-                                                <FaTrash className="w-3 h-3" />
+                                            <button onClick={() => removeFromCart(item.id)} className="text-gray-400 hover:text-red-500 p-1">
+                                                <FaTrash className="w-2.5 h-2.5 md:w-3 h-3" />
                                             </button>
                                         </div>
                                     </div>
@@ -956,13 +994,13 @@ export default function POSPage() {
                     </div>
 
                     {/* Totals & Payment */}
-                    <div className="p-4 bg-white border-t border-gray-200 shadow-inner">
+                    <div className="p-3 md:p-4 bg-white border-t border-gray-200 shadow-inner">
 
                         {/* Discount Control */}
-                        <div className="flex justify-between items-center mb-2">
+                        <div className="flex justify-between items-center mb-1 md:mb-2 text-[10px] md:text-xs">
                             <button
                                 onClick={() => setShowDiscountInput(!showDiscountInput)}
-                                className="text-xs font-semibold text-nocca-green hover:underline flex items-center"
+                                className="font-semibold text-nocca-green hover:underline flex items-center"
                             >
                                 {showDiscountInput ? 'İskontoyu Kapat' : '+ İskonto Uygula'}
                             </button>
@@ -979,47 +1017,47 @@ export default function POSPage() {
                                             if (val < 0) val = 0;
                                             setDiscountRate(val);
                                         }}
-                                        className="w-16 p-1 border border-gray-300 rounded text-right text-sm focus:ring-1 focus:ring-green-500"
+                                        className="w-12 md:w-16 p-0.5 md:p-1 border border-gray-300 rounded text-right text-[10px] md:text-sm focus:ring-1 focus:ring-green-500"
                                         placeholder="0"
                                     />
-                                    <span className="text-gray-600 text-sm font-bold">%</span>
+                                    <span className="text-gray-600 font-bold">%</span>
                                 </div>
                             )}
                         </div>
 
-                        <div className="flex justify-between items-center mb-1">
-                            <span className="text-gray-500 text-sm">Ara Toplam</span>
-                            <span className="font-medium text-gray-700">₺{(cartTotal ?? 0).toFixed(2)}</span>
+                        <div className="flex justify-between items-center mb-0.5 md:mb-1">
+                            <span className="text-gray-500 text-[10px] md:text-sm">Ara Toplam</span>
+                            <span className="font-medium text-gray-700 text-[10px] md:text-sm">₺{(cartTotal ?? 0).toFixed(2)}</span>
                         </div>
 
                         {discountRate > 0 && (
-                            <div className="flex justify-between items-center mb-1 text-red-500 font-medium">
-                                <span className="text-sm">İskonto (%{discountRate})</span>
-                                <span>-₺{(discountAmount ?? 0).toFixed(2)}</span>
+                            <div className="flex justify-between items-center mb-0.5 md:mb-1 text-red-500 font-medium">
+                                <span className="text-[10px] md:text-sm">İskonto (%{discountRate})</span>
+                                <span className="text-[10px] md:text-sm">-₺{(discountAmount ?? 0).toFixed(2)}</span>
                             </div>
                         )}
 
-                        <div className="flex justify-between items-center mb-4 pt-2 border-t border-dashed border-gray-300">
-                            <span className="text-gray-800 font-bold text-lg">Genel Toplam</span>
-                            <span className="text-2xl font-bold text-gray-900">₺{(finalTotal ?? 0).toFixed(2)}</span>
+                        <div className="flex justify-between items-center mb-2 md:mb-4 pt-1 md:pt-2 border-t border-dashed border-gray-300">
+                            <span className="text-gray-800 font-bold text-sm md:text-lg">Genel Toplam</span>
+                            <span className="text-lg md:text-2xl font-bold text-gray-900">₺{(finalTotal ?? 0).toFixed(2)}</span>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-2 gap-2 md:gap-3">
                             <button
                                 onClick={() => handleCreateOrder('CASH')}
                                 disabled={cart.length === 0 || processingPayment}
-                                className="flex flex-col items-center justify-center py-4 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                                className="flex flex-col items-center justify-center py-2 md:py-4 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors disabled:opacity-50 shadow-lg"
                             >
-                                <FaMoneyBillWave className="w-6 h-6 mb-1" />
-                                <span className="font-bold">NAKİT</span>
+                                <FaMoneyBillWave className="w-4 h-4 md:w-6 md:h-6 mb-0.5 md:mb-1" />
+                                <span className="font-bold text-[10px] md:text-base">NAKİT</span>
                             </button>
                             <button
                                 onClick={() => handleCreateOrder('CREDIT_CARD')}
                                 disabled={cart.length === 0 || processingPayment}
-                                className="flex flex-col items-center justify-center py-4 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                                className="flex flex-col items-center justify-center py-2 md:py-4 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50 shadow-lg"
                             >
-                                <FaCreditCard className="w-6 h-6 mb-1" />
-                                <span className="font-bold">KREDİ KARTI</span>
+                                <FaCreditCard className="w-4 h-4 md:w-6 md:h-6 mb-0.5 md:mb-1" />
+                                <span className="font-bold text-[10px] md:text-base">KREDİ KARTI</span>
                             </button>
                             <button
                                 onClick={() => {
@@ -1029,14 +1067,100 @@ export default function POSPage() {
                                     setShowSplitModal(true);
                                 }}
                                 disabled={cart.length === 0 || processingPayment}
-                                className="col-span-2 flex items-center justify-center py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg mt-2"
+                                className="col-span-2 flex items-center justify-center py-2 md:py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors disabled:opacity-50 shadow-lg mt-1 md:mt-2"
                             >
-                                <span className="font-bold text-lg">⚖️ HESAP BÖL (Parçalı Ödeme)</span>
+                                <span className="font-bold text-xs md:text-lg">⚖️ HESAP BÖL</span>
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
+
+            {/* Recent Orders Modal */}
+            {showRecentOrders && (
+                <div className="absolute inset-0 bg-black/50 z-50 flex items-center justify-center backdrop-blur-sm animate-fade-in print:hidden">
+                    <div className="bg-white p-6 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[85vh] flex flex-col relative">
+                        <button
+                            onClick={() => setShowRecentOrders(false)}
+                            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+                        >
+                            <FaTimes size={24} />
+                        </button>
+
+                        <div className="flex items-center justify-between mb-6">
+                            <h3 className="text-2xl font-bold text-gray-800">Son Siparişler</h3>
+                            <button
+                                onClick={fetchRecentOrders}
+                                className="text-sm bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-lg text-gray-600 flex items-center gap-1"
+                            >
+                                <FaSync size={12} /> Yenile
+                            </button>
+                        </div>
+
+                        <div className="overflow-y-auto flex-1 border rounded-xl">
+                            {recentOrdersLoading ? (
+                                <div className="flex justify-center items-center h-40">
+                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+                                </div>
+                            ) : recentOrders.length === 0 ? (
+                                <div className="flex flex-col items-center justify-center h-40 text-gray-500">
+                                    <p>Henüz sipariş bulunmuyor.</p>
+                                </div>
+                            ) : (
+                                <table className="w-full text-left">
+                                    <thead className="bg-gray-50 text-gray-600 text-xs uppercase sticky top-0">
+                                        <tr>
+                                            <th className="px-4 py-3 font-semibold">Tarih</th>
+                                            <th className="px-4 py-3 font-semibold">Müşteri</th>
+                                            <th className="px-4 py-3 font-semibold text-center">Tutar</th>
+                                            <th className="px-4 py-3 font-semibold text-center">Ödeme</th>
+                                            <th className="px-4 py-3 font-semibold text-right">İşlem</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-100">
+                                        {recentOrders.map((order) => (
+                                            <tr key={order.id} className="hover:bg-gray-50 transition-colors">
+                                                <td className="px-4 py-3 text-sm text-gray-500 whitespace-nowrap">
+                                                    {new Date(order.createdAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
+                                                    <div className="text-[10px] text-gray-400">#{order.orderNumber?.split('-').pop()}</div>
+                                                </td>
+                                                <td className="px-4 py-3 text-sm font-medium text-gray-800">
+                                                    {order.customerName || 'Misafir'}
+                                                    <div className="text-xs text-xs text-gray-400 line-clamp-1">{order.items?.map((i: any) => i.productName).join(', ')}</div>
+                                                </td>
+                                                <td className="px-4 py-3 text-sm font-bold text-gray-900 text-center">
+                                                    ₺{(order.finalAmount || 0).toFixed(2)}
+                                                </td>
+                                                <td className="px-4 py-3 text-sm text-center">
+                                                    <span className={`px-2 py-1 rounded text-xs font-bold ${order.paymentMethod === 'CASH' ? 'bg-green-100 text-green-700' :
+                                                        order.paymentMethod === 'CREDIT_CARD' ? 'bg-blue-100 text-blue-700' :
+                                                            'bg-purple-100 text-purple-700'
+                                                        }`}>
+                                                        {order.paymentMethod === 'CASH' ? 'NAKİT' :
+                                                            order.paymentMethod === 'CREDIT_CARD' ? 'KART' : 'PARÇALI'}
+                                                    </span>
+                                                </td>
+                                                <td className="px-4 py-3 text-right">
+                                                    <button
+                                                        onClick={() => {
+                                                            setLastOrder(order); // Triggers print logic via useEffect
+                                                            setShowRecentOrders(false); // Close modal
+                                                        }}
+                                                        className="text-gray-500 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 p-2 rounded-lg transition-colors"
+                                                        title="Fiş Yazdır"
+                                                    >
+                                                        <FaPrint />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Print Only Receipt - Visible only when printing */}
             {lastOrder && (
@@ -1104,7 +1228,7 @@ export default function POSPage() {
                                         <td className="py-2 align-top font-bold">{item.quantity}</td>
                                         <td className="py-2 align-top">
                                             <div className="font-bold uppercase">
-                                                {item.name}
+                                                {item.name || item.productName}
                                                 {lastOrder.itemAssignments && lastOrder.itemAssignments[item.id] && (
                                                     <span className="text-[9px] ml-1 bg-gray-200 px-1 rounded lowercase">
                                                         ({lastOrder.itemAssignments[item.id].cash > 0 && lastOrder.itemAssignments[item.id].card > 0
@@ -1125,7 +1249,7 @@ export default function POSPage() {
                                             )}
                                         </td>
                                         <td className="py-2 align-top text-right font-bold whitespace-nowrap">
-                                            {((item.price ?? 0) * (item.quantity ?? 0)).toFixed(2)}₺
+                                            {((item.price || item.unitPrice || 0) * (item.quantity ?? 0)).toFixed(2)}₺
                                         </td>
                                     </tr>
                                 ))}

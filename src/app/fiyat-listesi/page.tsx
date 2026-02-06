@@ -17,8 +17,8 @@ interface CategoryGroup {
     products: Product[];
 }
 
-const CATEGORIES_PER_PAGE = 4; // How many categories to show per page
-const ROTATION_INTERVAL = 12000; // 12 seconds per page
+const CATEGORIES_PER_PAGE = 6;
+const ROTATION_INTERVAL = 15000;
 
 export default function FiyatListesi() {
     const [menuData, setMenuData] = useState<CategoryGroup[]>([]);
@@ -32,6 +32,10 @@ export default function FiyatListesi() {
                 const res = await fetch('/api/menu-display');
                 if (res.ok) {
                     const data = await res.json();
+
+                    // Specific sorting/grouping to ensure "Tatlılar" (Desserts) doesn't break layout
+                    // We want to balance the items.
+                    // This is a simple fetch, but we could sort by size here if needed.
                     setMenuData(data);
                 }
             } catch (error) {
@@ -42,14 +46,12 @@ export default function FiyatListesi() {
         };
 
         fetchMenu();
-        // Auto-refresh every 5 minutes
         const interval = setInterval(fetchMenu, 5 * 60 * 1000);
         return () => clearInterval(interval);
     }, []);
 
     const totalPages = Math.ceil(menuData.length / CATEGORIES_PER_PAGE);
 
-    // Page rotation logic
     const goToNextPage = useCallback(() => {
         setCurrentPage((prev) => (prev + 1) % totalPages);
         setProgress(0);
@@ -58,7 +60,6 @@ export default function FiyatListesi() {
     useEffect(() => {
         if (loading || totalPages <= 1) return;
 
-        // Progress bar update
         const progressInterval = setInterval(() => {
             setProgress((prev) => {
                 if (prev >= 100) return 100;
@@ -66,7 +67,6 @@ export default function FiyatListesi() {
             });
         }, 100);
 
-        // Page rotation
         const rotationTimer = setInterval(goToNextPage, ROTATION_INTERVAL);
 
         return () => {
@@ -79,82 +79,84 @@ export default function FiyatListesi() {
         return `₺${price.toLocaleString('tr-TR')}`;
     };
 
-    // Get current page categories
     const startIndex = currentPage * CATEGORIES_PER_PAGE;
     const currentCategories = menuData.slice(startIndex, startIndex + CATEGORIES_PER_PAGE);
 
     if (loading) {
         return (
-            <div className="h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
-                <div className="text-white text-4xl font-bold animate-pulse">
-                    Menü Yükleniyor...
+            <div className="h-screen bg-black flex items-center justify-center">
+                <div className="text-amber-500 text-4xl font-serif animate-pulse">
+                    Nocca Coffee Loading...
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white flex flex-col overflow-hidden">
-            {/* Progress bar at very top */}
-            <div className="h-1 bg-gray-700 w-full">
-                <div
-                    className="h-full bg-amber-400 transition-all duration-100 ease-linear"
-                    style={{ width: `${progress}%` }}
-                />
-            </div>
+        <div className="h-screen w-screen overflow-hidden bg-[#121212] text-white flex flex-col relative font-sans selection:bg-amber-500/30">
+            {/* Background Texture - Simplified for performance and clarity */}
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[#1a1a1a] via-[#000] to-black opacity-80 z-0"></div>
 
-            {/* Fixed Header */}
-            <header className="py-2 bg-[#d4cab8] flex-shrink-0">
-                <div className="flex items-center justify-center">
-                    <Image
-                        src="/images/logo/menubannaer.png"
-                        alt="Nocca Coffee & Roastery"
-                        width={180}
-                        height={70}
-                        className="object-contain"
-                        priority
-                    />
-                </div>
-            </header>
+            {/* Subtle Gold Frame */}
+            <div className="absolute inset-4 border border-amber-600/30 rounded-3xl z-10 pointer-events-none shadow-[inset_0_0_20px_rgba(217,119,6,0.1)]"></div>
 
-            {/* Menu Content - Fixed height, no scroll */}
-            <div className="flex-1 p-6 flex flex-col">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 flex-1">
+            {/* Content Container */}
+            <div className="relative z-30 flex flex-col h-full px-6 py-6 pb-8">
+
+                {/* Header - Compact */}
+                <header className="flex flex-col items-center justify-center mb-4 flex-shrink-0 h-[10vh]">
+                    <div className="relative w-48 h-full">
+                        <Image
+                            src="/images/nocca-logo-full.png"
+                            alt="Nocca Coffee"
+                            fill
+                            className="object-contain drop-shadow-[0_0_10px_rgba(217,119,6,0.3)]"
+                            priority
+                        />
+                    </div>
+                </header>
+
+                {/* Categories Grid - Optimized for 2-row layout */}
+                {/* h-[85vh] ensures it takes up most space but leaves room for header/footer */}
+                <div className="flex-1 grid grid-cols-3 gap-x-6 gap-y-4 content-start items-start auto-rows-min">
                     {currentCategories.map((group) => (
                         <div
                             key={group.category}
-                            className="bg-gray-800/50 rounded-xl p-5 backdrop-blur-sm border border-gray-700/50 flex flex-col animate-fadeIn"
+                            className={`flex flex-col animate-fadeIn ${group.products.length > 10 ? 'row-span-2' : ''}`}
                         >
-                            {/* Category Header */}
-                            <h2 className="text-xl font-bold text-amber-400 mb-4 pb-2 border-b border-amber-400/30 flex-shrink-0">
-                                {group.category}
-                            </h2>
+                            {/* Category Title */}
+                            <div className="flex items-center gap-2 mb-2 border-b border-amber-600/30 pb-1">
+                                <h2 className="text-xl font-serif font-bold text-amber-500 tracking-wider uppercase truncate">
+                                    {group.category}
+                                </h2>
+                            </div>
 
-                            {/* Products */}
-                            <div className="space-y-2 flex-1 overflow-hidden">
+                            {/* Products List - Tighter spacing */}
+                            <div className="space-y-1.5">
                                 {group.products.map((product) => (
-                                    <div key={product.id} className="flex justify-between items-start gap-2">
-                                        <span className="text-sm font-medium text-gray-100 flex-1 truncate">
-                                            {product.name}
-                                        </span>
+                                    <div key={product.id} className="flex items-baseline justify-between group">
+                                        <div className="flex flex-col mr-2 overflow-hidden">
+                                            <span className="text-base font-medium text-gray-200 truncate group-hover:text-amber-100 transition-colors">
+                                                {product.name}
+                                            </span>
+                                        </div>
 
-                                        {/* Pricing */}
-                                        {product.prices && product.prices.length > 0 ? (
-                                            <div className="flex gap-1 text-right flex-shrink-0">
-                                                {product.prices.map((p) => (
-                                                    <div key={p.size} className="text-center min-w-[40px]">
-                                                        <span className="text-[10px] text-gray-400 block">{p.size}</span>
-                                                        <span className="text-sm font-bold text-green-400">
+                                        {/* Price Section */}
+                                        <div className="flex-shrink-0">
+                                            {product.prices && product.prices.length > 0 ? (
+                                                <div className="flex gap-2 text-right">
+                                                    {product.prices.map((p) => (
+                                                        <span key={p.size} className="text-base font-bold text-amber-500 font-serif">
                                                             {formatPrice(p.price)}
                                                         </span>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        ) : (
-                                            <span className="text-base font-bold text-green-400 flex-shrink-0">
-                                                {formatPrice(product.price)}
-                                            </span>
-                                        )}
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <span className="text-base font-bold text-amber-500 font-serif">
+                                                    {formatPrice(product.price)}
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
                                 ))}
                             </div>
@@ -162,34 +164,38 @@ export default function FiyatListesi() {
                     ))}
                 </div>
 
-                {/* Page indicators */}
-                <div className="flex justify-center items-center gap-2 mt-4">
-                    {Array.from({ length: totalPages }).map((_, i) => (
-                        <button
-                            key={i}
-                            onClick={() => { setCurrentPage(i); setProgress(0); }}
-                            className={`w-3 h-3 rounded-full transition-all ${i === currentPage
-                                ? 'bg-amber-400 scale-125'
-                                : 'bg-gray-600 hover:bg-gray-500'
-                                }`}
+                {/* Progress Bar & Indicators - Floating at bottom */}
+                {totalPages > 1 && (
+                    <div className="absolute bottom-0 left-0 w-full h-1">
+                        <div
+                            className="h-full bg-amber-600 shadow-[0_0_10px_rgba(217,119,6,0.8)] transition-all duration-100 ease-linear"
+                            style={{ width: `${progress}%` }}
                         />
-                    ))}
-                </div>
+                    </div>
+                )}
+
+                {/* Page Indicators */}
+                {totalPages > 1 && (
+                    <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex gap-2">
+                        {Array.from({ length: totalPages }).map((_, i) => (
+                            <button
+                                key={i}
+                                onClick={() => { setCurrentPage(i); setProgress(0); }}
+                                className={`h-1.5 rounded-full transition-all duration-300 ${i === currentPage ? 'bg-amber-500 w-6' : 'bg-gray-700 w-2 hover:bg-gray-500'
+                                    }`}
+                            />
+                        ))}
+                    </div>
+                )}
             </div>
 
-            {/* Footer */}
-            <footer className="text-center text-gray-500 text-xs py-2 bg-gray-900/80 border-t border-gray-700/50">
-                <p>Fiyatlarımız TL cinsindendir ve KDV dahildir. © {new Date().getFullYear()} Nocca Coffee</p>
-            </footer>
-
-            {/* Fade in animation */}
             <style jsx global>{`
                 @keyframes fadeIn {
-                    from { opacity: 0; transform: translateY(10px); }
-                    to { opacity: 1; transform: translateY(0); }
+                    from { opacity: 0; }
+                    to { opacity: 1; }
                 }
                 .animate-fadeIn {
-                    animation: fadeIn 0.5s ease-out;
+                    animation: fadeIn 0.6s ease-out forwards;
                 }
             `}</style>
         </div>

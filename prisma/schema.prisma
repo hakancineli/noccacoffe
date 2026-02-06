@@ -381,3 +381,24 @@ enum ExpenseCategory {
   ADVANCE
   WASTE
 }
+
+model Feedback {
+  id              String       @id @default(cuid())
+  type            FeedbackType @default(SUGGESTION)
+  content         String       @db.Text
+  customerName    String?      @map("customer_name")
+  customerContact String?      @map("customer_contact")
+  isRead          Boolean      @default(false) @map("is_read")
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt @map("updated_at")
+
+  @@map("feedbacks")
+}
+
+enum FeedbackType {
+  COMPLAINT
+  SUGGESTION
+  REQUEST
+  OTHER
+}
+
