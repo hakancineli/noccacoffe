@@ -966,53 +966,78 @@ export default function POSPage() {
                         ) : (
                             <div className="space-y-2 md:space-y-3">
                                 {cart.map(item => (
-                                    <div key={item.id} className="flex justify-between items-center bg-white p-1.5 md:p-2 rounded border border-gray-100 shadow-sm">
-                                        <div className="flex-1 min-w-0">
-                                            <p className="font-semibold text-gray-800 text-[11px] md:text-sm truncate">{item.name}</p>
-                                            <div className="flex items-center gap-2 mt-1">
-                                                {item.size && <span className="text-[10px] md:text-xs text-amber-600 bg-amber-50 font-bold px-1.5 py-0.5 rounded border border-amber-100 uppercase">{item.size}</span>}
+                                    <div key={item.id} className="flex flex-col sm:flex-row sm:items-center justify-between bg-white p-2 rounded border border-gray-100 shadow-sm gap-2">
+                                        {/* Product Info & Options */}
+                                        <div className="flex-1 min-w-0 flex flex-col gap-1">
+                                            <p className="font-semibold text-gray-800 text-xs md:text-sm truncate">{item.name}</p>
 
-                                                {/* Only show cup selection for hot drinks */}
+                                            <div className="flex flex-wrap items-center gap-2">
+                                                {item.size && (
+                                                    <span className="text-[10px] text-amber-600 bg-amber-50 font-bold px-1.5 py-0.5 rounded border border-amber-100 uppercase whitespace-nowrap">
+                                                        {item.size}
+                                                    </span>
+                                                )}
+
+                                                {/* Cup Selection - Compact on mobile */}
                                                 {HOT_DRINK_CATEGORIES.includes(item.category || '') && (
-                                                    <div className="flex gap-1">
+                                                    <div className="flex shadow-sm rounded-md overflow-hidden shrink-0">
                                                         <button
-                                                            onClick={() => {
-                                                                setCart(prev => prev.map(p => p.id === item.id ? { ...p, isPorcelain: true } : p));
-                                                            }}
-                                                            className={`text-[10px] md:text-xs px-2 py-0.5 rounded-l border transition-all flex items-center gap-1 ${item.isPorcelain
-                                                                ? 'bg-amber-500 text-white border-amber-500 shadow-sm'
-                                                                : 'bg-white text-gray-400 border-gray-200 hover:bg-gray-50'}`}
+                                                            onClick={() => setCart(prev => prev.map(p => p.id === item.id ? { ...p, isPorcelain: true } : p))}
+                                                            className={`text-[10px] px-2 py-1 flex items-center gap-1 transition-colors ${item.isPorcelain
+                                                                ? 'bg-amber-500 text-white font-medium'
+                                                                : 'bg-gray-50 text-gray-500 hover:bg-gray-100'}`}
+                                                            title="Porselen Fincan"
                                                         >
                                                             <span>☕</span>
-                                                            <span className="hidden sm:inline">Fincan</span>
+                                                            <span className="hidden xl:inline">Fincan</span>
                                                         </button>
+                                                        <div className="w-[1px] bg-gray-200"></div>
                                                         <button
-                                                            onClick={() => {
-                                                                setCart(prev => prev.map(p => p.id === item.id ? { ...p, isPorcelain: false } : p));
-                                                            }}
-                                                            className={`text-[10px] md:text-xs px-2 py-0.5 rounded-r border transition-all flex items-center gap-1 ${!item.isPorcelain
-                                                                ? 'bg-blue-500 text-white border-blue-500 shadow-sm'
-                                                                : 'bg-white text-gray-400 border-gray-200 hover:bg-gray-50'}`}
+                                                            onClick={() => setCart(prev => prev.map(p => p.id === item.id ? { ...p, isPorcelain: false } : p))}
+                                                            className={`text-[10px] px-2 py-1 flex items-center gap-1 transition-colors ${!item.isPorcelain
+                                                                ? 'bg-blue-500 text-white font-medium'
+                                                                : 'bg-gray-50 text-gray-500 hover:bg-gray-100'}`}
+                                                            title="Karton Bardak"
                                                         >
                                                             <span>🥡</span>
-                                                            <span className="hidden sm:inline">Karton</span>
+                                                            <span className="hidden xl:inline">Karton</span>
                                                         </button>
                                                     </div>
                                                 )}
                                             </div>
                                         </div>
-                                        <div className="flex items-center space-x-1 md:space-x-3 ml-2">
-                                            <div className="flex items-center bg-gray-100 rounded">
-                                                <button onClick={() => updateQuantity(item.id, -1)} className="px-1.5 md:px-2 py-0.5 md:py-1 hover:bg-gray-200 text-gray-600 font-bold text-xs md:text-sm">-</button>
-                                                <span className="px-1 md:px-2 text-[11px] md:text-sm font-bold min-w-[15px] text-center">{item.quantity}</span>
-                                                <button onClick={() => updateQuantity(item.id, 1)} className="px-1.5 md:px-2 py-0.5 md:py-1 hover:bg-gray-200 text-gray-600 font-bold text-xs md:text-sm">+</button>
+
+                                        {/* Quantity & Price & Actions - Always visible and accessible */}
+                                        <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-3 mt-1 sm:mt-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-dashed border-gray-100">
+                                            <div className="flex items-center bg-gray-50 rounded-lg border border-gray-200 h-7">
+                                                <button
+                                                    onClick={() => updateQuantity(item.id, -1)}
+                                                    className="w-7 h-full flex items-center justify-center hover:bg-gray-200 text-gray-600 font-bold transition-colors rounded-l-lg"
+                                                >
+                                                    -
+                                                </button>
+                                                <span className="w-8 text-center text-xs font-bold text-gray-800">{item.quantity}</span>
+                                                <button
+                                                    onClick={() => updateQuantity(item.id, 1)}
+                                                    className="w-7 h-full flex items-center justify-center hover:bg-gray-200 text-gray-600 font-bold transition-colors rounded-r-lg"
+                                                >
+                                                    +
+                                                </button>
                                             </div>
-                                            <div className="text-right w-12 md:w-16">
-                                                <p className="font-bold text-gray-800 text-[11px] md:text-base">₺{((item.price ?? 0) * (item.quantity ?? 0)).toFixed(0)}</p>
+
+                                            <div className="flex items-center gap-3">
+                                                <div className="text-right min-w-[60px]">
+                                                    <p className="font-bold text-gray-800 text-sm">₺{((item.price ?? 0) * (item.quantity ?? 0)).toFixed(0)}</p>
+                                                </div>
+
+                                                <button
+                                                    onClick={() => removeFromCart(item.id)}
+                                                    className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
+                                                    title="Sil"
+                                                >
+                                                    <FaTrash className="w-3 h-3" />
+                                                </button>
                                             </div>
-                                            <button onClick={() => removeFromCart(item.id)} className="text-gray-400 hover:text-red-500 p-1">
-                                                <FaTrash className="w-2.5 h-2.5 md:w-3 h-3" />
-                                            </button>
                                         </div>
                                     </div>
                                 ))}
