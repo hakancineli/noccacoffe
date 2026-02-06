@@ -703,13 +703,21 @@ export const allMenuItems: MenuItem[] = [
   // ÇAYLAR
   {
     id: 137,
-    name: 'Çay',
+    name: 'Demleme Çay',
     description: 'Demleme taze siyah çay',
     category: 'Çaylar',
     sizes: [
       { size: 'Küçük', price: 60 },
       { size: 'Büyük', price: 80 }
     ],
+    image: '/images/products/yaseminli-yesil-cay.jpeg',
+  },
+  {
+    id: 139,
+    name: 'Çay',
+    description: 'Taze demlenmiş siyah çay',
+    category: 'Çaylar',
+    price: 60,
     image: '/images/products/yaseminli-yesil-cay.jpeg',
   },
 
