@@ -703,13 +703,10 @@ export const allMenuItems: MenuItem[] = [
   // ÇAYLAR
   {
     id: 137,
-    name: 'Demleme Çay',
-    description: 'Demleme taze siyah çay',
+    name: 'Fincan Çay',
+    description: 'Porselen fincanda servis edilen taze demlenmiş çay',
     category: 'Çaylar',
-    sizes: [
-      { size: 'Küçük', price: 60 },
-      { size: 'Büyük', price: 80 }
-    ],
+    price: 80,
     image: '/images/products/yaseminli-yesil-cay.jpeg',
   },
   {
@@ -718,14 +715,6 @@ export const allMenuItems: MenuItem[] = [
     description: 'Taze demlenmiş siyah çay',
     category: 'Çaylar',
     price: 60,
-    image: '/images/products/yaseminli-yesil-cay.jpeg',
-  },
-  {
-    id: 140,
-    name: 'Fincan Çay',
-    description: 'Porselen fincanda servis edilen taze demlenmiş çay',
-    category: 'Çaylar',
-    price: 80,
     image: '/images/products/yaseminli-yesil-cay.jpeg',
   },
 
