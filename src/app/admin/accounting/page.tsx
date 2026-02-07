@@ -202,8 +202,9 @@ function AccountingContent() {
                     adjustedProfit: data.summary.adjustedProfit
                 });
 
-                // Find today's stats for the modal
-                const todayKey = new Date().toISOString().split('T')[0];
+                // Find today's stats for the modal using TR time (UTC+3)
+                const trDate = new Date(new Date().getTime() + (3 * 60 * 60 * 1000));
+                const todayKey = trDate.toISOString().split('T')[0];
                 const today = data.dailyBreakdown?.find((d: any) => d.date === todayKey);
                 setTodayStats(today || null);
             }
@@ -466,7 +467,7 @@ function AccountingContent() {
                                     >
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                             {new Date(day.date).toLocaleDateString('tr-TR')}
-                                            {day.date === new Date().toISOString().split('T')[0] && <span className="ml-2 text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">Bugün</span>}
+                                            {day.date === new Date(new Date().getTime() + (3 * 60 * 60 * 1000)).toISOString().split('T')[0] && <span className="ml-2 text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">Bugün</span>}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
                                             {day.orderCount}

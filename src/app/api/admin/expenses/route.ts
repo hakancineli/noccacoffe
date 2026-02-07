@@ -14,11 +14,18 @@ export async function GET(request: Request) {
         const month = monthParam ? parseInt(monthParam) : now.getMonth() + 1;
         const year = yearParam ? parseInt(yearParam) : now.getFullYear();
 
-        const startDate = new Date(year, month - 1, 1);
-        const endDate = new Date(year, month, 0, 23, 59, 59, 999);
+        // Turkey is UTC+3. To get the start of the month in TR time:
+        // We want YYYY-MM-01 00:00 TR, which is YYYY-(MM-1)-31 21:00 UTC.
+        const startDate = new Date(Date.UTC(year, month - 1, 1, -3, 0, 0, 0));
+        const endDate = new Date(Date.UTC(year, month, 0, 20, 59, 59, 999)); // YYYY-MM-last 23:59 TR is 20:59 UTC
 
-        // Limit the end date to today if we are in the current month
-        const reportEndDate = (now >= startDate && now <= endDate) ? now : endDate;
+        // Helper to get YYYY-MM-DD in TR time
+        const getTRDate = (date: Date) => {
+            const trDate = new Date(date.getTime() + (3 * 60 * 60 * 1000));
+            return trDate.toISOString().split('T')[0];
+        };
+
+        const nowTR = getTRDate(now);
 
         const dateFilter = {
             date: {
@@ -62,12 +69,12 @@ export async function GET(request: Request) {
 
         const totalRevenue = paymentsAggregate._sum.amount || 0;
 
-        // 3. Daily Breakdown (Ensuring all days are present)
+        // Initialize all days of the month TR time
         const dailyMap = new Map<string, any>();
+        const currentDataDay = new Date(startDate.getTime() + (3 * 60 * 60 * 1000)); // Start in TR day
+        const endDataDay = new Date(endDate.getTime() + (3 * 60 * 60 * 1000));
 
-        // Initialize all days of the month up to the report end date
-        const currentDataDay = new Date(startDate);
-        while (currentDataDay <= reportEndDate) {
+        while (currentDataDay <= endDataDay) {
             const dayKey = currentDataDay.toISOString().split('T')[0];
             dailyMap.set(dayKey, {
                 date: dayKey,
@@ -78,7 +85,7 @@ export async function GET(request: Request) {
                 netProfit: 0,
                 orderCount: 0
             });
-            currentDataDay.setDate(currentDataDay.getDate() + 1);
+            currentDataDay.setUTCDate(currentDataDay.getUTCDate() + 1);
         }
 
         // Fetch detailed payments for breakdown
@@ -94,9 +101,9 @@ export async function GET(request: Request) {
             }
         });
 
-        // Process Payments
+        // Process Payments with TR Time
         allPayments.forEach(p => {
-            const dayKey = p.createdAt.toISOString().split('T')[0];
+            const dayKey = getTRDate(p.createdAt);
             if (dailyMap.has(dayKey)) {
                 const entry = dailyMap.get(dayKey);
                 entry.totalSales += p.amount;
@@ -106,9 +113,9 @@ export async function GET(request: Request) {
             }
         });
 
-        // Process Expenses
+        // Process Expenses with TR Time
         expenses.forEach(e => {
-            const dayKey = e.date.toISOString().split('T')[0];
+            const dayKey = getTRDate(e.date);
             if (dailyMap.has(dayKey)) {
                 const entry = dailyMap.get(dayKey);
                 entry.totalExpenses += e.amount;

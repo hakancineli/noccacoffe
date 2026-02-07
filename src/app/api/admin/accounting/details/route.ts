@@ -10,9 +10,14 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: 'Date is required' }, { status: 400 });
         }
 
-        // Explicitly handle date as UTC to match grouping logic
+        // Explicitly handle date as Turkey Time (UTC+3)
+        // TR 00:00 = UTC previous day 21:00
+        // TR 23:59 = UTC current day 20:59
         const startOfDay = new Date(`${dateStr}T00:00:00.000Z`);
+        startOfDay.setUTCHours(startOfDay.getUTCHours() - 3);
+
         const endOfDay = new Date(`${dateStr}T23:59:59.999Z`);
+        endOfDay.setUTCHours(endOfDay.getUTCHours() - 3);
 
         // Fetch Orders for the day
         const orders = await prisma.order.findMany({
