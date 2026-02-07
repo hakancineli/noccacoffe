@@ -6,10 +6,11 @@ import FeaturedProducts from '@/components/FeaturedProducts';
 import VideoBanner from '@/components/VideoBanner';
 import MenuItems from '@/components/MenuItems';
 import CampaignSection from '@/components/CampaignSection';
+import FranchiseBanner from '@/components/FranchiseBanner';
 
 export const metadata: Metadata = {
-  title: 'NOCCA Coffee | İstanbul\'un En İyi Kahve Deneyimi',
-  description: 'NOCCA Coffee ile taze kavrulmuş kahvelerin ve eşsiz tatlıların tadını çıkarın. İstanbul Bahçelievler\'de sizi bekliyoruz.',
+  title: 'NOCCA Coffee | İstanbul\'un En İyi Kahve Deneyimi ve Franchise Fırsatları',
+  description: 'NOCCA Coffee ile taze kavrulmuş kahvelerin ve eşsiz tatlıların tadını çıkarın. Başarıya ortak olun, kendi şubenizi açın. İstanbul Bahçelievler\'de sizi bekliyoruz.',
   alternates: {
     canonical: 'https://www.noccacoffee.com.tr',
   },
@@ -18,7 +19,7 @@ export const metadata: Metadata = {
 export default function Home() {
   return (
     <main>
-      <h1 className="sr-only">NOCCA Coffee - İstanbul'un En İyi Kahve Deneyimi ve Taze Kavrulmuş Kahveler</h1>
+      <h1 className="sr-only">NOCCA Coffee - İstanbul'un En İyi Kahve Deneyimi ve Franchise Fırsatları</h1>
       <Navbar />
       <Hero />
       <CampaignSection />
@@ -36,6 +37,7 @@ export default function Home() {
       </div>
 
       <FeaturedProducts />
+      <FranchiseBanner />
       <Footer />
     </main>
   );

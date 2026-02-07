@@ -117,6 +117,7 @@ const Navbar = () => {
     { name: 'MENÜ', href: '/menu' },
     { name: 'KAHVE', href: '/coffee' },
     { name: 'NOCCA REWARDS', href: '/rewards' },
+    { name: 'FRANCHISING', href: '/franchising' },
   ];
 
   return (

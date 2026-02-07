@@ -11,6 +11,7 @@ const Footer = () => {
         { name: 'Şirketimiz', href: '/about' },
         { name: 'Kurumsal Satış', href: '/corporate' },
         { name: 'Sıkça Sorulan Sorular', href: '/faq' },
+        { name: 'Franchising', href: '/franchising' },
         { name: 'İletişim', href: '/contact' },
       ],
     },
