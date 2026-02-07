@@ -173,14 +173,18 @@ export async function GET(request: NextRequest) {
         };
 
         try {
-            const apiKey = process.env.GEMINI_API_KEY;
+            // Check for both possible key names
+            const apiKey = process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY_NOCCA;
+
             if (!apiKey) {
-                throw new Error('GEMINI_API_KEY not configured');
+                console.warn('AI Consultant: No GEMINI_API_KEY found, using fallback logic');
+                throw new Error('API_KEY_MISSING');
             }
 
-            const prompt = `Sen Nocca Coffee'nin profesyonel iş ve strateji danışmanısın. Aşağıdaki aylık verileri analiz et ve işletme sahibine çok kısa, net ve vurucu tavsiyeler ver.
+            const prompt = `Sen Nocca Coffee'nin profesyonel iş ve strateji danışmanısın. Aşağıdaki aylık verileri analiz et ve işletme sahibine kısa, net ve vurucu tavsiyeler ver.
 
 VERİLER:
+- Dönem: ${monthName} ${year}
 - Toplam Ciro: ${totalRevenue.toLocaleString('tr-TR')} TL
 - Net Kar (Nakit): ${(totalRevenue - totalExpenses).toLocaleString('tr-TR')} TL
 - Stok Değeri (Varlık): ${totalStockValue.toLocaleString('tr-TR')} TL
@@ -193,15 +197,15 @@ VERİLER:
 
 Lütfen yanıtını SADECE aşağıdaki JSON formatında ver, başka hiçbir metin ekleme:
 {
-    "summary": "İşletmenin genel durumunu özetleyen profesyonel bir cümle.",
+    "summary": "Genel durum özeti.",
     "insights": {
-        "finance": "Finansal durumu iyileştirmek için tek cümlelik stratejik tavsiye.",
-        "menu": "Menüyü optimize etmek için tek cümlelik tavsiye.",
-        "stock": "Stok yönetimi için tek cümlelik tavsiye.",
-        "loyalty": "Müşteri sadakatini artırmak için tek cümlelik tavsiye.",
-        "staff": "Vardiya ve personel yönetimi için, yoğun saatlere (${shiftInsights.busiestHour}) odaklanan tek cümlelik tavsiye."
+        "finance": "Finansal tavsiye.",
+        "menu": "Menü tavsiyesi.",
+        "stock": "Stok tavsiyesi.",
+        "loyalty": "Müşteri tavsiyesi.",
+        "staff": "Vardiya tavsiyesi (${shiftInsights.busiestHour} saatine odaklan)."
     },
-    "mood": "positive"
+    "mood": "positive" (veya "neutral" veya "warning")
 }`;
 
             const aiRes = await fetch(
@@ -210,9 +214,7 @@ Lütfen yanıtını SADECE aşağıdaki JSON formatında ver, başka hiçbir met
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
-                        contents: [{
-                            parts: [{ text: prompt }]
-                        }],
+                        contents: [{ parts: [{ text: prompt }] }],
                         generationConfig: {
                             temperature: 0.7,
                             maxOutputTokens: 800,
@@ -224,30 +226,48 @@ Lütfen yanıtını SADECE aşağıdaki JSON formatında ver, başka hiçbir met
 
             if (aiRes.ok) {
                 const aiJson = await aiRes.json();
-                const generatedText = aiJson?.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
+                let generatedText = aiJson?.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
+
+                // Extra cleaning for safety
+                generatedText = generatedText.replace(/```json/g, '').replace(/```/g, '').trim();
+
                 const parsed = JSON.parse(generatedText);
                 if (parsed.summary && parsed.insights) {
-                    aiAnalysis = parsed;
+                    aiAnalysis = {
+                        ...parsed,
+                        mood: parsed.mood || (adjustedProfit > 0 ? "positive" : "warning")
+                    };
+                } else {
+                    throw new Error('JSON_STRUCTURE_INVALID');
                 }
             } else {
-                console.error('AI Response not OK:', await aiRes.text());
-                throw new Error('Gemini API returned non-OK status');
+                const errorData = await aiRes.text();
+                console.error('AI API Error Response:', errorData);
+                throw new Error('API_RESPONSE_NOT_OK');
             }
+
         } catch (aiError: any) {
-            console.error('AI Consultant: AI Model Error:', aiError.message);
+            console.error('AI Consultant Logic Error:', aiError.message);
+
+            // SUPER ROBUST FALLBACK - Analiz yapılamıyor yerine veriye dayalı otomatik analiz
             const profitMargin = totalRevenue > 0 ? adjustedProfit / totalRevenue : 0;
-            const topProduct = menuEngineering.sort((a, b) => b.sold - a.sold)[0]?.name || "Ürün";
+            const topProduct = menuEngineering.sort((a, b) => b.sold - a.sold)[0]?.name || "Ürünleriniz";
+            const isLoss = adjustedProfit < 0;
 
             aiAnalysis = {
-                summary: `${monthName} ayı ${totalRevenue.toLocaleString('tr-TR')} TL ciro ve ₺${adjustedProfit.toLocaleString('tr-TR')} stok ayarlı reel kar ile tamamlandı. ${topProduct} en popüler ürün olarak öne çıkıyor.`,
+                summary: `${monthName} dönemi ₺${totalRevenue.toLocaleString('tr-TR')} ciro ile ${isLoss ? 'zorlu' : 'başarılı'} geçti. ${topProduct} satışların lokomotifi oldu.`,
                 insights: {
-                    finance: profitMargin > 0.2 ? "Kar marjınız sağlıklı seviyede, sabit giderleri kontrol altında tutmaya devam edin." : "Kar marjı düşük görünüyor, maliyetleri düşürmek için tedarikçilerle görüşün.",
-                    menu: `${topProduct} satışları çok iyi, yanına yüksek kar marjlı bir eşlikçi ürün (cookie vb.) önerin.`,
-                    stock: "Popüler ürünlerin stok seviyelerini haftalık olarak kontrol edip sürpriz bitişleri engelleyin.",
-                    loyalty: "Düzenli müşteriler için '5. Kahve Bedava' gibi agresif bir kampanya başlatarak sadakati artırın.",
-                    staff: `${dayNames[busiestDayIndex]} günleri ${busiestHourIndex}:00 civarı yoğunluk artıyor, vardiya planını buna göre güçlendirin.`
+                    finance: isLoss
+                        ? "Giderler cironun üzerinde görünüyor, acil maliyet analizi yapılması önerilir."
+                        : "Kar marjı %${(profitMargin * 100).toFixed(0)} seviyesinde, operasyonel verimliliği koruyun.",
+                    menu: `${topProduct} yanına çapraz satış ürünleri ekleyerek sepet ortalamasını yükseltin.`,
+                    stock: "Yüksek hacimli ürünlerin stoklarını hafta başından planlayarak tedarik riskini azaltın.",
+                    loyalty: churnCount > 0
+                        ? `${churnCount} müşteriniz bir süredir gelmiyor, onlara özel bir kampanya (örn: 2. kahve %50) gönderin.`
+                        : "Müşteri sadakati iyi durumda, yeni ürün tanıtımları ile bağı güçlendirin.",
+                    staff: `${shiftInsights.busiestDay} günü ${shiftInsights.busiestHour} arası en yoğun zamanınız, personeli bu dilime yoğunlaştırın.`
                 },
-                mood: profitMargin > 0.15 ? "positive" : profitMargin > 0 ? "neutral" : "warning"
+                mood: isLoss ? "warning" : profitMargin > 0.15 ? "positive" : "neutral"
             };
         }
 
