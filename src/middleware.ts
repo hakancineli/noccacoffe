@@ -40,7 +40,18 @@ export async function middleware(request: NextRequest) {
       // BARISTA / WAITER / KITCHEN: Limited Access
       else if (['BARISTA', 'WAITER', 'KITCHEN'].includes(userRole)) {
         // Allowed paths for Staff
-        const allowedPaths = ['/admin/pos', '/admin/profile', '/admin/orders', '/api/admin/orders', '/api/admin/products', '/api/orders']; // Added API paths
+        const allowedPaths = [
+          '/admin/pos',
+          '/admin/profile',
+          '/admin/orders',
+          '/admin/accounting',
+          '/api/admin/orders',
+          '/api/admin/products',
+          '/api/admin/expenses',
+          '/api/admin/reports',
+          '/api/admin/accounting',
+          '/api/orders'
+        ]; // Added API paths and accounting
 
         // Exact match or starts with (for sub-routes)
         const isAllowed = allowedPaths.some(path => pathname.startsWith(path)) || pathname === '/admin';

@@ -178,18 +178,28 @@ export async function DELETE(
     const userId = request.headers.get('x-user-id') || undefined;
     const userEmail = request.headers.get('x-user-email') || undefined;
 
+    // Get full order details before delete for logging
+    const orderToDelete = await prisma.order.findUnique({
+      where: { id: params.id },
+      include: { orderItems: true, payments: true }
+    });
+
+    if (!orderToDelete) {
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+    }
+
     // Soft delete order
     const order = await prisma.order.update({
       where: { id: params.id },
       data: { isDeleted: true }
     });
 
-    // Log the sensitive action
+    // Log the sensitive action with full previous data
     await createAuditLog({
       action: 'DELETE_ORDER',
       entity: 'Order',
       entityId: params.id,
-      oldData: { isDeleted: false, orderNumber: order.orderNumber },
+      oldData: orderToDelete, // Log EVERYTHING about the order before it was "gone"
       newData: { isDeleted: true },
       userId,
       userEmail

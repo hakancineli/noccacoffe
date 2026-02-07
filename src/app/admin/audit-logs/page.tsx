@@ -106,6 +106,8 @@ export default function AuditLogsPage() {
         return translations[status] || status;
     };
 
+    const [selectedLog, setSelectedLog] = useState<AuditLog | null>(null);
+
     const formatDetails = (log: AuditLog) => {
         const { action, oldData, newData } = log;
 
@@ -130,7 +132,7 @@ export default function AuditLogsPage() {
         }
 
         if (action === 'DELETE_ORDER') {
-            return <span className="text-sm text-red-600 font-medium">Bu sipariş sistemden kaldırıldı.</span>;
+            return <span className="text-sm text-red-600 font-medium italic">Sipariş silindi ({oldData?.orderNumber})</span>;
         }
 
         if (action === 'UPDATE_PRODUCT') {
@@ -160,11 +162,10 @@ export default function AuditLogsPage() {
             );
         }
 
-        // Fallback for others
-        if (!newData && !oldData) return '-';
+        // Generic summary
         return (
             <div className="text-[10px] text-gray-400 max-w-xs truncate">
-                {JSON.stringify(newData || oldData)}
+                {JSON.stringify(newData || oldData || {})}
             </div>
         );
     };
@@ -257,6 +258,7 @@ export default function AuditLogsPage() {
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Varlık</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kullanıcı</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Detaylar</th>
+                                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aksiyon</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
@@ -287,6 +289,14 @@ export default function AuditLogsPage() {
                                             </td>
                                             <td className="px-6 py-4 text-sm text-gray-500">
                                                 {formatDetails(log)}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                <button
+                                                    onClick={() => setSelectedLog(log)}
+                                                    className="text-green-600 hover:text-green-900 bg-green-50 px-3 py-1 rounded"
+                                                >
+                                                    İncele
+                                                </button>
                                             </td>
                                         </tr>
                                     ))
@@ -341,6 +351,75 @@ export default function AuditLogsPage() {
                     )}
                 </div>
             </main>
+
+            {/* Log Detail Modal */}
+            {selectedLog && (
+                <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in">
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden flex flex-col max-h-[90vh]">
+                        <div className="bg-gradient-to-r from-gray-800 to-gray-900 p-6 text-white flex justify-between items-center shrink-0">
+                            <div>
+                                <h2 className="text-xl font-bold">İşlem Detayları</h2>
+                                <p className="text-gray-400 text-sm mt-1">
+                                    {new Date(selectedLog.createdAt).toLocaleString('tr-TR')} • {selectedLog.userEmail || 'Sistem'}
+                                </p>
+                            </div>
+                            <button onClick={() => setSelectedLog(null)} className="text-gray-400 hover:text-white transition p-2 hover:bg-white/10 rounded-full">✕</button>
+                        </div>
+
+                        <div className="p-6 overflow-y-auto space-y-6">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="p-3 bg-gray-50 rounded-lg">
+                                    <p className="text-xs text-gray-500 uppercase font-bold mb-1">Eylem</p>
+                                    <p className="font-medium">{formatAction(selectedLog.action)}</p>
+                                </div>
+                                <div className="p-3 bg-gray-50 rounded-lg">
+                                    <p className="text-xs text-gray-500 uppercase font-bold mb-1">ID</p>
+                                    <p className="font-mono text-xs">{selectedLog.entityId}</p>
+                                </div>
+                            </div>
+
+                            <div className="space-y-4">
+                                {selectedLog.oldData && (
+                                    <div>
+                                        <p className="text-sm font-bold text-gray-700 mb-2 flex items-center">
+                                            <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+                                            Eski Veri
+                                        </p>
+                                        <div className="bg-gray-900 rounded-xl p-4 overflow-x-auto">
+                                            <pre className="text-green-400 text-xs font-mono leading-relaxed">
+                                                {JSON.stringify(selectedLog.oldData, null, 2)}
+                                            </pre>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {selectedLog.newData && (
+                                    <div>
+                                        <p className="text-sm font-bold text-gray-700 mb-2 flex items-center">
+                                            <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                            Yeni Veri
+                                        </p>
+                                        <div className="bg-gray-900 rounded-xl p-4 overflow-x-auto">
+                                            <pre className="text-blue-400 text-xs font-mono leading-relaxed">
+                                                {JSON.stringify(selectedLog.newData, null, 2)}
+                                            </pre>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="p-4 bg-gray-50 border-t flex justify-end shrink-0">
+                            <button
+                                onClick={() => setSelectedLog(null)}
+                                className="px-6 py-2 bg-gray-900 text-white rounded-xl font-bold hover:bg-black transition active:scale-95"
+                            >
+                                Kapat
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
