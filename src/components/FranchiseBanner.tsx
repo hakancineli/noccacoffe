@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { FaWhatsapp, FaChartLine, FaCoffee, FaHandshake } from 'react-icons/fa';
 
 export default function FranchiseBanner() {
-    const whatsappNumber = '90554512034';
+    const whatsappNumber = '905545812034';
     const message = encodeURIComponent('Merhaba, NOCCA Coffee franchising hakkında bilgi almak istiyorum.');
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${message}`;
 
