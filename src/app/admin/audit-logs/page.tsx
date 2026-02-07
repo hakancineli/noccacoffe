@@ -106,6 +106,123 @@ export default function AuditLogsPage() {
         return translations[status] || status;
     };
 
+    // Category translation helper
+    const translateCategory = (category: string): string => {
+        const translations: { [key: string]: string } = {
+            'SALARY': 'Maaş',
+            'RENT': 'Kira',
+            'UTILITIES': 'Faturalar',
+            'SUPPLIES': 'Malzemeler',
+            'MAINTENANCE': 'Bakım',
+            'MARKETING': 'Pazarlama',
+            'ADVANCE': 'Avans',
+            'WASTE': 'Zayi',
+            'OTHER': 'Diğer'
+        };
+        return translations[category] || category;
+    };
+
+    const LogDataViewer = ({ data, title, colorClass }: { data: any, title: string, colorClass: string }) => {
+        if (!data || typeof data !== 'object') return null;
+
+        const formatKey = (key: string) => {
+            const trans: Record<string, string> = {
+                'orderNumber': 'Sipariş No',
+                'status': 'Durum',
+                'finalAmount': 'Toplam Tutar',
+                'totalAmount': 'Brüt Tutar',
+                'customerName': 'Müşteri',
+                'customerEmail': 'Müşteri E-posta',
+                'customerPhone': 'Müşteri Telefon',
+                'paymentMethod': 'Ödeme Yöntemi',
+                'paymentStatus': 'Ödeme Durumu',
+                'name': 'Ad',
+                'price': 'Fiyat',
+                'stock': 'Stok',
+                'isActive': 'Aktif mi?',
+                'description': 'Açıklama',
+                'category': 'Kategori',
+                'unit': 'Birim',
+                'costPerUnit': 'Birim Maliyet',
+                'notes': 'Notlar',
+                'source': 'Kaynak',
+                'isDeleted': 'Silindi mi?',
+                'createdAt': 'Oluşturulma',
+                'updatedAt': 'Güncelleme',
+                'date': 'Tarih',
+                'orderItems': 'Ürünler',
+                'payments': 'Ödemeler',
+                'cost': 'Maliyet',
+                'quantity': 'Miktar'
+            };
+            return trans[key] || key;
+        };
+
+        const formatValue = (key: string, value: any) => {
+            if (value === null || value === undefined) return '-';
+            if (typeof value === 'boolean') return value ? 'Evet' : 'Hayır';
+            if (key.toLowerCase().includes('amount') || key.toLowerCase().includes('price') || key === 'cost' || key === 'costPerUnit') {
+                return `₺${Number(value).toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
+            }
+            if (key === 'status' || key === 'paymentStatus') return translateStatus(value);
+            if (key === 'category') return translateCategory(value);
+            if (key === 'createdAt' || key === 'updatedAt' || key === 'date') return new Date(value).toLocaleString('tr-TR');
+            if (Array.isArray(value)) return `${value.length} öğe`;
+            return value.toString();
+        };
+
+        const displayKeys = Object.entries(data).filter(([k]) => !['id', 'userId', 'entityId', 'externalId'].includes(k));
+
+        if (displayKeys.length === 0) return null;
+
+        return (
+            <div className="space-y-3">
+                <p className="text-sm font-bold text-gray-700 flex items-center">
+                    <span className={`w-2.5 h-2.5 ${colorClass} rounded-full mr-2 shadow-sm`}></span>
+                    {title}
+                </p>
+                <div className="bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm">
+                    <table className="min-w-full divide-y divide-gray-100">
+                        <tbody className="divide-y divide-gray-50">
+                            {displayKeys.map(([key, value]) => (
+                                <tr key={key} className="hover:bg-gray-50/50 transition-colors">
+                                    <td className="px-4 py-2.5 text-[11px] font-bold text-gray-500 bg-gray-50/50 w-1/3 border-r border-gray-100 uppercase tracking-tight">
+                                        {formatKey(key)}
+                                    </td>
+                                    <td className="px-4 py-2.5 text-xs text-gray-800">
+                                        {key === 'orderItems' && Array.isArray(value) ? (
+                                            <div className="space-y-1.5 py-1">
+                                                {value.map((item: any, i: number) => (
+                                                    <div key={i} className="flex justify-between items-center text-[11px] bg-gray-50 p-2 rounded-lg border border-gray-100">
+                                                        <span className="font-medium text-gray-700">
+                                                            {item.quantity}x {item.productName} {item.size ? <span className="text-gray-400">({item.size})</span> : ''}
+                                                        </span>
+                                                        <span className="font-bold text-green-700">₺{item.totalPrice?.toLocaleString()}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ) : key === 'payments' && Array.isArray(value) ? (
+                                            <div className="space-y-1 py-1">
+                                                {value.map((p: any, i: number) => (
+                                                    <div key={i} className="text-[11px] flex justify-between">
+                                                        <span>{p.method === 'CREDIT_CARD' ? '💳 Kart' : '💵 Nakit'}</span>
+                                                        <span className="font-bold">₺{p.amount?.toLocaleString()}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <span className="font-medium">{formatValue(key, value)}</span>
+                                        )}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        );
+    };
+
     const [selectedLog, setSelectedLog] = useState<AuditLog | null>(null);
 
     const formatDetails = (log: AuditLog) => {
@@ -378,33 +495,21 @@ export default function AuditLogsPage() {
                                 </div>
                             </div>
 
-                            <div className="space-y-4">
+                            <div className="space-y-6">
                                 {selectedLog.oldData && (
-                                    <div>
-                                        <p className="text-sm font-bold text-gray-700 mb-2 flex items-center">
-                                            <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
-                                            Eski Veri
-                                        </p>
-                                        <div className="bg-gray-900 rounded-xl p-4 overflow-x-auto">
-                                            <pre className="text-green-400 text-xs font-mono leading-relaxed">
-                                                {JSON.stringify(selectedLog.oldData, null, 2)}
-                                            </pre>
-                                        </div>
-                                    </div>
+                                    <LogDataViewer
+                                        data={selectedLog.oldData}
+                                        title="Eski Veri"
+                                        colorClass="bg-red-500"
+                                    />
                                 )}
 
                                 {selectedLog.newData && (
-                                    <div>
-                                        <p className="text-sm font-bold text-gray-700 mb-2 flex items-center">
-                                            <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                                            Yeni Veri
-                                        </p>
-                                        <div className="bg-gray-900 rounded-xl p-4 overflow-x-auto">
-                                            <pre className="text-blue-400 text-xs font-mono leading-relaxed">
-                                                {JSON.stringify(selectedLog.newData, null, 2)}
-                                            </pre>
-                                        </div>
-                                    </div>
+                                    <LogDataViewer
+                                        data={selectedLog.newData}
+                                        title="Yeni Veri"
+                                        colorClass="bg-green-500"
+                                    />
                                 )}
                             </div>
                         </div>
