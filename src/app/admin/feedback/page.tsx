@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { FaTrash, FaCheck, FaUndo, FaFilter, FaArrowLeft, FaCommentDots, FaClock, FaUser, FaPhoneAlt, FaQrcode, FaTimes } from 'react-icons/fa';
+import { FaCheck, FaUndo, FaFilter, FaArrowLeft, FaCommentDots, FaClock, FaUser, FaPhoneAlt, FaQrcode, FaTimes } from 'react-icons/fa';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 
@@ -59,18 +59,6 @@ export default function AdminFeedbackPage() {
         }
     };
 
-    const deleteFeedback = async (id: string) => {
-        if (!confirm('Bu geri bildirimi silmek istediğinize emin misiniz?')) return;
-        try {
-            const res = await fetch(`/api/admin/feedback/${id}`, { method: 'DELETE' });
-            if (res.ok) {
-                setFeedbacks(feedbacks.filter(f => f.id !== id));
-                toast.success('Geri bildirim silindi.');
-            }
-        } catch (error) {
-            toast.error('Silme işlemi başarısız.');
-        }
-    };
 
     const feedbackUrl = typeof window !== 'undefined' ? `${window.location.origin}/feedback` : '';
     const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(feedbackUrl)}`;
@@ -184,19 +172,12 @@ export default function AdminFeedbackPage() {
                                     <button
                                         onClick={() => toggleRead(fb.id, fb.isRead)}
                                         className={`p-3 rounded-2xl transition-all ${fb.isRead
-                                                ? 'bg-gray-100 text-gray-500 hover:bg-gray-200'
-                                                : 'bg-green-100 text-green-700 hover:bg-green-200'
+                                            ? 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                                            : 'bg-green-100 text-green-700 hover:bg-green-200'
                                             }`}
                                         title={fb.isRead ? 'Okunmadı İşaretle' : 'Okundu İşaretle'}
                                     >
                                         {fb.isRead ? <FaUndo /> : <FaCheck />}
-                                    </button>
-                                    <button
-                                        onClick={() => deleteFeedback(fb.id)}
-                                        className="p-3 bg-red-50 text-red-500 rounded-2xl hover:bg-red-100 transition-all"
-                                        title="Sil"
-                                    >
-                                        <FaTrash />
                                     </button>
                                 </div>
                             </div>
