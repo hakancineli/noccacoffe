@@ -197,7 +197,7 @@ export default function POSPage() {
     };
 
     // Categories that are likely hot drinks (needing porcelain option)
-    const HOT_DRINK_CATEGORIES = ['Sıcak Kahveler', 'Çaylar', 'Espresso', 'Matchalar'];
+    const HOT_DRINK_CATEGORIES = ['Sıcak Kahveler', 'Çaylar', 'Espresso VE Türk Kahvesi', 'Matchalar'];
 
     // Categories that don't require recipes (unit-based products or simple stock tracking)
     const UNIT_BASED_CATEGORIES = ['Meşrubatlar', 'Yan Ürünler', 'Kahve Çekirdekleri', 'Çaylar', 'Şuruplar', 'Soslar', 'Püreler', 'Tozlar', 'Sütler', 'Extra'];

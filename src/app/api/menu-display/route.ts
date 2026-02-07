@@ -9,7 +9,7 @@ const HIDDEN_CATEGORIES = ['Şuruplar', 'Soslar', 'Püreler', 'Tozlar', 'Sütler
 
 // Category display order
 const CATEGORY_ORDER = [
-    'Espresso',
+    'Espresso VE Türk Kahvesi',
     'Sıcak Kahveler',
     'Soğuk Kahveler',
     'Frappeler',

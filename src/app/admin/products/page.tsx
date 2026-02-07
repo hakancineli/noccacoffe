@@ -353,7 +353,7 @@ export default function ProductsManagement() {
     'Soğuk Kahveler',
     'Sıcak Kahveler',
     'Soğuk İçecekler',
-    'Espresso',
+    'Espresso VE Türk Kahvesi',
     'Milkshake',
     'Frappeler',
     'Bubble Tea',
