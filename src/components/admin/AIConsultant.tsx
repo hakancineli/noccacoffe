@@ -311,8 +311,8 @@ export default function AIConsultant() {
                                         <div key={i} className="flex-1 flex flex-col items-center gap-2 group relative h-full justify-end">
                                             <div
                                                 className={`w-full rounded-md transition-all duration-500 relative ${isZero ? 'bg-gray-100 h-1.5' :
-                                                        isPeak ? 'bg-gradient-to-t from-indigo-600 to-indigo-400 shadow-lg shadow-indigo-500/30' :
-                                                            'bg-indigo-200 group-hover:bg-indigo-300'
+                                                    isPeak ? 'bg-gradient-to-t from-indigo-600 to-indigo-400 shadow-lg shadow-indigo-500/30' :
+                                                        'bg-indigo-200 group-hover:bg-indigo-300'
                                                     }`}
                                                 style={{ height: isZero ? '6px' : `${height}%` }}
                                             >
