@@ -165,7 +165,7 @@ export async function GET(request: NextRequest) {
             avgOrdersPerDay: Math.round(orders.length / 30),
         };
 
-        // 7. AI Request
+        // 7. AI Request with Google Gemini
         let aiAnalysis = {
             summary: "Analiz şu an yapılamıyor.",
             insights: { finance: "-", menu: "-", stock: "-", loyalty: "-", staff: "-" },
@@ -173,7 +173,12 @@ export async function GET(request: NextRequest) {
         };
 
         try {
-            const hfPrompt = `<s>[INST] Sen Nocca Coffee'nin profesyonel iş ve strateji danışmanısın. Aşağıdaki aylık verileri analiz et ve işletme sahibine çok kısa, net ve vurucu tavsiyeler ver.
+            const apiKey = process.env.GEMINI_API_KEY;
+            if (!apiKey) {
+                throw new Error('GEMINI_API_KEY not configured');
+            }
+
+            const prompt = `Sen Nocca Coffee'nin profesyonel iş ve strateji danışmanısın. Aşağıdaki aylık verileri analiz et ve işletme sahibine çok kısa, net ve vurucu tavsiyeler ver.
 
 VERİLER:
 - Toplam Ciro: ${totalRevenue.toLocaleString('tr-TR')} TL
@@ -197,26 +202,36 @@ Lütfen yanıtını SADECE aşağıdaki JSON formatında ver, başka hiçbir met
         "staff": "Vardiya ve personel yönetimi için, yoğun saatlere (${shiftInsights.busiestHour}) odaklanan tek cümlelik tavsiye."
     },
     "mood": "positive"
-}
-[/INST]`;
+}`;
 
-            const aiRes = await fetch("https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2", {
-                headers: {
-                    Authorization: `Bearer hf_JqXYWbWjXvWqXvWqXvWqXvWqXvWqXvWq`,
-                    "Content-Type": "application/json",
-                },
-                method: "POST",
-                body: JSON.stringify({ inputs: hfPrompt, parameters: { max_new_tokens: 500, return_full_text: false, temperature: 0.7 } }),
-            });
+            const aiRes = await fetch(
+                `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`,
+                {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{ text: prompt }]
+                        }],
+                        generationConfig: {
+                            temperature: 0.7,
+                            maxOutputTokens: 800,
+                            responseMimeType: "application/json"
+                        }
+                    }),
+                }
+            );
 
             if (aiRes.ok) {
                 const aiJson = await aiRes.json();
-                let generatedText = aiJson[0]?.generated_text || "";
-                const firstBrace = generatedText.indexOf('{');
-                const lastBrace = generatedText.lastIndexOf('}');
-                if (firstBrace !== -1 && lastBrace !== -1) {
-                    aiAnalysis = JSON.parse(generatedText.substring(firstBrace, lastBrace + 1));
+                const generatedText = aiJson?.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
+                const parsed = JSON.parse(generatedText);
+                if (parsed.summary && parsed.insights) {
+                    aiAnalysis = parsed;
                 }
+            } else {
+                console.error('AI Response not OK:', await aiRes.text());
+                throw new Error('Gemini API returned non-OK status');
             }
         } catch (aiError: any) {
             console.error('AI Consultant: AI Model Error:', aiError.message);

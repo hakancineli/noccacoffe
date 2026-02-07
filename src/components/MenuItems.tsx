@@ -181,8 +181,8 @@ const MenuItems = () => {
           const isAvailable = getAvailability(item);
 
           return (
-            <div key={item.id} className={`bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 ${!isAvailable ? 'opacity-70 grayscale' : ''}`}>
-              <div className="relative h-64 bg-gray-100">
+            <div key={item.id} className={`bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col ${!isAvailable ? 'opacity-70 grayscale' : ''}`}>
+              <div className="relative h-56 bg-gray-100">
                 {!isAvailable && (
                   <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/10">
                     <span className="bg-red-600 text-white text-sm font-black px-3 py-1 rounded shadow-lg transform -rotate-12 border-2 border-white uppercase tracking-wider">
@@ -198,8 +198,7 @@ const MenuItems = () => {
                       fill
                       quality={95}
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      className={`${item.isIced ? 'object-cover scale-110' : 'object-cover'
-                        }`}
+                      className={`${item.isIced ? 'object-cover scale-110' : 'object-cover'}`}
                       priority={item.id <= 6}
                     />
                   </div>
@@ -209,44 +208,53 @@ const MenuItems = () => {
                   </div>
                 )}
               </div>
-              <div className="p-4">
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="text-lg font-semibold text-gray-900">{item.name}</h3>
-                  <span className="text-nocca-green font-bold whitespace-nowrap ml-2">
+
+              {/* Product Details - Responsive Layout */}
+              <div className="p-4 flex-1 flex flex-col gap-3">
+                {/* Title & Price Row */}
+                <div className="flex justify-between items-start gap-2">
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 leading-tight flex-1 min-w-0">
+                    {item.name}
+                  </h3>
+                  <span className="text-nocca-green font-bold whitespace-nowrap text-sm sm:text-base shrink-0">
                     {getItemPrice(item)}
                   </span>
                 </div>
-                <p className="text-sm text-gray-600 mb-3">{item.description}</p>
+
+                {/* Description */}
+                <p className="text-xs sm:text-sm text-gray-600 line-clamp-2">
+                  {item.description}
+                </p>
 
                 {/* Size Selection */}
                 {item.sizes && item.sizes.length > 0 && (
-                  <div className="mb-3">
-                    <div className="flex gap-2">
-                      {item.sizes.map((sizeOption) => (
-                        <button
-                          key={sizeOption.size}
-                          onClick={() => handleSizeSelect(item.id, sizeOption.size)}
-                          disabled={!isAvailable}
-                          className={`flex-1 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${(selectedSizes[item.id] || item.sizes![0].size) === sizeOption.size
-                            ? 'bg-nocca-green text-white'
+                  <div className="flex gap-2 flex-wrap">
+                    {item.sizes.map((sizeOption) => (
+                      <button
+                        key={sizeOption.size}
+                        onClick={() => handleSizeSelect(item.id, sizeOption.size)}
+                        disabled={!isAvailable}
+                        className={`flex-1 min-w-[60px] px-3 py-2 text-xs sm:text-sm font-medium rounded-lg transition-all ${(selectedSizes[item.id] || item.sizes![0].size) === sizeOption.size
+                            ? 'bg-nocca-green text-white shadow-md'
                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                            } ${!isAvailable ? 'cursor-not-allowed opacity-50' : ''}`}
-                        >
-                          {sizeOption.size}
-                        </button>
-                      ))}
-                    </div>
+                          } ${!isAvailable ? 'cursor-not-allowed opacity-50' : ''}`}
+                      >
+                        {sizeOption.size}
+                      </button>
+                    ))}
                   </div>
                 )}
 
-                <div className="flex justify-between items-center">
-                  <span className="text-xs text-gray-500">
+                {/* Category & Add Button Row */}
+                <div className="flex justify-between items-center mt-auto pt-2 border-t border-gray-100">
+                  <span className="text-xs text-gray-500 font-medium">
                     {item.category}
                   </span>
                   <button
                     onClick={() => addToCart(item, selectedSizes[item.id] || (item.sizes && item.sizes.length > 0 ? item.sizes[0].size : undefined))}
                     disabled={!isAvailable}
-                    className={`bg-nocca-green text-white p-2 rounded-full hover:bg-nocca-light-green transition-colors active:scale-95 transform ${!isAvailable ? 'bg-gray-400 hover:bg-gray-400 cursor-not-allowed' : ''}`}
+                    className={`bg-nocca-green text-white p-2.5 rounded-full hover:bg-nocca-light-green transition-all active:scale-95 transform shadow-md ${!isAvailable ? 'bg-gray-400 hover:bg-gray-400 cursor-not-allowed' : ''
+                      }`}
                     aria-label={`${item.name} sepete ekle`}
                   >
                     <FaPlus className="h-4 w-4" />
