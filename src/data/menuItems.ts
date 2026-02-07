@@ -865,6 +865,7 @@ export const allMenuItems: MenuItem[] = [
 // Category list for filtering
 export const categories = [
   'Tümü',
+  'Çaylar',
   'Tatlılar',
   'Soğuk Kahveler',
   'Sıcak Kahveler',
@@ -874,7 +875,6 @@ export const categories = [
   'Frappeler',
   'Bubble Tea',
   'Matchalar',
-  'Çaylar',
   'Şuruplar',
   'Soslar',
   'Püreler',
