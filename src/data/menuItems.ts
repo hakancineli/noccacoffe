@@ -717,6 +717,14 @@ export const allMenuItems: MenuItem[] = [
     price: 60,
     image: '/images/products/yaseminli-yesil-cay.jpeg',
   },
+  {
+    id: 66,
+    name: 'Hibiscus Çayı',
+    description: 'Hibiskus çayı',
+    category: 'Çaylar',
+    price: 180,
+    image: '/images/products/hibiscus-cayi.jpeg',
+  },
 
   // BİTKİ ÇAYLARI (HERBAL TEAS)
   {
@@ -758,14 +766,6 @@ export const allMenuItems: MenuItem[] = [
     category: 'Çaylar',
     price: 200,
     image: '/images/products/yaseminli-yesil-cay.jpeg',
-  },
-  {
-    id: 66,
-    name: 'Hibiscus Çayı',
-    description: 'Hibiskus çayı',
-    category: 'Çaylar',
-    price: 180,
-    image: '/images/products/hibiscus-cayi.jpeg',
   },
   {
     id: 67,
