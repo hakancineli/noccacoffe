@@ -245,20 +245,45 @@ model Payment {
 }
 
 model Barista {
-  id           String    @id @default(cuid())
+  id           String             @id @default(cuid())
   name         String
-  email        String    @unique
-  passwordHash String    @map("password_hash")
-  isActive     Boolean   @default(true) @map("is_active")
-  createdAt    DateTime  @default(now()) @map("created_at")
-  updatedAt    DateTime  @updatedAt @map("updated_at")
+  email        String             @unique
+  passwordHash String             @map("password_hash")
+  isActive     Boolean            @default(true) @map("is_active")
+  createdAt    DateTime           @default(now()) @map("created_at")
+  updatedAt    DateTime           @updatedAt @map("updated_at")
   phone        String?
-  role         StaffRole @default(BARISTA)
-  salary       Float     @default(0)
-  startDate    DateTime  @default(now()) @map("start_date")
+  role         StaffRole          @default(BARISTA)
+  salary       Float              @default(0)
+  startDate    DateTime           @default(now()) @map("start_date")
   expenses     Expense[]
+  consumptions StaffConsumption[]
 
   @@map("baristas")
+}
+
+model StaffConsumption {
+  id        String                 @id @default(cuid())
+  staffId   String                 @map("staff_id")
+  staff     Barista                @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  items     StaffConsumptionItem[]
+  createdAt DateTime               @default(now()) @map("created_at")
+
+  @@map("staff_consumptions")
+}
+
+model StaffConsumptionItem {
+  id            String           @id @default(cuid())
+  consumptionId String           @map("consumption_id")
+  productId     String           @map("product_id")
+  productName   String           @map("product_name")
+  quantity      Int
+  originalPrice Float            @map("original_price")
+  staffPrice    Float            @map("staff_price")
+  size          String?
+  consumption   StaffConsumption @relation(fields: [consumptionId], references: [id], onDelete: Cascade)
+
+  @@map("staff_consumption_items")
 }
 
 model Expense {

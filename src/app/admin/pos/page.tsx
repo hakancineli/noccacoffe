@@ -68,6 +68,13 @@ export default function POSPage() {
     const [pendingOrdersCount, setPendingOrdersCount] = useState(0);
     const [isSyncing, setIsSyncing] = useState(false);
 
+    // Staff Consumption State
+    const [staffMode, setStaffMode] = useState(false);
+    const [selectedStaff, setSelectedStaff] = useState<any>(null);
+    const [allStaff, setAllStaff] = useState<any[]>([]);
+    const [showStaffModal, setShowStaffModal] = useState(false);
+    const [isStaffSubmitting, setIsStaffSubmitting] = useState(false);
+
     // Monitor Online Status
     useEffect(() => {
         const updateOnlineStatus = () => {
@@ -121,6 +128,20 @@ export default function POSPage() {
             }
         };
         fetchProducts();
+
+        // Fetch Staff
+        const fetchStaff = async () => {
+            try {
+                const res = await fetch('/api/admin/staff');
+                if (res.ok) {
+                    const data = await res.json();
+                    setAllStaff(Array.isArray(data) ? data : (data.staff || []));
+                }
+            } catch (error) {
+                console.error('Staff fetch error:', error);
+            }
+        };
+        fetchStaff();
     }, []);
 
     // Track pending orders count
@@ -306,8 +327,18 @@ export default function POSPage() {
     };
 
     const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+    // Staff Price Calculation
+    // Free for everything except "Tatlılar" which are 50%
+    const getStaffPrice = (item: CartItem) => {
+        if (item.category === 'Tatlılar') return item.price * 0.5;
+        return 0;
+    };
+
+    const staffTotal = cart.reduce((sum, item) => sum + (getStaffPrice(item) * item.quantity), 0);
+
     const discountAmount = cartTotal * (discountRate / 100);
-    const finalTotal = cartTotal - discountAmount;
+    const finalTotal = staffMode ? staffTotal : (cartTotal - discountAmount);
 
     // Customer Search Logic
     useEffect(() => {
@@ -375,15 +406,18 @@ export default function POSPage() {
         if (cart.length === 0) return;
 
         const orderData = {
-            items: cart.map(item => ({
-                productId: item.productId,
-                productName: item.name,
-                quantity: item.quantity,
-                unitPrice: item.price,
-                totalPrice: item.price * item.quantity,
-                size: item.size,
-                isPorcelain: item.isPorcelain
-            })),
+            items: cart.map(item => {
+                const unitPrice = item.price * (1 - discountRate / 100);
+                return {
+                    productId: item.productId,
+                    productName: item.name,
+                    quantity: item.quantity,
+                    unitPrice: unitPrice,
+                    totalPrice: unitPrice * item.quantity,
+                    size: item.size,
+                    isPorcelain: item.isPorcelain
+                };
+            }),
             totalAmount: cartTotal,
             finalAmount: finalTotal,
             discountAmount: discountAmount,
@@ -496,12 +530,99 @@ export default function POSPage() {
         }
     };
 
+    // Staff Consumption Submission
+    const handleCreateStaffConsumption = async () => {
+        if (cart.length === 0 || !selectedStaff) {
+            toast.error('Lütfen personel seçin ve ürün ekleyin.');
+            return;
+        }
+
+        setIsStaffSubmitting(true);
+        try {
+            const consumptionData = {
+                staffId: selectedStaff.id,
+                items: cart.map(item => ({
+                    productId: item.productId,
+                    productName: item.name,
+                    quantity: item.quantity,
+                    originalPrice: item.price,
+                    staffPrice: getStaffPrice(item),
+                    size: item.size,
+                    isPorcelain: item.isPorcelain,
+                    category: item.category
+                }))
+            };
+
+            const res = await fetch('/api/admin/staff-consumption', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(consumptionData)
+            });
+
+            if (res.ok) {
+                toast.success(`${selectedStaff.name} tüketimi başarıyla kaydedildi.`);
+                setCart([]);
+                setStaffMode(false);
+                setSelectedStaff(null);
+            } else {
+                const err = await res.json();
+                toast.error(`Hata: ${err.error || 'Kaydedilemedi'}`);
+            }
+        } catch (error) {
+            console.error('Staff consumption error:', error);
+            toast.error('Bağlantı hatası.');
+        } finally {
+            setIsStaffSubmitting(false);
+        }
+    };
+
 
 
     return (
         <>
             {/* Screen UI - Hidden when printing */}
             <div className="flex flex-col md:flex-row h-screen h-[100dvh] bg-gray-100 overflow-hidden relative print:hidden">
+                {/* Staff Selection Modal */}
+                {showStaffModal && (
+                    <div className="absolute inset-0 bg-black/50 z-[60] flex items-center justify-center backdrop-blur-sm animate-fade-in">
+                        <div className="bg-white p-6 rounded-2xl shadow-2xl max-w-md w-full relative">
+                            <button
+                                onClick={() => {
+                                    setShowStaffModal(false);
+                                    setStaffMode(false);
+                                }}
+                                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+                            >
+                                <FaTimes size={24} />
+                            </button>
+
+                            <h3 className="text-xl font-bold text-gray-800 mb-4">Personel Seçin</h3>
+                            <div className="grid grid-cols-2 gap-3 max-h-96 overflow-y-auto p-1">
+                                {allStaff.length === 0 ? (
+                                    <p className="col-span-2 text-center text-gray-500 py-10">Personel bulunamadı.</p>
+                                ) : (
+                                    allStaff.map(staff => (
+                                        <button
+                                            key={staff.id}
+                                            onClick={() => {
+                                                setSelectedStaff(staff);
+                                                setShowStaffModal(false);
+                                            }}
+                                            className="p-4 rounded-xl border-2 border-gray-100 hover:border-purple-600 hover:bg-purple-50 transition-all text-center group"
+                                        >
+                                            <div className="w-12 h-12 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mx-auto mb-2 font-bold group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                                                {staff.name.split(' ').map((n: string) => n[0]).join('')}
+                                            </div>
+                                            <span className="font-bold text-gray-800 block text-sm">{staff.name}</span>
+                                            <span className="text-[10px] text-gray-500 uppercase">{staff.role}</span>
+                                        </button>
+                                    ))
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* Split Bill Modal */}
                 {showSplitModal && (
                     <div className="absolute inset-0 bg-black/50 z-50 flex items-center justify-center backdrop-blur-sm animate-fade-in">
@@ -787,6 +908,22 @@ export default function POSPage() {
                                 >
                                     <FaSync className="text-xs" />
                                     <span className="hidden md:inline">Son Siparişler</span>
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setStaffMode(!staffMode);
+                                        if (!staffMode) {
+                                            setShowStaffModal(true);
+                                            setDiscountRate(0);
+                                            setSelectedCustomer(null);
+                                        } else {
+                                            setSelectedStaff(null);
+                                        }
+                                    }}
+                                    className={`flex items-center space-x-1 md:space-x-2 px-2 md:px-3 py-1 md:py-1.5 rounded-xl text-[10px] md:text-xs font-bold uppercase tracking-wider transition-all shadow-lg ${staffMode ? 'bg-purple-600 text-white animate-pulse' : 'bg-white text-purple-600 border border-purple-200 hover:bg-purple-50'}`}
+                                >
+                                    <FaUser className="text-xs" />
+                                    <span>{staffMode ? (selectedStaff?.name || 'Personel') : 'Personel'}</span>
                                 </button>
                                 <div className={`flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${isOnline ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                                     <FaWifi />
@@ -1094,35 +1231,49 @@ export default function POSPage() {
                             <span className="text-lg md:text-2xl font-bold text-gray-900">₺{(finalTotal ?? 0).toFixed(2)}</span>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-2 md:gap-3">
-                            <button
-                                onClick={() => handleCreateOrder('CASH')}
-                                disabled={cart.length === 0 || processingPayment}
-                                className="flex flex-col items-center justify-center py-2 md:py-4 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors disabled:opacity-50 shadow-lg"
-                            >
-                                <FaMoneyBillWave className="w-4 h-4 md:w-6 md:h-6 mb-0.5 md:mb-1" />
-                                <span className="font-bold text-[10px] md:text-base">NAKİT</span>
-                            </button>
-                            <button
-                                onClick={() => handleCreateOrder('CREDIT_CARD')}
-                                disabled={cart.length === 0 || processingPayment}
-                                className="flex flex-col items-center justify-center py-2 md:py-4 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50 shadow-lg"
-                            >
-                                <FaCreditCard className="w-4 h-4 md:w-6 md:h-6 mb-0.5 md:mb-1" />
-                                <span className="font-bold text-[10px] md:text-base">KREDİ KARTI</span>
-                            </button>
-                            <button
-                                onClick={() => {
-                                    setSplitCash(0);
-                                    setSplitCard(0);
-                                    setItemAssignments({});
-                                    setShowSplitModal(true);
-                                }}
-                                disabled={cart.length === 0 || processingPayment}
-                                className="col-span-2 flex items-center justify-center py-2 md:py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors disabled:opacity-50 shadow-lg mt-1 md:mt-2"
-                            >
-                                <span className="font-bold text-xs md:text-lg">⚖️ HESAP BÖL</span>
-                            </button>
+                        <div className="mt-4">
+                            {staffMode ? (
+                                <button
+                                    onClick={handleCreateStaffConsumption}
+                                    disabled={cart.length === 0 || !selectedStaff || isStaffSubmitting}
+                                    className="w-full h-16 bg-purple-600 text-white rounded-xl font-bold flex flex-col items-center justify-center shadow-lg hover:bg-purple-700 transition-all disabled:opacity-50"
+                                >
+                                    <span className="text-lg uppercase">TÜKETİMİ KAYDET</span>
+                                    <span className="text-xs opacity-80">{selectedStaff?.name}</span>
+                                </button>
+                            ) : (
+                                <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
+                                    <button
+                                        onClick={() => handleCreateOrder('CASH')}
+                                        disabled={cart.length === 0 || processingPayment}
+                                        className="flex flex-col items-center justify-center py-2 md:py-4 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors disabled:opacity-50 shadow-lg"
+                                    >
+                                        <FaMoneyBillWave className="w-4 h-4 md:w-6 md:h-6 mb-0.5 md:mb-1" />
+                                        <span className="font-bold text-[10px] md:text-base uppercase underline-offset-2">NAKİT</span>
+                                    </button>
+                                    <button
+                                        onClick={() => handleCreateOrder('CREDIT_CARD')}
+                                        disabled={cart.length === 0 || processingPayment}
+                                        className="flex flex-col items-center justify-center py-2 md:py-4 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50 shadow-lg"
+                                    >
+                                        <FaCreditCard className="w-4 h-4 md:w-6 md:h-6 mb-0.5 md:mb-1" />
+                                        <span className="font-bold text-[10px] md:text-base uppercase">K. KARTI</span>
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            setSplitCash(0);
+                                            setSplitCard(0);
+                                            setItemAssignments({});
+                                            setShowSplitModal(true);
+                                        }}
+                                        disabled={cart.length === 0 || processingPayment}
+                                        className="col-span-2 lg:col-span-1 flex flex-col items-center justify-center py-2 md:py-4 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors disabled:opacity-50 shadow-lg"
+                                    >
+                                        <FaClipboardList className="w-4 h-4 md:w-6 md:h-6 mb-0.5 md:mb-1" />
+                                        <span className="font-bold text-[10px] md:text-base uppercase tracking-tight">PARÇALI</span>
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
