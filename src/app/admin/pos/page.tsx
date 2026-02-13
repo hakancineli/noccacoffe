@@ -288,7 +288,6 @@ export default function POSPage() {
                         : item
                 );
             }
-            const isHot = HOT_DRINK_CATEGORIES.includes(product.category);
 
             return [...prev, {
                 id: cartItemId,
@@ -298,7 +297,7 @@ export default function POSPage() {
                 quantity: 1,
                 size,
                 category: product.category,
-                isPorcelain: isHot // Default to porcelain for hot drinks
+                isPorcelain: false
             }];
         });
 
@@ -1116,7 +1115,8 @@ export default function POSPage() {
                                                 )}
 
                                                 {/* Cup Selection - Compact on mobile */}
-                                                {HOT_DRINK_CATEGORIES.includes(item.category || '') && (
+                                                {/* Cup Selection - Broadened categories to include cold drinks */}
+                                                {['Sıcak Kahveler', 'Çaylar', 'Espresso Ve Türk Kahvesi', 'Matchalar', 'Soğuk Kahveler', 'Soğuk İçecekler', 'Frappeler', 'Milkshake', 'Bubble Tea'].includes(item.category || '') && (
                                                     <div className="flex shadow-sm rounded-md overflow-hidden shrink-0">
                                                         <button
                                                             onClick={() => setCart(prev => prev.map(p => p.id === item.id ? { ...p, isPorcelain: true } : p))}
