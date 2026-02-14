@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { FaPaperPlane, FaSmile, FaFrown, FaLightbulb, FaCommentDots, FaCheckCircle } from 'react-icons/fa';
 import Image from 'next/image';
+import Link from 'next/link';
 
 const FeedbackType = {
     COMPLAINT: { label: 'Şikayet', icon: FaFrown, color: 'text-red-500', bg: 'bg-red-50' },
@@ -85,7 +86,14 @@ export default function FeedbackPage() {
                     </div>
                     <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Nocca Coffee</h1>
                     <p className="mt-2 text-gray-600 font-medium">Geri Bildirim Formu</p>
-                    <p className="text-sm text-gray-500 mt-1">Sizden gelen her fikir bizim için değerlidir.</p>
+
+                    <div className="mt-6">
+                        <Link href="/menu" className="inline-flex items-center gap-2 px-6 py-3 bg-white border-2 border-[#704d39] text-[#704d39] rounded-2xl font-bold text-sm shadow-sm hover:bg-[#704d39] hover:text-white transition-all transform active:scale-95">
+                            <span>📖 DİJİTAL MENÜMÜZ</span>
+                        </Link>
+                    </div>
+
+                    <p className="text-sm text-gray-500 mt-4">Sizden gelen her fikir bizim için değerlidir.</p>
                 </div>
 
                 {/* Form */}
@@ -105,8 +113,8 @@ export default function FeedbackPage() {
                                             type="button"
                                             onClick={() => setType(key)}
                                             className={`flex flex-col items-center justify-center p-3 rounded-2xl border-2 transition-all ${isSelected
-                                                    ? `border-[#704d39] ${config.bg} scale-105 shadow-sm`
-                                                    : 'border-gray-100 bg-gray-50 hover:border-gray-200'
+                                                ? `border-[#704d39] ${config.bg} scale-105 shadow-sm`
+                                                : 'border-gray-100 bg-gray-50 hover:border-gray-200'
                                                 }`}
                                         >
                                             <Icon className={`text-xl mb-1 ${isSelected ? config.color : 'text-gray-400'}`} />
