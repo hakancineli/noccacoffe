@@ -56,6 +56,15 @@ export async function GET(request: NextRequest) {
       where.recipes = { none: {} };
     }
 
+    const sort = searchParams.get('sort');
+
+    // ... (rest of conditions)
+
+    let orderBy: any = { createdAt: 'desc' };
+    if (sort === 'best-sellers') {
+      orderBy = { soldCount: 'desc' };
+    }
+
     // Get products with pagination
     const [products, total] = await Promise.all([
       (prisma as any).product.findMany({
@@ -71,7 +80,7 @@ export async function GET(request: NextRequest) {
             }
           }
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy,
         skip,
         take: limit,
       }),

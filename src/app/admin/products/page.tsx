@@ -63,12 +63,16 @@ export default function ProductsManagement() {
     search: '',
     active: 'true',
     hasRecipe: 'all',
+    sort: 'created-desc'
   });
+
+  const [aiAnalysis, setAiAnalysis] = useState<string | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   // Reset page when filters change
   useEffect(() => {
     setPagination(prev => ({ ...prev, page: 1 }));
-  }, [filter.category, filter.search, filter.active, filter.hasRecipe]);
+  }, [filter.category, filter.search, filter.active, filter.hasRecipe, filter.sort]);
 
   const [pagination, setPagination] = useState({
     page: 1,
@@ -81,7 +85,7 @@ export default function ProductsManagement() {
 
   useEffect(() => {
     fetchProducts();
-  }, [filter.category, filter.search, filter.active, filter.hasRecipe, pagination.page, pagination.limit]);
+  }, [filter.category, filter.search, filter.active, filter.hasRecipe, filter.sort, pagination.page, pagination.limit]);
 
   const fetchProducts = async () => {
     try {
@@ -93,6 +97,7 @@ export default function ProductsManagement() {
         ...(filter.search && { search: filter.search }),
         ...(filter.active !== undefined && { active: filter.active }),
         ...(filter.hasRecipe !== 'all' && { hasRecipe: filter.hasRecipe === 'yes' ? 'true' : 'false' }),
+        ...(filter.sort && { sort: filter.sort }),
       });
 
       const response = await fetch(`/api/admin/products?${params}`);
@@ -105,6 +110,25 @@ export default function ProductsManagement() {
       console.error('Products fetch error:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleBestSellers = async () => {
+    // 1. Set sort to best-sellers
+    setFilter(prev => ({ ...prev, sort: 'best-sellers' }));
+
+    // 2. Fetch AI Analysis
+    setIsAnalyzing(true);
+    try {
+      const res = await fetch('/api/admin/products/ai-analysis');
+      if (res.ok) {
+        const data = await res.json();
+        setAiAnalysis(data.analysis);
+      }
+    } catch (error) {
+      console.error("AI Analysis Failed", error);
+    } finally {
+      setIsAnalyzing(false);
     }
   };
 
@@ -362,6 +386,11 @@ export default function ProductsManagement() {
     'Yan Ürünler',
     'Kahve Çekirdekleri',
     'Meşrubatlar',
+    'Sütler',
+    'Şuruplar',
+    'Soslar',
+    'Püreler',
+    'Tozlar',
   ];
 
   return (
@@ -374,6 +403,22 @@ export default function ProductsManagement() {
               <h1 className="text-2xl font-bold text-gray-900">Ürün Yönetimi</h1>
             </div>
             <div className="flex items-center space-x-4">
+              <button
+                onClick={handleBestSellers}
+                disabled={isAnalyzing}
+                className={`flex items-center px-4 py-2 rounded-md text-sm font-bold transition-all ${filter.sort === 'best-sellers'
+                  ? 'bg-amber-100 text-amber-800 border-2 border-amber-300'
+                  : 'bg-white text-gray-600 border border-gray-300 hover:bg-amber-50 hover:text-amber-700'
+                  }`}
+              >
+                {isAnalyzing ? (
+                  <div className="w-5 h-5 border-2 border-amber-600 border-t-transparent rounded-full animate-spin mr-2"></div>
+                ) : (
+                  <span className="mr-2 text-lg">🏆</span>
+                )}
+                En Çok Satanlar
+              </button>
+
               <button
                 onClick={() => setIsCreateModalOpen(true)}
                 className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
@@ -393,6 +438,28 @@ export default function ProductsManagement() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+
+        {/* AI Insight Box */}
+        {aiAnalysis && filter.sort === 'best-sellers' && (
+          <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-orange-200 rounded-xl p-6 mb-6 shadow-sm flex items-start gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
+            <div className="bg-white p-3 rounded-full shadow-md shrink-0">
+              <span className="text-2xl">💡</span>
+            </div>
+            <div>
+              <h3 className="font-bold text-orange-900 text-lg mb-2">Yapay Zeka Satış Analizi</h3>
+              <p className="text-gray-800 leading-relaxed font-medium">
+                {aiAnalysis}
+              </p>
+            </div>
+            <button
+              onClick={() => setAiAnalysis(null)}
+              className="ml-auto text-gray-400 hover:text-gray-600"
+            >
+              ✕
+            </button>
+          </div>
+        )}
+
         {/* Filters */}
         <div className="bg-white shadow rounded-lg mb-6 p-4">
           <div className="flex flex-col sm:flex-row gap-4">
