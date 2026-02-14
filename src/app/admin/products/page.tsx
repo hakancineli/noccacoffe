@@ -114,13 +114,20 @@ export default function ProductsManagement() {
   };
 
   const handleBestSellers = async () => {
-    // 1. Set sort to best-sellers
+    // 1. Set sort to best-sellers (UI update)
     setFilter(prev => ({ ...prev, sort: 'best-sellers' }));
 
-    // 2. Fetch AI Analysis
+    // 2. Fetch AI Analysis with current filters
     setIsAnalyzing(true);
     try {
-      const res = await fetch('/api/admin/products/ai-analysis');
+      const params = new URLSearchParams({
+        ...(filter.category !== 'all' && { category: filter.category }),
+        ...(filter.search && { search: filter.search }),
+        ...(filter.active !== undefined && { active: filter.active }),
+        ...(filter.hasRecipe !== 'all' && { hasRecipe: filter.hasRecipe === 'yes' ? 'true' : 'false' }),
+      });
+
+      const res = await fetch(`/api/admin/products/ai-analysis?${params}`);
       if (res.ok) {
         const data = await res.json();
         setAiAnalysis(data.analysis);

@@ -1,13 +1,51 @@
 
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
     try {
-        // Fetch top 5 selling products
+        const { searchParams } = new URL(request.url);
+        const category = searchParams.get('category');
+        const search = searchParams.get('search')?.trim();
+        const active = searchParams.get('active');
+        const hasRecipe = searchParams.get('hasRecipe');
+
+        // Build where clause
+        const where: any = {};
+
+        if (category && category !== 'all') {
+            where.category = category;
+        }
+
+        if (search) {
+            const searchLower = search.toLowerCase();
+            const variations = [search, searchLower];
+
+            // Turkish search normalization
+            if (searchLower.includes('i') || searchLower.includes('ı')) {
+                variations.push(searchLower.replace(/i/g, 'ı'));
+                variations.push(searchLower.replace(/ı/g, 'i'));
+            }
+            const uniqueVariations = Array.from(new Set(variations));
+
+            where.OR = [
+                ...uniqueVariations.map(v => ({ name: { contains: v, mode: 'insensitive' as const } })),
+                ...uniqueVariations.map(v => ({ description: { contains: v, mode: 'insensitive' as const } }))
+            ];
+        }
+
+        if (active === 'true') where.isActive = true;
+        else if (active === 'false') where.isActive = false;
+
+        if (hasRecipe === 'true') where.recipes = { some: {} };
+        else if (hasRecipe === 'false') where.recipes = { none: {} };
+
+
+        // Fetch top 5 selling products based on filters
         const topProducts = await (prisma as any).product.findMany({
+            where,
             orderBy: { soldCount: 'desc' },
             take: 5,
             select: {
@@ -20,7 +58,7 @@ export async function GET() {
 
         if (topProducts.length === 0) {
             return NextResponse.json({
-                analysis: "Henüz analiz edilecek yeterli satış verisi bulunmuyor."
+                analysis: "Seçili filtrelere göre analiz edilecek satış verisi bulunamadı."
             });
         }
 
@@ -30,17 +68,25 @@ export async function GET() {
 
         const apiKey = process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY_NOCCA;
 
+        let filterContext = "Dükkanın genelinde";
+        if (category && category !== 'all') filterContext = `${category} kategorisinde`;
+        if (search) filterContext = `"${search}" aramasında`;
+
         if (!apiKey) {
-            // Fallback if no API key
             const bestSeller = topProducts[0];
             return NextResponse.json({
-                analysis: `Şu an yapay zeka bağlantısında sorun yaşıyorum ama verilerine göre en çok satan ürünün **${bestSeller.name}** (${bestSeller.soldCount} adet). Bu ürünü ön plana çıkarmaya devam etmelisin! Yanına kek veya kurabiye gibi yan ürünler önererek sepet tutarını artırabilirsin.`
+                analysis: `Yapay zeka şu an offline ancak verilerine göre ${filterContext} lider ürün **${bestSeller.name}** (${bestSeller.soldCount} adet).`
             });
         }
 
-        const prompt = `Sen Nocca Coffee'nin cana yakın, samimi ve zeki yapay zeka asistanısın. Aşağıda dükkanın en çok satan 5 ürünü var. İşletme sahibine bu ürünlerle ilgili kısa, motive edici ve satış artırıcı 2-3 cümlelik bir yorum yap. Samimi bir dil kullan, emoji kullanabilirsin.
+        const prompt = `Sen Nocca Coffee'nin cana yakın, samimi ve zeki yapay zeka asistanısın. 
+        
+        Aşağıda ${filterContext} en çok satan ürünler var. Bu ürünlere bakarak işletme sahibine kısa, spesifik ve motive edici bir analiz yap.
+        
+        Eğer sadece belirli bir kategori (örn: Tatlılar) seçildiyse, o kategoriye özel trendlerden bahset.
+        Samimi bir dil kullan, emoji kullanabilirsin.
 
-En Çok Satan Ürünler:
+En Çok Satanlar (${filterContext}):
 ${productList}
 
 Yorumun:`;
