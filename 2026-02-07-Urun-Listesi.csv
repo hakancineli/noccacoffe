@@ -1,0 +1,158 @@
+﻿ID;Ürün Adı;Kategori;Mevcut Fiyat
+"46";"Queen Style Fresh";"Bubble Tea";150
+"52";"Coffee Caramel Macchiato Bubble";"Bubble Tea";220
+"51";"Coffee Mocha Bubble";"Bubble Tea";200
+"50";"Chai Tea Coffee";"Bubble Tea";210
+"47";"Air Lime Fresh";"Bubble Tea";150
+"49";"Coffeebon Milk";"Bubble Tea";180
+"48";"Blueorange Fresh";"Bubble Tea";150
+"36";"Türk Kahvesi";"Espresso";120
+"33";"Double Espresso";"Espresso";140
+"34";"Cortado";"Espresso";160
+"37";"Double Türk Kahvesi";"Espresso";150
+"35";"Espresso Macchiato";"Espresso";140
+"32";"Espresso";"Espresso";120
+"60";"V60/Chemex";"Extra";190
+"56";"Ekstra Süt";"Extra";40
+"59";"Şurup";"Extra";50
+"58";"Yulaf Sütü";"Extra";50
+"57";"Badem Sütü";"Extra";50
+"55";"Espresso Shot";"Extra";50
+"43";"Çikolata Frappe";"Frappeler";240
+"45";"Beyaz Çikolata Frappe";"Frappeler";240
+"44";"Vanilla Frappe";"Frappeler";240
+"42";"Caramel Frappe";"Frappeler";240
+"101";"Espresso Çekirdeği (250g)";"Kahve Çekirdekleri";450
+"103";"Türk Kahvesi Çekirdeği (250g)";"Kahve Çekirdekleri";350
+"102";"Filtre Kahve Çekirdeği (250g)";"Kahve Çekirdekleri";400
+"54";"Matcha Latte";"Matchalar";200
+"53";"Çilekli Matcha Latte";"Matchalar";210
+"108";"Limonlu Soda";"Meşrubatlar";70
+"104";"Coca Cola";"Meşrubatlar";90
+"107";"Sade Soda";"Meşrubatlar";50
+"105";"Kola Turka";"Meşrubatlar";50
+"106";"Su";"Meşrubatlar";30
+"40";"Banana Milkshake";"Milkshake";240
+"38";"Chocolate Milkshake";"Milkshake";240
+"41";"Vanilla Milkshake";"Milkshake";240
+"39";"Strawberry Milkshake";"Milkshake";240
+"87";"Biscoff Püresi";"Püreler";60
+"84";"Çilek Püresi";"Püreler";60
+"85";"Mango Püresi";"Püreler";60
+"86";"Muz Püresi";"Püreler";60
+"88";"Antep Fıstığı Püresi";"Püreler";80
+"80";"Karamel Sos";"Soslar";50
+"82";"Çikolata Sos";"Soslar";50
+"81";"Beyaz Çikolata Sos";"Soslar";50
+"83";"Salted Karamel Sos";"Soslar";50
+"8";"Iced Caramel Macchiato";"Soğuk Kahveler";230
+"10";"Iced Chai Tea Latte";"Soğuk Kahveler";200
+"6";"Iced Mocha";"Soğuk Kahveler";210
+"2";"Iced Filtre Kahve";"Soğuk Kahveler";160
+"3";"Iced Latte";"Soğuk Kahveler";180
+"13";"Cold Brew";"Soğuk Kahveler";175
+"5";"Iced Salted Caramel Latte";"Soğuk Kahveler";210
+"12";"Iced Chocolate Cookie Latte";"Soğuk Kahveler";200
+"4";"Iced Caramel Latte";"Soğuk Kahveler";200
+"7";"Iced White Mocha";"Soğuk Kahveler";220
+"1";"Iced Americano";"Soğuk Kahveler";170
+"11";"Iced Toffeenut Latte";"Soğuk Kahveler";200
+"9";"Iced Cappuccino";"Soğuk Kahveler";180
+"30";"Orange Mango";"Soğuk İçecekler";210
+"31";"Ored Mocca Special";"Soğuk İçecekler";250
+"29";"Hibiscus Fresh";"Soğuk İçecekler";180
+"28";"Cool Lime Fresh";"Soğuk İçecekler";190
+"96";"Normal Süt";"Sütler";0
+"98";"Yulaf Sütü";"Sütler";50
+"95";"Laktozsuz Süt";"Sütler";30
+"97";"Badem Sütü";"Sütler";50
+"24";"Toffeenut Latte";"Sıcak Kahveler";190
+"109";"Salep";"Sıcak Kahveler";150
+"23";"Chai Tea Latte";"Sıcak Kahveler";190
+"18";"Salted Caramel Latte";"Sıcak Kahveler";200
+"17";"Caramel Latte";"Sıcak Kahveler";190
+"27";"Sıcak Çikolata";"Sıcak Kahveler";190
+"14";"Americano";"Sıcak Kahveler";160
+"21";"Caramel Macchiato";"Sıcak Kahveler";220
+"25";"Chocolate Cookie Latte";"Sıcak Kahveler";190
+"26";"Flat White";"Sıcak Kahveler";185
+"16";"Latte";"Sıcak Kahveler";170
+"19";"Mocha";"Sıcak Kahveler";200
+"22";"Cappuccino";"Sıcak Kahveler";170
+"15";"Filtre Kahve";"Sıcak Kahveler";150
+"20";"White Mocha";"Sıcak Kahveler";210
+"118";"Nocca Tatlı";"Tatlılar";170
+"123";"Magnum - Kitkat Cup";"Tatlılar";250
+"124";"Lotus Cheesecake";"Tatlılar";250
+"125";"Muzlu Rulo";"Tatlılar";250
+"126";"Cookie";"Tatlılar";150
+"134";"Latte Mono";"Tatlılar";250
+"135";"Beyaz Çikolatalı Brownie";"Tatlılar";250
+"136";"Limonlu Cheesecake";"Tatlılar";250
+"138";"Frambuazlı Cheesecake";"Tatlılar";250
+"119";"Paris Brest";"Tatlılar";250
+"120";"İbiza Muzlu Magnolia";"Tatlılar";250
+"121";"Çilekli Magnolia";"Tatlılar";250
+"122";"Tiramisu Cup";"Tatlılar";250
+"127";"Dereotlu Poğaça";"Tatlılar";100
+"128";"Sandviç";"Tatlılar";180
+"129";"Saçaklı Poğaça";"Tatlılar";100
+"130";"Çikolatalı San Sebastian";"Tatlılar";250
+"131";"Muzlu Kubbe";"Tatlılar";250
+"132";"Fıstıklı Tart";"Tatlılar";250
+"133";"Yer Fıstıklı Pasta";"Tatlılar";250
+"cmkzsjof2000jl804shu4x2co";"Limonlu Cheesecake";"Tatlılar";250
+"110";"San Sebastian";"Tatlılar";250
+"117";"Bella Vista";"Tatlılar";250
+"cmkzq717e000djnk0y8cz8wgd";"Fıstıklı Tart";"Tatlılar";250
+"cmkzq6x0y0001jnk0pk9vrfsg";"İbiza Muzlu Magnolia";"Tatlılar";250
+"cmkzq6yfi0005jnk0cpnyzr5c";"Lotus Cheesecake";"Tatlılar";250
+"cmkzq71jz000ejnk0ikxcjddn";"Yer Fıstıklı Pasta";"Tatlılar";250
+"cmkzq71wb000fjnk0wgjnp7nr";"Latte Mono";"Tatlılar";250
+"cmkzq72lh000hjnk0zmn004g2";"Frambuazlı Cheesecake";"Tatlılar";250
+"cmkzq706b000ajnk08qn1j0d8";"Saçaklı Poğaça";"Tatlılar";100
+"cmkzq6xda0002jnk0z7a1zzfc";"Çilekli Magnolia";"Tatlılar";250
+"cmkzq6xqs0003jnk0lv1bw56e";"Tiramisu Cup";"Tatlılar";250
+"cmkzq6yrt0006jnk0icuexpcj";"Muzlu Rulo";"Tatlılar";250
+"cmkzq6y370004jnk028fng2c0";"Magnum - Kitkat Cup";"Tatlılar";250
+"cmkzq6z4n0007jnk0vs4ai718";"Cookie";"Tatlılar";150
+"cmkzq70uz000cjnk0oj855ont";"Muzlu Kubbe";"Tatlılar";250
+"cmkzq6wn30000jnk013j8v8n8";"Paris Brest";"Tatlılar";250
+"cmkzq6zh20008jnk0lvsme22w";"Dereotlu Poğaça";"Tatlılar";100
+"cmkzq6zte0009jnk03sez3va4";"Sandviç";"Tatlılar";180
+"cmkzq728z000gjnk0w95gjqqf";"Beyaz Çikolatalı Brownie";"Tatlılar";250
+"cmkzq70io000bjnk057jx60xw";"Çikolatalı San Sebastian";"Tatlılar";250
+"116";"Orman Meyveli Tart";"Tatlılar";140
+"115";"Fıstıklı Snickers";"Tatlılar";150
+"114";"Peynirli Kruvasan";"Tatlılar";100
+"113";"Çikolata Soslu Kruvasan";"Tatlılar";120
+"112";"Çikolatalı Kruvasan";"Tatlılar";110
+"111";"Sade Kruvasan";"Tatlılar";90
+"91";"Çikolata Tozu";"Tozlar";40
+"90";"Muz Tozu";"Tozlar";40
+"89";"Vanilya Tozu";"Tozlar";40
+"93";"Sıcak Çikolata Tozu";"Tozlar";120
+"94";"Frappe Tozu";"Tozlar";50
+"100";"Kurutulmuş Limon";"Yan Ürünler";0
+"99";"Lokum";"Yan Ürünler";0
+"61";"Papatya Çayı";"Çaylar";160
+"65";"Yaseminli Yeşil Çay";"Çaylar";200
+"137";"Fincan Çay";"Çaylar";0
+"cmkzqg0al0000jns7fyy0ds9k";"Çay";"Çaylar";0
+"63";"Kiraz Sapı";"Çaylar";160
+"67";"Ihlamur";"Çaylar";200
+"66";"Hibiscus Çayı";"Çaylar";180
+"64";"Yeşil Çay";"Çaylar";170
+"62";"Kış Çayı";"Çaylar";180
+"77";"Muz Şurubu";"Şuruplar";40
+"78";"Çilek Şurubu";"Şuruplar";40
+"75";"Nar Şurubu";"Şuruplar";40
+"74";"Beyaz Çikolata Şurubu";"Şuruplar";40
+"73";"Chai Şurubu";"Şuruplar";40
+"72";"Çikolata Şurubu";"Şuruplar";40
+"71";"Toffeenut Şurubu";"Şuruplar";40
+"76";"Menta Şurubu";"Şuruplar";40
+"68";"Karamel Şurubu";"Şuruplar";40
+"70";"Vanilya Şurubu";"Şuruplar";40
+"69";"Fındık Şurubu";"Şuruplar";40
+"79";"Mint Şurubu";"Şuruplar";40
