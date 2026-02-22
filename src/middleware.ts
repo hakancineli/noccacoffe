@@ -44,10 +44,14 @@ export async function middleware(request: NextRequest) {
           '/admin/pos',
           '/admin/profile',
           '/admin/orders',
+          '/admin/waste',
           '/api/admin/orders',
           '/api/admin/products',
+          '/api/admin/staff',
+          '/api/admin/staff-consumption',
+          '/api/admin/waste',
           '/api/orders'
-        ]; // Removed accounting and expenses
+        ]; // Added staff-related APIs and Waste management back for POS usage
 
         // Exact match or starts with (for sub-routes)
         const isAllowed = allowedPaths.some(path => pathname.startsWith(path)) || pathname === '/admin';

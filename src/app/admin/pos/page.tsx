@@ -1223,15 +1223,13 @@ export default function POSPage() {
 
                         {/* Discount Control */}
                         <div className="flex justify-between items-center mb-1 md:mb-2 text-[10px] md:text-xs">
-                            {currentUserRole === 'MANAGER' && (
-                                <button
-                                    onClick={() => setShowDiscountInput(!showDiscountInput)}
-                                    className="font-semibold text-nocca-green hover:underline flex items-center"
-                                >
-                                    {showDiscountInput ? 'İskontoyu Kapat' : '+ İskonto Uygula'}
-                                </button>
-                            )}
-                            {showDiscountInput && currentUserRole === 'MANAGER' && (
+                            <button
+                                onClick={() => setShowDiscountInput(!showDiscountInput)}
+                                className="font-semibold text-nocca-green hover:underline flex items-center"
+                            >
+                                {showDiscountInput ? 'İskontoyu Kapat' : '+ İskonto Uygula'}
+                            </button>
+                            {showDiscountInput && (
                                 <div className="mt-2 space-y-2 animate-fade-in-right">
                                     {/* Preset Percentage Buttons */}
                                     <div className="grid grid-cols-4 gap-1">
