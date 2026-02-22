@@ -77,6 +77,10 @@ export default function POSPage() {
     const [isStaffSubmitting, setIsStaffSubmitting] = useState(false);
     const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
 
+    // Prayer Alert State
+    const [prayerTimings, setPrayerTimings] = useState<Record<string, string> | null>(null);
+    const [activePrayerAlert, setActivePrayerAlert] = useState<string | null>(null);
+
     // Monitor Online Status
     useEffect(() => {
         const updateOnlineStatus = () => {
@@ -157,10 +161,70 @@ export default function POSPage() {
             }
         };
 
+        // Fetch Istanbul Prayer Times (Diyanet Method - 13)
+        const fetchPrayerTimes = async () => {
+            try {
+                const res = await fetch('https://api.aladhan.com/v1/timingsByCity?city=Istanbul&country=Turkey&method=13');
+                if (res.ok) {
+                    const data = await res.json();
+                    setPrayerTimings(data.data.timings);
+                }
+            } catch (error) {
+                console.error('Prayer times fetch error:', error);
+            }
+        };
+
         fetchProducts();
         fetchStaff();
         fetchMe();
+        fetchPrayerTimes();
     }, []);
+
+    // Check for Ezan Alert - every minute
+    useEffect(() => {
+        if (!prayerTimings) return;
+
+        const checkEzan = () => {
+            const now = new Date();
+            const nowHours = now.getHours();
+            const nowMinutes = now.getMinutes();
+
+            // We only care about major prayers
+            const prayersToCheck = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+            const prayerLabels: Record<string, string> = {
+                'Fajr': 'İmsak',
+                'Dhuhr': 'Öğle',
+                'Asr': 'İkindi',
+                'Maghrib': 'Akşam',
+                'Isha': 'Yatsı'
+            };
+
+            for (const key of prayersToCheck) {
+                const [pours, pMinutes] = prayerTimings[key].split(':').map(Number);
+
+                // Alert 1 minute before
+                // Example: Ezan is at 13:00. We want alert at 12:59.
+                let alertMinute = pMinutes - 1;
+                let alertHour = pours;
+                if (alertMinute < 0) {
+                    alertMinute = 59;
+                    alertHour -= 1;
+                }
+
+                if (nowHours === alertHour && nowMinutes === alertMinute) {
+                    setActivePrayerAlert(prayerLabels[key]);
+                    return;
+                }
+            }
+
+            // If none matched the exact "1 minute before", clear if it was there for more than a minute
+            setActivePrayerAlert(null);
+        };
+
+        const interval = setInterval(checkEzan, 30000); // Check every 30s
+        checkEzan();
+        return () => clearInterval(interval);
+    }, [prayerTimings]);
 
     // Track pending orders count
     useEffect(() => {
@@ -1614,6 +1678,28 @@ export default function POSPage() {
                             <div className="mt-4 text-[11px] font-bold">* AFİYET OLSUN *</div>
                             <div className="text-[9px] mt-4 opacity-70 italic">Mali değeri yoktur. Teşekkür ederiz.</div>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Prayer Alert Overlay */}
+            {activePrayerAlert && (
+                <div className="fixed top-0 inset-x-0 z-[100] flex justify-center p-4 animate-bounce-in-top pointer-events-none">
+                    <div className="bg-gradient-to-r from-amber-600 to-amber-700 text-white px-8 py-4 rounded-2xl shadow-2xl border-4 border-white flex items-center gap-4 pointer-events-auto">
+                        <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-3xl animate-pulse">
+                            📢
+                        </div>
+                        <div>
+                            <p className="text-xs font-bold opacity-80 uppercase tracking-widest">Ezan Vakti Yaklaşıyor</p>
+                            <h3 className="text-xl font-black">{activePrayerAlert} Ezanı (1 DK Kaldı)</h3>
+                            <p className="text-sm font-medium">Lütfen kafedeki müziği kapatınız.</p>
+                        </div>
+                        <button
+                            onClick={() => setActivePrayerAlert(null)}
+                            className="ml-4 p-2 hover:bg-white/10 rounded-full transition-colors"
+                        >
+                            <FaTimes />
+                        </button>
                     </div>
                 </div>
             )}
