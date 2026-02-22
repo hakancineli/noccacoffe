@@ -64,6 +64,7 @@ interface DayDetails {
             size?: string;
         }[];
         customerName: string | null;
+        notes?: string | null;
     }[];
     staffConsumptions: {
         id: string;
@@ -1003,9 +1004,14 @@ function AccountingContent() {
                                                                                     <span className="text-[10px] text-gray-400">
                                                                                         {new Date(item.createdAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
                                                                                     </span>
-                                                                                    {isDiscounted && (
+                                                                                    {isDiscounted && !('notes' in item && item.notes?.includes('BOGO')) && (
                                                                                         <span className="text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded font-bold">
                                                                                             İSKONTOLU
+                                                                                        </span>
+                                                                                    )}
+                                                                                    {'notes' in item && item.notes?.includes('1 ALANA 1 BEDAVA') && (
+                                                                                        <span className="text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded font-bold">
+                                                                                            🎁 1 ALANA 1 BEDAVA
                                                                                         </span>
                                                                                     )}
                                                                                 </div>

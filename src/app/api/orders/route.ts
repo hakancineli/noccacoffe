@@ -250,8 +250,10 @@ export async function POST(request: Request) {
         // 2.1 Audit Logging for Discounts
         if (body.discountAmount > 0) {
             const isFullDiscount = body.discountAmount >= totalAmount;
+            const isBOGO = notes?.includes('1 ALANA 1 BEDAVA');
+
             await createAuditLog({
-                action: isFullDiscount ? 'POS_FULL_DISCOUNT' : 'POS_DISCOUNTED_ORDER',
+                action: isFullDiscount ? 'POS_FULL_DISCOUNT' : isBOGO ? 'POS_BOGO_CAMPAIGN' : 'POS_DISCOUNTED_ORDER',
                 entity: 'Order',
                 entityId: order.id,
                 userId: staffId,

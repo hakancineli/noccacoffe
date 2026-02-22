@@ -51,7 +51,8 @@ export async function GET(request: NextRequest) {
                         size: true
                     }
                 },
-                customerName: true
+                customerName: true,
+                notes: true
             },
             orderBy: {
                 createdAt: 'desc'

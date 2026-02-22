@@ -432,7 +432,7 @@ export default function POSPage() {
             }),
             totalAmount: cartTotal,
             finalAmount: finalTotal,
-            discountAmount: discountAmount,
+            discountAmount: totalDiscount,
             status: 'COMPLETED',
             paymentMethod: paymentMethod === 'SPLIT' ? 'CASH' : paymentMethod,
             payments: customPayments,
@@ -440,7 +440,7 @@ export default function POSPage() {
             customerName: selectedCustomer ? `${selectedCustomer.firstName} ${selectedCustomer.lastName}` : 'Misafir',
             customerPhone: selectedCustomer?.phone || '',
             customerEmail: selectedCustomer?.email || '',
-            notes: 'POS Satışı'
+            notes: isBOGOActive ? 'POS Satışı (1 ALANA 1 BEDAVA)' : 'POS Satışı'
         };
 
         setProcessingPayment(true);
@@ -469,9 +469,12 @@ export default function POSPage() {
                     itemAssignments: customPayments ? itemAssignments : null,
                     totalAmount: cartTotal,
                     finalAmount: finalTotal,
-                    discountAmount: discountAmount,
+                    discountAmount: totalDiscount,
                     customerName: orderData.customerName,
-                    creatorName: 'Kasa'
+                    creatorName: 'Kasa',
+                    isBOGO: isBOGOActive,
+                    bogoDiscount: bogoDiscountAmount,
+                    percentageDiscount: discountAmount
                 });
 
                 setCart([]);
@@ -1218,8 +1221,8 @@ export default function POSPage() {
                                                 key={rate}
                                                 onClick={() => setDiscountRate(rate)}
                                                 className={`py-1 text-[10px] md:text-xs font-bold rounded border transition-all ${discountRate === rate
-                                                        ? 'bg-nocca-green text-white border-nocca-green'
-                                                        : 'bg-white text-gray-600 border-gray-300 hover:border-nocca-green'
+                                                    ? 'bg-nocca-green text-white border-nocca-green'
+                                                    : 'bg-white text-gray-600 border-gray-300 hover:border-nocca-green'
                                                     }`}
                                             >
                                                 %{rate}
@@ -1237,8 +1240,8 @@ export default function POSPage() {
                                     <button
                                         onClick={() => setIsBOGOActive(!isBOGOActive)}
                                         className={`w-full py-1.5 md:py-2 px-3 rounded-lg border font-bold text-[10px] md:text-xs flex items-center justify-center gap-2 transition-all ${isBOGOActive
-                                                ? 'bg-purple-100 text-purple-700 border-purple-300 shadow-sm'
-                                                : 'bg-white text-gray-600 border-gray-300 hover:border-purple-300'
+                                            ? 'bg-purple-100 text-purple-700 border-purple-300 shadow-sm'
+                                            : 'bg-white text-gray-600 border-gray-300 hover:border-purple-300'
                                             }`}
                                     >
                                         <div className={`w-3 h-3 md:w-4 md:h-4 rounded-full border-2 flex items-center justify-center ${isBOGOActive ? 'bg-purple-600 border-purple-600' : 'border-gray-300'}`}>
@@ -1293,9 +1296,18 @@ export default function POSPage() {
                             </div>
                         )}
 
-                        <div className="flex justify-between items-center mb-2 md:mb-4 pt-1 md:pt-2 border-t border-dashed border-gray-300">
+                        <div className="flex justify-between items-end mb-2 md:mb-4 pt-1 md:pt-2 border-t border-dashed border-gray-300">
                             <span className="text-gray-800 font-bold text-sm md:text-lg">Genel Toplam</span>
-                            <span className="text-lg md:text-2xl font-bold text-gray-900">₺{(finalTotal ?? 0).toFixed(2)}</span>
+                            <div className="flex flex-col items-end">
+                                {totalDiscount > 0 && (
+                                    <span className="text-xs md:text-sm text-gray-400 line-through font-medium">
+                                        ₺{(cartTotal ?? 0).toFixed(2)}
+                                    </span>
+                                )}
+                                <span className={`text-xl md:text-3xl font-black ${totalDiscount > 0 ? 'text-nocca-green' : 'text-gray-900'}`}>
+                                    ₺{(finalTotal ?? 0).toFixed(2)}
+                                </span>
+                            </div>
                         </div>
 
                         <div className="mt-4">
@@ -1531,15 +1543,38 @@ export default function POSPage() {
                                 <span>ARA TOPLAM</span>
                                 <span>{(lastOrder.totalAmount ?? 0).toFixed(2)}₺</span>
                             </div>
-                            {lastOrder.discountAmount > 0 && (
-                                <div className="flex justify-between text-[11px] text-black">
+
+                            {lastOrder.isBOGO && (
+                                <div className="flex justify-between text-[11px] font-bold">
+                                    <span>* 1 ALANA 1 BEDAVA</span>
+                                    <span>-{lastOrder.bogoDiscount.toFixed(2)}₺</span>
+                                </div>
+                            )}
+
+                            {lastOrder.discountAmount > 0 && !lastOrder.isBOGO && (
+                                <div className="flex justify-between text-[11px]">
                                     <span>İNDİRİM</span>
                                     <span>-{(lastOrder.discountAmount ?? 0).toFixed(2)}₺</span>
                                 </div>
                             )}
-                            <div className="flex justify-between text-[15px] font-black mt-1 border-t border-black pt-1">
-                                <span>GENEL TOPLAM</span>
-                                <span>{(typeof lastOrder.finalAmount === 'number' ? lastOrder.finalAmount : parseFloat(lastOrder.finalAmount ?? '0')).toFixed(2)}₺</span>
+
+                            {lastOrder.discountAmount > 0 && lastOrder.isBOGO && lastOrder.percentageDiscount > 0 && (
+                                <div className="flex justify-between text-[11px]">
+                                    <span>EKSTRA İNDİRİM</span>
+                                    <span>-{lastOrder.percentageDiscount.toFixed(2)}₺</span>
+                                </div>
+                            )}
+
+                            <div className="flex flex-col border-t border-black mt-1 pt-1">
+                                {lastOrder.discountAmount > 0 && (
+                                    <div className="text-right text-[10px] line-through opacity-60">
+                                        {(lastOrder.totalAmount ?? 0).toFixed(2)}₺
+                                    </div>
+                                )}
+                                <div className="flex justify-between text-[16px] font-black">
+                                    <span>GENEL TOPLAM</span>
+                                    <span>{(typeof lastOrder.finalAmount === 'number' ? lastOrder.finalAmount : parseFloat(lastOrder.finalAmount ?? '0')).toFixed(2)}₺</span>
+                                </div>
                             </div>
                         </div>
 
