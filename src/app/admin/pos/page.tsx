@@ -48,6 +48,7 @@ export default function POSPage() {
     const [productSearch, setProductSearch] = useState('');
     const [discountRate, setDiscountRate] = useState(0);
     const [showDiscountInput, setShowDiscountInput] = useState(false);
+    const [isBOGOActive, setIsBOGOActive] = useState(false);
 
     const [dbProducts, setDbProducts] = useState<any[]>([]);
 
@@ -336,8 +337,20 @@ export default function POSPage() {
 
     const staffTotal = cart.reduce((sum, item) => sum + (getStaffPrice(item) * item.quantity), 0);
 
-    const discountAmount = cartTotal * (discountRate / 100);
-    const finalTotal = staffMode ? staffTotal : (cartTotal - discountAmount);
+    // BOGO Discount Calculation (Only for 'Tatlılar' category)
+    const bogoDiscountAmount = isBOGOActive
+        ? cart.reduce((sum, item) => {
+            if (item.category === 'Tatlılar') {
+                const freeQty = Math.floor(item.quantity / 2);
+                return sum + (freeQty * item.price);
+            }
+            return sum;
+        }, 0)
+        : 0;
+
+    const discountAmount = (cartTotal - bogoDiscountAmount) * (discountRate / 100);
+    const totalDiscount = bogoDiscountAmount + discountAmount;
+    const finalTotal = staffMode ? staffTotal : (cartTotal - totalDiscount);
 
     // Customer Search Logic
     useEffect(() => {
@@ -465,6 +478,7 @@ export default function POSPage() {
                 setSelectedCustomer(null);
                 setCustomerSearch('');
                 setDiscountRate(0);
+                setIsBOGOActive(false);
             } else {
                 // SERVER ERROR - Check if it's a validation error (400) or other
                 const errorData = await res.json().catch(() => ({}));
@@ -497,6 +511,7 @@ export default function POSPage() {
                     setSelectedCustomer(null);
                     setCustomerSearch('');
                     setDiscountRate(0);
+                    setIsBOGOActive(false);
                 }
             }
         } catch (error) {
@@ -524,6 +539,7 @@ export default function POSPage() {
             setSelectedCustomer(null);
             setCustomerSearch('');
             setDiscountRate(0);
+            setIsBOGOActive(false);
         } finally {
             setProcessingPayment(false);
         }
@@ -1194,22 +1210,63 @@ export default function POSPage() {
                                 {showDiscountInput ? 'İskontoyu Kapat' : '+ İskonto Uygula'}
                             </button>
                             {showDiscountInput && (
-                                <div className="flex items-center space-x-1 animate-fade-in-right">
-                                    <input
-                                        type="number"
-                                        min="0"
-                                        max="100"
-                                        value={discountRate}
-                                        onChange={(e) => {
-                                            let val = parseFloat(e.target.value);
-                                            if (val > 100) val = 100;
-                                            if (val < 0) val = 0;
-                                            setDiscountRate(val);
-                                        }}
-                                        className="w-12 md:w-16 p-0.5 md:p-1 border border-gray-300 rounded text-right text-[10px] md:text-sm focus:ring-1 focus:ring-green-500"
-                                        placeholder="0"
-                                    />
-                                    <span className="text-gray-600 font-bold">%</span>
+                                <div className="mt-2 space-y-2 animate-fade-in-right">
+                                    {/* Preset Percentage Buttons */}
+                                    <div className="grid grid-cols-4 gap-1">
+                                        {[10, 20, 30, 40, 50, 60, 100].map(rate => (
+                                            <button
+                                                key={rate}
+                                                onClick={() => setDiscountRate(rate)}
+                                                className={`py-1 text-[10px] md:text-xs font-bold rounded border transition-all ${discountRate === rate
+                                                        ? 'bg-nocca-green text-white border-nocca-green'
+                                                        : 'bg-white text-gray-600 border-gray-300 hover:border-nocca-green'
+                                                    }`}
+                                            >
+                                                %{rate}
+                                            </button>
+                                        ))}
+                                        <button
+                                            onClick={() => setDiscountRate(0)}
+                                            className="py-1 text-[10px] md:text-xs font-bold rounded border bg-gray-100 text-gray-600 border-gray-300 hover:bg-gray-200"
+                                        >
+                                            Sıfırla
+                                        </button>
+                                    </div>
+
+                                    {/* BOGO Toggle */}
+                                    <button
+                                        onClick={() => setIsBOGOActive(!isBOGOActive)}
+                                        className={`w-full py-1.5 md:py-2 px-3 rounded-lg border font-bold text-[10px] md:text-xs flex items-center justify-center gap-2 transition-all ${isBOGOActive
+                                                ? 'bg-purple-100 text-purple-700 border-purple-300 shadow-sm'
+                                                : 'bg-white text-gray-600 border-gray-300 hover:border-purple-300'
+                                            }`}
+                                    >
+                                        <div className={`w-3 h-3 md:w-4 md:h-4 rounded-full border-2 flex items-center justify-center ${isBOGOActive ? 'bg-purple-600 border-purple-600' : 'border-gray-300'}`}>
+                                            {isBOGOActive && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
+                                        </div>
+                                        <span>TATLI: 1 ALANA 1 BEDAVA</span>
+                                    </button>
+
+                                    {/* Custom Discount Input */}
+                                    <div className="flex items-center justify-end space-x-1 pt-1 border-t border-gray-100">
+                                        <span className="text-[10px] text-gray-400">Özel: </span>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            max="100"
+                                            value={discountRate}
+                                            onChange={(e) => {
+                                                let val = parseFloat(e.target.value);
+                                                if (isNaN(val)) val = 0;
+                                                if (val > 100) val = 100;
+                                                if (val < 0) val = 0;
+                                                setDiscountRate(val);
+                                            }}
+                                            className="w-12 md:w-16 p-0.5 md:p-1 border border-gray-300 rounded text-right text-[10px] md:text-sm focus:ring-1 focus:ring-green-500"
+                                            placeholder="0"
+                                        />
+                                        <span className="text-gray-600 font-bold">%</span>
+                                    </div>
                                 </div>
                             )}
                         </div>
@@ -1219,10 +1276,20 @@ export default function POSPage() {
                             <span className="font-medium text-gray-700 text-[10px] md:text-sm">₺{(cartTotal ?? 0).toFixed(2)}</span>
                         </div>
 
-                        {discountRate > 0 && (
-                            <div className="flex justify-between items-center mb-0.5 md:mb-1 text-red-500 font-medium">
-                                <span className="text-[10px] md:text-sm">İskonto (%{discountRate})</span>
-                                <span className="text-[10px] md:text-sm">-₺{(discountAmount ?? 0).toFixed(2)}</span>
+                        {totalDiscount > 0 && (
+                            <div className="flex flex-col space-y-0.5 mb-0.5 md:mb-1">
+                                {isBOGOActive && bogoDiscountAmount > 0 && (
+                                    <div className="flex justify-between items-center text-purple-600 text-[10px] md:text-sm font-medium">
+                                        <span>1 Alana 1 Bedava (Tatlı)</span>
+                                        <span>-₺{bogoDiscountAmount.toFixed(2)}</span>
+                                    </div>
+                                )}
+                                {discountRate > 0 && (
+                                    <div className="flex justify-between items-center text-red-500 text-[10px] md:text-sm font-medium">
+                                        <span>Genel İskonto (%{discountRate})</span>
+                                        <span>-₺{discountAmount.toFixed(2)}</span>
+                                    </div>
+                                )}
                             </div>
                         )}
 
