@@ -81,6 +81,10 @@ export default function POSPage() {
     const [prayerTimings, setPrayerTimings] = useState<Record<string, string> | null>(null);
     const [activePrayerAlert, setActivePrayerAlert] = useState<string | null>(null);
 
+    // Closing Announcement State
+    const [showClosingAlert, setShowClosingAlert] = useState(false);
+    const [lastAnnouncedTime, setLastAnnouncedTime] = useState<string | null>(null);
+
     // Monitor Online Status
     useEffect(() => {
         const updateOnlineStatus = () => {
@@ -225,6 +229,48 @@ export default function POSPage() {
         checkEzan();
         return () => clearInterval(interval);
     }, [prayerTimings]);
+
+    // Closing Announcement & Audio Logic
+    const playClosingAnnouncement = useCallback(() => {
+        if (typeof window === 'undefined') return;
+
+        // Anons metni
+        const msg = "Değerli misafirlerimiz, kafemiz kapanmak üzeredir. Lütfen siparişlerinizi ve hazırlıklarınızı buna göre tamamlayınız. Gösterdiğiniz ilgi ve anlayışınız için teşekkür ederiz. İyi geceler dileriz.";
+        const utterance = new SpeechSynthesisUtterance(msg);
+        utterance.lang = 'tr-TR';
+        utterance.rate = 0.9;
+        utterance.pitch = 1.0;
+
+        // Ses seçimi (Türkçe ses varsa onu kullan)
+        const voices = window.speechSynthesis.getVoices();
+        const trVoice = voices.find(v => v.lang.includes('tr')) || voices[0];
+        if (trVoice) utterance.voice = trVoice;
+
+        window.speechSynthesis.speak(utterance);
+        setShowClosingAlert(true);
+
+        // Görsel uyarıyı 30 saniye sonra kapat
+        setTimeout(() => setShowClosingAlert(false), 30000);
+    }, []);
+
+    // Kapanış zamanı kontrolü (00:30, 00:35, 00:40...)
+    useEffect(() => {
+        const checkClosingTime = () => {
+            const now = new Date();
+            const hour = now.getHours();
+            const mins = now.getMinutes();
+            const timeKey = `${hour}:${mins}`;
+
+            // Her gece 00:30 ile 01:00 arası 5 dakikada bir anons yap
+            if (hour === 0 && mins >= 30 && mins % 5 === 0 && lastAnnouncedTime !== timeKey) {
+                setLastAnnouncedTime(timeKey);
+                playClosingAnnouncement();
+            }
+        };
+
+        const interval = setInterval(checkClosingTime, 30000); // 30 saniyede bir kontrol et
+        return () => clearInterval(interval);
+    }, [lastAnnouncedTime, playClosingAnnouncement]);
 
     // Track pending orders count
     useEffect(() => {
@@ -1696,6 +1742,28 @@ export default function POSPage() {
                         </div>
                         <button
                             onClick={() => setActivePrayerAlert(null)}
+                            className="ml-4 p-2 hover:bg-white/10 rounded-full transition-colors"
+                        >
+                            <FaTimes />
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* Closing Announcement Alert Overlay */}
+            {showClosingAlert && (
+                <div className="fixed top-0 inset-x-0 z-[100] flex justify-center p-4 animate-bounce-in-top pointer-events-none">
+                    <div className="bg-gradient-to-r from-indigo-800 to-purple-900 text-white px-8 py-4 rounded-2xl shadow-2xl border-4 border-white flex items-center gap-4 pointer-events-auto">
+                        <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-3xl animate-pulse">
+                            📢
+                        </div>
+                        <div>
+                            <p className="text-xs font-bold opacity-80 uppercase tracking-widest">Kapanış Zamanı</p>
+                            <h3 className="text-xl font-black">Kapanış Anonsu Yapılıyor</h3>
+                            <p className="text-sm font-medium">Kafemiz saat 01:00'de tamamen kapanacaktır.</p>
+                        </div>
+                        <button
+                            onClick={() => setShowClosingAlert(false)}
                             className="ml-4 p-2 hover:bg-white/10 rounded-full transition-colors"
                         >
                             <FaTimes />
