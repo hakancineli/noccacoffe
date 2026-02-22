@@ -225,8 +225,9 @@ export default function POSPage() {
 
     const getStockInfo = (name: string) => {
         const found = getDbProduct(name);
-        // Safety: If not found in DB (sync issue), assume OUT OF STOCK to prevent errors
-        if (!found) return { stock: 0, isAvailable: false, hasRecipe: false };
+        // Fallback: If not in DB, treat as active and potentially available (as it is in static menu)
+        // to avoid "TÜKENDİ" overlay for items that just haven't been synced to DB yet.
+        if (!found) return { stock: 100, isAvailable: true, hasRecipe: false, isActive: true };
         return {
             stock: found.stock,
             isAvailable: (found.isAvailable ?? true) && (found.isActive !== false),
@@ -244,18 +245,15 @@ export default function POSPage() {
     // Categories to hide from POS filter bar (technical/ingredient categories)
     const HIDDEN_CATEGORIES = ['Şuruplar', 'Soslar', 'Püreler', 'Tozlar', 'Sütler', 'Extra'];
 
-    // Filter products - show products with recipes OR unit-based categories with stock
+    // Filter products - simple category and search match
     const filteredProducts = allMenuItems.filter(item => {
         const matchesCategory = activeCategory === 'Tümü' || item.category === activeCategory;
         const matchesSearch = item.name.toLocaleLowerCase('tr').includes(productSearch.toLocaleLowerCase('tr'));
+
         const stockInfo = getStockInfo(item.name);
+        if (stockInfo.isActive === false) return false;
 
-        // Unit-based products only need stock, not recipes
-        const isUnitBased = UNIT_BASED_CATEGORIES.includes(item.category);
-        // A product must be active to be sold
-        const canBeSold = (stockInfo.hasRecipe || (isUnitBased && stockInfo.isAvailable)) && (stockInfo as any).isActive !== false;
-
-        return matchesCategory && matchesSearch && canBeSold;
+        return matchesCategory && matchesSearch;
     });
 
     // Cart Logic
