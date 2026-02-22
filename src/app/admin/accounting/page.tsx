@@ -52,10 +52,29 @@ interface DayDetails {
     orders: {
         id: string;
         orderNumber: string;
+        totalAmount: number;
+        discountAmount: number;
         finalAmount: number;
         createdAt: string;
-        payments: { method: string }[];
+        payments: { method: string; amount: number }[];
+        orderItems: {
+            productName: string;
+            quantity: number;
+            unitPrice: number;
+            size?: string;
+        }[];
         customerName: string | null;
+    }[];
+    staffConsumptions: {
+        id: string;
+        staff: { name: string };
+        createdAt: string;
+        items: {
+            productName: string;
+            quantity: number;
+            staffPrice: number;
+            size?: string;
+        }[];
     }[];
     expenses: {
         id: string;
@@ -130,6 +149,7 @@ function AccountingContent() {
     const [selectedDate, setSelectedDate] = useState<string | null>(null);
     const [dayDetails, setDayDetails] = useState<DayDetails | null>(null);
     const [detailLoading, setDetailLoading] = useState(false);
+    const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
 
     // Filter State
     const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().slice(0, 7)); // YYYY-MM
@@ -946,24 +966,108 @@ function AccountingContent() {
                                                 </span>
                                             </div>
                                             <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                                                {dayDetails.orders.length === 0 ? (
+                                                {dayDetails.orders.length === 0 && dayDetails.staffConsumptions.length === 0 ? (
                                                     <p className="text-center text-gray-500 py-10">Sipariş bulunamadı.</p>
                                                 ) : (
-                                                    dayDetails.orders.map(order => (
-                                                        <div key={order.id} className="bg-white p-3 rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition">
-                                                            <div className="flex justify-between items-start">
-                                                                <div>
-                                                                    <span className="font-bold text-gray-900 block">#{order.orderNumber.split('-').pop()}</span>
-                                                                    <span className="text-xs text-gray-500">{new Date(order.createdAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</span>
-                                                                    <span className="text-xs text-gray-400 ml-2">• {order.payments?.map(p => p.method === 'CREDIT_CARD' ? 'Kart' : 'Nakit').join(' + ') || 'Nakit'}</span>
+                                                    <>
+                                                        {/* Combine and Sort Orders & Staff Consumptions */}
+                                                        {[
+                                                            ...dayDetails.orders.map(o => ({ ...o, type: 'ORDER' as const })),
+                                                            ...dayDetails.staffConsumptions.map(s => ({
+                                                                ...s,
+                                                                type: 'STAFF' as const,
+                                                                finalAmount: s.items.reduce((sum, i) => sum + (i.staffPrice * i.quantity), 0),
+                                                                orderNumber: 'PERSONEL',
+                                                                customerName: s.staff.name
+                                                            }))
+                                                        ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map(item => {
+                                                            const isExpanded = expandedOrderId === item.id;
+                                                            const isStaff = item.type === 'STAFF';
+                                                            const isDiscounted = !isStaff && ('discountAmount' in item) && (item.discountAmount ?? 0) > 0;
+                                                            const isSplit = !isStaff && ('payments' in item) && (item.payments?.length ?? 0) > 1;
+
+                                                            return (
+                                                                <div
+                                                                    key={item.id}
+                                                                    className={`group rounded-xl border transition-all cursor-pointer ${isExpanded ? 'ring-2 ring-nocca-green border-nocca-green shadow-lg' : 'border-gray-100 hover:border-gray-200 hover:shadow-md'
+                                                                        } bg-white overflow-hidden`}
+                                                                    onClick={() => setExpandedOrderId(isExpanded ? null : item.id)}
+                                                                >
+                                                                    <div className="p-3">
+                                                                        <div className="flex justify-between items-start">
+                                                                            <div className="flex-1">
+                                                                                <div className="flex items-center gap-2">
+                                                                                    <span className={`text-[11px] font-bold px-1.5 py-0.5 rounded ${isStaff ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-700'}`}>
+                                                                                        {isStaff ? 'PERSONEL' : `#${item.orderNumber.split('-').pop()}`}
+                                                                                    </span>
+                                                                                    <span className="text-[10px] text-gray-400">
+                                                                                        {new Date(item.createdAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
+                                                                                    </span>
+                                                                                    {isDiscounted && (
+                                                                                        <span className="text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded font-bold">
+                                                                                            İSKONTOLU
+                                                                                        </span>
+                                                                                    )}
+                                                                                </div>
+
+                                                                                <div className="mt-1 flex items-center gap-2">
+                                                                                    <span className={`font-bold transition-all ${isStaff ? 'text-purple-600 text-sm' : 'text-gray-900 text-xs'
+                                                                                        }`}>
+                                                                                        {item.customerName || 'Misafir'}
+                                                                                    </span>
+                                                                                    {!isStaff && (
+                                                                                        <span className="text-[10px] text-gray-400 italic">
+                                                                                            • {item.payments?.map(p => p.method === 'CREDIT_CARD' ? 'Kart' : 'Nakit').join(' + ')}
+                                                                                        </span>
+                                                                                    )}
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div className="text-right">
+                                                                                <span className={`font-bold block ${isStaff ? 'text-purple-600' : isDiscounted ? 'text-red-500' : 'text-green-600'}`}>
+                                                                                    ₺{item.finalAmount.toFixed(2)}
+                                                                                </span>
+                                                                                {isDiscounted && (
+                                                                                    <span className="text-[10px] text-gray-400 line-through block">
+                                                                                        ₺{item.totalAmount.toFixed(2)}
+                                                                                    </span>
+                                                                                )}
+                                                                            </div>
+                                                                        </div>
+
+                                                                        {/* Extended Details */}
+                                                                        {isExpanded && (
+                                                                            <div className="mt-3 pt-3 border-t border-gray-100 animate-fade-in">
+                                                                                {/* Payment Breakdown */}
+                                                                                {isSplit && (
+                                                                                    <div className="mb-3 p-2 bg-blue-50 rounded-lg text-[11px] space-y-1">
+                                                                                        <p className="font-bold text-blue-700 mb-1">Ödeme Dağılımı:</p>
+                                                                                        {item.payments.map((p, idx) => (
+                                                                                            <div key={idx} className="flex justify-between">
+                                                                                                <span>{p.method === 'CREDIT_CARD' ? 'Kredi Kartı' : 'Nakit'}</span>
+                                                                                                <span className="font-bold">₺{p.amount.toFixed(2)}</span>
+                                                                                            </div>
+                                                                                        ))}
+                                                                                    </div>
+                                                                                )}
+
+                                                                                {/* Item List */}
+                                                                                <div className="space-y-1">
+                                                                                    <p className="font-bold text-gray-700 text-[11px] mb-1">Ürünler:</p>
+                                                                                    {(isStaff ? item.items : item.orderItems).map((i: any, idx: number) => (
+                                                                                        <div key={idx} className="flex justify-between text-[11px] text-gray-600">
+                                                                                            <span>{i.quantity}x {i.productName} {i.size ? `(${i.size})` : ''}</span>
+                                                                                            <span className="font-medium">₺{(isStaff ? i.staffPrice : i.unitPrice).toFixed(2)}</span>
+                                                                                        </div>
+                                                                                    ))}
+                                                                                </div>
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
                                                                 </div>
-                                                                <div className="text-right">
-                                                                    <span className="font-bold text-green-600 block">₺{order.finalAmount.toFixed(2)}</span>
-                                                                    <span className="text-xs text-gray-500">{order.customerName || 'Misafir'}</span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    ))
+                                                            );
+                                                        })}
+                                                    </>
                                                 )}
                                             </div>
                                         </div>

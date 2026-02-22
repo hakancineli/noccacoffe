@@ -33,6 +33,8 @@ export async function GET(request: NextRequest) {
             select: {
                 id: true,
                 orderNumber: true,
+                totalAmount: true,
+                discountAmount: true,
                 finalAmount: true,
                 createdAt: true,
                 payments: {
@@ -41,7 +43,34 @@ export async function GET(request: NextRequest) {
                         amount: true
                     }
                 },
+                orderItems: {
+                    select: {
+                        productName: true,
+                        quantity: true,
+                        unitPrice: true,
+                        size: true
+                    }
+                },
                 customerName: true
+            },
+            orderBy: {
+                createdAt: 'desc'
+            }
+        });
+
+        // Fetch Staff Consumptions for the day
+        const staffConsumptions = await prisma.staffConsumption.findMany({
+            where: {
+                createdAt: {
+                    gte: startOfDay,
+                    lte: endOfDay
+                }
+            },
+            include: {
+                staff: {
+                    select: { name: true }
+                },
+                items: true
             },
             orderBy: {
                 createdAt: 'desc'
@@ -70,6 +99,7 @@ export async function GET(request: NextRequest) {
 
         return NextResponse.json({
             orders,
+            staffConsumptions,
             expenses
         });
 
