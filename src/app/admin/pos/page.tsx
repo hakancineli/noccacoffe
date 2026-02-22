@@ -75,6 +75,7 @@ export default function POSPage() {
     const [allStaff, setAllStaff] = useState<any[]>([]);
     const [showStaffModal, setShowStaffModal] = useState(false);
     const [isStaffSubmitting, setIsStaffSubmitting] = useState(false);
+    const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
 
     // Monitor Online Status
     useEffect(() => {
@@ -142,7 +143,23 @@ export default function POSPage() {
                 console.error('Staff fetch error:', error);
             }
         };
+
+        // Fetch current user role
+        const fetchMe = async () => {
+            try {
+                const res = await fetch('/api/auth/me');
+                if (res.ok) {
+                    const data = await res.json();
+                    setCurrentUserRole(data.role || 'BARISTA');
+                }
+            } catch (error) {
+                console.error('Fetch me error:', error);
+            }
+        };
+
+        fetchProducts();
         fetchStaff();
+        fetchMe();
     }, []);
 
     // Track pending orders count
@@ -913,13 +930,15 @@ export default function POSPage() {
                                     <FaClipboardList className="text-xs" />
                                     <span className="hidden md:inline">Siparişler</span>
                                 </Link>
-                                <Link
-                                    href="/admin/accounting?report=today"
-                                    className="flex items-center space-x-1 md:space-x-2 px-2 md:px-3 py-1 md:py-1.5 rounded-xl text-[10px] md:text-xs font-bold uppercase tracking-wider bg-amber-600 text-white hover:bg-amber-700 transition-all shadow-lg"
-                                >
-                                    <FaMoneyBillWave className="text-xs" />
-                                    <span className="hidden md:inline">Rapor</span>
-                                </Link>
+                                {currentUserRole === 'MANAGER' && (
+                                    <Link
+                                        href="/admin/accounting?report=today"
+                                        className="flex items-center space-x-1 md:space-x-2 px-2 md:px-3 py-1 md:py-1.5 rounded-xl text-[10px] md:text-xs font-bold uppercase tracking-wider bg-amber-600 text-white hover:bg-amber-700 transition-all shadow-lg"
+                                    >
+                                        <FaMoneyBillWave className="text-xs" />
+                                        <span className="hidden md:inline">Rapor</span>
+                                    </Link>
+                                )}
                                 <button
                                     onClick={() => setShowRecentOrders(true)}
                                     className="flex items-center space-x-1 md:space-x-2 px-2 md:px-3 py-1 md:py-1.5 rounded-xl text-[10px] md:text-xs font-bold uppercase tracking-wider bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-lg"
@@ -1206,13 +1225,15 @@ export default function POSPage() {
 
                         {/* Discount Control */}
                         <div className="flex justify-between items-center mb-1 md:mb-2 text-[10px] md:text-xs">
-                            <button
-                                onClick={() => setShowDiscountInput(!showDiscountInput)}
-                                className="font-semibold text-nocca-green hover:underline flex items-center"
-                            >
-                                {showDiscountInput ? 'İskontoyu Kapat' : '+ İskonto Uygula'}
-                            </button>
-                            {showDiscountInput && (
+                            {currentUserRole === 'MANAGER' && (
+                                <button
+                                    onClick={() => setShowDiscountInput(!showDiscountInput)}
+                                    className="font-semibold text-nocca-green hover:underline flex items-center"
+                                >
+                                    {showDiscountInput ? 'İskontoyu Kapat' : '+ İskonto Uygula'}
+                                </button>
+                            )}
+                            {showDiscountInput && currentUserRole === 'MANAGER' && (
                                 <div className="mt-2 space-y-2 animate-fade-in-right">
                                     {/* Preset Percentage Buttons */}
                                     <div className="grid grid-cols-4 gap-1">

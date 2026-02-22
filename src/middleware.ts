@@ -44,14 +44,10 @@ export async function middleware(request: NextRequest) {
           '/admin/pos',
           '/admin/profile',
           '/admin/orders',
-          '/admin/accounting',
           '/api/admin/orders',
           '/api/admin/products',
-          '/api/admin/expenses',
-          '/api/admin/reports',
-          '/api/admin/accounting',
           '/api/orders'
-        ]; // Added API paths and accounting
+        ]; // Removed accounting and expenses
 
         // Exact match or starts with (for sub-routes)
         const isAllowed = allowedPaths.some(path => pathname.startsWith(path)) || pathname === '/admin';
