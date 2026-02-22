@@ -71,6 +71,7 @@ export async function GET(request: Request) {
 
         // Initialize all days of the month TR time
         const dailyMap = new Map<string, any>();
+        const dailyOrderSets = new Map<string, Set<string>>(); // Track unique order IDs per day
         const currentDataDay = new Date(startDate.getTime() + (3 * 60 * 60 * 1000)); // Start in TR day
         const endDataDay = new Date(endDate.getTime() + (3 * 60 * 60 * 1000));
 
@@ -85,6 +86,7 @@ export async function GET(request: Request) {
                 netProfit: 0,
                 orderCount: 0
             });
+            dailyOrderSets.set(dayKey, new Set());
             currentDataDay.setUTCDate(currentDataDay.getUTCDate() + 1);
         }
 
@@ -97,7 +99,8 @@ export async function GET(request: Request) {
             select: {
                 amount: true,
                 method: true,
-                createdAt: true
+                createdAt: true,
+                orderId: true
             }
         });
 
@@ -109,7 +112,15 @@ export async function GET(request: Request) {
                 entry.totalSales += p.amount;
                 if (p.method === 'CASH') entry.cashSales += p.amount;
                 else entry.cardSales += p.amount;
-                entry.orderCount += 1;
+                // Count unique orders, not individual payments
+                dailyOrderSets.get(dayKey)!.add(p.orderId);
+            }
+        });
+
+        // Set orderCount from unique order IDs
+        dailyOrderSets.forEach((orderSet, dayKey) => {
+            if (dailyMap.has(dayKey)) {
+                dailyMap.get(dayKey).orderCount = orderSet.size;
             }
         });
 

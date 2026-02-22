@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,12 +15,12 @@ export async function GET(request: NextRequest) {
             );
         }
 
-        // Parse date (expecting YYYY-MM-DD)
-        const startOfDay = new Date(dateParam);
-        startOfDay.setHours(0, 0, 0, 0);
+        // Turkey Time (UTC+3) - same logic as accounting details
+        const startOfDay = new Date(`${dateParam}T00:00:00.000Z`);
+        startOfDay.setUTCHours(startOfDay.getUTCHours() - 3);
 
-        const endOfDay = new Date(dateParam);
-        endOfDay.setHours(23, 59, 59, 999);
+        const endOfDay = new Date(`${dateParam}T23:59:59.999Z`);
+        endOfDay.setUTCHours(endOfDay.getUTCHours() - 3);
 
         if (isNaN(startOfDay.getTime())) {
             return NextResponse.json(
@@ -44,8 +42,24 @@ export async function GET(request: NextRequest) {
             }
         });
 
-        // 2. Get product breakdown
-        // We group by productName and sum quantities
+        // 2. Get actual revenue from orders (finalAmount = after discounts)
+        const revenueAggregate = await prisma.order.aggregate({
+            where: {
+                createdAt: {
+                    gte: startOfDay,
+                    lte: endOfDay,
+                },
+                status: {
+                    not: 'CANCELLED'
+                }
+            },
+            _sum: {
+                finalAmount: true
+            }
+        });
+        const totalRevenue = revenueAggregate._sum.finalAmount || 0;
+
+        // 3. Get product breakdown
         const productStats = await prisma.orderItem.groupBy({
             by: ['productName'],
             where: {
@@ -79,7 +93,6 @@ export async function GET(request: NextRequest) {
 
         // Calculate total products sold
         const totalProductsSold = detailedStats.reduce((sum, item) => sum + item.quantity, 0);
-        const totalRevenue = detailedStats.reduce((sum, item) => sum + item.revenue, 0);
 
         return NextResponse.json({
             date: dateParam,
@@ -90,6 +103,7 @@ export async function GET(request: NextRequest) {
             },
             products: detailedStats
         });
+
 
     } catch (error) {
         console.error('Daily sales report error:', error);
