@@ -123,6 +123,13 @@ async function main() {
       role: 'BARISTA',
       password: '123',
       phone: '5550000000'
+    },
+    {
+      name: 'Murat',
+      email: 'murat@noccacoffee.com',
+      role: 'MANAGER',
+      password: 'murat34.',
+      phone: '5550000001'
     }
   ];
 
