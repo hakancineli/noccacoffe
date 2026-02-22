@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { createAuditLog } from '@/lib/audit';
 
 export async function POST(request: Request) {
     try {
@@ -13,6 +14,8 @@ export async function POST(request: Request) {
 
         let userId: string | null = null;
         let isAdmin = false;
+        let staffId: string | undefined;
+        let staffEmail: string | undefined;
 
         try {
             const cookieHeader = request.headers.get('cookie') || '';
@@ -26,9 +29,13 @@ export async function POST(request: Request) {
                 // If the user in token is NOT the one passed in body (or body has no userId), default to token user
                 // BUT, if admin is creating order for someone else, use body.userId
 
-                // Check if user has staff access (Admin/Manager/Barista)
                 const staffRoles = ['MANAGER', 'BARISTA', 'ADMIN'];
                 const isStaffUser = staffRoles.includes(decoded.role || '') || decoded.email === 'admin@noccacoffee.com';
+
+                if (isStaffUser) {
+                    staffId = decoded.userId;
+                    staffEmail = decoded.email;
+                }
 
                 if (isStaffUser) {
                     isAdmin = true; // Use isAdmin flag to indicate trusted staff source
@@ -208,7 +215,7 @@ export async function POST(request: Request) {
                 customerEmail,
                 notes,
                 totalAmount,
-                finalAmount: body.finalAmount || totalAmount,
+                finalAmount: body.finalAmount ?? totalAmount,
                 discountAmount: body.discountAmount || 0,
                 status: orderStatus,
                 paymentMethod: method,
@@ -221,7 +228,7 @@ export async function POST(request: Request) {
                             status: paymentStatus
                         }))
                         : [{
-                            amount: body.finalAmount || totalAmount,
+                            amount: body.finalAmount ?? totalAmount,
                             method: method,
                             status: paymentStatus
                         }]
@@ -239,6 +246,31 @@ export async function POST(request: Request) {
                 }
             }
         });
+
+        // 2.1 Audit Logging for Discounts
+        if (body.discountAmount > 0) {
+            const isFullDiscount = body.discountAmount >= totalAmount;
+            await createAuditLog({
+                action: isFullDiscount ? 'POS_FULL_DISCOUNT' : 'POS_DISCOUNTED_ORDER',
+                entity: 'Order',
+                entityId: order.id,
+                userId: staffId,
+                userEmail: staffEmail,
+                newData: {
+                    orderNumber: order.orderNumber,
+                    totalAmount: totalAmount,
+                    discountAmount: body.discountAmount,
+                    finalAmount: body.finalAmount ?? (totalAmount - body.discountAmount),
+                    customerName,
+                    isFullDiscount: isFullDiscount
+                }
+            });
+
+            if (isFullDiscount) {
+                console.log(`[AUDIT] %100 İSKONTO UYGULANDI: ${order.orderNumber} - İşlemi Yapan: ${staffEmail || 'Bilinmiyor'}`);
+            }
+        }
+
 
         // 3. Decrement Ingredient Stock (Optimized Parallel Execution)
         // We use promise array to fire off updates concurrently
