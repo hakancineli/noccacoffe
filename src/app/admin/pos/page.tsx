@@ -1039,13 +1039,21 @@ export default function POSPage() {
                                     <span className="hidden md:inline">Siparişler</span>
                                 </Link>
                                 {currentUserRole === 'MANAGER' && (
-                                    <Link
-                                        href="/admin/accounting?report=today"
-                                        className="flex items-center space-x-1 md:space-x-2 px-2 md:px-3 py-1 md:py-1.5 rounded-xl text-[10px] md:text-xs font-bold uppercase tracking-wider bg-amber-600 text-white hover:bg-amber-700 transition-all shadow-lg"
-                                    >
-                                        <FaMoneyBillWave className="text-xs" />
-                                        <span className="hidden md:inline">Rapor</span>
-                                    </Link>
+                                    <>
+                                        <Link
+                                            href="/admin/accounting?report=today"
+                                            className="flex items-center space-x-1 md:space-x-2 px-2 md:px-3 py-1 md:py-1.5 rounded-xl text-[10px] md:text-xs font-bold uppercase tracking-wider bg-amber-600 text-white hover:bg-amber-700 transition-all shadow-lg"
+                                        >
+                                            <FaMoneyBillWave className="text-xs" />
+                                            <span className="hidden md:inline">Rapor</span>
+                                        </Link>
+                                        <button
+                                            onClick={playClosingAnnouncement}
+                                            className="flex items-center space-x-1 md:space-x-2 px-2 md:px-3 py-1 md:py-1.5 rounded-xl text-[10px] md:text-xs font-bold uppercase tracking-wider bg-indigo-500 text-white hover:bg-indigo-600 transition-all shadow-lg"
+                                        >
+                                            <span>📢 Test</span>
+                                        </button>
+                                    </>
                                 )}
                                 <button
                                     onClick={() => setShowRecentOrders(true)}
