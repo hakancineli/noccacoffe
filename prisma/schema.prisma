@@ -267,11 +267,12 @@ model Barista {
 }
 
 model StaffConsumption {
-  id        String                 @id @default(cuid())
-  staffId   String                 @map("staff_id")
-  staff     Barista                @relation(fields: [staffId], references: [id], onDelete: Cascade)
-  items     StaffConsumptionItem[]
-  createdAt DateTime               @default(now()) @map("created_at")
+  id            String                 @id @default(cuid())
+  staffId       String                 @map("staff_id")
+  staff         Barista                @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  items         StaffConsumptionItem[]
+  paymentMethod PaymentMethod          @default(CASH) @map("payment_method")
+  createdAt     DateTime               @default(now()) @map("created_at")
 
   @@map("staff_consumptions")
 }

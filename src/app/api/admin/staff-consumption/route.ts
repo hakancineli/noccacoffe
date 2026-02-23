@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma';
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const { staffId, items } = body;
+        const { staffId, items, paymentMethod } = body;
 
         if (!staffId || !items || items.length === 0) {
             return NextResponse.json({ success: false, error: 'Eksik bilgi' }, { status: 400 });
@@ -33,12 +33,12 @@ export async function POST(request: Request) {
         const consumption = await prisma.staffConsumption.create({
             data: {
                 staffId,
+                paymentMethod: paymentMethod || 'CASH',
                 items: {
                     create: items.map((item: any) => ({
                         productId: item.productId.toString(),
                         productName: item.productName,
                         quantity: item.quantity,
-                        originalPrice: item.originalPrice,
                         staffPrice: item.staffPrice,
                         size: item.size
                     }))

@@ -88,7 +88,8 @@ export async function GET(request: Request) {
         const allStaffItems = staffConsumptionsWithItems.flatMap(sc =>
             sc.items.map(item => ({
                 amount: item.staffPrice * item.quantity,
-                createdAt: sc.createdAt
+                createdAt: sc.createdAt,
+                paymentMethod: sc.paymentMethod
             }))
         );
 
@@ -147,8 +148,12 @@ export async function GET(request: Request) {
             if (dailyMap.has(dayKey)) {
                 const entry = dailyMap.get(dayKey);
                 entry.totalSales += si.amount;
-                // Staff consumption payments are treated as cash revenue for accounting
-                entry.cashSales += si.amount;
+                // Staff consumption payments are treated according to recorded method
+                if (si.paymentMethod === 'CREDIT_CARD') {
+                    entry.cardSales += si.amount;
+                } else {
+                    entry.cashSales += si.amount;
+                }
             }
         });
 

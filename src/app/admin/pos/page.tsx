@@ -75,6 +75,7 @@ export default function POSPage() {
     const [allStaff, setAllStaff] = useState<any[]>([]);
     const [showStaffModal, setShowStaffModal] = useState(false);
     const [isStaffSubmitting, setIsStaffSubmitting] = useState(false);
+    const [staffPaymentMethod, setStaffPaymentMethod] = useState<'CASH' | 'CREDIT_CARD'>('CASH');
     const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
 
     // Prayer Alert State
@@ -735,6 +736,7 @@ export default function POSPage() {
         try {
             const consumptionData = {
                 staffId: selectedStaff.id,
+                paymentMethod: staffPaymentMethod,
                 items: cart.map(item => ({
                     productId: item.productId,
                     productName: item.name,
@@ -1401,24 +1403,21 @@ export default function POSPage() {
                             {showDiscountInput && (
                                 <div className="mt-2 space-y-2 animate-fade-in-right">
                                     {/* Preset Percentage Buttons */}
-                                    <div className="grid grid-cols-4 gap-1">
-                                        {[10, 20, 30, 40, 50, 60, 100].map(rate => (
-                                            <button
-                                                key={rate}
-                                                onClick={() => setDiscountRate(rate)}
-                                                className={`py-1 text-[10px] md:text-xs font-bold rounded border transition-all ${discountRate === rate
-                                                    ? 'bg-nocca-green text-white border-nocca-green'
-                                                    : 'bg-white text-gray-600 border-gray-300 hover:border-nocca-green'
-                                                    }`}
-                                            >
-                                                %{rate}
-                                            </button>
-                                        ))}
+                                    <div className="grid grid-cols-2 gap-1">
+                                        <button
+                                            onClick={() => setDiscountRate(20)}
+                                            className={`py-1 text-[10px] md:text-sm font-bold rounded border transition-all ${discountRate === 20
+                                                ? 'bg-nocca-green text-white border-nocca-green'
+                                                : 'bg-white text-gray-600 border-gray-300 hover:border-nocca-green'
+                                                }`}
+                                        >
+                                            %20 İSKONTO
+                                        </button>
                                         <button
                                             onClick={() => setDiscountRate(0)}
-                                            className="py-1 text-[10px] md:text-xs font-bold rounded border bg-gray-100 text-gray-600 border-gray-300 hover:bg-gray-200"
+                                            className="py-1 text-[10px] md:text-sm font-bold rounded border bg-gray-100 text-gray-600 border-gray-300 hover:bg-gray-200"
                                         >
-                                            Sıfırla
+                                            SIFIRLA
                                         </button>
                                     </div>
 
@@ -1498,14 +1497,41 @@ export default function POSPage() {
 
                         <div className="mt-4">
                             {staffMode ? (
-                                <button
-                                    onClick={handleCreateStaffConsumption}
-                                    disabled={cart.length === 0 || !selectedStaff || isStaffSubmitting}
-                                    className="w-full h-16 bg-purple-600 text-white rounded-xl font-bold flex flex-col items-center justify-center shadow-lg hover:bg-purple-700 transition-all disabled:opacity-50"
-                                >
-                                    <span className="text-lg uppercase">TÜKETİMİ KAYDET</span>
-                                    <span className="text-xs opacity-80">{selectedStaff?.name}</span>
-                                </button>
+                                <div className="space-y-3">
+                                    {finalTotal > 0 && (
+                                        <div className="bg-purple-50 p-3 rounded-xl border border-purple-100">
+                                            <p className="text-[10px] font-bold text-purple-700 uppercase mb-2">Ödeme Yöntemi</p>
+                                            <div className="grid grid-cols-2 gap-2">
+                                                <button
+                                                    onClick={() => setStaffPaymentMethod('CASH')}
+                                                    className={`py-2 rounded-lg font-bold text-xs transition-all flex items-center justify-center gap-2 border-2 ${staffPaymentMethod === 'CASH'
+                                                        ? 'bg-purple-600 text-white border-purple-600'
+                                                        : 'bg-white text-purple-600 border-purple-200 hover:border-purple-400'
+                                                        }`}
+                                                >
+                                                    <FaMoneyBillWave /> NAKİT
+                                                </button>
+                                                <button
+                                                    onClick={() => setStaffPaymentMethod('CREDIT_CARD')}
+                                                    className={`py-2 rounded-lg font-bold text-xs transition-all flex items-center justify-center gap-2 border-2 ${staffPaymentMethod === 'CREDIT_CARD'
+                                                        ? 'bg-purple-600 text-white border-purple-600'
+                                                        : 'bg-white text-purple-600 border-purple-200 hover:border-purple-400'
+                                                        }`}
+                                                >
+                                                    <FaCreditCard /> KREDİ KARTI
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+                                    <button
+                                        onClick={handleCreateStaffConsumption}
+                                        disabled={cart.length === 0 || !selectedStaff || isStaffSubmitting}
+                                        className="w-full h-16 bg-purple-600 text-white rounded-xl font-bold flex flex-col items-center justify-center shadow-lg hover:bg-purple-700 transition-all disabled:opacity-50"
+                                    >
+                                        <span className="text-lg uppercase">TÜKETİMİ KAYDET</span>
+                                        <span className="text-xs opacity-80">{selectedStaff?.name}</span>
+                                    </button>
+                                </div>
                             ) : (
                                 <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
                                     <button

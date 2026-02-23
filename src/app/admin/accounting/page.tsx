@@ -70,6 +70,7 @@ interface DayDetails {
         id: string;
         staff: { name: string };
         createdAt: string;
+        paymentMethod: string;
         items: {
             productName: string;
             quantity: number;
@@ -980,13 +981,17 @@ function AccountingContent() {
                                                         {/* Combine and Sort Orders & Staff Consumptions */}
                                                         {[
                                                             ...dayDetails.orders.map(o => ({ ...o, type: 'ORDER' as const })),
-                                                            ...dayDetails.staffConsumptions.map(s => ({
-                                                                ...s,
-                                                                type: 'STAFF' as const,
-                                                                finalAmount: s.items.reduce((sum, i) => sum + (i.staffPrice * i.quantity), 0),
-                                                                orderNumber: 'PERSONEL',
-                                                                customerName: s.staff.name
-                                                            }))
+                                                            ...dayDetails.staffConsumptions.map(s => {
+                                                                const amount = s.items.reduce((sum, i) => sum + (i.staffPrice * i.quantity), 0);
+                                                                return {
+                                                                    ...s,
+                                                                    type: 'STAFF' as const,
+                                                                    finalAmount: amount,
+                                                                    orderNumber: 'PERSONEL',
+                                                                    customerName: s.staff.name,
+                                                                    payments: amount > 0 ? [{ method: s.paymentMethod, amount }] : []
+                                                                };
+                                                            })
                                                         ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map(item => {
                                                             const isExpanded = expandedOrderId === item.id;
                                                             const isStaff = item.type === 'STAFF';
