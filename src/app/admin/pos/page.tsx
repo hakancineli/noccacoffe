@@ -244,23 +244,18 @@ export default function POSPage() {
     const playClosingAnnouncement = useCallback(() => {
         if (typeof window === 'undefined') return;
 
-        // Anons metni
-        const msg = "Değerli misafirlerimiz, kafemiz kapanmak üzeredir. Lütfen siparişlerinizi ve hazırlıklarınızı buna göre tamamlayınız. Gösterdiğiniz ilgi ve anlayışınız için teşekkür ederiz. İyi geceler dileriz.";
-        const utterance = new SpeechSynthesisUtterance(msg);
-        utterance.lang = 'tr-TR';
-        utterance.rate = 0.9;
-        utterance.pitch = 1.0;
+        try {
+            // Pelin Yıldız - Sincere and Warm Ses Kaydı
+            const audio = new Audio('/nons_2026-02-23T15_59_05_Pelin Yildiz - Sincere and Warm_pvc_sp100_s64_sb75_se8_b_m2.mp3');
+            audio.play().catch(e => console.error('Audio playback failed:', e));
 
-        // Ses seçimi (Türkçe ses varsa onu kullan)
-        const voices = window.speechSynthesis.getVoices();
-        const trVoice = voices.find(v => v.lang.includes('tr')) || voices[0];
-        if (trVoice) utterance.voice = trVoice;
+            setShowClosingAlert(true);
 
-        window.speechSynthesis.speak(utterance);
-        setShowClosingAlert(true);
-
-        // Görsel uyarıyı 30 saniye sonra kapat
-        setTimeout(() => setShowClosingAlert(false), 30000);
+            // Görsel uyarıyı 30 saniye sonra kapat
+            setTimeout(() => setShowClosingAlert(false), 30000);
+        } catch (error) {
+            console.error('Announcement error:', error);
+        }
     }, []);
 
     // Kapanış zamanı kontrolü (00:30, 00:35, 00:40...)
