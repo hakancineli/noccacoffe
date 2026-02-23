@@ -1751,24 +1751,22 @@ export default function POSPage() {
                             </div>
                         </div>
 
-                        <div className="text-center mt-6 pt-4 border-t border-dashed border-black">
-                            <div className="my-2 flex justify-center">
+                        <div className="text-center mt-2 pt-2 border-t border-dashed border-black">
+                            <div className="my-1 flex justify-center">
                                 <img
-                                    src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://www.noccacoffee.com.tr/menu`}
+                                    src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https://www.noccacoffee.com.tr/menu`}
                                     alt="Menu QR"
                                     style={{
-                                        width: '40mm',
-                                        height: '40mm',
+                                        width: '25mm',
+                                        height: '25mm',
                                         imageRendering: 'pixelated'
                                     }}
                                 />
                             </div>
 
                             <div className="text-base font-black tracking-widest">NOCCA COFFEE</div>
-                            <div className="text-[10px] mt-1 italic">Yenibosna Bahçelievler İstanbul</div>
                             <div className="text-[10px]">www.noccacoffee.com.tr</div>
-                            <div className="mt-4 text-[11px] font-bold">* AFİYET OLSUN *</div>
-                            <div className="text-[9px] mt-4 opacity-70 italic">Mali değeri yoktur. Teşekkür ederiz.</div>
+                            <div className="mt-2 text-[11px] font-bold">* AFİYET OLSUN *</div>
                         </div>
                     </div>
                 </div>
