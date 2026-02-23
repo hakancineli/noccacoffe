@@ -91,6 +91,10 @@ export default function POSPage() {
     const [pendingOrderArgs, setPendingOrderArgs] = useState<{ method: 'CASH' | 'CREDIT_CARD' | 'SPLIT', payments?: any[] } | null>(null);
     const [isPinError, setIsPinError] = useState(false);
 
+    // Order Confirmation State
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [confirmingMethod, setConfirmingMethod] = useState<'CASH' | 'CREDIT_CARD' | 'SPLIT' | null>(null);
+
     // Monitor Online Status
     useEffect(() => {
         const updateOnlineStatus = () => {
@@ -547,6 +551,14 @@ export default function POSPage() {
     // Order Creation Logic
     const handleCreateOrder = async (paymentMethod: 'CASH' | 'CREDIT_CARD' | 'SPLIT', customPayments?: any[]) => {
         if (cart.length === 0) return;
+
+        // NEW: Confirmation check
+        if (!showConfirmModal && !showStaffPinModal && !enteredPin) {
+            setConfirmingMethod(paymentMethod);
+            setShowConfirmModal(true);
+            setPendingOrderArgs({ method: paymentMethod, payments: customPayments });
+            return;
+        }
 
         // Requirement: PIN check before actual creation
         if (!showStaffPinModal && !enteredPin) {
@@ -1825,8 +1837,8 @@ export default function POSPage() {
                                     <div
                                         key={idx}
                                         className={`w-12 h-16 rounded-2xl border-2 flex items-center justify-center text-3xl font-black transition-all ${idx < enteredPin.length
-                                                ? 'border-nocca-green bg-nocca-green/10 text-nocca-green'
-                                                : isPinError ? 'border-red-300' : 'border-gray-200'
+                                            ? 'border-nocca-green bg-nocca-green/10 text-nocca-green'
+                                            : isPinError ? 'border-red-300' : 'border-gray-200'
                                             }`}
                                     >
                                         {idx < enteredPin.length ? '●' : ''}
@@ -1869,8 +1881,8 @@ export default function POSPage() {
                                             }
                                         }}
                                         className={`h-16 rounded-2xl flex items-center justify-center text-2xl font-black transition-all active:scale-95 ${num === 'C' ? 'bg-red-50 text-red-600' :
-                                                num === '⌫' ? 'bg-amber-50 text-amber-600' :
-                                                    'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                                            num === '⌫' ? 'bg-amber-50 text-amber-600' :
+                                                'bg-gray-100 text-gray-800 hover:bg-gray-200'
                                             }`}
                                     >
                                         {num}
@@ -1889,6 +1901,48 @@ export default function POSPage() {
                             >
                                 İşlemi İptal Et
                             </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* General Order Confirmation Modal */}
+            {showConfirmModal && (
+                <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/70 backdrop-blur-sm animate-fade-in p-4">
+                    <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden animate-scale-up">
+                        <div className="bg-gray-800 p-6 text-white text-center">
+                            <h3 className="text-xl font-black uppercase tracking-widest">Siparişi Onayla</h3>
+                            <p className="text-xs opacity-80 mt-1 uppercase">Satış işlemi tamamlanacak ve fiş yazdırılacak.</p>
+                        </div>
+                        <div className="p-8">
+                            <div className="mb-6 text-center">
+                                <p className="text-gray-500 text-sm mb-1 uppercase font-bold tracking-widest">Ödeme Yöntemi</p>
+                                <p className="text-2xl font-black text-nocca-green uppercase">
+                                    {confirmingMethod === 'CASH' ? 'NAKİT' : confirmingMethod === 'CREDIT_CARD' ? 'KREDİ KARTI' : 'PARÇALI ÖDEME'}
+                                </p>
+                            </div>
+                            <div className="flex flex-col gap-3">
+                                <button
+                                    onClick={() => {
+                                        setShowConfirmModal(false);
+                                        // Trigger the PIN step (which is inside handleCreateOrder)
+                                        handleCreateOrder(confirmingMethod!, pendingOrderArgs?.payments);
+                                    }}
+                                    className="w-full h-16 bg-nocca-green text-white rounded-2xl font-black text-xl hover:bg-nocca-light-green transition-all shadow-lg active:scale-95 flex items-center justify-center"
+                                >
+                                    EVET, ONAYLA
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setShowConfirmModal(false);
+                                        setConfirmingMethod(null);
+                                        setPendingOrderArgs(null);
+                                    }}
+                                    className="w-full py-4 text-gray-400 font-bold hover:text-red-500 transition-colors uppercase tracking-widest"
+                                >
+                                    İPTAL ET
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
