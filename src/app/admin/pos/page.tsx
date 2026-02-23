@@ -549,11 +549,13 @@ export default function POSPage() {
     }, [lastOrder]);
 
     // Order Creation Logic
-    const handleCreateOrder = async (paymentMethod: 'CASH' | 'CREDIT_CARD' | 'SPLIT', customPayments?: any[]) => {
+    const handleCreateOrder = async (paymentMethod: 'CASH' | 'CREDIT_CARD' | 'SPLIT', customPayments?: any[], pinOverride?: string) => {
         if (cart.length === 0) return;
 
+        const currentPin = pinOverride || enteredPin;
+
         // NEW: Confirmation check
-        if (!showConfirmModal && !showStaffPinModal && !enteredPin) {
+        if (!showConfirmModal && !showStaffPinModal && !currentPin) {
             setConfirmingMethod(paymentMethod);
             setShowConfirmModal(true);
             setPendingOrderArgs({ method: paymentMethod, payments: customPayments });
@@ -561,7 +563,7 @@ export default function POSPage() {
         }
 
         // Requirement: PIN check before actual creation
-        if (!showStaffPinModal && !enteredPin) {
+        if (!showStaffPinModal && !currentPin) {
             setPendingOrderArgs({ method: paymentMethod, payments: customPayments });
             setShowStaffPinModal(true);
             setEnteredPin('');
@@ -602,7 +604,7 @@ export default function POSPage() {
             const res = await fetch('/api/orders', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...orderData, staffPin: enteredPin })
+                body: JSON.stringify({ ...orderData, staffPin: currentPin })
             });
 
             if (!res.ok && res.status === 400) {
@@ -1874,7 +1876,7 @@ export default function POSPage() {
                                                     if (pendingOrderArgs) {
                                                         // We need to wait slightly so the UI shows the 4th dot
                                                         setTimeout(() => {
-                                                            handleCreateOrder(pendingOrderArgs.method, pendingOrderArgs.payments);
+                                                            handleCreateOrder(pendingOrderArgs.method, pendingOrderArgs.payments, nextPin);
                                                         }, 300);
                                                     }
                                                 }

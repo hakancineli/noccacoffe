@@ -55,14 +55,17 @@ export async function POST(request: Request) {
 
         // Staff Performance Integration (PIN Code)
         if (staffPin) {
+            console.log(`[ORDER API] Verifying staff PIN: ${staffPin}`);
             const staff = await prisma.barista.findFirst({
                 where: { pinCode: staffPin, isActive: true }
             });
 
             if (!staff) {
+                console.warn(`[ORDER API] PIN verification failed for: ${staffPin}`);
                 return NextResponse.json({ success: false, error: 'Hatalı Personel PIN kodu!' }, { status: 400 });
             }
 
+            console.log(`[ORDER API] PIN verified. Staff: ${staff.name} (${staff.id})`);
             staffId = staff.id;
             staffEmail = staff.email;
         }
