@@ -85,6 +85,12 @@ export default function POSPage() {
     const [showClosingAlert, setShowClosingAlert] = useState(false);
     const [lastAnnouncedTime, setLastAnnouncedTime] = useState<string | null>(null);
 
+    // Staff Performance PIN Logic
+    const [showStaffPinModal, setShowStaffPinModal] = useState(false);
+    const [enteredPin, setEnteredPin] = useState('');
+    const [pendingOrderArgs, setPendingOrderArgs] = useState<{ method: 'CASH' | 'CREDIT_CARD' | 'SPLIT', payments?: any[] } | null>(null);
+    const [isPinError, setIsPinError] = useState(false);
+
     // Monitor Online Status
     useEffect(() => {
         const updateOnlineStatus = () => {
@@ -542,7 +548,17 @@ export default function POSPage() {
     const handleCreateOrder = async (paymentMethod: 'CASH' | 'CREDIT_CARD' | 'SPLIT', customPayments?: any[]) => {
         if (cart.length === 0) return;
 
+        // Requirement: PIN check before actual creation
+        if (!showStaffPinModal && !enteredPin) {
+            setPendingOrderArgs({ method: paymentMethod, payments: customPayments });
+            setShowStaffPinModal(true);
+            setEnteredPin('');
+            setIsPinError(false);
+            return;
+        }
+
         const orderData = {
+            // ... (rest of function starts)
             items: cart.map(item => {
                 const unitPrice = item.price * (1 - discountRate / 100);
                 return {
@@ -574,8 +590,18 @@ export default function POSPage() {
             const res = await fetch('/api/orders', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(orderData)
+                body: JSON.stringify({ ...orderData, staffPin: enteredPin })
             });
+
+            if (!res.ok && res.status === 400) {
+                const errorData = await res.json().catch(() => ({}));
+                if (errorData.error === 'Hatalı Personel PIN kodu!') {
+                    setIsPinError(true);
+                    setEnteredPin('');
+                    setProcessingPayment(false);
+                    return;
+                }
+            }
 
             const tempId = `off_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
@@ -602,6 +628,9 @@ export default function POSPage() {
                     percentageDiscount: discountAmount
                 });
 
+                setEnteredPin('');
+                setShowStaffPinModal(false);
+                setPendingOrderArgs(null);
                 setCart([]);
                 setSelectedCustomer(null);
                 setCustomerSearch('');
@@ -1776,6 +1805,91 @@ export default function POSPage() {
                         >
                             <FaTimes />
                         </button>
+                    </div>
+                </div>
+            )}
+
+            {/* Staff Performance PIN Modal */}
+            {showStaffPinModal && (
+                <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 backdrop-blur-md animate-fade-in p-4">
+                    <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden border-2 border-nocca-green animate-scale-up">
+                        <div className="bg-nocca-green p-6 text-white text-center">
+                            <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">👤</div>
+                            <h3 className="text-xl font-black uppercase tracking-widest">Personel Onayı</h3>
+                            <p className="text-xs opacity-80 mt-1 uppercase">Satışı performansınıza kaydetmek için 4 haneli PIN kodunuzu giriniz.</p>
+                        </div>
+
+                        <div className="p-8">
+                            <div className="flex justify-center gap-4 mb-4">
+                                {[0, 1, 2, 3].map((idx) => (
+                                    <div
+                                        key={idx}
+                                        className={`w-12 h-16 rounded-2xl border-2 flex items-center justify-center text-3xl font-black transition-all ${idx < enteredPin.length
+                                                ? 'border-nocca-green bg-nocca-green/10 text-nocca-green'
+                                                : isPinError ? 'border-red-300' : 'border-gray-200'
+                                            }`}
+                                    >
+                                        {idx < enteredPin.length ? '●' : ''}
+                                    </div>
+                                ))}
+                            </div>
+
+                            {isPinError && (
+                                <p className="text-center text-red-500 font-bold text-sm mb-4 animate-shake">
+                                    Hatalı PIN! Lütfen tekrar deneyiniz.
+                                </p>
+                            )}
+
+                            <div className="grid grid-cols-3 gap-3">
+                                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 'C', 0, '⌫'].map((num) => (
+                                    <button
+                                        key={num}
+                                        onClick={() => {
+                                            if (num === 'C') {
+                                                setEnteredPin('');
+                                                setIsPinError(false);
+                                            } else if (num === '⌫') {
+                                                setEnteredPin(prev => prev.slice(0, -1));
+                                                setIsPinError(false);
+                                            } else if (enteredPin.length < 4) {
+                                                const nextPin = enteredPin + num;
+                                                setEnteredPin(nextPin);
+                                                setIsPinError(false);
+
+                                                // Automatic submission when 4 digits reached
+                                                if (nextPin.length === 4) {
+                                                    // Trigger the order creation with the PIN
+                                                    if (pendingOrderArgs) {
+                                                        // We need to wait slightly so the UI shows the 4th dot
+                                                        setTimeout(() => {
+                                                            handleCreateOrder(pendingOrderArgs.method, pendingOrderArgs.payments);
+                                                        }, 300);
+                                                    }
+                                                }
+                                            }
+                                        }}
+                                        className={`h-16 rounded-2xl flex items-center justify-center text-2xl font-black transition-all active:scale-95 ${num === 'C' ? 'bg-red-50 text-red-600' :
+                                                num === '⌫' ? 'bg-amber-50 text-amber-600' :
+                                                    'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                                            }`}
+                                    >
+                                        {num}
+                                    </button>
+                                ))}
+                            </div>
+
+                            <button
+                                onClick={() => {
+                                    setShowStaffPinModal(false);
+                                    setProcessingPayment(false);
+                                    setEnteredPin('');
+                                    setPendingOrderArgs(null);
+                                }}
+                                className="w-full mt-6 py-3 text-gray-500 font-bold hover:text-red-500 transition-colors"
+                            >
+                                İşlemi İptal Et
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

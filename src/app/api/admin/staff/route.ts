@@ -44,7 +44,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const { name, email, phone, role, salary, password, startDate } = body;
+        const { name, email, phone, role, salary, password, startDate, pinCode } = body;
 
         if (!name || !email) {
             return NextResponse.json(
@@ -80,7 +80,8 @@ export async function POST(request: Request) {
                 salary: parseFloat(salary) || 0,
                 startDate: startDate ? new Date(startDate) : new Date(),
                 passwordHash,
-                isActive: true
+                isActive: true,
+                pinCode: pinCode || null
             }
         });
 

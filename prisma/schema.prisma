@@ -108,6 +108,8 @@ model Order {
   paymentMethod  PaymentMethod? @map("payment_method")
   paymentStatus  PaymentStatus  @default(PENDING) @map("payment_status")
   notes          String?
+  staffId        String?        @map("staff_id")
+  staff          Barista?       @relation(fields: [staffId], references: [id])
   source         OrderSource    @default(POS)
   externalId     String?        @unique @map("external_id")
   createdAt      DateTime       @default(now()) @map("created_at")
@@ -256,8 +258,10 @@ model Barista {
   role         StaffRole          @default(BARISTA)
   salary       Float              @default(0)
   startDate    DateTime           @default(now()) @map("start_date")
+  pinCode      String?            @map("pin_code")
   expenses     Expense[]
   consumptions StaffConsumption[]
+  orders       Order[]
 
   @@map("baristas")
 }

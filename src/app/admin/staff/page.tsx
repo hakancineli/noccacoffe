@@ -12,6 +12,7 @@ interface Staff {
     salary: number;
     isActive: boolean;
     startDate: string;
+    pinCode?: string;
     totalAdvances?: number;
     remainingPayment?: number;
     expenses?: {
@@ -34,8 +35,11 @@ export default function StaffPage() {
         phone: '',
         role: 'BARISTA',
         salary: '',
-        startDate: new Date().toISOString().split('T')[0]
+        startDate: new Date().toISOString().split('T')[0],
+        pinCode: ''
     });
+
+    const [editingStaff, setEditingStaff] = useState<Staff | null>(null);
 
     useEffect(() => {
         fetchStaff();
@@ -78,8 +82,11 @@ export default function StaffPage() {
         e.preventDefault();
         setIsSubmitting(true);
         try {
-            const res = await fetch('/api/admin/staff', {
-                method: 'POST',
+            const url = editingStaff ? `/api/admin/staff/${editingStaff.id}` : '/api/admin/staff';
+            const method = editingStaff ? 'PUT' : 'POST';
+
+            const res = await fetch(url, {
+                method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
             });
@@ -93,8 +100,10 @@ export default function StaffPage() {
                     phone: '',
                     role: 'BARISTA',
                     salary: '',
-                    startDate: new Date().toISOString().split('T')[0]
+                    startDate: new Date().toISOString().split('T')[0],
+                    pinCode: ''
                 });
+                setEditingStaff(null);
             } else {
                 const err = await res.json();
                 alert(err.error || 'Hata oluştu');
@@ -146,6 +155,11 @@ export default function StaffPage() {
                             <div className={`w-3 h-3 rounded-full ${staff.isActive ? 'bg-green-500' : 'bg-gray-400'}`} title={staff.isActive ? 'Aktif' : 'Pasif'}></div>
                         </div>
 
+                        <div className="flex items-center mb-4 text-xs bg-gray-100 p-2 rounded">
+                            <span className="font-bold text-gray-500 mr-2 uppercase tracking-tighter">Personel PIN:</span>
+                            <span className="font-mono text-nocca-green font-black tracking-widest text-base">{staff.pinCode || '----'}</span>
+                        </div>
+
                         <div className="space-y-2 text-gray-600">
                             <div className="flex items-center">
                                 <FaEnvelope className="mr-2 text-gray-400" />
@@ -186,6 +200,32 @@ export default function StaffPage() {
 
                         <div className="mt-4 pt-4 border-t text-xs text-gray-500 flex justify-between">
                             <span>Başlama: {new Date(staff.startDate).toLocaleDateString('tr-TR')}</span>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => {
+                                        setEditingStaff(staff);
+                                        setFormData({
+                                            name: staff.name,
+                                            email: staff.email,
+                                            phone: staff.phone || '',
+                                            role: staff.role,
+                                            salary: staff.salary.toString(),
+                                            startDate: staff.startDate.split('T')[0],
+                                            pinCode: staff.pinCode || ''
+                                        });
+                                        setIsModalOpen(true);
+                                    }}
+                                    className="text-blue-600 hover:underline"
+                                >
+                                    Düzenle
+                                </button>
+                                <a
+                                    href={`/admin/reports/staff?id=${staff.id}`}
+                                    className="text-nocca-green hover:underline font-bold"
+                                >
+                                    Performans
+                                </a>
+                            </div>
                         </div>
                     </div>
                 ))}
@@ -202,7 +242,7 @@ export default function StaffPage() {
                 isModalOpen && (
                     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
                         <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
-                            <h2 className="text-2xl font-bold mb-4">Yeni Personel Ekle</h2>
+                            <h2 className="text-2xl font-bold mb-4">{editingStaff ? 'Personel Düzenle' : 'Yeni Personel Ekle'}</h2>
                             <form onSubmit={handleSubmit} className="space-y-4">
                                 <div>
                                     <label className="block text-sm font-medium mb-1">Ad Soyad</label>
@@ -257,12 +297,38 @@ export default function StaffPage() {
                                             onChange={e => setFormData({ ...formData, salary: e.target.value })}
                                         />
                                     </div>
+                                    <div>
+                                        <label className="block text-sm font-medium mb-1">Kimlik PIN (4 Hane)</label>
+                                        <input
+                                            type="text"
+                                            maxLength={4}
+                                            placeholder="1234"
+                                            className="w-full border rounded px-3 py-2 font-mono"
+                                            value={formData.pinCode}
+                                            onChange={e => {
+                                                const val = e.target.value.replace(/[^0-9]/g, '');
+                                                if (val.length <= 4) setFormData({ ...formData, pinCode: val });
+                                            }}
+                                        />
+                                    </div>
                                 </div>
 
                                 <div className="flex justify-end space-x-3 mt-6">
                                     <button
                                         type="button"
-                                        onClick={() => setIsModalOpen(false)}
+                                        onClick={() => {
+                                            setIsModalOpen(false);
+                                            setEditingStaff(null);
+                                            setFormData({
+                                                name: '',
+                                                email: '',
+                                                phone: '',
+                                                role: 'BARISTA',
+                                                salary: '',
+                                                startDate: new Date().toISOString().split('T')[0],
+                                                pinCode: ''
+                                            });
+                                        }}
                                         className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded"
                                     >
                                         İptal

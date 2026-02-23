@@ -5,7 +5,7 @@ import { createAuditLog } from '@/lib/audit';
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const { customerName, customerPhone, customerEmail, notes, items, totalAmount, status, paymentMethod } = body;
+        const { customerName, customerPhone, customerEmail, notes, items, totalAmount, status, paymentMethod, staffPin } = body;
 
         // Generate Order Number
         const timestamp = Date.now().toString().slice(-6);
@@ -51,6 +51,20 @@ export async function POST(request: Request) {
             }
         } catch (error) {
             console.log("Token verification failed during order creation (ignoring):", error);
+        }
+
+        // Staff Performance Integration (PIN Code)
+        if (staffPin) {
+            const staff = await prisma.barista.findFirst({
+                where: { pinCode: staffPin, isActive: true }
+            });
+
+            if (!staff) {
+                return NextResponse.json({ success: false, error: 'Hatalı Personel PIN kodu!' }, { status: 400 });
+            }
+
+            staffId = staff.id;
+            staffEmail = staff.email;
         }
 
         // 1.5 Auto-Registration / Guest Linking Logic
@@ -220,6 +234,7 @@ export async function POST(request: Request) {
                 status: orderStatus,
                 paymentMethod: method,
                 paymentStatus: paymentStatus,
+                staffId: staffId || null,
                 payments: {
                     create: body.payments && body.payments.length > 0
                         ? body.payments.map((p: any) => ({
