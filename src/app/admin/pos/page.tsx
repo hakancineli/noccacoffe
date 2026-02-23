@@ -468,14 +468,22 @@ export default function POSPage() {
     const staffTotal = cart.reduce((sum, item) => sum + (getStaffPrice(item) * item.quantity), 0);
 
     // BOGO Discount Calculation (Only for 'Tatlılar' category)
+    // Buy any 2 desserts, the cheaper one is free
     const bogoDiscountAmount = isBOGOActive
-        ? cart.reduce((sum, item) => {
-            if (item.category === 'Tatlılar') {
-                const freeQty = Math.floor(item.quantity / 2);
-                return sum + (freeQty * item.price);
+        ? (() => {
+            // Sepetteki tüm tatlıların fiyatlarını tekil liste haline getir
+            const dessertPrices = cart
+                .filter(item => item.category === 'Tatlılar')
+                .flatMap(item => Array(item.quantity).fill(item.price))
+                .sort((a, b) => b - a); // Mahalden ucuza sırala
+
+            let discount = 0;
+            // Her 2 üründen 2.si (listede daha sonra gelen, yani ucuz olan) bedava
+            for (let i = 1; i < dessertPrices.length; i += 2) {
+                discount += dessertPrices[i];
             }
-            return sum;
-        }, 0)
+            return discount;
+        })()
         : 0;
 
     const discountAmount = (cartTotal - bogoDiscountAmount) * (discountRate / 100);
