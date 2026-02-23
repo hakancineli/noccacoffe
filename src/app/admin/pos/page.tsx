@@ -432,6 +432,11 @@ export default function POSPage() {
             }];
         });
 
+        // Automatic Discount UI prompt for Desserts
+        if (product.category === 'Tatlılar') {
+            setShowDiscountInput(true);
+        }
+
         // Close modal if open
         setSelectedProductForSize(null);
     };
