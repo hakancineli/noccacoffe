@@ -2,14 +2,17 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { FaChartLine, FaCoffee, FaMoneyBillWave, FaArrowLeft, FaCalendarAlt } from 'react-icons/fa';
+import { FaChartLine, FaCoffee, FaMoneyBillWave, FaArrowLeft, FaCalendarAlt, FaStar, FaListUl } from 'react-icons/fa';
 import Link from 'next/link';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
 interface StaffStats {
     totalOrders: number;
     totalRevenue: number;
     totalItems: number;
     averageOrderValue: number;
+    productStats: { name: string, quantity: number, revenue: number }[];
+    topProduct: { name: string, quantity: number, revenue: number } | null;
     recentSales: any[];
 }
 
@@ -58,98 +61,178 @@ function StaffPerformanceContent() {
 
     if (!staffId) return <div className="p-8 text-center text-red-500">Personel ID bulunamadı.</div>;
 
+    const COLORS = ['#10b981', '#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#ef4444'];
+
     return (
         <div className="min-h-screen bg-gray-50 p-4 md:p-8">
-            <div className="max-w-4xl mx-auto">
+            <div className="max-w-6xl mx-auto">
                 <Link href="/admin/staff" className="flex items-center text-nocca-green hover:underline mb-6 font-bold">
                     <FaArrowLeft className="mr-2" /> Personel Listesine Dön
                 </Link>
 
-                <div className="bg-white rounded-3xl shadow-xl overflow-hidden mb-8">
-                    <div className="bg-nocca-green p-8 text-white flex flex-col md:flex-row justify-between items-center gap-4">
+                <div className="bg-white rounded-3xl shadow-xl overflow-hidden mb-8 border border-gray-100">
+                    <div className="bg-gradient-to-r from-nocca-green to-green-800 p-8 text-white flex flex-col md:flex-row justify-between items-center gap-4">
                         <div>
-                            <p className="text-xs uppercase tracking-widest opacity-80 mb-1">Personel Performans Analizi</p>
-                            <h1 className="text-3xl font-black">{staffName || 'Yükleniyor...'}</h1>
+                            <p className="text-xs uppercase tracking-widest opacity-80 mb-1 font-bold">Personel Performans Analizi</p>
+                            <h1 className="text-4xl font-black tracking-tight">{staffName || 'Yükleniyor...'}</h1>
                         </div>
-                        <div className="flex bg-white/20 p-1 rounded-xl">
-                            {['daily', 'weekly', 'monthly'].map((p) => (
+                        <div className="flex bg-white/10 backdrop-blur-md p-1.5 rounded-2xl border border-white/20">
+                            {[
+                                { id: 'daily', label: 'Günlük' },
+                                { id: 'weekly', label: 'Haftalık' },
+                                { id: 'monthly', label: 'Aylık' }
+                            ].map((p) => (
                                 <button
-                                    key={p}
-                                    onClick={() => setPeriod(p)}
-                                    className={`px-4 py-2 rounded-lg text-sm font-bold capitalize transition-all ${period === p ? 'bg-white text-nocca-green shadow-lg' : 'hover:bg-white/10'
+                                    key={p.id}
+                                    onClick={() => setPeriod(p.id)}
+                                    className={`px-6 py-2.5 rounded-xl text-sm font-black uppercase tracking-wider transition-all duration-300 ${period === p.id
+                                        ? 'bg-white text-nocca-green shadow-xl scale-105'
+                                        : 'text-white/70 hover:text-white hover:bg-white/10'
                                         }`}
                                 >
-                                    {p === 'daily' ? 'Günlük' : p === 'weekly' ? 'Haftalık' : 'Aylık'}
+                                    {p.label}
                                 </button>
                             ))}
                         </div>
                     </div>
 
                     {isLoading ? (
-                        <div className="p-20 text-center text-gray-400 font-medium">Veriler Hesaplanıyor...</div>
+                        <div className="p-20 text-center">
+                            <div className="animate-spin rounded-full h-12 w-12 border-4 border-nocca-green border-t-transparent mx-auto mb-4"></div>
+                            <p className="text-gray-400 font-bold uppercase tracking-widest text-xs">Veriler Hesaplanıyor...</p>
+                        </div>
                     ) : stats ? (
-                        <div className="p-8">
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                                <div className="bg-blue-50 p-6 rounded-2xl border border-blue-100">
-                                    <div className="flex justify-between items-center mb-2">
-                                        <FaCoffee className="text-blue-500 text-xl" />
-                                        <span className="text-[10px] uppercase font-black text-blue-400">Satış Adedi</span>
+                        <div className="p-6 md:p-10">
+                            {/* Key Stats Cards */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+                                <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-all group">
+                                    <div className="flex justify-between items-start mb-4">
+                                        <div className="p-3 bg-blue-50 text-blue-600 rounded-2xl group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                            <FaCoffee className="text-xl" />
+                                        </div>
+                                        <span className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Sipariş</span>
                                     </div>
-                                    <div className="text-3xl font-black text-blue-900">{stats.totalOrders}</div>
+                                    <div className="text-3xl font-black text-gray-900">{stats.totalOrders}</div>
+                                    <p className="text-xs text-gray-400 font-bold mt-1">Tamamlanan İşlem</p>
                                 </div>
-                                <div className="bg-green-50 p-6 rounded-2xl border border-green-100">
-                                    <div className="flex justify-between items-center mb-2">
-                                        <FaMoneyBillWave className="text-green-500 text-xl" />
-                                        <span className="text-[10px] uppercase font-black text-green-400">Toplam Ciro</span>
+
+                                <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-all group">
+                                    <div className="flex justify-between items-start mb-4">
+                                        <div className="p-3 bg-green-50 text-green-600 rounded-2xl group-hover:bg-green-600 group-hover:text-white transition-colors">
+                                            <FaMoneyBillWave className="text-xl" />
+                                        </div>
+                                        <span className="text-[10px] font-black text-green-400 uppercase tracking-widest">Hasılat</span>
                                     </div>
-                                    <div className="text-3xl font-black text-green-900">₺{stats.totalRevenue.toLocaleString()}</div>
+                                    <div className="text-3xl font-black text-gray-900">₺{stats.totalRevenue.toLocaleString()}</div>
+                                    <p className="text-xs text-gray-400 font-bold mt-1">Toplam Ciro</p>
                                 </div>
-                                <div className="bg-purple-50 p-6 rounded-2xl border border-purple-100">
-                                    <div className="flex justify-between items-center mb-2">
-                                        <FaChartLine className="text-purple-500 text-xl" />
-                                        <span className="text-[10px] uppercase font-black text-purple-400">Ort. Sepet</span>
+
+                                <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-all group">
+                                    <div className="flex justify-between items-start mb-4">
+                                        <div className="p-3 bg-purple-50 text-purple-600 rounded-2xl group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                                            <FaChartLine className="text-xl" />
+                                        </div>
+                                        <span className="text-[10px] font-black text-purple-400 uppercase tracking-widest">Sepet</span>
                                     </div>
-                                    <div className="text-3xl font-black text-purple-900">₺{stats.averageOrderValue.toFixed(1)}</div>
+                                    <div className="text-3xl font-black text-gray-900">₺{stats.averageOrderValue.toFixed(1)}</div>
+                                    <p className="text-xs text-gray-400 font-bold mt-1">Ortalama Tutar</p>
                                 </div>
-                                <div className="bg-amber-50 p-6 rounded-2xl border border-amber-100">
-                                    <div className="flex justify-between items-center mb-2">
-                                        <FaCalendarAlt className="text-amber-500 text-xl" />
-                                        <span className="text-[10px] uppercase font-black text-amber-400">Toplam Ürün</span>
+
+                                <div className="bg-gradient-to-br from-amber-500 to-orange-600 p-6 rounded-3xl shadow-lg shadow-amber-200 text-white relative overflow-hidden group">
+                                    <div className="relative z-10">
+                                        <div className="flex justify-between items-start mb-4">
+                                            <FaStar className="text-amber-200 text-xl" />
+                                            <span className="text-[10px] font-black text-white/80 uppercase tracking-widest">Favori Ürün</span>
+                                        </div>
+                                        <div className="text-xl font-black truncate">{stats.topProduct?.name || 'Yok'}</div>
+                                        <p className="text-xs text-white/80 font-bold mt-1">{stats.topProduct?.quantity || 0} Adet Satış</p>
                                     </div>
-                                    <div className="text-3xl font-black text-amber-900">{stats.totalItems}</div>
+                                    <FaCoffee className="absolute -right-4 -bottom-4 text-white/10 text-8xl rotate-12 group-hover:scale-110 transition-transform" />
                                 </div>
                             </div>
 
-                            <h3 className="text-xl font-black mb-4 flex items-center gap-2">
-                                <span className="w-1.5 h-6 bg-nocca-green rounded-full"></span>
-                                Son Satışlar
-                            </h3>
-                            <div className="bg-gray-50 rounded-2xl overflow-hidden border border-gray-100">
-                                <table className="w-full text-left">
-                                    <thead>
-                                        <tr className="text-[10px] uppercase font-black text-gray-400 border-b border-gray-200">
-                                            <th className="px-6 py-4">Fiş No</th>
-                                            <th className="px-6 py-4">Zaman</th>
-                                            <th className="px-6 py-4 text-right">Tutar</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-gray-100">
-                                        {stats.recentSales.map((sale) => (
-                                            <tr key={sale.id} className="hover:bg-white transition-colors">
-                                                <td className="px-6 py-4 font-mono font-bold text-gray-600">{sale.orderNumber}</td>
-                                                <td className="px-6 py-4 text-sm text-gray-500">
-                                                    {new Date(sale.createdAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
-                                                </td>
-                                                <td className="px-6 py-4 text-right font-black text-nocca-green">₺{sale.amount.toFixed(2)}</td>
-                                            </tr>
-                                        ))}
-                                        {stats.recentSales.length === 0 && (
-                                            <tr>
-                                                <td colSpan={3} className="px-6 py-10 text-center text-gray-400">Bu dönemde henüz satış yapılmamış.</td>
-                                            </tr>
-                                        )}
-                                    </tbody>
-                                </table>
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                                {/* Product Breakdown Table */}
+                                <div>
+                                    <h3 className="text-sm font-black uppercase text-gray-400 tracking-[0.2em] mb-6 flex items-center gap-3">
+                                        <FaListUl className="text-nocca-green" /> Ürün Satış Detayları
+                                    </h3>
+                                    <div className="bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm">
+                                        <table className="w-full text-left">
+                                            <thead>
+                                                <tr className="bg-gray-50/50 text-[10px] font-black text-gray-500 uppercase tracking-widest border-b border-gray-100">
+                                                    <th className="px-6 py-5">Ürün</th>
+                                                    <th className="px-6 py-5 text-center">Adet</th>
+                                                    <th className="px-6 py-5 text-right">Ciro</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-gray-50">
+                                                {stats.productStats.map((item, index) => (
+                                                    <tr key={item.name} className="hover:bg-gray-50/50 transition-colors">
+                                                        <td className="px-6 py-4 font-bold text-gray-700">{item.name}</td>
+                                                        <td className="px-6 py-4 text-center">
+                                                            <span className="px-3 py-1 bg-gray-100 rounded-full text-xs font-black text-gray-600">
+                                                                {item.quantity}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-6 py-4 text-right font-black text-nocca-green">₺{item.revenue.toLocaleString()}</td>
+                                                    </tr>
+                                                ))}
+                                                {stats.productStats.length === 0 && (
+                                                    <tr>
+                                                        <td colSpan={3} className="px-6 py-20 text-center text-gray-400 font-bold text-sm uppercase tracking-widest">Veri Bulunamadı</td>
+                                                    </tr>
+                                                )}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                {/* Graphical Analysis */}
+                                <div>
+                                    <h3 className="text-sm font-black uppercase text-gray-400 tracking-[0.2em] mb-6 flex items-center gap-3">
+                                        <FaChartLine className="text-blue-500" /> Satış Dağılım Grafiği
+                                    </h3>
+                                    <div className="bg-white rounded-3xl border border-gray-100 p-8 shadow-sm h-[400px]">
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <BarChart data={stats.productStats.slice(0, 8)} layout="vertical" margin={{ left: 30 }}>
+                                                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
+                                                <XAxis type="number" hide />
+                                                <YAxis
+                                                    dataKey="name"
+                                                    type="category"
+                                                    width={100}
+                                                    tick={{ fontSize: 10, fontWeight: 900, fill: '#64748b' }}
+                                                    axisLine={false}
+                                                    tickLine={false}
+                                                />
+                                                <Tooltip
+                                                    cursor={{ fill: '#f8fafc' }}
+                                                    contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontWeight: 900 }}
+                                                    labelStyle={{ color: '#10b981', marginBottom: '4px' }}
+                                                />
+                                                <Bar dataKey="quantity" radius={[0, 8, 8, 0]} barSize={24} name="Satış Adedi">
+                                                    {stats.productStats.map((entry, index) => (
+                                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                                    ))}
+                                                </Bar>
+                                            </BarChart>
+                                        </ResponsiveContainer>
+                                    </div>
+
+                                    {/* Recent Activity Mini List */}
+                                    <div className="mt-8">
+                                        <h3 className="text-[10px] font-black uppercase text-gray-400 tracking-[0.2em] mb-4">Son Operasyonlar</h3>
+                                        <div className="space-y-2">
+                                            {stats.recentSales.slice(0, 5).map(sale => (
+                                                <div key={sale.id} className="bg-white p-3 rounded-2xl border border-gray-100 flex justify-between items-center shadow-sm">
+                                                    <span className="text-xs font-black text-gray-500">#{sale.orderNumber}</span>
+                                                    <span className="text-xs font-black text-nocca-green">₺{sale.amount.toFixed(2)}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     ) : null}

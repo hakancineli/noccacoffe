@@ -36,11 +36,30 @@ export async function GET(
             }
         });
 
+        // Ürün bazlı satış analizi
+        const productMap = new Map<string, { name: string, quantity: number, revenue: number }>();
+
+        orders.forEach(order => {
+            order.orderItems.forEach(item => {
+                const existing = productMap.get(item.productName) || { name: item.productName, quantity: 0, revenue: 0 };
+                existing.quantity += item.quantity;
+                existing.revenue += (item.unitPrice * item.quantity);
+                productMap.set(item.productName, existing);
+            });
+        });
+
+        const productStats = Array.from(productMap.values())
+            .sort((a, b) => b.quantity - a.quantity);
+
+        const topProduct = productStats.length > 0 ? productStats[0] : null;
+
         const stats = {
             totalOrders: orders.length,
             totalRevenue: orders.reduce((sum, o) => sum + (o.finalAmount || 0), 0),
             totalItems: orders.reduce((sum, o) => sum + o.orderItems.reduce((isum, i) => isum + i.quantity, 0), 0),
             averageOrderValue: orders.length > 0 ? orders.reduce((sum, o) => sum + (o.finalAmount || 0), 0) / orders.length : 0,
+            productStats,
+            topProduct,
             recentSales: orders.slice(0, 10).map(o => ({
                 id: o.id,
                 orderNumber: o.orderNumber,
