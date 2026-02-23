@@ -56,7 +56,7 @@ export async function GET(request: Request) {
 
         const totalExpenses = expenses.reduce((sum, item) => sum + item.amount, 0);
 
-        // 2. Get Revenue
+        // 2. Get Revenue (Include Orders and Staff Consumptions)
         const paymentsAggregate = await prisma.payment.aggregate({
             where: {
                 status: 'COMPLETED',
@@ -67,7 +67,33 @@ export async function GET(request: Request) {
             }
         });
 
-        const totalRevenue = paymentsAggregate._sum.amount || 0;
+        // Fetch staff consumption via StaffConsumption for proper date filtering
+        const staffConsumptionsWithItems = await prisma.staffConsumption.findMany({
+            where: {
+                createdAt: {
+                    gte: startDate,
+                    lte: endDate
+                }
+            },
+            include: {
+                items: {
+                    where: {
+                        staffPrice: { gt: 0 }
+                    }
+                }
+            }
+        });
+
+        // Flatten items with dates for easier processing
+        const allStaffItems = staffConsumptionsWithItems.flatMap(sc =>
+            sc.items.map(item => ({
+                amount: item.staffPrice * item.quantity,
+                createdAt: sc.createdAt
+            }))
+        );
+
+        const totalStaffRevenue = allStaffItems.reduce((sum, item) => sum + item.amount, 0);
+        const totalRevenue = (paymentsAggregate._sum.amount || 0) + totalStaffRevenue;
 
         // Initialize all days of the month TR time
         const dailyMap = new Map<string, any>();
@@ -90,7 +116,7 @@ export async function GET(request: Request) {
             currentDataDay.setUTCDate(currentDataDay.getUTCDate() + 1);
         }
 
-        // Fetch detailed payments for breakdown
+        // 3. Process Payments into Daily Map
         const allPayments = await prisma.payment.findMany({
             where: {
                 status: 'COMPLETED',
@@ -104,7 +130,6 @@ export async function GET(request: Request) {
             }
         });
 
-        // Process Payments with TR Time
         allPayments.forEach(p => {
             const dayKey = getTRDate(p.createdAt);
             if (dailyMap.has(dayKey)) {
@@ -112,8 +137,18 @@ export async function GET(request: Request) {
                 entry.totalSales += p.amount;
                 if (p.method === 'CASH') entry.cashSales += p.amount;
                 else entry.cardSales += p.amount;
-                // Count unique orders, not individual payments
                 dailyOrderSets.get(dayKey)!.add(p.orderId);
+            }
+        });
+
+        // Process Staff Consumptions into Daily Map
+        allStaffItems.forEach(si => {
+            const dayKey = getTRDate(si.createdAt);
+            if (dailyMap.has(dayKey)) {
+                const entry = dailyMap.get(dayKey);
+                entry.totalSales += si.amount;
+                // Staff consumption payments are treated as cash revenue for accounting
+                entry.cashSales += si.amount;
             }
         });
 

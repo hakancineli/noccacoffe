@@ -963,7 +963,13 @@ function AccountingContent() {
                                                     Siparişler ({dayDetails.orders.length})
                                                 </h3>
                                                 <span className="text-green-600 font-bold">
-                                                    ₺{dayDetails.orders.reduce((sum, o) => sum + o.finalAmount, 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                                    ₺{(() => {
+                                                        const orderTotal = dayDetails.orders.reduce((sum, o) => sum + o.finalAmount, 0);
+                                                        const staffTotal = dayDetails.staffConsumptions.reduce((sum, s) =>
+                                                            sum + s.items.reduce((iSum, i) => iSum + (i.staffPrice * i.quantity), 0), 0
+                                                        );
+                                                        return (orderTotal + staffTotal).toLocaleString(undefined, { minimumFractionDigits: 2 });
+                                                    })()}
                                                 </span>
                                             </div>
                                             <div className="flex-1 overflow-y-auto p-4 space-y-3">
