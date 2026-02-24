@@ -160,12 +160,24 @@ export default function KitchenPage() {
     const [pendingAction, setPendingAction] = useState<{ orderId: string; newStatus: string } | null>(null);
     const [isUpdating, setIsUpdating] = useState(false);
 
-    // When barista clicks HAZIRLA or HAZIR, show PIN modal first
+    // When barista clicks HAZIRLA, show PIN modal
     const requestStatusChange = (orderId: string, newStatus: string) => {
         setPendingAction({ orderId, newStatus });
         setEnteredPin('');
         setIsPinError(false);
         setShowPinModal(true);
+    };
+
+    // HAZIR: No PIN needed, preparedById already saved in PREPARING step
+    const markAsReady = async (orderId: string) => {
+        try {
+            const res = await fetch(`/api/admin/orders/${orderId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: 'READY' })
+            });
+            if (res.ok) fetchOrders();
+        } catch (e) { console.error(e); }
     };
 
     const updateStatus = async (orderId: string, newStatus: string, staffPin: string) => {
@@ -413,7 +425,7 @@ export default function KitchenPage() {
                                         </button>
                                     ) : (
                                         <button
-                                            onClick={() => requestStatusChange(order.id, 'READY')}
+                                            onClick={() => markAsReady(order.id)}
                                             className="w-full group relative flex items-center justify-center py-3 bg-gradient-to-r from-[#388E3C] to-[#2E7D32] hover:from-[#2E7D32] hover:to-[#1B5E20] text-white font-bold rounded-lg shadow-lg shadow-green-900/40 transition-all transform active:scale-95 border border-green-700/50"
                                         >
                                             <span className="mr-2 text-xl group-hover:-rotate-12 transition-transform">✅</span>
@@ -446,10 +458,10 @@ export default function KitchenPage() {
                                     <div
                                         key={i}
                                         className={`w-5 h-5 rounded-full border-2 transition-all duration-200 ${i < enteredPin.length
-                                                ? isPinError
-                                                    ? 'bg-red-500 border-red-500 scale-110'
-                                                    : 'bg-[#FF8A65] border-[#FF8A65] scale-110'
-                                                : 'border-[#8D6E63] bg-transparent'
+                                            ? isPinError
+                                                ? 'bg-red-500 border-red-500 scale-110'
+                                                : 'bg-[#FF8A65] border-[#FF8A65] scale-110'
+                                            : 'border-[#8D6E63] bg-transparent'
                                             }`}
                                     />
                                 ))}
@@ -475,10 +487,10 @@ export default function KitchenPage() {
                                         onClick={() => handlePinInput(num)}
                                         disabled={isUpdating}
                                         className={`h-16 rounded-2xl flex items-center justify-center text-2xl font-black transition-all active:scale-95 disabled:opacity-50 ${num === 'C'
-                                                ? 'bg-red-900/40 text-red-300 border border-red-800/50'
-                                                : num === '⌫'
-                                                    ? 'bg-amber-900/40 text-amber-300 border border-amber-800/50'
-                                                    : 'bg-[#4E342E] text-[#EAD8C0] hover:bg-[#5D4037] border border-[#5C4033]'
+                                            ? 'bg-red-900/40 text-red-300 border border-red-800/50'
+                                            : num === '⌫'
+                                                ? 'bg-amber-900/40 text-amber-300 border border-amber-800/50'
+                                                : 'bg-[#4E342E] text-[#EAD8C0] hover:bg-[#5D4037] border border-[#5C4033]'
                                             }`}
                                     >
                                         {num}
