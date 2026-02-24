@@ -619,7 +619,8 @@ export default function POSPage() {
             totalAmount: cartTotal,
             finalAmount: finalTotal,
             discountAmount: totalDiscount,
-            status: 'COMPLETED',
+            status: 'PENDING', // Kitchen ekranına düşmesi için PENDING yapıldı
+            paymentStatus: 'COMPLETED', // POS üzerinden alınan siparişin ödemesi tamamlanmış sayılır
             paymentMethod: paymentMethod === 'SPLIT' ? 'CASH' : paymentMethod,
             payments: customPayments,
             userId: selectedCustomer?.id || null,

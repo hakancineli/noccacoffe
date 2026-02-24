@@ -131,8 +131,8 @@ export async function POST(request: Request) {
         const orderStatus = status || 'COMPLETED';
         const method = paymentMethod || 'CREDIT_CARD';
 
-        // Determine Payment Status: Default to 'COMPLETED' if order is completed
-        const paymentStatus = (orderStatus === 'COMPLETED') ? 'COMPLETED' : 'PENDING';
+        // Determine Payment Status: Default to 'COMPLETED' if order is completed or explicitly set
+        const paymentStatus = body.paymentStatus || ((orderStatus === 'COMPLETED') ? 'COMPLETED' : 'PENDING');
 
         // 1. Validate all product IDs exist and check stock
         const productIds = items.map((item: any) => item.productId.toString());
