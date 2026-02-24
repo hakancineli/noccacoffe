@@ -60,10 +60,26 @@ export async function PUT(
       customerEmail,
       customerPhone,
       finalAmount,
-      paymentMethod
+      paymentMethod,
+      staffPin
     } = body;
     const userId = request.headers.get('x-user-id') || undefined;
     const userEmail = request.headers.get('x-user-email') || undefined;
+
+    // Staff PIN verification (Kitchen Performance Tracking)
+    let verifiedStaffId: string | undefined;
+    if (staffPin) {
+      const staff = await prisma.barista.findFirst({
+        where: { pinCode: staffPin, isActive: true }
+      });
+      if (!staff) {
+        return NextResponse.json(
+          { error: 'Hatalı Personel PIN kodu!' },
+          { status: 400 }
+        );
+      }
+      verifiedStaffId = staff.id;
+    }
 
     // Validate status if provided
     const validStatuses: OrderStatus[] = ['PENDING', 'PREPARING', 'READY', 'COMPLETED', 'CANCELLED'];
@@ -92,6 +108,7 @@ export async function PUT(
     if (customerPhone !== undefined) updateData.customerPhone = customerPhone;
     if (finalAmount !== undefined) updateData.finalAmount = parseFloat(finalAmount.toString());
     if (paymentMethod !== undefined) updateData.paymentMethod = paymentMethod;
+    if (verifiedStaffId) updateData.staffId = verifiedStaffId;
 
     const order = await prisma.order.update({
       where: { id: params.id },

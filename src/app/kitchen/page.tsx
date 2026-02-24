@@ -153,15 +153,74 @@ export default function KitchenPage() {
         }
     };
 
-    const updateStatus = async (orderId: string, newStatus: string) => {
+    // PIN Modal State
+    const [showPinModal, setShowPinModal] = useState(false);
+    const [enteredPin, setEnteredPin] = useState('');
+    const [isPinError, setIsPinError] = useState(false);
+    const [pendingAction, setPendingAction] = useState<{ orderId: string; newStatus: string } | null>(null);
+    const [isUpdating, setIsUpdating] = useState(false);
+
+    // When barista clicks HAZIRLA or HAZIR, show PIN modal first
+    const requestStatusChange = (orderId: string, newStatus: string) => {
+        setPendingAction({ orderId, newStatus });
+        setEnteredPin('');
+        setIsPinError(false);
+        setShowPinModal(true);
+    };
+
+    const updateStatus = async (orderId: string, newStatus: string, staffPin: string) => {
+        setIsUpdating(true);
         try {
             const res = await fetch(`/api/admin/orders/${orderId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status: newStatus })
+                body: JSON.stringify({ status: newStatus, staffPin })
             });
-            if (res.ok) fetchOrders();
-        } catch (e) { console.error(e); }
+            if (res.ok) {
+                setShowPinModal(false);
+                setPendingAction(null);
+                setEnteredPin('');
+                fetchOrders();
+            } else {
+                const data = await res.json().catch(() => ({}));
+                if (data.error?.includes('PIN')) {
+                    setIsPinError(true);
+                    setEnteredPin('');
+                } else {
+                    setShowPinModal(false);
+                    setPendingAction(null);
+                }
+            }
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setIsUpdating(false);
+        }
+    };
+
+    const handlePinInput = (num: string) => {
+        if (num === 'C') {
+            setEnteredPin('');
+            setIsPinError(false);
+            return;
+        }
+        if (num === '⌫') {
+            setEnteredPin(prev => prev.slice(0, -1));
+            setIsPinError(false);
+            return;
+        }
+        if (enteredPin.length >= 4) return;
+
+        const nextPin = enteredPin + num;
+        setEnteredPin(nextPin);
+        setIsPinError(false);
+
+        // Auto-submit when 4 digits entered
+        if (nextPin.length === 4 && pendingAction) {
+            setTimeout(() => {
+                updateStatus(pendingAction.orderId, pendingAction.newStatus, nextPin);
+            }, 300);
+        }
     };
 
     const toggleMute = () => setIsMuted(!isMuted);
@@ -346,7 +405,7 @@ export default function KitchenPage() {
                                 <div className="p-4 bg-black/20 border-t border-[#5C4033]">
                                     {order.status === 'PENDING' ? (
                                         <button
-                                            onClick={() => updateStatus(order.id, 'PREPARING')}
+                                            onClick={() => requestStatusChange(order.id, 'PREPARING')}
                                             className="w-full group relative flex items-center justify-center py-3 bg-gradient-to-r from-[#8D6E63] to-[#795548] hover:from-[#795548] hover:to-[#6D4C41] text-[#EAD8C0] font-bold rounded-lg shadow-lg shadow-black/20 transition-all transform active:scale-95 border border-[#A1887F]/30"
                                         >
                                             <span className="mr-2 text-xl group-hover:rotate-12 transition-transform">🔥</span>
@@ -354,7 +413,7 @@ export default function KitchenPage() {
                                         </button>
                                     ) : (
                                         <button
-                                            onClick={() => updateStatus(order.id, 'READY')}
+                                            onClick={() => requestStatusChange(order.id, 'READY')}
                                             className="w-full group relative flex items-center justify-center py-3 bg-gradient-to-r from-[#388E3C] to-[#2E7D32] hover:from-[#2E7D32] hover:to-[#1B5E20] text-white font-bold rounded-lg shadow-lg shadow-green-900/40 transition-all transform active:scale-95 border border-green-700/50"
                                         >
                                             <span className="mr-2 text-xl group-hover:-rotate-12 transition-transform">✅</span>
@@ -365,6 +424,80 @@ export default function KitchenPage() {
                             </div>
                         )
                     })}
+                </div>
+            )}
+
+            {/* PIN Modal */}
+            {showPinModal && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm">
+                    <div className="bg-[#3E2723] rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden border border-[#5C4033]">
+                        {/* Header */}
+                        <div className="bg-[#4E342E] p-6 text-center border-b border-[#5C4033]">
+                            <h3 className="text-xl font-black text-[#EAD8C0] uppercase tracking-widest">
+                                {pendingAction?.newStatus === 'PREPARING' ? '🔥 Hazırlamaya Başla' : '✅ Sipariş Hazır'}
+                            </h3>
+                            <p className="text-xs text-[#A1887F] mt-1 uppercase tracking-wider">Personel PIN kodunuzu girin</p>
+                        </div>
+
+                        {/* PIN Display */}
+                        <div className="p-6">
+                            <div className={`flex justify-center space-x-4 mb-6 ${isPinError ? 'animate-shake' : ''}`}>
+                                {[0, 1, 2, 3].map(i => (
+                                    <div
+                                        key={i}
+                                        className={`w-5 h-5 rounded-full border-2 transition-all duration-200 ${i < enteredPin.length
+                                                ? isPinError
+                                                    ? 'bg-red-500 border-red-500 scale-110'
+                                                    : 'bg-[#FF8A65] border-[#FF8A65] scale-110'
+                                                : 'border-[#8D6E63] bg-transparent'
+                                            }`}
+                                    />
+                                ))}
+                            </div>
+
+                            {isPinError && (
+                                <p className="text-red-400 text-center text-sm font-bold mb-4 animate-pulse">
+                                    ❌ Hatalı PIN kodu! Tekrar deneyin.
+                                </p>
+                            )}
+
+                            {isUpdating && (
+                                <p className="text-[#FF8A65] text-center text-sm font-bold mb-4 animate-pulse">
+                                    ⏳ Doğrulanıyor...
+                                </p>
+                            )}
+
+                            {/* Numpad */}
+                            <div className="grid grid-cols-3 gap-3">
+                                {['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', '⌫'].map(num => (
+                                    <button
+                                        key={num}
+                                        onClick={() => handlePinInput(num)}
+                                        disabled={isUpdating}
+                                        className={`h-16 rounded-2xl flex items-center justify-center text-2xl font-black transition-all active:scale-95 disabled:opacity-50 ${num === 'C'
+                                                ? 'bg-red-900/40 text-red-300 border border-red-800/50'
+                                                : num === '⌫'
+                                                    ? 'bg-amber-900/40 text-amber-300 border border-amber-800/50'
+                                                    : 'bg-[#4E342E] text-[#EAD8C0] hover:bg-[#5D4037] border border-[#5C4033]'
+                                            }`}
+                                    >
+                                        {num}
+                                    </button>
+                                ))}
+                            </div>
+
+                            <button
+                                onClick={() => {
+                                    setShowPinModal(false);
+                                    setPendingAction(null);
+                                    setEnteredPin('');
+                                }}
+                                className="w-full mt-6 py-3 text-[#A1887F] font-bold hover:text-red-400 transition-colors uppercase tracking-wider text-sm"
+                            >
+                                İptal Et
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>
