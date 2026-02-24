@@ -123,7 +123,7 @@ export default function POSPage() {
         const fetchProducts = async () => {
             try {
                 await noccaDB.init(); // <--- Ensure DB is ready
-                const res = await fetch('/api/admin/products?limit=1000&active=true');
+                const res = await fetch('/api/admin/products?limit=1000');
                 if (res.ok) {
                     const data = await res.json();
                     const products = data.products || [];
