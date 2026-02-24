@@ -127,11 +127,11 @@ export async function POST(request: Request) {
             }
         }
 
-        // Determine Order Status: Default to 'COMPLETED' for temporary kitchen bypass
-        const orderStatus = status || 'COMPLETED';
+        // Restore Original Order Status Logic: Default to 'PENDING' so they appear in Kitchen
+        const orderStatus = status || 'PENDING';
         const method = paymentMethod || 'CREDIT_CARD';
 
-        // Determine Payment Status: Default to 'COMPLETED' if order is completed or explicitly set
+        // Determine Payment Status: Depend on orderStatus or explicit parameter
         const paymentStatus = body.paymentStatus || ((orderStatus === 'COMPLETED') ? 'COMPLETED' : 'PENDING');
 
         // 1. Validate all product IDs exist and check stock
