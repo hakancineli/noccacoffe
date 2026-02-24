@@ -566,56 +566,7 @@ export const allMenuItems: MenuItem[] = [
     image: '/images/products/Beyaz Çikolata Frappuccino.jpeg',
   },
 
-  // BUBBLE TEA
-  {
-    id: 46,
-    name: 'Queen Style Fresh',
-    description: 'Özel bubble tea karışımı',
-    category: price: 150,
-    image: '/images/products/Iced Matcha Latte.jpeg',
-  },
-  {
-    id: 47,
-    name: 'Air Lime Fresh',
-    description: 'Limonlu bubble tea',
-    category: price: 150,
-    image: '/images/products/Iced Matcha Latte.jpeg',
-  },
-  {
-    id: 48,
-    name: 'Blueorange Fresh',
-    description: 'Mavi portakal bubble tea',
-    category: price: 150,
-    image: '/images/products/Iced Matcha Latte.jpeg',
-  },
-  {
-    id: 49,
-    name: 'Coffeebon Milk',
-    description: 'Kahveli süt bubble tea',
-    category: price: 180,
-    image: '/images/products/cold-brew.jpg',
-  },
-  {
-    id: 50,
-    name: 'Chai Tea Coffee',
-    description: 'Chai çayı ve kahve bubble tea',
-    category: price: 210,
-    image: '/images/products/Iced Matcha Latte.jpeg',
-  },
-  {
-    id: 51,
-    name: 'Coffee Mocha Bubble',
-    description: 'Mocha bubble tea',
-    category: price: 200,
-    image: '/images/products/buzlu-mocha.jpeg',
-  },
-  {
-    id: 52,
-    name: 'Coffee Caramel Macchiato Bubble',
-    description: 'Karamelli macchiato bubble tea',
-    category: price: 220,
-    image: '/images/products/caramel-macchiato.jpg',
-  },
+
 
   // MATCHALAR (MATCHA DRINKS)
   {
