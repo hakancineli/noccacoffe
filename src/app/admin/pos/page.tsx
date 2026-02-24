@@ -17,6 +17,7 @@ interface CartItem {
     size?: string;
     isPorcelain?: boolean;
     category?: string;
+    image?: string;
 }
 
 interface Customer {
@@ -430,6 +431,7 @@ export default function POSPage() {
                 quantity: 1,
                 size,
                 category: product.category,
+                image: product.image,
                 isPorcelain: false
             }];
         });
@@ -508,7 +510,8 @@ export default function POSPage() {
                     subtotal: cartTotal,
                     discount: totalDiscount,
                     total: finalTotal
-                }
+                },
+                customer: selectedCustomer
             }
         });
         return () => channel.close();
@@ -674,7 +677,10 @@ export default function POSPage() {
                 setPendingOrderArgs(null);
                 setCart([]);
                 const chan1 = new BroadcastChannel('nocca_pos_display');
-                chan1.postMessage({ type: 'ORDER_COMPLETED' });
+                chan1.postMessage({
+                    type: 'ORDER_COMPLETED',
+                    data: { orderId: createdOrder.id }
+                });
                 chan1.close();
                 setSelectedCustomer(null);
                 setCustomerSearch('');
@@ -710,7 +716,10 @@ export default function POSPage() {
 
                     setCart([]);
                     const channel = new BroadcastChannel('nocca_pos_display');
-                    channel.postMessage({ type: 'ORDER_COMPLETED' });
+                    channel.postMessage({
+                        type: 'ORDER_COMPLETED',
+                        data: { orderId: tempId }
+                    });
                     channel.close();
                     setSelectedCustomer(null);
                     setCustomerSearch('');
