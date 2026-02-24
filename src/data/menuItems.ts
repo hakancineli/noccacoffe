@@ -707,7 +707,7 @@ export const allMenuItems: MenuItem[] = [
     description: 'Porselen fincanda servis edilen taze demlenmiş çay',
     category: 'Çaylar',
     price: 80,
-    image: '/images/products/fincan-cay.jpeg',
+    image: '/images/products/çay.jpg',
   },
   {
     id: 139,
@@ -715,7 +715,7 @@ export const allMenuItems: MenuItem[] = [
     description: 'Taze demlenmiş siyah çay',
     category: 'Çaylar',
     price: 60,
-    image: '/images/products/yaseminli-yesil-cay.jpeg',
+    image: '/images/products/çay.jpg',
   },
   {
     id: 66,

@@ -358,8 +358,6 @@ export default function POSPage() {
     const HOT_DRINK_CATEGORIES = ['Sıcak Kahveler', 'Çaylar', 'Espresso Ve Türk Kahvesi', 'Matchalar'];
 
     // Categories that don't require recipes (unit-based products or simple stock tracking)
-    const UNIT_BASED_CATEGORIES = ['Meşrubatlar', 'Yan Ürünler', 'Kahve Çekirdekleri', 'Çaylar', 'Ekstralar', 'Püreler', 'Tozlar'];
-
     // Categories to hide from POS filter bar (technical/ingredient categories)
     const HIDDEN_CATEGORIES = ['Püreler', 'Tozlar'];
 
@@ -431,7 +429,7 @@ export default function POSPage() {
                 quantity: 1,
                 size,
                 category: product.category,
-                image: product.image,
+                image: dbProduct?.imageUrl || product.image,
                 isPorcelain: false
             }];
         });
