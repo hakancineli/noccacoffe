@@ -24,8 +24,8 @@ const MenuItems = () => {
   const CATEGORY_GROUPS = {
     icecekler: [
       'Tümü', 'Soğuk Kahveler', 'Sıcak Kahveler', 'Espresso Ve Türk Kahvesi',
-      'Çaylar', 'Soğuk İçecekler', 'Milkshake', 'Frappeler', 'Bubble Tea',
-      'Matchalar', 'Meşrubatlar'
+      'Çaylar', 'Soğuk İçecekler', 'Frappeler', 'Bubble Tea',
+      'Matchalar'
     ],
     tatlilar: ['Tümü'], // Sadece tatlılar
     diger: [

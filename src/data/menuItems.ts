@@ -471,7 +471,7 @@ export const allMenuItems: MenuItem[] = [
     id: 38,
     name: 'Chocolate Milkshake',
     description: 'Yoğun çikolatalı milkshake',
-    category: 'Milkshake',
+    category: 'Soğuk İçecekler',
     sizes: [
       { size: 'S', price: 240 },
       { size: 'M', price: 250 },
@@ -483,7 +483,7 @@ export const allMenuItems: MenuItem[] = [
     id: 39,
     name: 'Strawberry Milkshake',
     description: 'Taze çilekli milkshake',
-    category: 'Milkshake',
+    category: 'Soğuk İçecekler',
     sizes: [
       { size: 'S', price: 240 },
       { size: 'M', price: 250 },
@@ -495,7 +495,7 @@ export const allMenuItems: MenuItem[] = [
     id: 40,
     name: 'Banana Milkshake',
     description: 'Muzlu milkshake',
-    category: 'Milkshake',
+    category: 'Soğuk İçecekler',
     sizes: [
       { size: 'S', price: 240 },
       { size: 'M', price: 250 },
@@ -507,7 +507,7 @@ export const allMenuItems: MenuItem[] = [
     id: 41,
     name: 'Vanilla Milkshake',
     description: 'Vanilyalı milkshake',
-    category: 'Milkshake',
+    category: 'Soğuk İçecekler',
     sizes: [
       { size: 'S', price: 240 },
       { size: 'M', price: 250 },
@@ -826,11 +826,11 @@ export const allMenuItems: MenuItem[] = [
   { id: 103, name: 'Türk Kahvesi Çekirdeği (250g)', description: 'Geleneksel Türk kahvesi çekirdeği', category: 'Kahve Çekirdekleri', price: 350, image: '/images/products/coffee-beans-collection.png' },
 
   // MEŞRUBATLAR
-  { id: 104, name: 'Coca Cola', description: 'Kutu 330ml', category: 'Meşrubatlar', price: 90, image: '/images/products/Coca Cola Kutu 330ml.jpeg' },
-  { id: 105, name: 'Kola Turka', description: 'Kutu 330ml', category: 'Meşrubatlar', price: 50, image: '/images/products/kola-turka.jpeg' },
-  { id: 106, name: 'Su', description: 'Pet Şişe 0.5L', category: 'Meşrubatlar', price: 30, image: '/images/products/su.jpeg' },
-  { id: 107, name: 'Sade Soda', description: 'Maden Suyu', category: 'Meşrubatlar', price: 50, image: '/images/products/sade soda.jpeg' },
-  { id: 108, name: 'Limonlu Soda', description: 'Meyveli Maden Suyu', category: 'Meşrubatlar', price: 70, image: '/images/products/limonlu soda.jpeg' },
+  { id: 104, name: 'Coca Cola', description: 'Kutu 330ml', category: 'Soğuk İçecekler', price: 90, image: '/images/products/Coca Cola Kutu 330ml.jpeg' },
+  { id: 105, name: 'Kola Turka', description: 'Kutu 330ml', category: 'Soğuk İçecekler', price: 50, image: '/images/products/kola-turka.jpeg' },
+  { id: 106, name: 'Su', description: 'Pet Şişe 0.5L', category: 'Soğuk İçecekler', price: 30, image: '/images/products/su.jpeg' },
+  { id: 107, name: 'Sade Soda', description: 'Maden Suyu', category: 'Soğuk İçecekler', price: 50, image: '/images/products/sade soda.jpeg' },
+  { id: 108, name: 'Limonlu Soda', description: 'Meyveli Maden Suyu', category: 'Soğuk İçecekler', price: 70, image: '/images/products/limonlu soda.jpeg' },
   // TATLILAR
   { id: 110, name: 'San Sebastian', description: 'Meşhur yanık cheesecake', category: 'Tatlılar', price: 250, image: '/images/products/san-sebastian.jpg' },
   { id: 111, name: 'Sade Kruvasan', description: 'Taze pişmiş sade kruvasan', category: 'Tatlılar', price: 90, image: '/images/products/san-sebastian.jpg' },
@@ -871,7 +871,6 @@ export const categories = [
   'Sıcak Kahveler',
   'Soğuk İçecekler',
   'Espresso Ve Türk Kahvesi',
-  'Milkshake',
   'Frappeler',
   'Bubble Tea',
   'Matchalar',
@@ -880,5 +879,4 @@ export const categories = [
   'Tozlar',
   'Yan Ürünler',
   'Kahve Çekirdekleri',
-  'Meşrubatlar',
 ];
