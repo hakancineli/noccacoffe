@@ -14,6 +14,26 @@ interface StaffStats {
     productStats: { name: string, quantity: number, revenue: number }[];
     topProduct: { name: string, quantity: number, revenue: number } | null;
     recentSales: any[];
+    pos?: {
+        totalOrders: number;
+        totalRevenue: number;
+        totalItems: number;
+        averageOrderValue: number;
+        productStats: { name: string, quantity: number, revenue: number }[];
+        topProduct: { name: string, quantity: number, revenue: number } | null;
+        recentSales: any[];
+    };
+    kitchen?: {
+        totalOrders: number;
+        totalItems: number;
+        productStats: { name: string, quantity: number }[];
+        topProduct: { name: string, quantity: number } | null;
+        recentPrepared: any[];
+    };
+    combined?: {
+        totalOrders: number;
+        totalItemsHandled: number;
+    };
 }
 
 function StaffPerformanceContent() {
@@ -234,6 +254,107 @@ function StaffPerformanceContent() {
                                     </div>
                                 </div>
                             </div>
+
+                            {/* KITCHEN PERFORMANCE SECTION */}
+                            {stats.kitchen && stats.kitchen.totalOrders > 0 && (
+                                <div className="mt-12">
+                                    <div className="flex items-center gap-3 mb-6">
+                                        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-orange-200 to-transparent"></div>
+                                        <h2 className="text-sm font-black uppercase text-orange-500 tracking-[0.2em] flex items-center gap-2">
+                                            🔥 Mutfak Performansı
+                                        </h2>
+                                        <div className="h-px flex-1 bg-gradient-to-r from-orange-200 via-transparent to-transparent"></div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                                        <div className="bg-white p-6 rounded-3xl border border-orange-100 shadow-sm hover:shadow-md transition-all group">
+                                            <div className="flex justify-between items-start mb-4">
+                                                <div className="p-3 bg-orange-50 text-orange-600 rounded-2xl group-hover:bg-orange-600 group-hover:text-white transition-colors">
+                                                    <FaCoffee className="text-xl" />
+                                                </div>
+                                                <span className="text-[10px] font-black text-orange-400 uppercase tracking-widest">Hazırlanan</span>
+                                            </div>
+                                            <div className="text-3xl font-black text-gray-900">{stats.kitchen.totalOrders}</div>
+                                            <p className="text-xs text-gray-400 font-bold mt-1">Sipariş Hazırlandı</p>
+                                        </div>
+
+                                        <div className="bg-white p-6 rounded-3xl border border-orange-100 shadow-sm hover:shadow-md transition-all group">
+                                            <div className="flex justify-between items-start mb-4">
+                                                <div className="p-3 bg-amber-50 text-amber-600 rounded-2xl group-hover:bg-amber-600 group-hover:text-white transition-colors">
+                                                    <FaChartLine className="text-xl" />
+                                                </div>
+                                                <span className="text-[10px] font-black text-amber-400 uppercase tracking-widest">Bardak</span>
+                                            </div>
+                                            <div className="text-3xl font-black text-gray-900">{stats.kitchen.totalItems}</div>
+                                            <p className="text-xs text-gray-400 font-bold mt-1">Toplam Ürün/Bardak</p>
+                                        </div>
+
+                                        <div className="bg-gradient-to-br from-orange-500 to-red-600 p-6 rounded-3xl shadow-lg shadow-orange-200 text-white relative overflow-hidden group">
+                                            <div className="relative z-10">
+                                                <div className="flex justify-between items-start mb-4">
+                                                    <FaStar className="text-orange-200 text-xl" />
+                                                    <span className="text-[10px] font-black text-white/80 uppercase tracking-widest">En Çok Hazırlanan</span>
+                                                </div>
+                                                <div className="text-xl font-black truncate">{stats.kitchen.topProduct?.name || 'Yok'}</div>
+                                                <p className="text-xs text-white/80 font-bold mt-1">{stats.kitchen.topProduct?.quantity || 0} Adet</p>
+                                            </div>
+                                            <FaCoffee className="absolute -right-4 -bottom-4 text-white/10 text-8xl rotate-12 group-hover:scale-110 transition-transform" />
+                                        </div>
+                                    </div>
+
+                                    {/* Kitchen Product Breakdown */}
+                                    <div className="bg-white rounded-3xl border border-orange-100 overflow-hidden shadow-sm">
+                                        <div className="px-6 py-4 bg-orange-50/50 border-b border-orange-100">
+                                            <h3 className="text-xs font-black uppercase text-orange-500 tracking-[0.2em] flex items-center gap-2">
+                                                <FaListUl /> Mutfak Ürün Detayları
+                                            </h3>
+                                        </div>
+                                        <table className="w-full text-left">
+                                            <thead>
+                                                <tr className="text-[10px] font-black text-gray-500 uppercase tracking-widest border-b border-gray-100">
+                                                    <th className="px-6 py-4">Ürün</th>
+                                                    <th className="px-6 py-4 text-center">Hazırlanan Adet</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-gray-50">
+                                                {stats.kitchen.productStats.map((item) => (
+                                                    <tr key={item.name} className="hover:bg-orange-50/30 transition-colors">
+                                                        <td className="px-6 py-4 font-bold text-gray-700">{item.name}</td>
+                                                        <td className="px-6 py-4 text-center">
+                                                            <span className="px-3 py-1 bg-orange-100 rounded-full text-xs font-black text-orange-700">
+                                                                {item.quantity}
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                                {stats.kitchen.productStats.length === 0 && (
+                                                    <tr>
+                                                        <td colSpan={2} className="px-6 py-12 text-center text-gray-400 font-bold text-sm uppercase tracking-widest">Veri Bulunamadı</td>
+                                                    </tr>
+                                                )}
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    {/* Recent Kitchen Activity */}
+                                    {stats.kitchen.recentPrepared && stats.kitchen.recentPrepared.length > 0 && (
+                                        <div className="mt-6">
+                                            <h3 className="text-[10px] font-black uppercase text-gray-400 tracking-[0.2em] mb-4">Son Hazırlanan Siparişler</h3>
+                                            <div className="space-y-2">
+                                                {stats.kitchen.recentPrepared.slice(0, 5).map((item: any) => (
+                                                    <div key={item.id} className="bg-white p-3 rounded-2xl border border-orange-100 flex justify-between items-center shadow-sm">
+                                                        <div className="flex items-center gap-3">
+                                                            <span className="text-xs font-black text-gray-500">#{item.orderNumber}</span>
+                                                            <span className="text-[10px] text-gray-400">{item.customerName}</span>
+                                                        </div>
+                                                        <span className="px-2 py-0.5 bg-orange-100 text-orange-700 rounded-full text-[10px] font-black">{item.itemCount} ürün</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     ) : null}
                 </div>

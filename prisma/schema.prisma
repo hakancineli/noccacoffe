@@ -109,7 +109,9 @@ model Order {
   paymentStatus  PaymentStatus  @default(PENDING) @map("payment_status")
   notes          String?
   staffId        String?        @map("staff_id")
-  staff          Barista?       @relation(fields: [staffId], references: [id])
+  staff          Barista?       @relation("CashierOrders", fields: [staffId], references: [id])
+  preparedById   String?        @map("prepared_by_id")
+  preparedBy     Barista?       @relation("PreparedOrders", fields: [preparedById], references: [id])
   source         OrderSource    @default(POS)
   externalId     String?        @unique @map("external_id")
   createdAt      DateTime       @default(now()) @map("created_at")
@@ -261,7 +263,8 @@ model Barista {
   pinCode      String?            @map("pin_code")
   expenses     Expense[]
   consumptions StaffConsumption[]
-  orders       Order[]
+  orders          Order[]          @relation("CashierOrders")
+  preparedOrders  Order[]          @relation("PreparedOrders")
 
   @@map("baristas")
 }

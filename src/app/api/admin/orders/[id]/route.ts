@@ -108,7 +108,7 @@ export async function PUT(
     if (customerPhone !== undefined) updateData.customerPhone = customerPhone;
     if (finalAmount !== undefined) updateData.finalAmount = parseFloat(finalAmount.toString());
     if (paymentMethod !== undefined) updateData.paymentMethod = paymentMethod;
-    if (verifiedStaffId) updateData.staffId = verifiedStaffId;
+    if (verifiedStaffId) updateData.preparedById = verifiedStaffId;
 
     const order = await prisma.order.update({
       where: { id: params.id },
