@@ -36,7 +36,7 @@ export default function CustomerDisplayPage() {
     const campaigns = [
         {
             title: "🌙 Ramazan'a Özel 🥁",
-            subtitle: "1 Tatlı Alana 1 Hediye!",
+            subtitle: "1 Tatlı Alana 1 Tatlı Bizden!",
             price: "Bedava",
             image: "/images/products/San Sebastian.jpg",
             color: "from-amber-600 to-orange-700",
@@ -44,7 +44,7 @@ export default function CustomerDisplayPage() {
         },
         {
             title: "🌙 Ramazan'a Özel ✨",
-            subtitle: "1 Tatlı Alana 1 Hediye!",
+            subtitle: "1 Tatlı Alana 1 Tatlı Bizden!",
             price: "Bedava",
             image: "/images/products/Çikolatalı San Sebastian.jpg",
             color: "from-rose-800 to-red-900",
@@ -52,9 +52,9 @@ export default function CustomerDisplayPage() {
         },
         {
             title: "🌙 Ramazan'a Özel 🥁",
-            subtitle: "1 Tatlı Alana 1 Hediye!",
+            subtitle: "1 Tatlı Alana 1 Tatlı Bizden!",
             price: "Bedava",
-            image: "/images/products/Lotus Cheesecake.jpg", // Validates based on existing products, using general name pattern or previously listed image. Actually Lotus image wasn't generated separately in public/images/products earlier, but I'll use a fallback or general one. Wait, in db products Lotus uses san-sebastian.jpg. Let's use Frambuazlı cheesecake.jpg
+            image: "/images/products/Lotus Cheesecake.jpg",
             color: "from-amber-700 to-orange-800",
             isRamadan: true
         },
@@ -68,7 +68,7 @@ export default function CustomerDisplayPage() {
         },
         {
             title: "🌙 Ramazan'a Özel ✨",
-            subtitle: "1 Tatlı Alana 1 Hediye!",
+            subtitle: "1 Tatlı Alana 1 Tatlı Bizden!",
             price: "Bedava",
             image: "/images/products/Frambuazlı cheesecake.jpg",
             color: "from-pink-600 to-rose-700",
@@ -76,7 +76,7 @@ export default function CustomerDisplayPage() {
         },
         {
             title: "🌙 Ramazan'a Özel 🥁",
-            subtitle: "1 Tatlı Alana 1 Hediye!",
+            subtitle: "1 Tatlı Alana 1 Tatlı Bizden!",
             price: "Bedava",
             image: "/images/products/Limonlu Cheesecake.jpg",
             color: "from-yellow-500 to-amber-600",
@@ -257,16 +257,39 @@ export default function CustomerDisplayPage() {
                         <Image src="/images/logo.png" alt="Logo" fill className="object-contain" />
                     </div>
 
-                    <div className="flex flex-col items-center text-center">
-                        <div className="bg-gray-50 p-6 rounded-[40px] shadow-sm mb-8 relative group">
-                            <img src={instagramQR} alt="Instagram QR" className="w-48 h-48 rounded-2xl" />
-                            <div className="absolute -top-4 -right-4 bg-gradient-to-tr from-purple-600 to-pink-500 p-4 rounded-3xl shadow-lg border-4 border-white">
-                                <FaInstagram className="text-3xl text-white" />
+                    <div className="flex flex-col items-center text-center gap-12 w-full mt-8">
+                        {/* Instagram Block */}
+                        <div>
+                            <div className="bg-gray-50 p-4 rounded-[30px] shadow-sm mb-4 relative group inline-block">
+                                <img src={instagramQR} alt="Instagram QR" className="w-32 h-32 rounded-xl" />
+                                <div className="absolute -top-3 -right-3 bg-gradient-to-tr from-purple-600 to-pink-500 p-3 rounded-2xl shadow-lg border-2 border-white">
+                                    <FaInstagram className="text-xl text-white" />
+                                </div>
+                            </div>
+                            <h3 className="text-xl font-black text-gray-900 mb-1">Bizi Takip Edin</h3>
+                            <span className="text-pink-600 font-bold text-lg">@noccacoffee</span>
+                        </div>
+
+                        {/* Wi-Fi Block */}
+                        <div>
+                            <div className="bg-gray-50 p-4 rounded-[30px] shadow-sm mb-4 relative group inline-block">
+                                <img src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=WIFI:T:WPA;S:NoccaCafe;P:Nocca1608;;&bgcolor=ffffff&color=000000&margin=10`} alt="Wi-Fi QR" className="w-32 h-32 rounded-xl" />
+                                <div className="absolute -top-3 -right-3 bg-blue-500 p-3 rounded-2xl shadow-lg border-2 border-white">
+                                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.906 14.142 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0" /></svg>
+                                </div>
+                            </div>
+                            <h3 className="text-xl font-black text-gray-900 mb-1">Ücretsiz Wi-Fi</h3>
+                            <div className="text-gray-600 font-medium text-sm flex flex-col gap-1.5 mt-2">
+                                <div className="bg-gray-100 px-3 py-1.5 rounded-lg inline-flex gap-2 items-center mx-auto">
+                                    <span className="opacity-60 text-xs uppercase tracking-wider">Ağ:</span>
+                                    <span className="font-bold text-gray-900">NoccaCafe</span>
+                                </div>
+                                <div className="bg-gray-100 px-3 py-1.5 rounded-lg inline-flex gap-2 items-center mx-auto">
+                                    <span className="opacity-60 text-xs uppercase tracking-wider">Şifre:</span>
+                                    <span className="font-bold text-gray-900">Nocca1608</span>
+                                </div>
                             </div>
                         </div>
-                        <h3 className="text-2xl font-black text-gray-900 mb-2">Bizi Takip Edin</h3>
-                        <p className="text-gray-500 font-medium">Sürprizleri, kampanyaları ve en yeni lezzetleri ilk siz öğrenin.</p>
-                        <span className="mt-4 text-pink-600 font-black text-xl">@noccacoffee</span>
                     </div>
 
                     <div className="w-full h-px bg-gray-100 my-8"></div>
