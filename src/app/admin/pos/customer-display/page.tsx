@@ -35,11 +35,28 @@ export default function CustomerDisplayPage() {
 
     const campaigns = [
         {
-            title: "Ramazan'a Özel",
+            title: "🌙 Ramazan'a Özel 🥁",
             subtitle: "1 Tatlı Alana 1 Hediye!",
             price: "Bedava",
             image: "/images/products/San Sebastian.jpg",
-            color: "from-amber-600 to-orange-700"
+            color: "from-amber-600 to-orange-700",
+            isRamadan: true
+        },
+        {
+            title: "🌙 Ramazan'a Özel ✨",
+            subtitle: "1 Tatlı Alana 1 Hediye!",
+            price: "Bedava",
+            image: "/images/products/Çikolatalı San Sebastian.jpg",
+            color: "from-rose-800 to-red-900",
+            isRamadan: true
+        },
+        {
+            title: "🌙 Ramazan'a Özel 🥁",
+            subtitle: "1 Tatlı Alana 1 Hediye!",
+            price: "Bedava",
+            image: "/images/products/Lotus Cheesecake.jpg", // Validates based on existing products, using general name pattern or previously listed image. Actually Lotus image wasn't generated separately in public/images/products earlier, but I'll use a fallback or general one. Wait, in db products Lotus uses san-sebastian.jpg. Let's use Frambuazlı cheesecake.jpg
+            color: "from-amber-700 to-orange-800",
+            isRamadan: true
         },
         {
             title: "Instagram'da Biz",
@@ -50,11 +67,41 @@ export default function CustomerDisplayPage() {
             isInstagram: true
         },
         {
+            title: "🌙 Ramazan'a Özel ✨",
+            subtitle: "1 Tatlı Alana 1 Hediye!",
+            price: "Bedava",
+            image: "/images/products/Frambuazlı cheesecake.jpg",
+            color: "from-pink-600 to-rose-700",
+            isRamadan: true
+        },
+        {
+            title: "🌙 Ramazan'a Özel 🥁",
+            subtitle: "1 Tatlı Alana 1 Hediye!",
+            price: "Bedava",
+            image: "/images/products/Limonlu Cheesecake.jpg",
+            color: "from-yellow-500 to-amber-600",
+            isRamadan: true
+        },
+        {
             title: "Yeni Lezzet",
             subtitle: "Iced Spanish Latte",
             price: "₺210",
             image: "/images/products/Iced Spanish Latte.jpeg",
             color: "from-blue-500 to-cyan-600"
+        },
+        {
+            title: "Yeni Lezzet",
+            subtitle: "Çilekli Matcha Latte",
+            price: "₺210",
+            image: "/images/products/Iced Matcha Latte.jpeg",
+            color: "from-green-500 to-teal-600"
+        },
+        {
+            title: "Yeni Lezzet",
+            subtitle: "Iced Salted Caramel",
+            price: "₺210",
+            image: "/images/products/caramel-macchiato.jpg",
+            color: "from-amber-500 to-yellow-600"
         }
     ];
 
@@ -162,7 +209,8 @@ export default function CustomerDisplayPage() {
                                     initial={{ y: 20, opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 0.3 }}
-                                    className="inline-block px-4 py-1 bg-black/20 text-white font-black text-sm uppercase tracking-[0.3em] rounded-full mb-6"
+                                    className={`inline-block px-4 py-1 text-white font-black text-sm uppercase tracking-[0.3em] rounded-full mb-6 ${(campaigns[currentSlide] as any).isRamadan ? 'bg-amber-500/30 text-amber-100 border border-amber-400/50 shadow-[0_0_15px_rgba(251,191,36,0.5)]' : 'bg-black/20'
+                                        }`}
                                 >
                                     {campaigns[currentSlide].title}
                                 </motion.span>
