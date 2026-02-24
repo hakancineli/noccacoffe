@@ -241,7 +241,7 @@ export default function CustomerDisplayPage() {
                             src="/images/logo.png"
                             alt="Logo"
                             fill
-                            className="object-contain brightness-0 invert"
+                            className="object-contain"
                         />
                     </div>
                     {customer && (
