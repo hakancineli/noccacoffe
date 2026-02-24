@@ -35,11 +35,11 @@ export default function CustomerDisplayPage() {
 
     const campaigns = [
         {
-            title: "Günün Kombini",
-            subtitle: "San Sebastian + Çay",
-            price: "₺250",
+            title: "Ramazan'a Özel",
+            subtitle: "1 Tatlı Alana 1 Hediye!",
+            price: "Bedava",
             image: "/images/products/San Sebastian.jpg",
-            color: "from-amber-500 to-orange-600"
+            color: "from-amber-600 to-orange-700"
         },
         {
             title: "Instagram'da Biz",
