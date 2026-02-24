@@ -36,24 +36,24 @@ export default function CustomerDisplayPage() {
     const campaigns = [
         {
             title: "🌙 Ramazan'a Özel 🥁",
-            subtitle: "1 Tatlı Alana 1 Tatlı Bizden!",
-            price: "Bedava",
+            subtitle: "1 Tatlı Alana 2.si %50 İndirimli!",
+            price: "%50 İndirim",
             image: "/images/products/San Sebastian.jpg",
             color: "from-amber-600 to-orange-700",
             isRamadan: true
         },
         {
             title: "🌙 Ramazan'a Özel ✨",
-            subtitle: "1 Tatlı Alana 1 Tatlı Bizden!",
-            price: "Bedava",
+            subtitle: "1 Tatlı Alana 2.si %50 İndirimli!",
+            price: "%50 İndirim",
             image: "/images/products/Çikolatalı San Sebastian.jpg",
             color: "from-rose-800 to-red-900",
             isRamadan: true
         },
         {
             title: "🌙 Ramazan'a Özel 🥁",
-            subtitle: "1 Tatlı Alana 1 Tatlı Bizden!",
-            price: "Bedava",
+            subtitle: "1 Tatlı Alana 2.si %50 İndirimli!",
+            price: "%50 İndirim",
             image: "/images/products/Lotus Cheesecake.jpg",
             color: "from-amber-700 to-orange-800",
             isRamadan: true
@@ -68,16 +68,16 @@ export default function CustomerDisplayPage() {
         },
         {
             title: "🌙 Ramazan'a Özel ✨",
-            subtitle: "1 Tatlı Alana 1 Tatlı Bizden!",
-            price: "Bedava",
+            subtitle: "1 Tatlı Alana 2.si %50 İndirimli!",
+            price: "%50 İndirim",
             image: "/images/products/Frambuazlı cheesecake.jpg",
             color: "from-pink-600 to-rose-700",
             isRamadan: true
         },
         {
             title: "🌙 Ramazan'a Özel 🥁",
-            subtitle: "1 Tatlı Alana 1 Tatlı Bizden!",
-            price: "Bedava",
+            subtitle: "1 Tatlı Alana 2.si %50 İndirimli!",
+            price: "%50 İndirim",
             image: "/images/products/Limonlu Cheesecake.jpg",
             color: "from-yellow-500 to-amber-600",
             isRamadan: true
@@ -303,7 +303,7 @@ export default function CustomerDisplayPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 flex overflow-hidden">
+        <div className="h-screen bg-gray-50 flex overflow-hidden">
             {/* Left Side: Status & Personalization */}
             <div className={`w-1/2 relative p-16 flex flex-col justify-between overflow-hidden transition-colors duration-700 ${customer ? 'bg-[#0f172a]' : 'bg-nocca-green'}`}>
                 <div className="flex justify-between items-start z-10">
@@ -364,8 +364,8 @@ export default function CustomerDisplayPage() {
             </div>
 
             {/* Right Side: Order Summary */}
-            <div className="w-1/2 bg-white flex flex-col p-16 shadow-[-40px_0_80px_rgba(0,0,0,0.08)] relative z-20">
-                <div className="flex justify-between items-end mb-12 pb-8 border-b-2 border-gray-100">
+            <div className="w-1/2 bg-white flex flex-col p-16 shadow-[-40px_0_80px_rgba(0,0,0,0.08)] relative z-20 h-full">
+                <div className="flex justify-between items-end mb-12 pb-8 border-b-2 border-gray-100 shrink-0">
                     <div>
                         <h1 className="text-5xl font-black text-gray-900 tracking-tight mb-2">Sipariş Özeti</h1>
                         <p className="text-gray-400 font-bold uppercase text-sm tracking-[0.2em]">Seçtiğiniz Ürünler</p>
@@ -373,7 +373,7 @@ export default function CustomerDisplayPage() {
                     <span className="bg-gray-900 text-white px-5 py-2 rounded-full font-black text-sm tracking-widest">{cart.length} ÜRÜN</span>
                 </div>
 
-                <div className="flex-1 overflow-y-auto pr-6 space-y-8 custom-scrollbar">
+                <div className="flex-1 overflow-y-auto pr-6 space-y-8 custom-scrollbar min-h-0">
                     <AnimatePresence>
                         {cart.map((item) => (
                             <motion.div
@@ -418,7 +418,7 @@ export default function CustomerDisplayPage() {
                     </AnimatePresence>
                 </div>
 
-                <div className="mt-auto pt-12 space-y-6">
+                <div className="mt-auto pt-12 space-y-6 shrink-0 border-t-2 border-gray-100/50 mt-6">
                     <div className="flex justify-between items-center px-4">
                         <span className="text-gray-400 font-bold text-lg uppercase tracking-widest">Ara Toplam</span>
                         <span className="text-2xl font-black text-gray-600">₺{totals.subtotal.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</span>
