@@ -343,9 +343,13 @@ export default function POSPage() {
 
     const getStockInfo = (name: string) => {
         const found = getDbProduct(name);
-        // Fallback: If not in DB, treat as active and potentially available (as it is in static menu)
-        // to avoid "TÜKENDİ" overlay for items that just haven't been synced to DB yet.
-        if (!found) return { stock: 100, isAvailable: true, hasRecipe: false, isActive: true };
+        // If DB has loaded (has products) but this item is not in DB → treat as inactive/hidden
+        if (!found) {
+            const dbLoaded = dbProducts.length > 0;
+            if (dbLoaded) return { stock: 0, isAvailable: false, hasRecipe: false, isActive: false };
+            // DB not yet loaded → show item optimistically
+            return { stock: 100, isAvailable: true, hasRecipe: false, isActive: true };
+        }
         return {
             stock: found.stock,
             isAvailable: (found.isAvailable ?? true) && (found.isActive !== false),
@@ -357,11 +361,10 @@ export default function POSPage() {
     // Categories that are likely hot drinks (needing porcelain option)
     const HOT_DRINK_CATEGORIES = ['Sıcak Kahveler', 'Çaylar', 'Espresso Ve Türk Kahvesi', 'Matchalar'];
 
-    // Categories that don't require recipes (unit-based products or simple stock tracking)
     // Categories to hide from POS filter bar (technical/ingredient categories)
     const HIDDEN_CATEGORIES = ['Püreler', 'Tozlar'];
 
-    // Filter products - simple category and search match
+    // Filter products - category, search, and active status
     const filteredProducts = allMenuItems.filter(item => {
         const matchesCategory = activeCategory === 'Tümü' || item.category === activeCategory;
         const matchesSearch = item.name.toLocaleLowerCase('tr').includes(productSearch.toLocaleLowerCase('tr'));
