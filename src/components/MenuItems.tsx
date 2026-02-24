@@ -5,13 +5,39 @@ import Image from 'next/image';
 import { FaPlus, FaSearch, FaTimes } from 'react-icons/fa';
 import { allMenuItems, categories, MenuItem } from '@/data/menuItems';
 import { useCart } from '@/contexts/CartContext';
+import { AnimatePresence } from 'framer-motion';
 
 const MenuItems = () => {
-  const [activeCategory, setActiveCategory] = useState('Tümü');
+  const [mainTab, setMainTab] = useState<'icecekler' | 'tatlilar' | 'diger'>('icecekler');
+  const [subCategory, setSubCategory] = useState('Tümü');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [selectedSizes, setSelectedSizes] = useState<{ [key: number]: string }>({});
   const [searchQuery, setSearchQuery] = useState('');
   const { addToCart } = useCart();
+
+  const MAIN_TABS = [
+    { id: 'icecekler', label: 'İçecekler', icon: '☕' },
+    { id: 'tatlilar', label: 'Tatlı & Yiyecek', icon: '🍰' },
+    { id: 'diger', label: 'Diğer', icon: '🛍️' },
+  ] as const;
+
+  const CATEGORY_GROUPS = {
+    icecekler: [
+      'Tümü', 'Soğuk Kahveler', 'Sıcak Kahveler', 'Espresso Ve Türk Kahvesi',
+      'Çaylar', 'Soğuk İçecekler', 'Milkshake', 'Frappeler', 'Bubble Tea',
+      'Matchalar', 'Meşrubatlar'
+    ],
+    tatlilar: ['Tümü'], // Sadece tatlılar
+    diger: [
+      'Tümü', 'Kahve Çekirdekleri', 'Ekstralar', 'Yan Ürünler', 'Püreler', 'Tozlar'
+    ]
+  };
+
+  // Ana sekme değiştiğinde alt kategoriyi sıfırla
+  useEffect(() => {
+    setSubCategory('Tümü');
+    setIsMobileMenuOpen(false);
+  }, [mainTab]);
   const [dbProducts, setDbProducts] = useState<any[]>([]);
 
   // Fetch DB products for stock check
@@ -54,10 +80,24 @@ const MenuItems = () => {
 
   // Filter items based on active category AND search query
   const filteredItems = allMenuItems.filter(item => {
-    const matchesCategory = activeCategory === 'Tümü' || item.category === activeCategory;
+    let matchesCategory = false;
+
+    if (subCategory === 'Tümü') {
+      if (mainTab === 'icecekler') {
+        matchesCategory = CATEGORY_GROUPS.icecekler.includes(item.category);
+      } else if (mainTab === 'tatlilar') {
+        // "Tatlılar" kategorisine giren her şeyi göster
+        matchesCategory = item.category === 'Tatlılar';
+      } else if (mainTab === 'diger') {
+        matchesCategory = CATEGORY_GROUPS.diger.includes(item.category);
+      }
+    } else {
+      matchesCategory = item.category === subCategory;
+    }
+
     const matchesSearch = searchQuery === '' ||
-      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.description?.toLowerCase().includes(searchQuery.toLowerCase());
+      item.name.toLocaleLowerCase('tr').includes(searchQuery.toLocaleLowerCase('tr')) ||
+      item.description?.toLocaleLowerCase('tr').includes(searchQuery.toLocaleLowerCase('tr'));
 
     // Visibility Check (Hide invalid items completely)
     if (dbProducts.length > 0) {
@@ -67,6 +107,9 @@ const MenuItems = () => {
         const isUnitBased = UNIT_BASED_CATEGORIES.includes(item.category);
         const canBeSold = hasRecipe || (isUnitBased && (found.isActive !== false));
         if (!canBeSold) return false;
+        if (found.isActive === false) return false;
+      } else {
+        return false; // Not in DB, hide it
       }
     }
 
@@ -116,64 +159,89 @@ const MenuItems = () => {
         )}
       </div>
 
-      {/* Mobile Category Tabs */}
-      <div className="mb-8 md:hidden">
-        <button
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="w-full flex justify-between items-center px-4 py-3 bg-gray-100 rounded-lg font-medium text-gray-700"
-        >
-          {activeCategory}
-          <svg
-            stroke="currentColor"
-            fill="currentColor"
-            strokeWidth="0"
-            viewBox="0 0 448 512"
-            className={`transition-transform ${isMobileMenuOpen ? 'transform rotate-180' : ''}`}
-            height="1em"
-            width="1em"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path d="M207.029 381.476L12.686 187.132c-9.373-9.373-9.373-24.569 0-33.941l22.667-22.667c9.357-9.357 24.522-9.375 33.901-.04L224 284.505l154.745-154.021c9.379-9.335 24.544-9.317 33.901.04l22.667 22.667c9.373 9.373 9.373 24.569 0 33.941L240.971 381.476c-9.373 9.372-24.569 9.372-33.942 0z"></path>
-          </svg>
-        </button>
-        {isMobileMenuOpen && (
-          <div className="mt-2 space-y-1 p-2 bg-white rounded-lg shadow-lg">
-            {categories.map((category) => (
-              <button
-                key={category}
-                onClick={() => {
-                  setActiveCategory(category);
-                  setIsMobileMenuOpen(false);
-                }}
-                className={`w-full text-left px-4 py-2 rounded-md ${activeCategory === category
-                  ? 'bg-nocca-green text-white'
-                  : 'text-gray-700 hover:bg-gray-100'
-                  }`}
-              >
-                {category}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Desktop Category Tabs */}
-      <div className="hidden md:block mb-12">
-        <div className="flex space-x-2 overflow-x-auto pb-2">
-          {categories.map((category) => (
+      {/* Main Tabs (İçecekler / Tatlılar / Diğer) */}
+      <div className="flex justify-center mb-8 px-2 sm:px-0">
+        <div className="bg-white p-1.5 rounded-[20px] shadow-sm border border-gray-100 flex overflow-x-auto w-full max-w-3xl custom-scrollbar">
+          {MAIN_TABS.map(tab => (
             <button
-              key={category}
-              onClick={() => setActiveCategory(category)}
-              className={`px-6 py-2 rounded-full whitespace-nowrap font-medium text-sm transition-colors ${activeCategory === category
-                ? 'bg-nocca-green text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              key={tab.id}
+              onClick={() => setMainTab(tab.id as any)}
+              className={`flex-1 flex flex-col sm:flex-row items-center justify-center min-w-[100px] gap-1 sm:gap-2 py-3 px-2 sm:px-6 rounded-2xl text-xs sm:text-base font-bold transition-all duration-300 ${mainTab === tab.id
+                ? 'bg-nocca-green text-white shadow-md transform scale-[1.02]'
+                : 'text-gray-500 hover:text-nocca-green hover:bg-green-50'
                 }`}
             >
-              {category}
+              <span className="text-xl sm:text-2xl mb-1 sm:mb-0">{tab.icon}</span>
+              <span className="whitespace-nowrap">{tab.label}</span>
             </button>
           ))}
         </div>
       </div>
+
+      {/* Mobile Sub Category Tabs */}
+      {mainTab !== 'tatlilar' && CATEGORY_GROUPS[mainTab].length > 1 && (
+        <div className="mb-8 md:hidden relative z-30">
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="w-full flex justify-between items-center px-5 py-3.5 bg-white border border-gray-200 shadow-sm rounded-xl font-semibold text-gray-700"
+          >
+            {subCategory}
+            <svg
+              stroke="currentColor"
+              fill="currentColor"
+              strokeWidth="0"
+              viewBox="0 0 448 512"
+              className={`transition-transform duration-300 ${isMobileMenuOpen ? 'transform rotate-180' : ''}`}
+              height="1em"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path d="M207.029 381.476L12.686 187.132c-9.373-9.373-9.373-24.569 0-33.941l22.667-22.667c9.357-9.357 24.522-9.375 33.901-.04L224 284.505l154.745-154.021c9.379-9.335 24.544-9.317 33.901.04l22.667 22.667c9.373 9.373 9.373 24.569 0 33.941L240.971 381.476c-9.373 9.372-24.569 9.372-33.942 0z"></path>
+            </svg>
+          </button>
+          <AnimatePresence>
+            {isMobileMenuOpen && (
+              <div className="absolute top-full left-0 right-0 mt-2 p-2 bg-white rounded-xl shadow-xl border border-gray-100 max-h-60 overflow-y-auto z-40">
+                {CATEGORY_GROUPS[mainTab].map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => {
+                      setSubCategory(cat);
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-colors ${subCategory === cat
+                      ? 'bg-nocca-green text-white shadow-sm'
+                      : 'text-gray-600 hover:bg-gray-50'
+                      }`}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            )}
+          </AnimatePresence>
+        </div>
+      )}
+
+      {/* Desktop Sub Category Tabs */}
+      {mainTab !== 'tatlilar' && CATEGORY_GROUPS[mainTab].length > 1 && (
+        <div className="hidden md:flex justify-center mb-12">
+          <div className="flex flex-wrap justify-center gap-2.5 max-w-5xl">
+            {CATEGORY_GROUPS[mainTab].map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSubCategory(cat)}
+                className={`px-5 py-2.5 rounded-full whitespace-nowrap font-semibold text-sm transition-all duration-300 ${subCategory === cat
+                  ? 'bg-gray-800 text-white shadow-md transform scale-105'
+                  : 'bg-white text-gray-600 border border-gray-200 hover:border-nocca-green hover:text-nocca-green hover:shadow-sm'
+                  }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Menu Items */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -235,8 +303,8 @@ const MenuItems = () => {
                         onClick={() => handleSizeSelect(item.id, sizeOption.size)}
                         disabled={!isAvailable}
                         className={`flex-1 min-w-[60px] px-3 py-2 text-xs sm:text-sm font-medium rounded-lg transition-all ${(selectedSizes[item.id] || item.sizes![0].size) === sizeOption.size
-                            ? 'bg-nocca-green text-white shadow-md'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          ? 'bg-nocca-green text-white shadow-md'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                           } ${!isAvailable ? 'cursor-not-allowed opacity-50' : ''}`}
                       >
                         {sizeOption.size}
