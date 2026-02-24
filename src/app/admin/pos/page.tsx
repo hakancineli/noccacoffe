@@ -116,6 +116,7 @@ export default function POSPage() {
         };
     }, []);
 
+
     // Fetch DB products for stock check
     useEffect(() => {
         const fetchProducts = async () => {
@@ -496,6 +497,23 @@ export default function POSPage() {
     const totalDiscount = bogoDiscountAmount + discountAmount;
     const finalTotal = staffMode ? staffTotal : (cartTotal - totalDiscount);
 
+    // Broadcast cart to Customer Display
+    useEffect(() => {
+        const channel = new BroadcastChannel('nocca_pos_display');
+        channel.postMessage({
+            type: 'UPDATE_CART',
+            data: {
+                cart,
+                totals: {
+                    subtotal: cartTotal,
+                    discount: totalDiscount,
+                    total: finalTotal
+                }
+            }
+        });
+        return () => channel.close();
+    }, [cart, cartTotal, totalDiscount, finalTotal]);
+
     // Customer Search Logic
     useEffect(() => {
         const searchCustomers = async () => {
@@ -655,6 +673,9 @@ export default function POSPage() {
                 setShowStaffPinModal(false);
                 setPendingOrderArgs(null);
                 setCart([]);
+                const chan1 = new BroadcastChannel('nocca_pos_display');
+                chan1.postMessage({ type: 'ORDER_COMPLETED' });
+                chan1.close();
                 setSelectedCustomer(null);
                 setCustomerSearch('');
                 setDiscountRate(0);
@@ -688,6 +709,9 @@ export default function POSPage() {
                     toast.error(`Bağlantı sorunu: ${errorMessage} (Sipariş lokale kaydedildi)`, { duration: 5000 });
 
                     setCart([]);
+                    const channel = new BroadcastChannel('nocca_pos_display');
+                    channel.postMessage({ type: 'ORDER_COMPLETED' });
+                    channel.close();
                     setSelectedCustomer(null);
                     setCustomerSearch('');
                     setDiscountRate(0);
@@ -716,6 +740,9 @@ export default function POSPage() {
             toast.error('İnternet yok: Sipariş lokale kaydedildi.', { duration: 5000 });
 
             setCart([]);
+            const chan2 = new BroadcastChannel('nocca_pos_display');
+            chan2.postMessage({ type: 'ORDER_COMPLETED' });
+            chan2.close();
             setSelectedCustomer(null);
             setCustomerSearch('');
             setDiscountRate(0);
@@ -758,6 +785,9 @@ export default function POSPage() {
             if (res.ok) {
                 toast.success(`${selectedStaff.name} tüketimi başarıyla kaydedildi.`);
                 setCart([]);
+                const chan3 = new BroadcastChannel('nocca_pos_display');
+                chan3.postMessage({ type: 'ORDER_COMPLETED' });
+                chan3.close();
                 setStaffMode(false);
                 setSelectedStaff(null);
             } else {
