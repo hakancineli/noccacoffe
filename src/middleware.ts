@@ -108,8 +108,14 @@ export async function middleware(request: NextRequest) {
       );
       const { payload } = await jwtVerify(token, secret);
 
-      // Allow Kitchen and Admin
-      if (payload.email !== 'kitchen@noccacoffee.com' && payload.email !== 'admin@noccacoffee.com' && payload.role !== 'MANAGER') {
+      // Allow Kitchen, Admin, Barista and Managers
+      if (
+        payload.email !== 'kitchen@noccacoffee.com' &&
+        payload.email !== 'admin@noccacoffee.com' &&
+        payload.role !== 'MANAGER' &&
+        payload.role !== 'BARISTA' &&
+        payload.role !== 'KITCHEN'
+      ) {
         if (isApiRoute) {
           return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }

@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { FaSearch, FaUser, FaTrash, FaCreditCard, FaMoneyBillWave, FaTimes, FaPrint, FaWifi, FaSync, FaClipboardList } from 'react-icons/fa';
+import { FaSearch, FaUser, FaTrash, FaCreditCard, FaMoneyBillWave, FaTimes, FaPrint, FaWifi, FaSync, FaClipboardList, FaFire } from 'react-icons/fa';
 import { allMenuItems, categories, MenuItem } from '@/data/menuItems';
 import { noccaDB } from '@/lib/db';
 import { toast } from 'react-hot-toast';
@@ -1130,6 +1130,14 @@ export default function POSPage() {
                                 >
                                     <FaClipboardList className="text-xs" />
                                     <span className="hidden md:inline">Siparişler</span>
+                                </Link>
+                                <Link
+                                    href="/kitchen"
+                                    target="_blank"
+                                    className="flex items-center space-x-1 md:space-x-2 px-2 md:px-3 py-1 md:py-1.5 rounded-xl text-[10px] md:text-xs font-bold uppercase tracking-wider bg-orange-600 text-white hover:bg-orange-700 transition-all shadow-lg"
+                                >
+                                    <FaFire className="text-xs" />
+                                    <span className="hidden md:inline">Mutfak</span>
                                 </Link>
                                 {currentUserRole === 'MANAGER' && (
                                     <>
