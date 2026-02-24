@@ -129,10 +129,15 @@ export async function POST(request: Request) {
 
         // Restore Original Order Status Logic: Default to 'PENDING' so they appear in Kitchen
         const orderStatus = status || 'PENDING';
-        const method = paymentMethod || 'CREDIT_CARD';
 
-        // Determine Payment Status: Depend on orderStatus or explicit parameter
-        const paymentStatus = body.paymentStatus || ((orderStatus === 'COMPLETED') ? 'COMPLETED' : 'PENDING');
+        // Handle BRANCH (Şubede Öde): Not a valid PaymentMethod enum, payment will be collected at the branch
+        const isBranchPayment = paymentMethod === 'BRANCH';
+        const method = isBranchPayment ? null : (paymentMethod || 'CREDIT_CARD');
+
+        // Determine Payment Status: BRANCH = PENDING (ödeme şubede alınacak)
+        const paymentStatus = isBranchPayment
+            ? 'PENDING'
+            : (body.paymentStatus || ((orderStatus === 'COMPLETED') ? 'COMPLETED' : 'PENDING'));
 
         // 1. Validate all product IDs exist and check stock
         const productIds = items.map((item: any) => item.productId.toString());
@@ -230,7 +235,7 @@ export async function POST(request: Request) {
                 customerName,
                 customerPhone,
                 customerEmail,
-                notes,
+                notes: isBranchPayment ? `${notes || ''} [ŞUBEDE ÖDE]`.trim() : notes,
                 totalAmount,
                 finalAmount: body.finalAmount ?? totalAmount,
                 discountAmount: body.discountAmount || 0,
@@ -247,7 +252,7 @@ export async function POST(request: Request) {
                         }))
                         : [{
                             amount: body.finalAmount ?? totalAmount,
-                            method: method,
+                            method: method || 'CASH',
                             status: paymentStatus
                         }]
                 },
