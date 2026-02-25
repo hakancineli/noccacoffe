@@ -38,7 +38,8 @@ export async function GET(request: NextRequest) {
                 },
                 status: {
                     not: 'CANCELLED'
-                }
+                },
+                isDeleted: false
             }
         });
 
@@ -51,7 +52,8 @@ export async function GET(request: NextRequest) {
                 },
                 status: {
                     not: 'CANCELLED'
-                }
+                },
+                isDeleted: false
             },
             _sum: {
                 finalAmount: true
@@ -70,7 +72,8 @@ export async function GET(request: NextRequest) {
                     },
                     status: {
                         not: 'CANCELLED'
-                    }
+                    },
+                    isDeleted: false
                 }
             },
             _sum: {

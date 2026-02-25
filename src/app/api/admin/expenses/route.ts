@@ -60,7 +60,10 @@ export async function GET(request: Request) {
         const paymentsAggregate = await prisma.payment.aggregate({
             where: {
                 status: 'COMPLETED',
-                ...paymentDateFilter
+                ...paymentDateFilter,
+                order: {
+                    isDeleted: false
+                }
             },
             _sum: {
                 amount: true
@@ -121,7 +124,10 @@ export async function GET(request: Request) {
         const allPayments = await prisma.payment.findMany({
             where: {
                 status: 'COMPLETED',
-                ...paymentDateFilter
+                ...paymentDateFilter,
+                order: {
+                    isDeleted: false
+                }
             },
             select: {
                 amount: true,

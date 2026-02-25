@@ -28,7 +28,8 @@ export async function GET(request: NextRequest) {
                 },
                 status: {
                     not: 'CANCELLED'
-                }
+                },
+                isDeleted: false
             },
             select: {
                 id: true,
