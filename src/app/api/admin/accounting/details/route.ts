@@ -53,7 +53,12 @@ export async function GET(request: NextRequest) {
                     }
                 },
                 customerName: true,
-                notes: true
+                notes: true,
+                staff: {
+                    select: {
+                        name: true
+                    }
+                }
             },
             orderBy: {
                 createdAt: 'desc'

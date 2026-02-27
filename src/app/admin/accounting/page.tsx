@@ -65,6 +65,7 @@ interface DayDetails {
         }[];
         customerName: string | null;
         notes?: string | null;
+        staff?: { name: string } | null;
     }[];
     staffConsumptions: {
         id: string;
@@ -1027,14 +1028,21 @@ function AccountingContent() {
                                                                                     )}
                                                                                 </div>
 
-                                                                                <div className="mt-1 flex items-center gap-2">
-                                                                                    <span className={`font-bold transition-all ${isStaff ? 'text-purple-600 text-sm' : 'text-gray-900 text-xs'
-                                                                                        }`}>
-                                                                                        {item.customerName || 'Misafir'}
-                                                                                    </span>
-                                                                                    {!isStaff && (
-                                                                                        <span className="text-[10px] text-gray-400 italic">
-                                                                                            • {item.payments?.map(p => p.method === 'CREDIT_CARD' ? 'Kart' : 'Nakit').join(' + ')}
+                                                                                <div className="mt-1 flex flex-col">
+                                                                                    <div className="flex items-center gap-2">
+                                                                                        <span className={`font-bold transition-all ${isStaff ? 'text-purple-600 text-sm' : 'text-gray-900 text-xs'
+                                                                                            }`}>
+                                                                                            {item.customerName || 'Misafir'}
+                                                                                        </span>
+                                                                                        {!isStaff && (
+                                                                                            <span className="text-[10px] text-gray-400 italic">
+                                                                                                • {item.payments?.map(p => p.method === 'CREDIT_CARD' ? 'Kart' : 'Nakit').join(' + ')}
+                                                                                            </span>
+                                                                                        )}
+                                                                                    </div>
+                                                                                    {!isStaff && (item as any).staff?.name && (
+                                                                                        <span className="text-[10px] text-nocca-green font-bold mt-0.5 flex items-center gap-1 uppercase tracking-wider">
+                                                                                            <span className="opacity-70">👤</span> {(item as any).staff.name}
                                                                                         </span>
                                                                                     )}
                                                                                 </div>
