@@ -343,20 +343,21 @@ export default function POSPage() {
     }, [isSyncing]);
 
     const getDbProduct = (name: string) => {
-        return dbProducts.find(p => p.name === name);
+        if (!dbProducts || !Array.isArray(dbProducts)) return undefined;
+        return dbProducts.find(p => p && p.name === name);
     };
 
     const getStockInfo = (name: string) => {
         const found = getDbProduct(name);
         // If DB has loaded (has products) but this item is not in DB → treat as inactive/hidden
         if (!found) {
-            const dbLoaded = dbProducts.length > 0;
+            const dbLoaded = (dbProducts || []).length > 0;
             if (dbLoaded) return { stock: 0, isAvailable: false, hasRecipe: false, isActive: false };
             // DB not yet loaded → show item optimistically
             return { stock: 100, isAvailable: true, hasRecipe: false, isActive: true };
         }
         return {
-            stock: found.stock,
+            stock: found.stock || 0,
             isAvailable: (found.isAvailable ?? true) && (found.isActive !== false),
             hasRecipe: found.hasRecipe ?? false,
             isActive: found.isActive ?? true
