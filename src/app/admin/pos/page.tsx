@@ -373,16 +373,16 @@ export default function POSPage() {
     const filteredProducts = activeCategory === 'En Çok Satanlar'
         ? (allMenuItems || [])
             .filter(item => {
-                if (!dbProducts) return false;
-                const dbProd = dbProducts.find(p => p.name === item.name);
+                if (!dbProducts || !Array.isArray(dbProducts)) return false;
+                const dbProd = dbProducts.find(p => p && p.name === item.name);
                 const stockInfo = getStockInfo(item.name);
-                const matchesSearch = item.name.toLocaleLowerCase('tr').includes(productSearch.toLocaleLowerCase('tr'));
+                const matchesSearch = (item.name || '').toLocaleLowerCase('tr').includes((productSearch || '').toLocaleLowerCase('tr'));
                 return dbProd && stockInfo.isActive !== false && matchesSearch;
             })
             .sort((a, b) => {
-                if (!dbProducts) return 0;
-                const countA = dbProducts.find(p => p.name === a.name)?.soldCount || 0;
-                const countB = dbProducts.find(p => p.name === b.name)?.soldCount || 0;
+                if (!dbProducts || !Array.isArray(dbProducts)) return 0;
+                const countA = dbProducts.find(p => p && p.name === a.name)?.soldCount || 0;
+                const countB = dbProducts.find(p => p && p.name === b.name)?.soldCount || 0;
                 return countB - countA;
             })
             .slice(0, 15) // Show top 15 most sold
@@ -391,7 +391,7 @@ export default function POSPage() {
             const matchesSearch = (item.name || '').toLocaleLowerCase('tr').includes((productSearch || '').toLocaleLowerCase('tr'));
 
             const stockInfo = getStockInfo(item.name);
-            if (stockInfo.isActive === false) return false;
+            if (!stockInfo || stockInfo.isActive === false) return false;
 
             return matchesCategory && matchesSearch;
         });

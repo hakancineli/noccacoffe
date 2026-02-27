@@ -14,33 +14,20 @@ function createWindow() {
         // PNG icon is generally better supported as a source for Electron
         icon: path.join(__dirname, '../public/images/logo/logo.png'),
         webPreferences: {
-            nodeIntegration: false, // Security best practice
-            contextIsolation: true,  // Security best practice
-            preload: path.join(__dirname, 'preload.js') // Optional: add desktop-specific APIs later
+            nodeIntegration: true,
+            contextIsolation: false,
         },
         autoHideMenuBar: true,
         backgroundColor: '#ffffff',
-    });
-
-    // POS için sağ tık menüsünü engelle
-    mainWindow.webContents.on('context-menu', (e) => {
-        e.preventDefault();
-    });
-
-    // Zoom özelliklerini engelle (POS görünümünün bozulmaması için)
-    mainWindow.webContents.on('did-finish-load', () => {
-        mainWindow.webContents.setVisualZoomLevelLimits(1, 1);
     });
 
     const startUrl = isDev
         ? 'http://localhost:3000/admin/pos'
         : 'https://www.noccacoffee.com.tr/admin/pos';
 
-    mainWindow.loadURL(startUrl).catch(err => {
-        console.error('Initial load failed:', err);
-    });
+    mainWindow.loadURL(startUrl);
 
-    // Hata ayıklama için Ctrl+Shift+I aktif kalsın
+    // Hata ayıklama (Ctrl+Shift+I)
     globalShortcut.register('CommandOrControl+Shift+I', () => {
         if (mainWindow) mainWindow.webContents.openDevTools();
     });
