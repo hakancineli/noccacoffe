@@ -1195,21 +1195,20 @@ export default function POSPage() {
                             />
                         </div>
 
-                        <div className="flex space-x-1 md:space-x-2 overflow-x-auto pb-1 md:pb-2 scrollbar-hide mt-1 md:mt-2">
-                            {categories
-                                .filter(cat => !HIDDEN_CATEGORIES.includes(cat))
-                                .map(cat => (
-                                    <button
-                                        key={cat}
-                                        onClick={() => setActiveCategory(cat)}
-                                        className={`px-2 md:px-4 py-1 md:py-2 rounded-full whitespace-nowrap font-medium text-xs md:text-sm transition-colors ${activeCategory === cat
-                                            ? 'bg-nocca-green text-white shadow-md'
-                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                            }`}
-                                    >
-                                        {cat}
-                                    </button>
-                                ))}
+                        {/* Category Filter - Wrapped to show all in one glance */}
+                        <div className="flex flex-wrap gap-2 mb-4 bg-white p-2 rounded-xl shadow-sm">
+                            {['Tümü', ...categories.filter(c => !HIDDEN_CATEGORIES.includes(c) && c !== 'Yan Ürünler')].map((category) => (
+                                <button
+                                    key={category}
+                                    onClick={() => setActiveCategory(category)}
+                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeCategory === category
+                                        ? 'bg-starbucks-green text-white shadow-md'
+                                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                        }`}
+                                >
+                                    {category}
+                                </button>
+                            ))}
                         </div>
                     </div>
 
