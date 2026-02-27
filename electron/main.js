@@ -36,38 +36,26 @@ function createWindow() {
         ? 'http://localhost:3000/admin/pos'
         : 'https://www.noccacoffee.com.tr/admin/pos';
 
-    const htmlContent = `
-        <!DOCTYPE html>
-        <html>
-            <head>
-                <meta charset="UTF-8">
-                <style>
-                    body { height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8fafc; text-align: center; padding: 20px; margin: 0; }
-                    .container { max-width: 400px; }
-                    h1 { color: #1e293b; margin-bottom: 10px; }
-                    p { color: #64748b; margin-bottom: 20px; }
-                    button { padding: 12px 24px; background: #006241; color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); transition: transform 0.1s; }
-                    button:active { transform: scale(0.95); }
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                    <h1>Bağlantı Sorunu</h1>
-                    <p>NOCCA Coffee POS sunucusuna bağlanılamadı. Lütfen internet bağlantınızı kontrol edip tekrar deneyiniz.</p>
-                    <button onclick="window.location.href='https://www.noccacoffee.com.tr/admin/pos'">Sistemi Yeniden Başlat</button>
-                </div>
-            </body>
-        </html>
-    `;
+    mainWindow.loadURL(startUrl);
 
-    mainWindow.loadURL(startUrl).catch(err => {
-        console.error('Failed to load URL:', err);
-        mainWindow.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(htmlContent));
-    });
-
-    // Hata ayıklama için gizli kısayol (Ctrl+Shift+I)
+    // Hata ayıklama için (Ctrl+Shift+I) - Eğer yine beyaz ekran/hata olursa bakabilmeniz için kalsın
     globalShortcut.register('CommandOrControl+Shift+I', () => {
         if (mainWindow) mainWindow.webContents.openDevTools();
+    });
+
+    // Sayfa yüklenemezse kullanıcıya seçenek sunan daha hafif bir hata yönetimi
+    mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
+        console.error('Page failed to load:', errorCode, errorDescription);
+        // Sadece internet gerçekten yoksa veya adres hatalıysa uyarı ver
+        if (errorCode !== -3) { // -3 is often just a transition/cancel
+            mainWindow.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(`
+                <body style="background:#f8fafc; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; font-family:sans-serif; text-align:center;">
+                    <h2 style="color:#1e293b;">Yükleme Hatası</h2>
+                    <p style="color:#64748b;">Sistem şu an başlatılamadı (Hata: ${errorDescription})</p>
+                    <button onclick="window.location.reload()" style="padding:10px 20px; background:#006241; color:white; border:none; border-radius:8px; cursor:pointer;">Tekrar Dene</button>
+                </body>
+            `));
+        }
     });
 
     // F11 gibi kısayolları POS kontrolü için yönetebiliriz
