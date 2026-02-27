@@ -1,6 +1,8 @@
 {
   "name": "starbucks-turkey-clone",
   "version": "0.1.0",
+  "description": "NOCCA Coffee POS System",
+  "author": "NOCCA Coffee",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -67,11 +69,11 @@
     },
     "win": {
       "target": "nsis",
-      "icon": "public/images/logo/noccacoffee.jpeg"
+      "icon": "public/images/logo/logo.png"
     },
     "mac": {
       "category": "public.app-category.lifestyle",
-      "icon": "public/images/logo/noccacoffee.jpeg",
+      "icon": "public/images/logo/logo.png",
       "target": [
         "dmg",
         "zip"

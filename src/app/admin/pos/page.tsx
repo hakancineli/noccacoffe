@@ -300,11 +300,15 @@ export default function POSPage() {
         setIsSyncing(true);
         console.log(`Syncing ${pending.length} offline orders...`);
 
+        let successCount = 0;
         let errorCount = 0;
         let lastErrorMessage = '';
 
         for (const order of pending) {
             try {
+                // IMPORTANT: Staff orders require PIN for performance tracking
+                // If the order was created while offline, we need to ensure it's processed correctly.
+                // For now, the API handles POS orders.
                 const res = await fetch('/api/orders', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -313,6 +317,7 @@ export default function POSPage() {
 
                 if (res.ok) {
                     await noccaDB.markOrderSynced(order.tempId);
+                    successCount++;
                 } else {
                     errorCount++;
                     const errorData = await res.json().catch(() => ({}));
@@ -330,10 +335,10 @@ export default function POSPage() {
         setPendingOrdersCount(remaining.length);
         setIsSyncing(false);
 
-        if (remaining.length === 0) {
-            toast.success('Tüm çevrimdışı siparişler senkronize edildi!');
+        if (successCount > 0 && remaining.length === 0) {
+            toast.success(`${successCount} çevrimdışı sipariş başarıyla senkronize edildi!`, { icon: '✅' });
         } else if (errorCount > 0) {
-            toast.error(`${errorCount} sipariş senkronize edilemedi: ${lastErrorMessage}`, { duration: 6000 });
+            toast.error(`${errorCount} sipariş senkronize edilemedi. Lütfen interneti kontrol edin.`, { duration: 6000 });
         }
     }, [isSyncing]);
 
@@ -578,7 +583,6 @@ export default function POSPage() {
             return () => clearTimeout(timer);
         }
     }, [lastOrder]);
-
     // Order Creation Logic
     const handleCreateOrder = async (paymentMethod: 'CASH' | 'CREDIT_CARD' | 'SPLIT', customPayments?: any[], pinOverride?: string) => {
         if (cart.length === 0) return;
@@ -602,8 +606,8 @@ export default function POSPage() {
             return;
         }
 
+        const tempId = `off_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         const orderData = {
-            // ... (rest of function starts)
             items: cart.map(item => {
                 const unitPrice = item.price * (1 - discountRate / 100);
                 return {
@@ -619,148 +623,125 @@ export default function POSPage() {
             totalAmount: cartTotal,
             finalAmount: finalTotal,
             discountAmount: totalDiscount,
-            status: 'PENDING', // Kitchen ekranına düşmesi için PENDING yapıldı
-            paymentStatus: 'COMPLETED', // POS üzerinden alınan siparişin ödemesi tamamlanmış sayılır
+            status: 'PENDING',
+            paymentStatus: 'COMPLETED',
             paymentMethod: paymentMethod === 'SPLIT' ? 'CASH' : paymentMethod,
-            payments: customPayments,
+            payments: customPayments || [{
+                amount: finalTotal,
+                method: paymentMethod === 'SPLIT' ? 'CASH' : paymentMethod,
+                status: 'COMPLETED'
+            }],
             userId: selectedCustomer?.id || null,
             customerName: selectedCustomer ? `${selectedCustomer.firstName} ${selectedCustomer.lastName}` : 'Misafir',
             customerPhone: selectedCustomer?.phone || '',
             customerEmail: selectedCustomer?.email || '',
-            notes: isBOGOActive ? 'POS Satışı (1 ALANA 1 BEDAVA)' : 'POS Satışı'
+            notes: isBOGOActive ? 'POS Satışı (1 ALANA 1 BEDAVA, OFFLINE_SUPPORT)' : 'POS Satışı (OFFLINE_SUPPORT)',
+            offlineTempId: tempId,
+            createdAt: new Date().toISOString()
         };
 
         setProcessingPayment(true);
         try {
-
-            const res = await fetch('/api/orders', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...orderData, staffPin: currentPin })
-            });
-
-            if (!res.ok && res.status === 400) {
-                const errorData = await res.json().catch(() => ({}));
-                if (errorData.error === 'Hatalı Personel PIN kodu!') {
-                    setIsPinError(true);
-                    setEnteredPin('');
-                    setProcessingPayment(false);
-                    return;
-                }
-            }
-
-            const tempId = `off_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-
-            if (res.ok) {
-                const createdOrder = await res.json();
-
-                // Still save for history/resilience if needed, or just proceed
-                await noccaDB.saveOrder(orderData, tempId);
-                await noccaDB.markOrderSynced(tempId);
-
-                // 1. Set receipt data (triggers useEffect -> print)
-                setLastOrder({
-                    ...createdOrder,
-                    items: cart,
-                    payments: customPayments,
-                    itemAssignments: customPayments ? itemAssignments : null,
-                    totalAmount: cartTotal,
-                    finalAmount: finalTotal,
-                    discountAmount: totalDiscount,
-                    customerName: orderData.customerName,
-                    creatorName: 'Kasa',
-                    isBOGO: isBOGOActive,
-                    bogoDiscount: bogoDiscountAmount,
-                    percentageDiscount: discountAmount
+            // First, try to send to server if online
+            if (navigator.onLine) {
+                const res = await fetch('/api/orders', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ...orderData, staffPin: currentPin })
                 });
 
-                setEnteredPin('');
-                setShowStaffPinModal(false);
-                setPendingOrderArgs(null);
-                setCart([]);
-                const chan1 = new BroadcastChannel('nocca_pos_display');
-                chan1.postMessage({
-                    type: 'ORDER_COMPLETED',
-                    data: { orderId: createdOrder.id }
-                });
-                chan1.close();
-                setSelectedCustomer(null);
-                setCustomerSearch('');
-                setDiscountRate(0);
-                setIsBOGOActive(false);
-            } else {
-                // SERVER ERROR - Check if it's a validation error (400) or other
-                const errorData = await res.json().catch(() => ({}));
-                const errorMessage = errorData.error || 'Bilinmeyen bir hata oluştu.';
+                if (res.ok) {
+                    const createdOrder = await res.json();
 
-                if (res.status === 400) {
-                    // Validation error - Don't save to offline, show to user
-                    toast.error(`Sipariş Hatası: ${errorMessage}`, { duration: 6000 });
-                } else {
-                    // Actual server error or timeout - Save to offline for later sync
-                    await noccaDB.saveOrder(orderData, tempId);
-                    setPendingOrdersCount(prev => prev + 1);
-
-                    // Show success to user even if offline
+                    // Success! Show receipt
                     setLastOrder({
-                        id: tempId,
+                        ...createdOrder,
                         items: cart,
                         payments: customPayments,
                         totalAmount: cartTotal,
                         finalAmount: finalTotal,
-                        discountAmount: discountAmount,
+                        discountAmount: totalDiscount,
                         customerName: orderData.customerName,
-                        creatorName: 'Kasa (Offline)',
-                        createdAt: new Date().toISOString()
+                        creatorName: 'Kasa',
+                        isBOGO: isBOGOActive,
+                        bogoDiscount: bogoDiscountAmount,
+                        percentageDiscount: discountAmount
                     });
 
-                    toast.error(`Bağlantı sorunu: ${errorMessage} (Sipariş lokale kaydedildi)`, { duration: 5000 });
+                    // Cleanup
+                    finalizeOrderSuccess();
+                    return;
+                } else {
+                    const errorData = await res.json().catch(() => ({}));
+                    if (errorData.error === 'Hatalı Personel PIN kodu!') {
+                        setIsPinError(true);
+                        setEnteredPin('');
+                        setProcessingPayment(false);
+                        return;
+                    }
 
-                    setCart([]);
-                    const channel = new BroadcastChannel('nocca_pos_display');
-                    channel.postMessage({
-                        type: 'ORDER_COMPLETED',
-                        data: { orderId: tempId }
-                    });
-                    channel.close();
-                    setSelectedCustomer(null);
-                    setCustomerSearch('');
-                    setDiscountRate(0);
-                    setIsBOGOActive(false);
+                    // Specific server errors that we shouldn't retry (like validation errors)
+                    if (res.status === 400) {
+                        toast.error(`Sipariş Hatası: ${errorData.error || 'Geçersiz veri'}`);
+                        setProcessingPayment(false);
+                        return;
+                    }
+
+                    // Otherwise, fall through to offline storage for other errors (500 etc)
+                    throw new Error(errorData.error || 'Server error');
                 }
+            } else {
+                // Not online, go directly to offline storage
+                throw new Error('Offline');
             }
         } catch (error) {
-            console.error('POS Error:', error);
-            // NETWORK ERROR - Save to offline
-            const tempId = `off_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            console.warn('POS Order going offline:', error);
+
+            // SAVE TO LOCAL STORAGE (IndexedDB)
             await noccaDB.saveOrder(orderData, tempId);
             setPendingOrdersCount(prev => prev + 1);
 
+            // Show success receipt to user even if offline!
             setLastOrder({
                 id: tempId,
                 items: cart,
-                payments: customPayments,
+                payments: customPayments || [{ amount: finalTotal, method: paymentMethod }],
                 totalAmount: cartTotal,
                 finalAmount: finalTotal,
-                discountAmount: discountAmount,
+                discountAmount: totalDiscount,
                 customerName: orderData.customerName,
-                creatorName: 'Kasa (Offline)',
-                createdAt: new Date().toISOString()
+                creatorName: 'Kasa (Çevrimdışı)',
+                createdAt: orderData.createdAt,
+                isOffline: true
             });
 
-            toast.error('İnternet yok: Sipariş lokale kaydedildi.', { duration: 5000 });
+            toast.error('İnternet yok: Sipariş şubeye kaydedildi, bağlantı gelince senkronize edilecek.', {
+                icon: '📶',
+                duration: 5000
+            });
 
-            setCart([]);
-            const chan2 = new BroadcastChannel('nocca_pos_display');
-            chan2.postMessage({ type: 'ORDER_COMPLETED' });
-            chan2.close();
-            setSelectedCustomer(null);
-            setCustomerSearch('');
-            setDiscountRate(0);
-            setIsBOGOActive(false);
+            finalizeOrderSuccess();
         } finally {
             setProcessingPayment(false);
         }
+    };
+
+    const finalizeOrderSuccess = () => {
+        setEnteredPin('');
+        setShowStaffPinModal(false);
+        setPendingOrderArgs(null);
+        setCart([]);
+        setShowConfirmModal(false);
+        setConfirmingMethod(null);
+
+        const channel = new BroadcastChannel('nocca_pos_display');
+        channel.postMessage({ type: 'ORDER_COMPLETED' });
+        channel.close();
+
+        setSelectedCustomer(null);
+        setCustomerSearch('');
+        setDiscountRate(0);
+        setIsBOGOActive(false);
     };
 
     // Staff Consumption Submission
