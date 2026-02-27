@@ -1,12 +1,23 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { FaTimes, FaGoogle, FaApple, FaUser, FaLock, FaEnvelope } from 'react-icons/fa';
 import { RegisterCredentials, LoginCredentials } from '@/lib/auth';
 
-const LoginPage = () => {
+const LoginForm = () => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [isLogin, setIsLogin] = useState(true);
+
+  // URL'de ?register=true varsa kayıt olma ekranı ile başla
+  useEffect(() => {
+    if (searchParams.get('register') === 'true') {
+      setIsLogin(false);
+    }
+  }, [searchParams]);
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
@@ -17,7 +28,6 @@ const LoginPage = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [acceptedTerms, setAcceptedTerms] = useState(false);
-  const router = useRouter();
 
   const handleSubmit = async (e?: React.SyntheticEvent) => {
     if (e) e.preventDefault();
@@ -348,6 +358,14 @@ const LoginPage = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+const LoginPage = () => {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Yükleniyor...</div>}>
+      <LoginForm />
+    </Suspense>
   );
 };
 
