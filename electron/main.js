@@ -36,15 +36,38 @@ function createWindow() {
         ? 'http://localhost:3000/admin/pos'
         : 'https://www.noccacoffee.com.tr/admin/pos';
 
+    const htmlContent = `
+        <!DOCTYPE html>
+        <html>
+            <head>
+                <meta charset="UTF-8">
+                <style>
+                    body { height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8fafc; text-align: center; padding: 20px; margin: 0; }
+                    .container { max-width: 400px; }
+                    h1 { color: #1e293b; margin-bottom: 10px; }
+                    p { color: #64748b; margin-bottom: 20px; }
+                    button { padding: 12px 24px; background: #006241; color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); transition: transform 0.1s; }
+                    button:active { transform: scale(0.95); }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <h1>Bağlantı Sorunu</h1>
+                    <p>NOCCA Coffee POS sunucusuna bağlanılamadı. Lütfen internet bağlantınızı kontrol edip tekrar deneyiniz.</p>
+                    <button onclick="window.location.href='https://www.noccacoffee.com.tr/admin/pos'">Sistemi Yeniden Başlat</button>
+                </div>
+            </body>
+        </html>
+    `;
+
     mainWindow.loadURL(startUrl).catch(err => {
         console.error('Failed to load URL:', err);
-        mainWindow.loadHTML(`
-            <div style="height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8fafc; text-align: center; padding: 20px;">
-                <h1 style="color: #1e293b; margin-bottom: 10px;">Bağlantı Sorunu</h1>
-                <p style="color: #64748b; margin-bottom: 20px; max-width: 400px;">NOCCA Coffee POS sunucusuna bağlanılamadı. Lütfen internet bağlantınızı kontrol edip tekrar deneyiniz.</p>
-                <button onclick="window.location.reload()" style="padding: 12px 24px; background: #006241; color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">Sistemi Yeniden Başlat</button>
-            </div>
-        `);
+        mainWindow.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(htmlContent));
+    });
+
+    // Hata ayıklama için gizli kısayol (Ctrl+Shift+I)
+    globalShortcut.register('CommandOrControl+Shift+I', () => {
+        if (mainWindow) mainWindow.webContents.openDevTools();
     });
 
     // F11 gibi kısayolları POS kontrolü için yönetebiliriz
