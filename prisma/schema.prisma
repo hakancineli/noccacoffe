@@ -14,6 +14,7 @@ model User {
   firstName         String?            @map("first_name")
   lastName          String?            @map("last_name")
   phone             String?
+  loyaltyPin        String?            @unique @map("loyalty_pin")
   birthDate         DateTime?          @map("birth_date") @db.Date
   createdAt         DateTime           @default(now()) @map("created_at")
   updatedAt         DateTime           @updatedAt @map("updated_at")
@@ -23,6 +24,15 @@ model User {
   userRewards       UserReward[]
 
   @@map("users")
+}
+
+model SystemSettings {
+  id                    String   @id @default("default")
+  loyaltyCampaignActive Boolean  @default(false) @map("loyalty_campaign_active")
+  loyaltyDiscountRate   Float    @default(50) @map("loyalty_discount_rate")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+
+  @@map("system_settings")
 }
 
 model UserPoints {

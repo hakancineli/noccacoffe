@@ -100,7 +100,12 @@ export async function PUT(request: NextRequest) {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret') as { userId: string };
     const body = await request.json();
-    const { name, phone, birthDate } = body;
+    const { name, phone, birthDate, loyaltyPin } = body;
+
+    // PIN Validation
+    if (loyaltyPin && (!/^\d{4}$/.test(loyaltyPin))) {
+      return NextResponse.json({ error: 'PIN kodu 4 haneli rakam olmalıdır' }, { status: 400 });
+    }
 
     // Basic name splitting logic
     const nameParts = name ? name.trim().split(' ') : [];
@@ -114,6 +119,7 @@ export async function PUT(request: NextRequest) {
         lastName: lastName,
         phone: phone,
         birthDate: birthDate ? new Date(birthDate) : undefined,
+        loyaltyPin: loyaltyPin
       }
     });
 

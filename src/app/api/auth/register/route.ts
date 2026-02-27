@@ -40,6 +40,7 @@ export async function POST(request: NextRequest) {
         lastName: lastName || null,
         phone: phone || null,
         birthDate: birthDate ? new Date(birthDate) : null,
+        loyaltyPin: phone ? phone.replace(/\D/g, '').slice(-4) : null,
       },
       select: {
         id: true,
@@ -63,9 +64,9 @@ export async function POST(request: NextRequest) {
 
     // Generate JWT token
     const token = jwt.sign(
-      { 
-        userId: user.id, 
-        email: user.email 
+      {
+        userId: user.id,
+        email: user.email
       },
       process.env.JWT_SECRET || 'fallback-secret',
       { expiresIn: '7d' }

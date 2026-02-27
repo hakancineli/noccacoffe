@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { FaSearch, FaUser, FaTrash, FaCreditCard, FaMoneyBillWave, FaTimes, FaPrint, FaWifi, FaSync, FaClipboardList, FaFire } from 'react-icons/fa';
+import { FaSearch, FaUser, FaTrash, FaCreditCard, FaMoneyBillWave, FaTimes, FaPrint, FaWifi, FaSync, FaClipboardList, FaFire, FaKey } from 'react-icons/fa';
 import { allMenuItems, categories, MenuItem } from '@/data/menuItems';
 import { noccaDB } from '@/lib/db';
 import { toast } from 'react-hot-toast';
@@ -39,6 +39,16 @@ export default function POSPage() {
     const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
     const [customerSearch, setCustomerSearch] = useState('');
     const [searchResults, setSearchResults] = useState<Customer[]>([]);
+
+    // Loyalty States
+    const [loyaltyEligible, setLoyaltyEligible] = useState(false);
+    const [loyaltyDiscountRateState, setLoyaltyDiscountRateState] = useState(0);
+    const [loyaltyMessage, setLoyaltyMessage] = useState('');
+    const [showPinModal, setShowPinModal] = useState(false);
+    const [pinInput, setPinInput] = useState('');
+    const [loyaltyLoading, setLoyaltyLoading] = useState(false);
+    const [isCooldown, setIsCooldown] = useState(false);
+    const [lastDrinkPrice, setLastDrinkPrice] = useState(0);
     const [isSearching, setIsSearching] = useState(false);
     const [processingPayment, setProcessingPayment] = useState(false);
     const [lastOrder, setLastOrder] = useState<any>(null); // For Success Modal
@@ -518,11 +528,86 @@ export default function POSPage() {
         })()
         : 0;
 
-    const discountAmount = (cartTotal - bogoDiscountAmount) * (discountRate / 100);
-    const totalDiscount = bogoDiscountAmount + discountAmount;
+    // Loyalty Discount Calculation (Only for Beverages)
+    const nonBeverageCategories = ['Tatlılar', 'Tozlar', 'Ekstralar', 'Yan Ürünler', 'Atıştırmalıklar'];
+
+    const loyaltyDiscountAmount = (selectedCustomer && loyaltyEligible)
+        ? (() => {
+            const currentDrinkPrices = cart
+                .filter(item => item.category && !nonBeverageCategories.includes(item.category))
+                .flatMap(item => Array(item.quantity).fill(item.price))
+                .sort((a, b) => b - a);
+
+            if (currentDrinkPrices.length === 0) return 0;
+
+            const rate = loyaltyDiscountRateState / 100;
+
+            if (lastDrinkPrice > 0) {
+                // A prior drink exists today. The 2nd beverage is the first one in this cart.
+                // Apply "cheaper one" rule between past and current.
+                return Math.min(lastDrinkPrice, currentDrinkPrices[0]) * rate;
+            } else {
+                // No prior drink, discount applies if there are at least 2 in this cart.
+                if (currentDrinkPrices.length >= 2) {
+                    return currentDrinkPrices[1] * rate;
+                }
+            }
+            return 0;
+        })()
+        : 0;
+
+    const discountAmount = (cartTotal - bogoDiscountAmount - loyaltyDiscountAmount) * (discountRate / 100);
+    const totalDiscount = bogoDiscountAmount + loyaltyDiscountAmount + discountAmount;
     const finalTotal = staffMode ? staffTotal : (cartTotal - totalDiscount);
 
-    // Broadcast cart to Customer Display
+    // Loyalty PIN Check
+    const handlePinCheck = async (pin: string) => {
+        if (pin.length !== 4) return;
+        setLoyaltyLoading(true);
+        try {
+            const res = await fetch('/api/admin/loyalty/check', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ pin })
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+                const customer = {
+                    ...data.user,
+                    firstName: data.user.firstName || 'Misafir',
+                    lastName: data.user.lastName || '',
+                    phone: data.user.phone || '',
+                    email: data.user.email || '',
+                    points: 0,
+                    tier: 'SADAKAT'
+                };
+                setSelectedCustomer(customer);
+                setLoyaltyEligible(data.eligible);
+                setLoyaltyDiscountRateState(data.discountRate || 0);
+                setLoyaltyMessage(data.message);
+                setIsCooldown(data.isCooldown || false);
+                setLastDrinkPrice(data.lastDrinkPrice || 0);
+
+                if (data.eligible) {
+                    toast.success(data.message);
+                } else if (data.isCooldown) {
+                    toast.error(data.message, { duration: 4000 });
+                } else {
+                    toast.success(`Hoş geldiniz ${customer.firstName}!`);
+                }
+                setShowPinModal(false);
+                setPinInput('');
+            } else {
+                toast.error(data.error || 'PIN kodu geçersiz');
+            }
+        } catch (error) {
+            console.error('Loyalty check error:', error);
+            toast.error('Bağlantı hatası');
+        } finally {
+            setLoyaltyLoading(false);
+        }
+    };
     useEffect(() => {
         const channel = new BroadcastChannel('nocca_pos_display');
         channel.postMessage({
@@ -1317,36 +1402,48 @@ export default function POSPage() {
                                 </button>
                             </div>
                         ) : (
-                            <div className="relative">
-                                <input
-                                    type="text"
-                                    placeholder="Müşteri Ara..."
-                                    className="w-full pl-8 md:pl-10 pr-4 py-2 md:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-nocca-light-green focus:border-transparent text-sm"
-                                    value={customerSearch}
-                                    onChange={(e) => setCustomerSearch(e.target.value)}
-                                />
-                                <FaSearch className="absolute left-3 top-2.5 md:top-3.5 text-gray-400 text-sm md:text-base" />
-
-                                {/* Search Results Dropdown */}
-                                {searchResults.length > 0 && (
-                                    <div className="absolute top-full left-0 right-0 mt-1 bg-white shadow-xl rounded-lg border border-gray-100 max-h-60 overflow-y-auto z-50">
-                                        {searchResults.map(customer => (
-                                            <button
-                                                key={customer.id}
-                                                onClick={() => {
-                                                    setSelectedCustomer(customer);
-                                                    setCustomerSearch('');
-                                                    setSearchResults([]);
-                                                }}
-                                                className="w-full text-left px-4 py-2 md:py-3 hover:bg-gray-50 border-b border-gray-50 last:border-0"
-                                            >
-                                                <p className="font-medium text-gray-800 text-sm">{customer.firstName} {customer.lastName}</p>
-                                                <p className="text-[10px] md:text-xs text-gray-500">{customer.phone}</p>
-                                            </button>
-                                        ))}
+                            <>
+                                <div className="flex gap-2 relative">
+                                    <div className="relative flex-1">
+                                        <input
+                                            type="text"
+                                            placeholder="Müşteri Ara..."
+                                            className="w-full pl-8 md:pl-10 pr-4 py-2 md:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-nocca-light-green focus:border-transparent text-sm"
+                                            value={customerSearch}
+                                            onChange={(e) => setCustomerSearch(e.target.value)}
+                                        />
+                                        <FaSearch className="absolute left-3 top-2.5 md:top-3.5 text-gray-400 text-sm md:text-base" />
                                     </div>
-                                )}
-                            </div>
+                                    <button
+                                        onClick={() => setShowPinModal(true)}
+                                        className="px-3 md:px-4 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-all flex items-center justify-center gap-2 shadow-sm"
+                                        title="PIN ile Sorgula"
+                                    >
+                                        <FaKey className="text-xs md:text-sm" />
+                                        <span className="hidden lg:inline text-xs font-bold">PIN</span>
+                                    </button>
+
+                                    {/* Search Results Dropdown */}
+                                    {searchResults.length > 0 && (
+                                        <div className="absolute top-full left-0 right-0 mt-1 bg-white shadow-xl rounded-lg border border-gray-100 max-h-60 overflow-y-auto z-50">
+                                            {searchResults.map(customer => (
+                                                <button
+                                                    key={customer.id}
+                                                    onClick={() => {
+                                                        setSelectedCustomer(customer);
+                                                        setCustomerSearch('');
+                                                        setSearchResults([]);
+                                                    }}
+                                                    className="w-full text-left px-4 py-2 md:py-3 hover:bg-gray-50 border-b border-gray-50 last:border-0"
+                                                >
+                                                    <p className="font-medium text-gray-800 text-sm">{customer.firstName} {customer.lastName}</p>
+                                                    <p className="text-[10px] md:text-xs text-gray-500">{customer.phone}</p>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            </>
                         )}
                     </div>
 
@@ -1529,6 +1626,12 @@ export default function POSPage() {
                                         <span>-₺{discountAmount.toFixed(2)}</span>
                                     </div>
                                 )}
+                                {loyaltyEligible && loyaltyDiscountAmount > 0 && (
+                                    <div className="flex justify-between items-center text-nocca-green text-[10px] md:text-sm font-bold animate-pulse">
+                                        <span>Sadakat İndirimi (%{loyaltyDiscountRateState})</span>
+                                        <span>-₺{loyaltyDiscountAmount.toFixed(2)}</span>
+                                    </div>
+                                )}
                             </div>
                         )}
 
@@ -1622,95 +1725,98 @@ export default function POSPage() {
             </div>
 
             {/* Recent Orders Modal */}
-            {showRecentOrders && (
-                <div className="absolute inset-0 bg-black/50 z-50 flex items-center justify-center backdrop-blur-sm animate-fade-in print:hidden">
-                    <div className="bg-white p-6 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[85vh] flex flex-col relative">
-                        <button
-                            onClick={() => setShowRecentOrders(false)}
-                            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
-                        >
-                            <FaTimes size={24} />
-                        </button>
-
-                        <div className="flex items-center justify-between mb-6">
-                            <h3 className="text-2xl font-bold text-gray-800">Son Siparişler</h3>
+            {
+                showRecentOrders && (
+                    <div className="absolute inset-0 bg-black/50 z-50 flex items-center justify-center backdrop-blur-sm animate-fade-in print:hidden">
+                        <div className="bg-white p-6 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[85vh] flex flex-col relative">
                             <button
-                                onClick={fetchRecentOrders}
-                                className="text-sm bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-lg text-gray-600 flex items-center gap-1"
+                                onClick={() => setShowRecentOrders(false)}
+                                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
                             >
-                                <FaSync size={12} /> Yenile
+                                <FaTimes size={24} />
                             </button>
-                        </div>
 
-                        <div className="overflow-y-auto flex-1 border rounded-xl">
-                            {recentOrdersLoading ? (
-                                <div className="flex justify-center items-center h-40">
-                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-                                </div>
-                            ) : recentOrders.length === 0 ? (
-                                <div className="flex flex-col items-center justify-center h-40 text-gray-500">
-                                    <p>Henüz sipariş bulunmuyor.</p>
-                                </div>
-                            ) : (
-                                <table className="w-full text-left">
-                                    <thead className="bg-gray-50 text-gray-600 text-xs uppercase sticky top-0">
-                                        <tr>
-                                            <th className="px-4 py-3 font-semibold">Tarih</th>
-                                            <th className="px-4 py-3 font-semibold">Müşteri</th>
-                                            <th className="px-4 py-3 font-semibold text-center">Tutar</th>
-                                            <th className="px-4 py-3 font-semibold text-center">Ödeme</th>
-                                            <th className="px-4 py-3 font-semibold text-right">İşlem</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-gray-100">
-                                        {recentOrders.map((order) => (
-                                            <tr key={order.id} className="hover:bg-gray-50 transition-colors">
-                                                <td className="px-4 py-3 text-sm text-gray-500 whitespace-nowrap">
-                                                    {new Date(order.createdAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
-                                                    <div className="text-[10px] text-gray-400">#{order.orderNumber?.split('-').pop()}</div>
-                                                </td>
-                                                <td className="px-4 py-3 text-sm font-medium text-gray-800">
-                                                    {order.customerName || 'Misafir'}
-                                                    <div className="text-xs text-xs text-gray-400 line-clamp-1">{order.items?.map((i: any) => i.productName).join(', ')}</div>
-                                                </td>
-                                                <td className="px-4 py-3 text-sm font-bold text-gray-900 text-center">
-                                                    ₺{(order.finalAmount || 0).toFixed(2)}
-                                                </td>
-                                                <td className="px-4 py-3 text-sm text-center">
-                                                    <span className={`px-2 py-1 rounded text-xs font-bold ${order.paymentMethod === 'CASH' ? 'bg-green-100 text-green-700' :
-                                                        order.paymentMethod === 'CREDIT_CARD' ? 'bg-blue-100 text-blue-700' :
-                                                            'bg-purple-100 text-purple-700'
-                                                        }`}>
-                                                        {order.paymentMethod === 'CASH' ? 'NAKİT' :
-                                                            order.paymentMethod === 'CREDIT_CARD' ? 'KART' : 'PARÇALI'}
-                                                    </span>
-                                                </td>
-                                                <td className="px-4 py-3 text-right">
-                                                    <button
-                                                        onClick={() => {
-                                                            setLastOrder(order); // Triggers print logic via useEffect
-                                                            setShowRecentOrders(false); // Close modal
-                                                        }}
-                                                        className="text-gray-500 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 p-2 rounded-lg transition-colors"
-                                                        title="Fiş Yazdır"
-                                                    >
-                                                        <FaPrint />
-                                                    </button>
-                                                </td>
+                            <div className="flex items-center justify-between mb-6">
+                                <h3 className="text-2xl font-bold text-gray-800">Son Siparişler</h3>
+                                <button
+                                    onClick={fetchRecentOrders}
+                                    className="text-sm bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-lg text-gray-600 flex items-center gap-1"
+                                >
+                                    <FaSync size={12} /> Yenile
+                                </button>
+                            </div>
+
+                            <div className="overflow-y-auto flex-1 border rounded-xl">
+                                {recentOrdersLoading ? (
+                                    <div className="flex justify-center items-center h-40">
+                                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+                                    </div>
+                                ) : recentOrders.length === 0 ? (
+                                    <div className="flex flex-col items-center justify-center h-40 text-gray-500">
+                                        <p>Henüz sipariş bulunmuyor.</p>
+                                    </div>
+                                ) : (
+                                    <table className="w-full text-left">
+                                        <thead className="bg-gray-50 text-gray-600 text-xs uppercase sticky top-0">
+                                            <tr>
+                                                <th className="px-4 py-3 font-semibold">Tarih</th>
+                                                <th className="px-4 py-3 font-semibold">Müşteri</th>
+                                                <th className="px-4 py-3 font-semibold text-center">Tutar</th>
+                                                <th className="px-4 py-3 font-semibold text-center">Ödeme</th>
+                                                <th className="px-4 py-3 font-semibold text-right">İşlem</th>
                                             </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            )}
+                                        </thead>
+                                        <tbody className="divide-y divide-gray-100">
+                                            {recentOrders.map((order) => (
+                                                <tr key={order.id} className="hover:bg-gray-50 transition-colors">
+                                                    <td className="px-4 py-3 text-sm text-gray-500 whitespace-nowrap">
+                                                        {new Date(order.createdAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
+                                                        <div className="text-[10px] text-gray-400">#{order.orderNumber?.split('-').pop()}</div>
+                                                    </td>
+                                                    <td className="px-4 py-3 text-sm font-medium text-gray-800">
+                                                        {order.customerName || 'Misafir'}
+                                                        <div className="text-xs text-xs text-gray-400 line-clamp-1">{order.items?.map((i: any) => i.productName).join(', ')}</div>
+                                                    </td>
+                                                    <td className="px-4 py-3 text-sm font-bold text-gray-900 text-center">
+                                                        ₺{(order.finalAmount || 0).toFixed(2)}
+                                                    </td>
+                                                    <td className="px-4 py-3 text-sm text-center">
+                                                        <span className={`px-2 py-1 rounded text-xs font-bold ${order.paymentMethod === 'CASH' ? 'bg-green-100 text-green-700' :
+                                                            order.paymentMethod === 'CREDIT_CARD' ? 'bg-blue-100 text-blue-700' :
+                                                                'bg-purple-100 text-purple-700'
+                                                            }`}>
+                                                            {order.paymentMethod === 'CASH' ? 'NAKİT' :
+                                                                order.paymentMethod === 'CREDIT_CARD' ? 'KART' : 'PARÇALI'}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-4 py-3 text-right">
+                                                        <button
+                                                            onClick={() => {
+                                                                setLastOrder(order); // Triggers print logic via useEffect
+                                                                setShowRecentOrders(false); // Close modal
+                                                            }}
+                                                            className="text-gray-500 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 p-2 rounded-lg transition-colors"
+                                                            title="Fiş Yazdır"
+                                                        >
+                                                            <FaPrint />
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                )}
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             {/* Print Only Receipt - Visible only when printing */}
-            {lastOrder && (
-                <div className="hidden print:block absolute top-0 left-0 w-full h-full bg-white z-[9999] p-0 m-0">
-                    <style jsx global>{`
+            {
+                lastOrder && (
+                    <div className="hidden print:block absolute top-0 left-0 w-full h-full bg-white z-[9999] p-0 m-0">
+                        <style jsx global>{`
                         @media print {
                             body { margin: 0; padding: 0; }
                             @page { margin: 0; size: 80mm 210mm; }
@@ -1718,320 +1824,401 @@ export default function POSPage() {
                             .print\\:hidden { display: none !important; }
                         }
                     `}</style>
-                    <div style={{
-                        fontFamily: "'Courier New', Courier, monospace",
-                        width: '80mm',
-                        margin: '0',
-                        padding: '10px 0',
-                        fontSize: '13px',
-                        lineHeight: '1.2',
-                        color: 'black'
-                    }}>
-                        <div className="text-center mb-4 border-b border-black pb-2">
-                            <div className="text-lg font-bold">SİPARİŞ FİŞİ</div>
-                            <div className="text-[10px] uppercase font-bold tracking-widest mt-1">Bilgi Amaçlıdır</div>
-                        </div>
+                        <div style={{
+                            fontFamily: "'Courier New', Courier, monospace",
+                            width: '80mm',
+                            margin: '0',
+                            padding: '10px 0',
+                            fontSize: '13px',
+                            lineHeight: '1.2',
+                            color: 'black'
+                        }}>
+                            <div className="text-center mb-4 border-b border-black pb-2">
+                                <div className="text-lg font-bold">SİPARİŞ FİŞİ</div>
+                                <div className="text-[10px] uppercase font-bold tracking-widest mt-1">Bilgi Amaçlıdır</div>
+                            </div>
 
-                        <div className="text-[11px] mb-2 space-y-0.5">
-                            <div className="flex justify-between">
-                                <span suppressHydrationWarning>Tarih: {new Date().toLocaleDateString('tr-TR')}</span>
-                                <span suppressHydrationWarning>{new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</span>
+                            <div className="text-[11px] mb-2 space-y-0.5">
+                                <div className="flex justify-between">
+                                    <span suppressHydrationWarning>Tarih: {new Date().toLocaleDateString('tr-TR')}</span>
+                                    <span suppressHydrationWarning>{new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</span>
+                                </div>
+                                <div>No: #{lastOrder.orderNumber ? lastOrder.orderNumber.split('-').pop() : '---'}</div>
+                                <div className="flex justify-between border-t border-black pt-1 mt-1">
+                                    <span>Kasiyer: {lastOrder.creatorName || 'Kasa'}</span>
+                                    <span>Müşteri: {lastOrder.customerName || 'Misafir'}</span>
+                                </div>
+                                <div className="font-bold border-y border-black py-1 mt-1 uppercase">
+                                    {lastOrder.payments && lastOrder.payments.length > 0 ? (
+                                        <div className="space-y-0.5">
+                                            <div className="text-[10px] mb-1">ÖDEME DETAYI:</div>
+                                            {lastOrder.payments.map((p: any, i: number) => (
+                                                <div key={i} className="flex justify-between text-[11px]">
+                                                    <span>{p.method === 'CASH' ? 'NAKİT' : 'KREDİ KARTI'}</span>
+                                                    <span>{p.amount.toFixed(2)}₺</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <span>ÖDEME: {lastOrder.paymentMethod === 'CREDIT_CARD' ? 'KREDİ KARTI' : 'NAKİT'}</span>
+                                    )}
+                                </div>
                             </div>
-                            <div>No: #{lastOrder.orderNumber ? lastOrder.orderNumber.split('-').pop() : '---'}</div>
-                            <div className="flex justify-between border-t border-black pt-1 mt-1">
-                                <span>Kasiyer: {lastOrder.creatorName || 'Kasa'}</span>
-                                <span>Müşteri: {lastOrder.customerName || 'Misafir'}</span>
-                            </div>
-                            <div className="font-bold border-y border-black py-1 mt-1 uppercase">
-                                {lastOrder.payments && lastOrder.payments.length > 0 ? (
-                                    <div className="space-y-0.5">
-                                        <div className="text-[10px] mb-1">ÖDEME DETAYI:</div>
-                                        {lastOrder.payments.map((p: any, i: number) => (
-                                            <div key={i} className="flex justify-between text-[11px]">
-                                                <span>{p.method === 'CASH' ? 'NAKİT' : 'KREDİ KARTI'}</span>
-                                                <span>{p.amount.toFixed(2)}₺</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <span>ÖDEME: {lastOrder.paymentMethod === 'CREDIT_CARD' ? 'KREDİ KARTI' : 'NAKİT'}</span>
-                                )}
-                            </div>
-                        </div>
 
-                        <table className="w-full border-collapse mb-2">
-                            <thead>
-                                <tr className="border-b border-black">
-                                    <th className="text-left text-[11px] py-1 w-[30px]">Adet</th>
-                                    <th className="text-left text-[11px] py-1">Ürün</th>
-                                    <th className="text-right text-[11px] py-1 whitespace-nowrap">Tutar</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {lastOrder.items.map((item: any, idx: number) => (
-                                    <tr key={idx} className="border-b border-gray-100 border-dashed last:border-0">
-                                        <td className="py-2 align-top font-bold">{item.quantity}</td>
-                                        <td className="py-2 align-top">
-                                            <div className="font-bold uppercase">
-                                                {item.name || item.productName}
-                                                {lastOrder.itemAssignments && lastOrder.itemAssignments[item.id] && (
-                                                    <span className="text-[9px] ml-1 bg-gray-200 px-1 rounded lowercase">
-                                                        ({lastOrder.itemAssignments[item.id].cash > 0 && lastOrder.itemAssignments[item.id].card > 0
-                                                            ? 'nakit+kart'
-                                                            : lastOrder.itemAssignments[item.id].cash > 0 ? 'nakit' : 'kart'})
-                                                    </span>
-                                                )}
-                                            </div>
-                                            {item.size && (
-                                                <div className="text-[10px] bg-gray-100 inline-block px-1 font-bold mr-2">
-                                                    BOY: {item.size === 'S' ? 'KÜÇÜK' : item.size === 'M' ? 'ORTA' : item.size === 'L' ? 'BÜYÜK' : item.size}
-                                                </div>
-                                            )}
-                                            {item.isPorcelain !== undefined && (
-                                                <div className="text-[10px] bg-amber-50 inline-block px-1 font-bold">
-                                                    {item.isPorcelain ? '☕ FİNCAN' : '🥡 KARTON'}
-                                                </div>
-                                            )}
-                                        </td>
-                                        <td className="py-2 align-top text-right font-bold whitespace-nowrap">
-                                            {((item.price || item.unitPrice || 0) * (item.quantity ?? 0)).toFixed(2)}₺
-                                        </td>
+                            <table className="w-full border-collapse mb-2">
+                                <thead>
+                                    <tr className="border-b border-black">
+                                        <th className="text-left text-[11px] py-1 w-[30px]">Adet</th>
+                                        <th className="text-left text-[11px] py-1">Ürün</th>
+                                        <th className="text-right text-[11px] py-1 whitespace-nowrap">Tutar</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {lastOrder.items.map((item: any, idx: number) => (
+                                        <tr key={idx} className="border-b border-gray-100 border-dashed last:border-0">
+                                            <td className="py-2 align-top font-bold">{item.quantity}</td>
+                                            <td className="py-2 align-top">
+                                                <div className="font-bold uppercase">
+                                                    {item.name || item.productName}
+                                                    {lastOrder.itemAssignments && lastOrder.itemAssignments[item.id] && (
+                                                        <span className="text-[9px] ml-1 bg-gray-200 px-1 rounded lowercase">
+                                                            ({lastOrder.itemAssignments[item.id].cash > 0 && lastOrder.itemAssignments[item.id].card > 0
+                                                                ? 'nakit+kart'
+                                                                : lastOrder.itemAssignments[item.id].cash > 0 ? 'nakit' : 'kart'})
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                {item.size && (
+                                                    <div className="text-[10px] bg-gray-100 inline-block px-1 font-bold mr-2">
+                                                        BOY: {item.size === 'S' ? 'KÜÇÜK' : item.size === 'M' ? 'ORTA' : item.size === 'L' ? 'BÜYÜK' : item.size}
+                                                    </div>
+                                                )}
+                                                {item.isPorcelain !== undefined && (
+                                                    <div className="text-[10px] bg-amber-50 inline-block px-1 font-bold">
+                                                        {item.isPorcelain ? '☕ FİNCAN' : '🥡 KARTON'}
+                                                    </div>
+                                                )}
+                                            </td>
+                                            <td className="py-2 align-top text-right font-bold whitespace-nowrap">
+                                                {((item.price || item.unitPrice || 0) * (item.quantity ?? 0)).toFixed(2)}₺
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
 
-                        <div className="border-t-2 border-black pt-2 mt-1 space-y-1">
-                            <div className="flex justify-between text-[11px]">
-                                <span>ARA TOPLAM</span>
-                                <span>{(lastOrder.totalAmount ?? 0).toFixed(2)}₺</span>
-                            </div>
-
-                            {lastOrder.isBOGO && (
-                                <div className="flex justify-between text-[11px] font-bold">
-                                    <span>* 1 ALANA 1 BEDAVA</span>
-                                    <span>-{lastOrder.bogoDiscount.toFixed(2)}₺</span>
-                                </div>
-                            )}
-
-                            {lastOrder.discountAmount > 0 && !lastOrder.isBOGO && (
+                            <div className="border-t-2 border-black pt-2 mt-1 space-y-1">
                                 <div className="flex justify-between text-[11px]">
-                                    <span>İNDİRİM</span>
-                                    <span>-{(lastOrder.discountAmount ?? 0).toFixed(2)}₺</span>
+                                    <span>ARA TOPLAM</span>
+                                    <span>{(lastOrder.totalAmount ?? 0).toFixed(2)}₺</span>
                                 </div>
-                            )}
 
-                            {lastOrder.discountAmount > 0 && lastOrder.isBOGO && lastOrder.percentageDiscount > 0 && (
-                                <div className="flex justify-between text-[11px]">
-                                    <span>EKSTRA İNDİRİM</span>
-                                    <span>-{lastOrder.percentageDiscount.toFixed(2)}₺</span>
-                                </div>
-                            )}
-
-                            <div className="flex flex-col border-t border-black mt-1 pt-1">
-                                {lastOrder.discountAmount > 0 && (
-                                    <div className="text-right text-[10px] line-through opacity-60">
-                                        {(lastOrder.totalAmount ?? 0).toFixed(2)}₺
+                                {lastOrder.isBOGO && (
+                                    <div className="flex justify-between text-[11px] font-bold">
+                                        <span>* 1 ALANA 1 BEDAVA</span>
+                                        <span>-{lastOrder.bogoDiscount.toFixed(2)}₺</span>
                                     </div>
                                 )}
-                                <div className="flex justify-between text-[16px] font-black">
-                                    <span>GENEL TOPLAM</span>
-                                    <span>{(typeof lastOrder.finalAmount === 'number' ? lastOrder.finalAmount : parseFloat(lastOrder.finalAmount ?? '0')).toFixed(2)}₺</span>
+
+                                {lastOrder.discountAmount > 0 && !lastOrder.isBOGO && (
+                                    <div className="flex justify-between text-[11px]">
+                                        <span>İNDİRİM</span>
+                                        <span>-{(lastOrder.discountAmount ?? 0).toFixed(2)}₺</span>
+                                    </div>
+                                )}
+
+                                {lastOrder.discountAmount > 0 && lastOrder.isBOGO && lastOrder.percentageDiscount > 0 && (
+                                    <div className="flex justify-between text-[11px]">
+                                        <span>EKSTRA İNDİRİM</span>
+                                        <span>-{lastOrder.percentageDiscount.toFixed(2)}₺</span>
+                                    </div>
+                                )}
+
+                                <div className="flex flex-col border-t border-black mt-1 pt-1">
+                                    {lastOrder.discountAmount > 0 && (
+                                        <div className="text-right text-[10px] line-through opacity-60">
+                                            {(lastOrder.totalAmount ?? 0).toFixed(2)}₺
+                                        </div>
+                                    )}
+                                    <div className="flex justify-between text-[16px] font-black">
+                                        <span>GENEL TOPLAM</span>
+                                        <span>{(typeof lastOrder.finalAmount === 'number' ? lastOrder.finalAmount : parseFloat(lastOrder.finalAmount ?? '0')).toFixed(2)}₺</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div className="text-center mt-2 pt-2 border-t border-dashed border-black">
-                            <div className="my-1 flex justify-center">
-                                <img
-                                    src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https://www.noccacoffee.com.tr/menu`}
-                                    alt="Menu QR"
-                                    style={{
-                                        width: '25mm',
-                                        height: '25mm',
-                                        imageRendering: 'pixelated'
-                                    }}
-                                />
+                            <div className="text-center mt-2 pt-2 border-t border-dashed border-black">
+                                <div className="my-1 flex justify-center">
+                                    <img
+                                        src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https://www.noccacoffee.com.tr/menu`}
+                                        alt="Menu QR"
+                                        style={{
+                                            width: '25mm',
+                                            height: '25mm',
+                                            imageRendering: 'pixelated'
+                                        }}
+                                    />
+                                </div>
+
+                                <div className="text-base font-black tracking-widest">NOCCA COFFEE</div>
+                                <div className="text-[10px]">www.noccacoffee.com.tr</div>
+                                <div className="mt-2 text-[11px] font-bold">* AFİYET OLSUN *</div>
                             </div>
-
-                            <div className="text-base font-black tracking-widest">NOCCA COFFEE</div>
-                            <div className="text-[10px]">www.noccacoffee.com.tr</div>
-                            <div className="mt-2 text-[11px] font-bold">* AFİYET OLSUN *</div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             {/* Prayer Alert Overlay */}
-            {activePrayerAlert && (
-                <div className="fixed top-0 inset-x-0 z-[100] flex justify-center p-4 animate-bounce-in-top pointer-events-none">
-                    <div className="bg-gradient-to-r from-amber-600 to-amber-700 text-white px-8 py-4 rounded-2xl shadow-2xl border-4 border-white flex items-center gap-4 pointer-events-auto">
-                        <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-3xl animate-pulse">
-                            📢
-                        </div>
-                        <div>
-                            <p className="text-xs font-bold opacity-80 uppercase tracking-widest">Ezan Vakti Yaklaşıyor</p>
-                            <h3 className="text-xl font-black">{activePrayerAlert} Ezanı (1 DK Kaldı)</h3>
-                            <p className="text-sm font-medium">Lütfen kafedeki müziği kapatınız.</p>
-                        </div>
-                        <button
-                            onClick={() => setActivePrayerAlert(null)}
-                            className="ml-4 p-2 hover:bg-white/10 rounded-full transition-colors"
-                        >
-                            <FaTimes />
-                        </button>
-                    </div>
-                </div>
-            )}
-
-            {/* Closing Announcement Alert Overlay */}
-            {showClosingAlert && (
-                <div className="fixed top-0 inset-x-0 z-[100] flex justify-center p-4 animate-bounce-in-top pointer-events-none">
-                    <div className="bg-gradient-to-r from-indigo-800 to-purple-900 text-white px-8 py-4 rounded-2xl shadow-2xl border-4 border-white flex items-center gap-4 pointer-events-auto">
-                        <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-3xl animate-pulse">
-                            📢
-                        </div>
-                        <div>
-                            <p className="text-xs font-bold opacity-80 uppercase tracking-widest">Kapanış Zamanı</p>
-                            <h3 className="text-xl font-black">Kapanış Anonsu Yapılıyor</h3>
-                            <p className="text-sm font-medium">Kafemiz saat 01:00'de tamamen kapanacaktır.</p>
-                        </div>
-                        <button
-                            onClick={() => setShowClosingAlert(false)}
-                            className="ml-4 p-2 hover:bg-white/10 rounded-full transition-colors"
-                        >
-                            <FaTimes />
-                        </button>
-                    </div>
-                </div>
-            )}
-
-            {/* Staff Performance PIN Modal */}
-            {showStaffPinModal && (
-                <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 backdrop-blur-md animate-fade-in p-4">
-                    <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden border-2 border-nocca-green animate-scale-up">
-                        <div className="bg-nocca-green p-6 text-white text-center">
-                            <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">👤</div>
-                            <h3 className="text-xl font-black uppercase tracking-widest">Personel Onayı</h3>
-                            <p className="text-xs opacity-80 mt-1 uppercase">Satışı performansınıza kaydetmek için 4 haneli PIN kodunuzu giriniz.</p>
-                        </div>
-
-                        <div className="p-8">
-                            <div className="flex justify-center gap-4 mb-4">
-                                {[0, 1, 2, 3].map((idx) => (
-                                    <div
-                                        key={idx}
-                                        className={`w-12 h-16 rounded-2xl border-2 flex items-center justify-center text-3xl font-black transition-all ${idx < enteredPin.length
-                                            ? 'border-nocca-green bg-nocca-green/10 text-nocca-green'
-                                            : isPinError ? 'border-red-300' : 'border-gray-200'
-                                            }`}
-                                    >
-                                        {idx < enteredPin.length ? '●' : ''}
-                                    </div>
-                                ))}
+            {
+                activePrayerAlert && (
+                    <div className="fixed top-0 inset-x-0 z-[100] flex justify-center p-4 animate-bounce-in-top pointer-events-none">
+                        <div className="bg-gradient-to-r from-amber-600 to-amber-700 text-white px-8 py-4 rounded-2xl shadow-2xl border-4 border-white flex items-center gap-4 pointer-events-auto">
+                            <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-3xl animate-pulse">
+                                📢
                             </div>
-
-                            {isPinError && (
-                                <p className="text-center text-red-500 font-bold text-sm mb-4 animate-shake">
-                                    Hatalı PIN! Lütfen tekrar deneyiniz.
-                                </p>
-                            )}
-
-                            <div className="grid grid-cols-3 gap-3">
-                                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 'C', 0, '⌫'].map((num) => (
-                                    <button
-                                        key={num}
-                                        onClick={() => {
-                                            if (num === 'C') {
-                                                setEnteredPin('');
-                                                setIsPinError(false);
-                                            } else if (num === '⌫') {
-                                                setEnteredPin(prev => prev.slice(0, -1));
-                                                setIsPinError(false);
-                                            } else if (enteredPin.length < 4) {
-                                                const nextPin = enteredPin + num;
-                                                setEnteredPin(nextPin);
-                                                setIsPinError(false);
-
-                                                // Automatic submission when 4 digits reached
-                                                if (nextPin.length === 4) {
-                                                    // Trigger the order creation with the PIN
-                                                    if (pendingOrderArgs) {
-                                                        // We need to wait slightly so the UI shows the 4th dot
-                                                        setTimeout(() => {
-                                                            handleCreateOrder(pendingOrderArgs.method, pendingOrderArgs.payments, nextPin);
-                                                        }, 300);
-                                                    }
-                                                }
-                                            }
-                                        }}
-                                        className={`h-16 rounded-2xl flex items-center justify-center text-2xl font-black transition-all active:scale-95 ${num === 'C' ? 'bg-red-50 text-red-600' :
-                                            num === '⌫' ? 'bg-amber-50 text-amber-600' :
-                                                'bg-gray-100 text-gray-800 hover:bg-gray-200'
-                                            }`}
-                                    >
-                                        {num}
-                                    </button>
-                                ))}
+                            <div>
+                                <p className="text-xs font-bold opacity-80 uppercase tracking-widest">Ezan Vakti Yaklaşıyor</p>
+                                <h3 className="text-xl font-black">{activePrayerAlert} Ezanı (1 DK Kaldı)</h3>
+                                <p className="text-sm font-medium">Lütfen kafedeki müziği kapatınız.</p>
                             </div>
-
                             <button
-                                onClick={() => {
-                                    setShowStaffPinModal(false);
-                                    setProcessingPayment(false);
-                                    setEnteredPin('');
-                                    setPendingOrderArgs(null);
-                                }}
-                                className="w-full mt-6 py-3 text-gray-500 font-bold hover:text-red-500 transition-colors"
+                                onClick={() => setActivePrayerAlert(null)}
+                                className="ml-4 p-2 hover:bg-white/10 rounded-full transition-colors"
                             >
-                                İşlemi İptal Et
+                                <FaTimes />
                             </button>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
-            {/* General Order Confirmation Modal */}
-            {showConfirmModal && (
-                <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/70 backdrop-blur-sm animate-fade-in p-4">
-                    <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden animate-scale-up">
-                        <div className="bg-gray-800 p-6 text-white text-center">
-                            <h3 className="text-xl font-black uppercase tracking-widest">Siparişi Onayla</h3>
-                            <p className="text-xs opacity-80 mt-1 uppercase">Satış işlemi tamamlanacak ve fiş yazdırılacak.</p>
-                        </div>
-                        <div className="p-8">
-                            <div className="mb-6 text-center">
-                                <p className="text-gray-500 text-sm mb-1 uppercase font-bold tracking-widest">Ödeme Yöntemi</p>
-                                <p className="text-2xl font-black text-nocca-green uppercase">
-                                    {confirmingMethod === 'CASH' ? 'NAKİT' : confirmingMethod === 'CREDIT_CARD' ? 'KREDİ KARTI' : 'PARÇALI ÖDEME'}
-                                </p>
+            {/* Closing Announcement Alert Overlay */}
+            {
+                showClosingAlert && (
+                    <div className="fixed top-0 inset-x-0 z-[100] flex justify-center p-4 animate-bounce-in-top pointer-events-none">
+                        <div className="bg-gradient-to-r from-indigo-800 to-purple-900 text-white px-8 py-4 rounded-2xl shadow-2xl border-4 border-white flex items-center gap-4 pointer-events-auto">
+                            <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-3xl animate-pulse">
+                                📢
                             </div>
-                            <div className="flex flex-col gap-3">
+                            <div>
+                                <p className="text-xs font-bold opacity-80 uppercase tracking-widest">Kapanış Zamanı</p>
+                                <h3 className="text-xl font-black">Kapanış Anonsu Yapılıyor</h3>
+                                <p className="text-sm font-medium">Kafemiz saat 01:00'de tamamen kapanacaktır.</p>
+                            </div>
+                            <button
+                                onClick={() => setShowClosingAlert(false)}
+                                className="ml-4 p-2 hover:bg-white/10 rounded-full transition-colors"
+                            >
+                                <FaTimes />
+                            </button>
+                        </div>
+                    </div>
+                )
+            }
+
+            {/* Staff Performance PIN Modal */}
+            {
+                showStaffPinModal && (
+                    <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 backdrop-blur-md animate-fade-in p-4">
+                        <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden border-2 border-nocca-green animate-scale-up">
+                            <div className="bg-nocca-green p-6 text-white text-center">
+                                <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">👤</div>
+                                <h3 className="text-xl font-black uppercase tracking-widest">Personel Onayı</h3>
+                                <p className="text-xs opacity-80 mt-1 uppercase">Satışı performansınıza kaydetmek için 4 haneli PIN kodunuzu giriniz.</p>
+                            </div>
+
+                            <div className="p-8">
+                                <div className="flex justify-center gap-4 mb-4">
+                                    {[0, 1, 2, 3].map((idx) => (
+                                        <div
+                                            key={idx}
+                                            className={`w-12 h-16 rounded-2xl border-2 flex items-center justify-center text-3xl font-black transition-all ${idx < enteredPin.length
+                                                ? 'border-nocca-green bg-nocca-green/10 text-nocca-green'
+                                                : isPinError ? 'border-red-300' : 'border-gray-200'
+                                                }`}
+                                        >
+                                            {idx < enteredPin.length ? '●' : ''}
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {isPinError && (
+                                    <p className="text-center text-red-500 font-bold text-sm mb-4 animate-shake">
+                                        Hatalı PIN! Lütfen tekrar deneyiniz.
+                                    </p>
+                                )}
+
+                                <div className="grid grid-cols-3 gap-3">
+                                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 'C', 0, '⌫'].map((num) => (
+                                        <button
+                                            key={num}
+                                            onClick={() => {
+                                                if (num === 'C') {
+                                                    setEnteredPin('');
+                                                    setIsPinError(false);
+                                                } else if (num === '⌫') {
+                                                    setEnteredPin(prev => prev.slice(0, -1));
+                                                    setIsPinError(false);
+                                                } else if (enteredPin.length < 4) {
+                                                    const nextPin = enteredPin + num;
+                                                    setEnteredPin(nextPin);
+                                                    setIsPinError(false);
+
+                                                    // Automatic submission when 4 digits reached
+                                                    if (nextPin.length === 4) {
+                                                        // Trigger the order creation with the PIN
+                                                        if (pendingOrderArgs) {
+                                                            // We need to wait slightly so the UI shows the 4th dot
+                                                            setTimeout(() => {
+                                                                handleCreateOrder(pendingOrderArgs.method, pendingOrderArgs.payments, nextPin);
+                                                            }, 300);
+                                                        }
+                                                    }
+                                                }
+                                            }}
+                                            className={`h-16 rounded-2xl flex items-center justify-center text-2xl font-black transition-all active:scale-95 ${num === 'C' ? 'bg-red-50 text-red-600' :
+                                                num === '⌫' ? 'bg-amber-50 text-amber-600' :
+                                                    'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                                                }`}
+                                        >
+                                            {num}
+                                        </button>
+                                    ))}
+                                </div>
+
                                 <button
                                     onClick={() => {
-                                        setShowConfirmModal(false);
-                                        // Trigger the PIN step (which is inside handleCreateOrder)
-                                        handleCreateOrder(confirmingMethod!, pendingOrderArgs?.payments);
-                                    }}
-                                    className="w-full h-16 bg-nocca-green text-white rounded-2xl font-black text-xl hover:bg-nocca-light-green transition-all shadow-lg active:scale-95 flex items-center justify-center"
-                                >
-                                    EVET, ONAYLA
-                                </button>
-                                <button
-                                    onClick={() => {
-                                        setShowConfirmModal(false);
-                                        setConfirmingMethod(null);
+                                        setShowStaffPinModal(false);
+                                        setProcessingPayment(false);
+                                        setEnteredPin('');
                                         setPendingOrderArgs(null);
                                     }}
-                                    className="w-full py-4 text-gray-400 font-bold hover:text-red-500 transition-colors uppercase tracking-widest"
+                                    className="w-full mt-6 py-3 text-gray-500 font-bold hover:text-red-500 transition-colors"
                                 >
-                                    İPTAL ET
+                                    İşlemi İptal Et
                                 </button>
                             </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
+
+            {/* General Order Confirmation Modal */}
+            {
+                showConfirmModal && (
+                    <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/70 backdrop-blur-sm animate-fade-in p-4">
+                        <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden animate-scale-up">
+                            <div className="bg-gray-800 p-6 text-white text-center">
+                                <h3 className="text-xl font-black uppercase tracking-widest">Siparişi Onayla</h3>
+                                <p className="text-xs opacity-80 mt-1 uppercase">Satış işlemi tamamlanacak ve fiş yazdırılacak.</p>
+                            </div>
+                            <div className="p-8">
+                                <div className="mb-6 text-center">
+                                    <p className="text-gray-500 text-sm mb-1 uppercase font-bold tracking-widest">Ödeme Yöntemi</p>
+                                    <p className="text-2xl font-black text-nocca-green uppercase">
+                                        {confirmingMethod === 'CASH' ? 'NAKİT' : confirmingMethod === 'CREDIT_CARD' ? 'KREDİ KARTI' : 'PARÇALI ÖDEME'}
+                                    </p>
+                                </div>
+                                <div className="flex flex-col gap-3">
+                                    <button
+                                        onClick={() => {
+                                            setShowConfirmModal(false);
+                                            // Trigger the PIN step (which is inside handleCreateOrder)
+                                            handleCreateOrder(confirmingMethod!, pendingOrderArgs?.payments);
+                                        }}
+                                        className="w-full h-16 bg-nocca-green text-white rounded-2xl font-black text-xl hover:bg-nocca-light-green transition-all shadow-lg active:scale-95 flex items-center justify-center"
+                                    >
+                                        EVET, ONAYLA
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            setShowConfirmModal(false);
+                                            setConfirmingMethod(null);
+                                            setPendingOrderArgs(null);
+                                        }}
+                                        className="w-full py-4 text-gray-400 font-bold hover:text-red-500 transition-colors uppercase tracking-widest"
+                                    >
+                                        İPTAL ET
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
+
+            {/* PIN Entry Modal for Loyalty */}
+            {
+                showPinModal && (
+                    <div className="fixed inset-0 z-[130] bg-black/60 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in shadow-2xl">
+                        <div className="bg-white rounded-[2.5rem] shadow-2xl p-8 max-w-sm w-full animate-scale-up border-4 border-yellow-400">
+                            <div className="flex justify-between items-center mb-6">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-yellow-100 rounded-xl">
+                                        <FaKey className="text-yellow-600 w-5 h-5" />
+                                    </div>
+                                    <h3 className="text-xl font-black text-gray-800 tracking-tight uppercase">Sadakat PIN</h3>
+                                </div>
+                                <button
+                                    onClick={() => {
+                                        setShowPinModal(false);
+                                        setPinInput('');
+                                    }}
+                                    className="text-gray-400 hover:text-black transition-colors"
+                                >
+                                    <FaTimes size={20} />
+                                </button>
+                            </div>
+
+                            <div className="space-y-6">
+                                <p className="text-sm text-gray-500 text-center font-medium uppercase tracking-tighter">
+                                    Müşterinin 4 haneli kodunu girin
+                                </p>
+
+                                <div className="flex justify-center gap-3">
+                                    <div className="w-full h-20 text-4xl font-black text-center tracking-[0.5em] bg-gray-50 border-2 border-gray-100 rounded-3xl flex items-center justify-center text-yellow-600 shadow-inner">
+                                        {pinInput.padEnd(4, '•').split('').map((char, i) => (
+                                            <span key={i} className={i < pinInput.length ? 'text-yellow-600' : 'text-gray-200'}>{char}</span>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-3 gap-3">
+                                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 'TEMİZLE', 0, 'SİL'].map(num => (
+                                        <button
+                                            key={num.toString()}
+                                            onClick={() => {
+                                                if (num === 'TEMİZLE') {
+                                                    setPinInput('');
+                                                } else if (num === 'SİL') {
+                                                    setPinInput(prev => prev.slice(0, -1));
+                                                } else if (pinInput.length < 4) {
+                                                    const newVal = (pinInput + num).slice(0, 4);
+                                                    setPinInput(newVal);
+                                                    if (newVal.length === 4) handlePinCheck(newVal);
+                                                }
+                                            }}
+                                            className={`h-16 rounded-2xl flex items-center justify-center font-black transition-all active:scale-95 shadow-sm ${typeof num === 'string'
+                                                ? 'bg-gray-100 text-gray-400 text-[10px]'
+                                                : 'bg-gray-100 text-gray-800 text-2xl hover:bg-yellow-400 hover:text-white'
+                                                }`}
+                                        >
+                                            {num}
+                                        </button>
+                                    ))}
+                                </div>
+
+                                {loyaltyLoading && (
+                                    <div className="flex justify-center">
+                                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-500"></div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
         </>
     );
 }

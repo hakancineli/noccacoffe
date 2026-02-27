@@ -9,6 +9,7 @@ interface UserProfile {
   name: string;
   email: string;
   phone?: string;
+  loyaltyPin?: string;
   birthDate?: string;
   joinDate: string;
   level: string;
@@ -80,6 +81,7 @@ const UserProfileComponent = () => {
             name: `${data.firstName || data.name || ''} ${data.lastName || ''}`.trim(),
             email: data.email,
             phone: data.phone || '',
+            loyaltyPin: data.loyaltyPin || '',
             birthDate: data.birthDate ? new Date(data.birthDate).toLocaleDateString('tr-TR') : '',
             joinDate: new Date(data.createdAt || data.startDate).toLocaleDateString('tr-TR'),
             level: data.userPoints?.tier || level,
@@ -145,7 +147,8 @@ const UserProfileComponent = () => {
         body: JSON.stringify({
           name: userProfile.name,
           phone: userProfile.phone,
-          birthDate: birthDateIso
+          birthDate: birthDateIso,
+          loyaltyPin: userProfile.loyaltyPin
         })
       });
 
@@ -377,15 +380,32 @@ const UserProfileComponent = () => {
                 </div>
 
                 <div className="space-y-6">
-                  <div>
-                    <label className="block text-xs font-black text-gray-400 uppercase mb-2 tracking-widest">Telefon</label>
-                    <input
-                      type="tel"
-                      value={userProfile.phone}
-                      readOnly={!isEditing}
-                      onChange={(e) => setUserProfile({ ...userProfile, phone: e.target.value })}
-                      className={`w-full px-5 py-4 rounded-2xl border-2 transition-all font-medium ${isEditing ? 'border-nocca-green bg-white' : 'border-gray-50 bg-gray-50 text-gray-700'}`}
-                    />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-black text-gray-400 uppercase mb-2 tracking-widest">Telefon</label>
+                      <input
+                        type="tel"
+                        value={userProfile.phone}
+                        readOnly={!isEditing}
+                        onChange={(e) => setUserProfile({ ...userProfile, phone: e.target.value })}
+                        className={`w-full px-5 py-4 rounded-2xl border-2 transition-all font-medium ${isEditing ? 'border-nocca-green bg-white' : 'border-gray-50 bg-gray-50 text-gray-700'}`}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-black text-gray-400 uppercase mb-2 tracking-widest">SADAKAT PIN (4 HANE)</label>
+                      <input
+                        type="text"
+                        maxLength={4}
+                        placeholder="0000"
+                        value={userProfile.loyaltyPin}
+                        readOnly={!isEditing}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, '').slice(0, 4);
+                          setUserProfile({ ...userProfile, loyaltyPin: val });
+                        }}
+                        className={`w-full px-5 py-4 rounded-2xl border-2 transition-all font-bold text-center tracking-[0.5em] ${isEditing ? 'border-nocca-green bg-white shadow-lg shadow-green-50' : 'border-gray-50 bg-gray-50 text-nocca-green'}`}
+                      />
+                    </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -620,75 +640,79 @@ const UserProfileComponent = () => {
         </div>
 
         {/* Kaydet Butonu - Edit Modu Alt Kısım */}
-        {isEditing && (
-          <div className="p-8 bg-gray-50 border-t border-gray-100 flex justify-end">
-            <button
-              onClick={handleSaveProfile}
-              className="bg-nocca-green text-white py-4 px-12 rounded-2xl font-black hover:scale-105 transition-transform shadow-lg shadow-green-100"
-            >
-              DEĞİŞİKLİKLERİ KAYDET
-            </button>
-          </div>
-        )}
-      </main>
+        {
+          isEditing && (
+            <div className="p-8 bg-gray-50 border-t border-gray-100 flex justify-end">
+              <button
+                onClick={handleSaveProfile}
+                className="bg-nocca-green text-white py-4 px-12 rounded-2xl font-black hover:scale-105 transition-transform shadow-lg shadow-green-100"
+              >
+                DEĞİŞİKLİKLERİ KAYDET
+              </button>
+            </div>
+          )
+        }
+      </main >
 
       {/* Ödeme Yöntemi Ekleme Modalı */}
-      {isAddingPayment && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[100] p-4">
-          <div className="bg-white rounded-[3rem] shadow-2xl p-10 max-w-md w-full animate-in zoom-in duration-300 relative">
-            <button
-              onClick={() => setIsAddingPayment(false)}
-              className="absolute top-8 right-8 text-gray-400 hover:text-black hover:rotate-90 transition-all font-black text-2xl"
-            >
-              ×
-            </button>
+      {
+        isAddingPayment && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[100] p-4">
+            <div className="bg-white rounded-[3rem] shadow-2xl p-10 max-w-md w-full animate-in zoom-in duration-300 relative">
+              <button
+                onClick={() => setIsAddingPayment(false)}
+                className="absolute top-8 right-8 text-gray-400 hover:text-black hover:rotate-90 transition-all font-black text-2xl"
+              >
+                ×
+              </button>
 
-            <div className="text-center mb-10">
-              <div className="w-20 h-20 bg-green-50 rounded-3xl flex items-center justify-center mx-auto mb-4 text-3xl">💳</div>
-              <h3 className="text-2xl font-black text-gray-900">Yeni Kart Ekle</h3>
-              <p className="text-gray-500 text-sm">Hızlı ödeme için kart bilgilerinizi girin.</p>
+              <div className="text-center mb-10">
+                <div className="w-20 h-20 bg-green-50 rounded-3xl flex items-center justify-center mx-auto mb-4 text-3xl">💳</div>
+                <h3 className="text-2xl font-black text-gray-900">Yeni Kart Ekle</h3>
+                <p className="text-gray-500 text-sm">Hızlı ödeme için kart bilgilerinizi girin.</p>
+              </div>
+
+              <form onSubmit={handleSaveCard} className="space-y-6">
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-4">Kart Sahibi</label>
+                    <input type="text" required placeholder="AD SOYAD" className="w-full px-6 py-4 bg-gray-50 border-2 border-transparent focus:border-nocca-green focus:bg-white rounded-2xl transition-all outline-none font-bold" />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-4">Kart Numarası</label>
+                    <input type="text" required placeholder="0000 0000 0000 0000" maxLength={19} className="w-full px-6 py-4 bg-gray-50 border-2 border-transparent focus:border-nocca-green focus:bg-white rounded-2xl transition-all outline-none font-mono font-bold" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-4">SKT</label>
+                      <input type="text" required placeholder="AA/YY" maxLength={5} className="w-full px-6 py-4 bg-gray-50 border-2 border-transparent focus:border-nocca-green focus:bg-white rounded-2xl transition-all outline-none font-bold" />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-4">CVV</label>
+                      <input type="text" required placeholder="123" maxLength={3} className="w-full px-6 py-4 bg-gray-50 border-2 border-transparent focus:border-nocca-green focus:bg-white rounded-2xl transition-all outline-none font-bold" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-6">
+                  <button
+                    type="submit"
+                    className="w-full bg-nocca-green text-white py-5 rounded-3xl font-black text-lg hover:shadow-xl hover:shadow-green-100 transition-all hover:-translate-y-1"
+                  >
+                    KARTI GÜVENLEYLE KAYDET
+                  </button>
+                  <div className="flex items-center justify-center mt-6 space-x-4 opacity-30 grayscale">
+                    <span className="text-xs font-black tracking-widest">VISA</span>
+                    <span className="text-xs font-black tracking-widest">MASTERCARD</span>
+                    <span className="text-xs font-black tracking-widest">TROY</span>
+                  </div>
+                </div>
+              </form>
             </div>
-
-            <form onSubmit={handleSaveCard} className="space-y-6">
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-4">Kart Sahibi</label>
-                  <input type="text" required placeholder="AD SOYAD" className="w-full px-6 py-4 bg-gray-50 border-2 border-transparent focus:border-nocca-green focus:bg-white rounded-2xl transition-all outline-none font-bold" />
-                </div>
-                <div>
-                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-4">Kart Numarası</label>
-                  <input type="text" required placeholder="0000 0000 0000 0000" maxLength={19} className="w-full px-6 py-4 bg-gray-50 border-2 border-transparent focus:border-nocca-green focus:bg-white rounded-2xl transition-all outline-none font-mono font-bold" />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-4">SKT</label>
-                    <input type="text" required placeholder="AA/YY" maxLength={5} className="w-full px-6 py-4 bg-gray-50 border-2 border-transparent focus:border-nocca-green focus:bg-white rounded-2xl transition-all outline-none font-bold" />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-4">CVV</label>
-                    <input type="text" required placeholder="123" maxLength={3} className="w-full px-6 py-4 bg-gray-50 border-2 border-transparent focus:border-nocca-green focus:bg-white rounded-2xl transition-all outline-none font-bold" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="pt-6">
-                <button
-                  type="submit"
-                  className="w-full bg-nocca-green text-white py-5 rounded-3xl font-black text-lg hover:shadow-xl hover:shadow-green-100 transition-all hover:-translate-y-1"
-                >
-                  KARTI GÜVENLEYLE KAYDET
-                </button>
-                <div className="flex items-center justify-center mt-6 space-x-4 opacity-30 grayscale">
-                  <span className="text-xs font-black tracking-widest">VISA</span>
-                  <span className="text-xs font-black tracking-widest">MASTERCARD</span>
-                  <span className="text-xs font-black tracking-widest">TROY</span>
-                </div>
-              </div>
-            </form>
           </div>
-        </div>
-      )}
-    </div>
+        )
+      }
+    </div >
   );
 };
 
