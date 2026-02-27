@@ -623,6 +623,23 @@ export default function POSPage() {
                 setIsCooldown(data.isCooldown || false);
                 setLastDrinkPrice(data.lastDrinkPrice || 0);
 
+                // Broadcast also the message for display immediately
+                const channel = new BroadcastChannel('nocca_pos_display');
+                channel.postMessage({
+                    type: 'UPDATE_CART',
+                    data: {
+                        cart,
+                        totals: {
+                            subtotal: cartTotal,
+                            discount: totalDiscount,
+                            total: finalTotal
+                        },
+                        customer: customer,
+                        loyaltyMessage: data.message
+                    }
+                });
+                channel.close();
+
                 if (data.eligible) {
                     toast.success(data.message);
                 } else if (data.isCooldown) {
@@ -653,11 +670,12 @@ export default function POSPage() {
                     discount: totalDiscount,
                     total: finalTotal
                 },
-                customer: selectedCustomer
+                customer: selectedCustomer,
+                loyaltyMessage: loyaltyMessage
             }
         });
         return () => channel.close();
-    }, [cart, cartTotal, totalDiscount, finalTotal]);
+    }, [cart, cartTotal, totalDiscount, finalTotal, loyaltyMessage, selectedCustomer]);
 
     // Customer Search Logic
     useEffect(() => {

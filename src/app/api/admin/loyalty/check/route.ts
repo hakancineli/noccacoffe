@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({
                 eligible: false,
                 user,
-                message: `Hoş geldiniz ${fullName}! Bugünün ilk alımı için indirim hakkınız bulunmuyor.`
+                message: `Hoş geldiniz ${fullName}! Bugünün ilk alımını yaptıktan sonra 2. içeceğiniz %${settings.loyaltyDiscountRate} indirimli olacak!`
             });
         }
 

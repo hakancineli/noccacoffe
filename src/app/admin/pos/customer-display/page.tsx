@@ -28,6 +28,7 @@ export default function CustomerDisplayPage() {
     const [cart, setCart] = useState<CartItem[]>([]);
     const [totals, setTotals] = useState({ subtotal: 0, discount: 0, total: 0 });
     const [customer, setCustomer] = useState<Customer | null>(null);
+    const [loyaltyMessage, setLoyaltyMessage] = useState<string | null>(null);
     const [isIdle, setIsIdle] = useState(true);
     const [showSuccess, setShowSuccess] = useState(false);
     const [lastOrderId, setLastOrderId] = useState<string | null>(null);
@@ -102,6 +103,13 @@ export default function CustomerDisplayPage() {
             price: "₺210",
             image: "/images/products/caramel-macchiato.jpg",
             color: "from-amber-500 to-yellow-600"
+        },
+        {
+            title: "☕ Sabah Fırsatı ☀️",
+            subtitle: "07:00-12:00 Arası 2. Ürün %50 İndirimli!",
+            price: "Hemen Üye Ol",
+            image: "/images/products/beverages-collection.png",
+            color: "from-orange-400 to-amber-500"
         }
     ];
 
@@ -121,6 +129,7 @@ export default function CustomerDisplayPage() {
                 setCart(data.cart);
                 setTotals(data.totals);
                 setCustomer(data.customer);
+                setLoyaltyMessage(data.loyaltyMessage || null);
                 setIsIdle(data.cart.length === 0);
                 setShowSuccess(false);
             } else if (type === 'ORDER_COMPLETED') {
@@ -270,6 +279,18 @@ export default function CustomerDisplayPage() {
                             <span className="text-pink-600 font-bold text-lg">@noccacoffee</span>
                         </div>
 
+                        {/* Loyalty Join QR */}
+                        <div>
+                            <div className="bg-gray-50 p-4 rounded-[30px] shadow-sm mb-4 relative group inline-block">
+                                <img src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://noccacoffee.com/register&bgcolor=ffffff&color=000000&margin=10`} alt="Loyalty QR" className="w-32 h-32 rounded-xl" />
+                                <div className="absolute -top-3 -right-3 bg-nocca-green p-3 rounded-2xl shadow-lg border-2 border-white">
+                                    <FaStar className="text-xl text-white" />
+                                </div>
+                            </div>
+                            <h3 className="text-xl font-black text-gray-900 mb-1">Hemen Üye Ol</h3>
+                            <span className="text-nocca-green font-bold text-lg">İndirimi Yakala</span>
+                        </div>
+
                         {/* Wi-Fi Block */}
                         <div>
                             <div className="bg-gray-50 p-4 rounded-[30px] shadow-sm mb-4 relative group inline-block">
@@ -338,6 +359,25 @@ export default function CustomerDisplayPage() {
                             </div>
                         </motion.div>
                     )}
+                </div>
+
+                {/* Loyalty Greeting Message - Animated when it changes */}
+                <div className="relative z-10 flex-1 flex flex-col justify-center">
+                    <AnimatePresence mode="wait">
+                        {loyaltyMessage && (
+                            <motion.div
+                                key={loyaltyMessage}
+                                initial={{ x: -20, opacity: 0 }}
+                                animate={{ x: 0, opacity: 1 }}
+                                exit={{ x: 20, opacity: 0 }}
+                                className="bg-white/10 backdrop-blur-xl p-8 rounded-[40px] border-2 border-amber-400/50 shadow-[0_0_30px_rgba(251,191,36,0.2)] mb-8 max-w-xl"
+                            >
+                                <h3 className="text-3xl font-black text-white leading-tight">
+                                    {loyaltyMessage}
+                                </h3>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </div>
 
                 <div className="relative z-10">
