@@ -11,6 +11,7 @@ export default function CampaignSettingsPage() {
         loyaltyDiscountRate: 50
     });
     const [loading, setLoading] = useState(true);
+    const [loyalUsers, setLoyalUsers] = useState<any[]>([]);
 
     useEffect(() => {
         const fetchSettings = async () => {
@@ -30,7 +31,20 @@ export default function CampaignSettingsPage() {
             }
         };
 
+        const fetchStats = async () => {
+            try {
+                const res = await fetch('/api/admin/loyalty/stats');
+                if (res.ok) {
+                    const data = await res.json();
+                    setLoyalUsers(data.topLoyalUsers || []);
+                }
+            } catch (error) {
+                console.error('Fetch stats error:', error);
+            }
+        };
+
         fetchSettings();
+        fetchStats();
     }, []);
 
     const handleSave = async () => {
@@ -193,13 +207,53 @@ export default function CampaignSettingsPage() {
                         </div>
                     </div>
 
-                    {/* Report Placeholders */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
-                        <div className="bg-white p-6 rounded-xl shadow border border-gray-100 italic text-gray-400 text-center">
-                            "En Çok Gelen Müdavimler" raporu yakında burada görünecek...
-                        </div>
-                        <div className="bg-white p-6 rounded-xl shadow border border-gray-100 italic text-gray-400 text-center">
-                            "Barista Sadakat Performansı" raporu yakında burada görünecek...
+                    {/* Performance Reports */}
+                    <div className="grid grid-cols-1 gap-8 mt-4">
+                        <div className="bg-white shadow rounded-xl overflow-hidden">
+                            <div className="p-6 border-b border-gray-100 bg-gray-50 flex items-center gap-3">
+                                <div className="p-2 bg-purple-600 bg-opacity-10 rounded-lg">
+                                    <FaClock className="text-purple-600 w-5 h-5" />
+                                </div>
+                                <div>
+                                    <h2 className="text-lg font-bold text-gray-900">En Çok Faydalanan Müdavimler</h2>
+                                    <p className="text-sm text-gray-500">Sadakat programını en aktif kullanan müşterileriniz.</p>
+                                </div>
+                            </div>
+                            <div className="p-6">
+                                {loyalUsers.length === 0 ? (
+                                    <p className="text-center text-gray-400 py-8 italic">Henüz kampanya verisi bulunmuyor.</p>
+                                ) : (
+                                    <div className="overflow-x-auto">
+                                        <table className="min-w-full divide-y divide-gray-200">
+                                            <thead>
+                                                <tr>
+                                                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Müşteri</th>
+                                                    <th className="px-4 py-3 text-center text-xs font-bold text-gray-400 uppercase tracking-wider">Kullanım</th>
+                                                    <th className="px-4 py-3 text-right text-xs font-bold text-gray-400 uppercase tracking-wider">Toplam Kazanç</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-gray-100">
+                                                {loyalUsers.map((user: any) => (
+                                                    <tr key={user.id} className="hover:bg-gray-50 transition-colors">
+                                                        <td className="px-4 py-4 whitespace-nowrap">
+                                                            <div className="text-sm font-bold text-gray-900">{user.name}</div>
+                                                            <div className="text-xs text-gray-500">{user.phone}</div>
+                                                        </td>
+                                                        <td className="px-4 py-4 text-center">
+                                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                                {user.count} Kez
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-4 py-4 text-right text-sm font-bold text-nocca-green">
+                                                            ₺{user.totalSavings.toFixed(2)}
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
 
