@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
     try {
         // Fetch users who have orders with discountAmount > 0 
         // and sort by frequency/total savings
 
-        // This is a simplified version: get users and their order counts
         const topLoyalUsers = await prisma.user.findMany({
             where: {
                 orders: {
@@ -50,7 +51,7 @@ export async function GET(request: NextRequest) {
             phone: user.phone,
             count: user._count.orders,
             totalSavings: user.orders.reduce((sum, order) => sum + (order.discountAmount || 0), 0)
-        })).sort((a, b) => b.count - a.count);
+        })).sort((a, b) => b.totalSavings - a.totalSavings);
 
         return NextResponse.json({ topLoyalUsers: formattedUsers });
 

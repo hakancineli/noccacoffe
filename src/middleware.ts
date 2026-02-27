@@ -50,8 +50,10 @@ export async function middleware(request: NextRequest) {
           '/api/admin/staff',
           '/api/admin/staff-consumption',
           '/api/admin/waste',
+          '/api/admin/loyalty/check',
+          '/api/admin/loyalty/stats',
           '/api/orders'
-        ]; // Added staff-related APIs and Waste management back for POS usage
+        ]; // Added loyalty APIs for POS usage
 
         // Exact match or starts with (for sub-routes)
         const isAllowed = allowedPaths.some(path => pathname.startsWith(path)) || pathname === '/admin';
