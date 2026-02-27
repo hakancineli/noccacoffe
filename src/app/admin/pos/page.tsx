@@ -1197,12 +1197,17 @@ export default function POSPage() {
 
                         {/* Category Filter - Wrapped to show all in one glance */}
                         <div className="flex flex-wrap gap-2 mb-4 bg-white p-2 rounded-xl shadow-sm">
-                            {['Tümü', ...categories.filter(c => !HIDDEN_CATEGORIES.includes(c) && c !== 'Yan Ürünler')].map((category) => (
+                            {['Tümü', ...categories.filter(c =>
+                                c &&
+                                c !== 'Tümü' &&
+                                c !== 'Yan Ürünler' &&
+                                !HIDDEN_CATEGORIES.includes(c)
+                            )].map((category) => (
                                 <button
                                     key={category}
                                     onClick={() => setActiveCategory(category)}
                                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeCategory === category
-                                        ? 'bg-starbucks-green text-white shadow-md'
+                                        ? 'bg-nocca-green text-white shadow-md'
                                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                                         }`}
                                 >
