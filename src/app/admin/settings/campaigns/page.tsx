@@ -5,6 +5,9 @@ import Link from 'next/link';
 import { toast } from 'react-hot-toast';
 import { FaTag, FaClock, FaCheckCircle, FaTimesCircle, FaSave } from 'react-icons/fa';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default function CampaignSettingsPage() {
     const [settings, setSettings] = useState({
         loyaltyCampaignActive: false,
