@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { FaSearch, FaUser, FaTrash, FaCreditCard, FaMoneyBillWave, FaTimes, FaPrint, FaWifi, FaSync, FaClipboardList, FaFire, FaKey } from 'react-icons/fa';
@@ -10,7 +10,7 @@ import { toast } from 'react-hot-toast';
 
 interface CartItem {
     id: string; // Unique ID for cart item (productID + size)
-    productId: number;
+    productId: number | string;
     name: string;
     price: number;
     quantity: number;
@@ -378,11 +378,45 @@ export default function POSPage() {
     const HOT_DRINK_CATEGORIES = ['Sıcak Kahveler', 'Çaylar', 'Espresso Ve Türk Kahvesi', 'Matchalar'];
 
     // Categories to hide from POS filter bar (technical/ingredient categories)
-    const HIDDEN_CATEGORIES = ['Püreler', 'Tozlar'];
+    const HIDDEN_CATEGORIES = ['Püreler', 'Tozlar', 'Ekstralar'];
+
+    // Combine static and dynamic products
+    const mergedProducts = useMemo(() => {
+        const staticNames = new Set((allMenuItems || []).map(m => m.name));
+        const dynamicItems = (dbProducts || [])
+            .filter(p => p && !staticNames.has(p.name))
+            .map(p => ({
+                id: p.id,
+                name: p.name,
+                description: p.description || '',
+                category: p.category,
+                price: p.price,
+                image: p.imageUrl || '',
+                sizes: p.prices || []
+            }));
+        return [...(allMenuItems || []), ...dynamicItems];
+    }, [dbProducts]);
+
+    // Dynamic Categories including ones from DB products
+    const dynamicCategories = useMemo(() => {
+        const cats = new Set(['Tümü', 'En Çok Satanlar']);
+        // Add static categories
+        categories.forEach(c => cats.add(c));
+        // Add categories from merged products (just in case)
+        mergedProducts.forEach(p => {
+            if (p.category) cats.add(p.category);
+        });
+
+        // Filter out hidden categories
+        HIDDEN_CATEGORIES.forEach(c => cats.delete(c));
+        cats.delete('Yan Ürünler');
+
+        return Array.from(cats);
+    }, [mergedProducts]);
 
     // Filter products - category, search, and active status
     const filteredProducts = activeCategory === 'En Çok Satanlar'
-        ? (allMenuItems || [])
+        ? (mergedProducts || [])
             .filter(item => {
                 if (!dbProducts || !Array.isArray(dbProducts)) return false;
                 const dbProd = dbProducts.find(p => p && p.name === item.name);
@@ -397,7 +431,7 @@ export default function POSPage() {
                 return countB - countA;
             })
             .slice(0, 15) // Show top 15 most sold
-        : (allMenuItems || []).filter(item => {
+        : (mergedProducts || []).filter(item => {
             const matchesCategory = activeCategory === 'Tümü' || item.category === activeCategory;
             const matchesSearch = (item.name || '').toLocaleLowerCase('tr').includes((productSearch || '').toLocaleLowerCase('tr'));
 
@@ -1299,12 +1333,7 @@ export default function POSPage() {
 
                         {/* Category Filter - Wrapped to show all in one glance */}
                         <div className="flex flex-wrap gap-2 mb-4 bg-white p-2 rounded-xl shadow-sm">
-                            {['Tümü', 'En Çok Satanlar', ...categories.filter(c =>
-                                c &&
-                                c !== 'Tümü' &&
-                                c !== 'Yan Ürünler' &&
-                                !HIDDEN_CATEGORIES.includes(c)
-                            )].map((category) => (
+                            {dynamicCategories.map((category) => (
                                 <button
                                     key={category}
                                     onClick={() => setActiveCategory(category)}
