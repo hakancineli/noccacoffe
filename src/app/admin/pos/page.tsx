@@ -450,7 +450,7 @@ export default function POSPage() {
         }
 
         const dbProduct = getDbProduct(product.name);
-        const sizes = dbProduct?.prices && Array.isArray(dbProduct.prices) ? dbProduct.prices : product.sizes;
+        const sizes = dbProduct?.prices && Array.isArray(dbProduct.prices) && dbProduct.prices.length > 0 ? dbProduct.prices : product.sizes;
 
         // If product has sizes, open selection modal
         if (sizes && sizes.length > 0) {
@@ -466,7 +466,7 @@ export default function POSPage() {
         if (lastOrder) setLastOrder(null); // Clear old receipt when starting new order
 
         const dbProduct = getDbProduct(product.name);
-        const dbPrices = dbProduct?.prices && Array.isArray(dbProduct.prices) ? dbProduct.prices : null;
+        const dbPrices = dbProduct?.prices && Array.isArray(dbProduct.prices) && dbProduct.prices.length > 0 ? dbProduct.prices : null;
 
         let price = dbProduct?.price || product.price || 0;
 

@@ -454,7 +454,12 @@ export const allMenuItems: MenuItem[] = [
     name: 'Türk Kahvesi',
     description: 'Geleneksel Türk kahvesi',
     category: 'Espresso Ve Türk Kahvesi',
-    price: 120,
+    sizes: [
+      { size: 'Sade', price: 120 },
+      { size: 'Az Şekerli', price: 120 },
+      { size: 'Orta Şekerli', price: 120 },
+      { size: 'Şekerli', price: 120 }
+    ],
     image: '/images/products/Espress.jpeg',
   },
   {
@@ -462,7 +467,12 @@ export const allMenuItems: MenuItem[] = [
     name: 'Double Türk Kahvesi',
     description: 'Çift Türk kahvesi',
     category: 'Espresso Ve Türk Kahvesi',
-    price: 150,
+    sizes: [
+      { size: 'Sade', price: 150 },
+      { size: 'Az Şekerli', price: 150 },
+      { size: 'Orta Şekerli', price: 150 },
+      { size: 'Şekerli', price: 150 }
+    ],
     image: '/images/products/Espress.jpeg',
   },
 
