@@ -282,7 +282,7 @@ export default function CustomerDisplayPage() {
                         {/* Loyalty Join QR */}
                         <div>
                             <div className="bg-gray-50 p-4 rounded-[30px] shadow-sm mb-4 relative group inline-block">
-                                <img src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://noccacoffee.com/register&bgcolor=ffffff&color=000000&margin=10`} alt="Loyalty QR" className="w-32 h-32 rounded-xl" />
+                                <img src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://noccacoffee.com/login&bgcolor=ffffff&color=000000&margin=10`} alt="Loyalty QR" className="w-32 h-32 rounded-xl" />
                                 <div className="absolute -top-3 -right-3 bg-nocca-green p-3 rounded-2xl shadow-lg border-2 border-white">
                                     <FaStar className="text-xl text-white" />
                                 </div>
