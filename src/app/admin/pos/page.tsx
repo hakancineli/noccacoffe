@@ -1268,7 +1268,7 @@ export default function POSPage() {
                                                             fill
                                                             sizes="(max-width: 768px) 33vw, 25vw"
                                                             className="object-contain p-0.5 md:p-1"
-                                                            unoptimized={imgSource.startsWith('data:')}
+                                                            unoptimized={true}
                                                         />
                                                     );
                                                 }
