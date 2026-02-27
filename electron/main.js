@@ -36,29 +36,15 @@ function createWindow() {
         ? 'http://localhost:3000/admin/pos'
         : 'https://www.noccacoffee.com.tr/admin/pos';
 
-    mainWindow.loadURL(startUrl);
+    mainWindow.loadURL(startUrl).catch(err => {
+        console.error('Initial load failed:', err);
+    });
 
-    // Hata ayıklama için (Ctrl+Shift+I) - Eğer yine beyaz ekran/hata olursa bakabilmeniz için kalsın
+    // Hata ayıklama için Ctrl+Shift+I aktif kalsın
     globalShortcut.register('CommandOrControl+Shift+I', () => {
         if (mainWindow) mainWindow.webContents.openDevTools();
     });
 
-    // Sayfa yüklenemezse kullanıcıya seçenek sunan daha hafif bir hata yönetimi
-    mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
-        console.error('Page failed to load:', errorCode, errorDescription);
-        // Sadece internet gerçekten yoksa veya adres hatalıysa uyarı ver
-        if (errorCode !== -3) { // -3 is often just a transition/cancel
-            mainWindow.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(`
-                <body style="background:#f8fafc; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; font-family:sans-serif; text-align:center;">
-                    <h2 style="color:#1e293b;">Yükleme Hatası</h2>
-                    <p style="color:#64748b;">Sistem şu an başlatılamadı (Hata: ${errorDescription})</p>
-                    <button onclick="window.location.reload()" style="padding:10px 20px; background:#006241; color:white; border:none; border-radius:8px; cursor:pointer;">Tekrar Dene</button>
-                </body>
-            `));
-        }
-    });
-
-    // F11 gibi kısayolları POS kontrolü için yönetebiliriz
     mainWindow.on('closed', () => {
         mainWindow = null;
     });
