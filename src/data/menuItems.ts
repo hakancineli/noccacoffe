@@ -825,6 +825,7 @@ export const categories = [
   'Sıcak Kahveler',
   'Soğuk İçecekler',
   'Espresso Ve Türk Kahvesi',
+  'Kasa Önü Ürünleri',
   'Matchalar',
   'Ekstralar',
   'Püreler',
