@@ -15,11 +15,16 @@ export async function GET(request: NextRequest) {
             );
         }
 
+        const startTimeParam = searchParams.get('startTime');
+        const endTimeParam = searchParams.get('endTime');
+
         // Turkey Time (UTC+3) - same logic as accounting details
-        const startOfDay = new Date(`${dateParam}T00:00:00.000Z`);
+        const startTimeStr = startTimeParam ? `${startTimeParam}:00.000` : '00:00:00.000';
+        const startOfDay = new Date(`${dateParam}T${startTimeStr}Z`);
         startOfDay.setUTCHours(startOfDay.getUTCHours() - 3);
 
-        const endOfDay = new Date(`${dateParam}T23:59:59.999Z`);
+        const endTimeStr = endTimeParam ? `${endTimeParam}:59.999` : '23:59:59.999';
+        const endOfDay = new Date(`${dateParam}T${endTimeStr}Z`);
         endOfDay.setUTCHours(endOfDay.getUTCHours() - 3);
 
         if (isNaN(startOfDay.getTime())) {

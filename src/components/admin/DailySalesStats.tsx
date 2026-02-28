@@ -22,15 +22,21 @@ export default function DailySalesStats() {
     const [selectedDate, setSelectedDate] = useState<string>(
         new Date().toISOString().split('T')[0]
     );
+    const [startTime, setStartTime] = useState<string>('');
+    const [endTime, setEndTime] = useState<string>('');
     const [stats, setStats] = useState<DailyStats | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
-    const fetchStats = async (date: string) => {
+    const fetchStats = async (date: string, start?: string, end?: string) => {
         setLoading(true);
         setError('');
         try {
-            const response = await fetch(`/api/admin/reports/daily-sales?date=${date}`);
+            let url = `/api/admin/reports/daily-sales?date=${date}`;
+            if (start) url += `&startTime=${start}`;
+            if (end) url += `&endTime=${end}`;
+
+            const response = await fetch(url);
             if (!response.ok) {
                 throw new Error('Rapor alınamadı');
             }
@@ -49,7 +55,7 @@ export default function DailySalesStats() {
         const date = e.target.value;
         setSelectedDate(date);
         if (date) {
-            fetchStats(date);
+            fetchStats(date, startTime, endTime);
         }
     };
 
@@ -58,7 +64,7 @@ export default function DailySalesStats() {
             <div className="px-4 py-5 sm:p-6">
                 <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">Günlük Satış Raporu</h3>
 
-                <div className="flex items-end gap-4 mb-6">
+                <div className="flex flex-wrap items-end gap-4 mb-6">
                     <div>
                         <label htmlFor="report-date" className="block text-sm font-medium text-gray-700 mb-1">
                             Tarih Seçiniz
@@ -71,12 +77,52 @@ export default function DailySalesStats() {
                             className="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm px-4 py-2 border"
                         />
                     </div>
+                    <div>
+                        <label htmlFor="start-time" className="block text-sm font-medium text-gray-700 mb-1">
+                            Başlangıç Saati
+                        </label>
+                        <input
+                            type="time"
+                            id="start-time"
+                            value={startTime}
+                            onChange={(e) => {
+                                setStartTime(e.target.value);
+                            }}
+                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm px-4 py-2 border"
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="end-time" className="block text-sm font-medium text-gray-700 mb-1">
+                            Bitiş Saati
+                        </label>
+                        <input
+                            type="time"
+                            id="end-time"
+                            value={endTime}
+                            onChange={(e) => {
+                                setEndTime(e.target.value);
+                            }}
+                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm px-4 py-2 border"
+                        />
+                    </div>
                     <button
-                        onClick={() => fetchStats(selectedDate)}
+                        onClick={() => fetchStats(selectedDate, startTime, endTime)}
                         className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm font-medium"
                     >
                         Raporu Getir
                     </button>
+                    {(startTime || endTime) && (
+                        <button
+                            onClick={() => {
+                                setStartTime('');
+                                setEndTime('');
+                                fetchStats(selectedDate, '', '');
+                            }}
+                            className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 text-sm font-medium ml-2"
+                        >
+                            Filtreyi Temizle
+                        </button>
+                    )}
                 </div>
 
                 {loading && (
