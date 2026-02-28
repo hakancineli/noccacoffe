@@ -40,6 +40,7 @@ export async function POST(request: Request) {
                         productName: item.productName,
                         quantity: item.quantity,
                         staffPrice: item.staffPrice,
+                        originalPrice: item.originalPrice,
                         size: item.size
                     }))
                 }
