@@ -499,7 +499,7 @@ export default function POSPage() {
                 size,
                 category: product.category,
                 image: dbProduct?.imageUrl || product.image,
-                isPorcelain: false
+                isPorcelain: product.name.includes('Türk Kahvesi') ? true : false
             }];
         });
 

@@ -84,8 +84,10 @@ export async function POST(request: Request) {
             }
 
             // Cup Deduction Logic
+            // Traditional porcelain items default to porcelain,
+            // but if barista explicitly selected "Karton", we should still deduct a cup.
             const isTraditionalPorcelain = productInDb.name.includes('Türk Kahvesi') || productInDb.name.includes('Cortado');
-            if (!item.isPorcelain && !isTraditionalPorcelain) {
+            if (!item.isPorcelain && !(isTraditionalPorcelain && item.isPorcelain)) {
                 const isCold = COLD_CATEGORIES.includes(productInDb.category) ||
                     productInDb.name.toLowerCase().includes('iced') ||
                     productInDb.name.toLowerCase().includes('buzlu');
