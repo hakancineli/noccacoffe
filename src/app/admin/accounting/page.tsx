@@ -86,6 +86,13 @@ interface DayDetails {
         category: string;
         date: string;
     }[];
+    ingredientBreakdown?: {
+        name: string;
+        unit: string;
+        totalUsed: number;
+        costPerUnit: number;
+        totalCost: number;
+    }[];
 }
 
 const RADIAN = Math.PI / 180;
@@ -1131,6 +1138,33 @@ function AccountingContent() {
                                                 )}
                                             </div>
                                         </div>
+
+                                        {/* Bottom: Ingredient Consumption */}
+                                        {dayDetails.ingredientBreakdown && dayDetails.ingredientBreakdown.length > 0 && (
+                                            <div className="flex-1 flex flex-col overflow-hidden border-t md:border-t-0 md:border-l border-gray-200">
+                                                <div className="p-4 bg-gray-50 border-b flex justify-between items-center">
+                                                    <h3 className="font-bold text-gray-800 flex items-center">
+                                                        📦 Hammadde Tüketimi ({dayDetails.ingredientBreakdown.length})
+                                                    </h3>
+                                                    <span className="text-orange-600 font-bold">
+                                                        ₺{dayDetails.ingredientBreakdown.reduce((sum, i) => sum + i.totalCost, 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                                    </span>
+                                                </div>
+                                                <div className="flex-1 overflow-y-auto p-4 space-y-2">
+                                                    {dayDetails.ingredientBreakdown.map((ing, idx) => (
+                                                        <div key={idx} className="bg-white p-2.5 rounded-lg border border-orange-50 shadow-sm hover:shadow-md transition flex justify-between items-center">
+                                                            <div>
+                                                                <span className="font-medium text-gray-900 text-sm block">{ing.name}</span>
+                                                                <span className="text-xs text-gray-500">
+                                                                    {ing.totalUsed.toLocaleString(undefined, { maximumFractionDigits: 1 })} {ing.unit} × ₺{ing.costPerUnit.toFixed(2)}
+                                                                </span>
+                                                            </div>
+                                                            <span className="font-bold text-orange-600 text-sm">₺{ing.totalCost.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
                                     </>
                                 ) : null}
                             </div>

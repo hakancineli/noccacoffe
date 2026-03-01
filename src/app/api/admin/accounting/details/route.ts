@@ -104,10 +104,71 @@ export async function GET(request: NextRequest) {
             }
         });
 
+        // Calculate ingredient consumption from order items using recipes
+        const ingredientConsumption: Record<string, { name: string; unit: string; totalUsed: number; costPerUnit: number }> = {};
+
+        // Get all order items with product info for the day
+        const orderItems = orders.flatMap(o => o.orderItems.map(oi => ({
+            productName: oi.productName,
+            quantity: oi.quantity,
+            size: oi.size
+        })));
+
+        // Get all products with their recipes
+        const products = await prisma.product.findMany({
+            include: {
+                recipes: {
+                    include: {
+                        items: {
+                            include: {
+                                ingredient: true
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        const productMap = new Map(products.map(p => [p.name, p]));
+
+        for (const oi of orderItems) {
+            const product = productMap.get(oi.productName);
+            if (!product || !product.recipes.length) continue;
+
+            // Find matching recipe by size
+            let recipe = product.recipes.find(r => r.size === oi.size);
+            if (!recipe) recipe = product.recipes.find(r => !r.size);
+            if (!recipe) recipe = product.recipes[0];
+
+            for (const recipeItem of recipe.items) {
+                const ing = recipeItem.ingredient;
+                const key = ing.id;
+                const usedAmount = recipeItem.quantity * oi.quantity;
+
+                if (!ingredientConsumption[key]) {
+                    ingredientConsumption[key] = {
+                        name: ing.name,
+                        unit: ing.unit,
+                        totalUsed: 0,
+                        costPerUnit: ing.costPerUnit
+                    };
+                }
+                ingredientConsumption[key].totalUsed += usedAmount;
+            }
+        }
+
+        const ingredientBreakdown = Object.values(ingredientConsumption)
+            .map(ic => ({
+                ...ic,
+                totalCost: ic.totalUsed * ic.costPerUnit
+            }))
+            .sort((a, b) => b.totalCost - a.totalCost);
+
         return NextResponse.json({
             orders,
             staffConsumptions,
-            expenses
+            expenses,
+            ingredientBreakdown
         });
 
     } catch (error) {
