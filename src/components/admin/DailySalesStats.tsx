@@ -6,6 +6,11 @@ interface ProductStat {
     productName: string;
     quantity: number;
     revenue: number;
+    unitCost: number;
+    totalCost: number;
+    unitProfit: number;
+    totalProfit: number;
+    margin: number;
 }
 
 interface DailyStats {
@@ -14,6 +19,9 @@ interface DailyStats {
         totalOrders: number;
         totalProductsSold: number;
         totalRevenue: number;
+        totalCost: number;
+        totalProfit: number;
+        profitMargin: number;
     };
     products: ProductStat[];
 }
@@ -141,43 +149,85 @@ export default function DailySalesStats() {
                 {stats && !loading && (
                     <div className="space-y-6">
                         {/* Summary Cards */}
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
                             <div className="bg-gray-50 p-4 rounded-lg text-center">
-                                <dt className="text-sm font-medium text-gray-500">Toplam Sipariş</dt>
-                                <dd className="mt-1 text-2xl font-semibold text-gray-900">{stats.summary.totalOrders}</dd>
+                                <dt className="text-xs font-medium text-gray-500">Toplam Sipariş</dt>
+                                <dd className="mt-1 text-xl font-semibold text-gray-900">{stats.summary.totalOrders}</dd>
                             </div>
                             <div className="bg-gray-50 p-4 rounded-lg text-center">
-                                <dt className="text-sm font-medium text-gray-500">Satılan Ürün Adedi</dt>
-                                <dd className="mt-1 text-2xl font-semibold text-gray-900">{stats.summary.totalProductsSold}</dd>
+                                <dt className="text-xs font-medium text-gray-500">Satılan Ürün</dt>
+                                <dd className="mt-1 text-xl font-semibold text-gray-900">{stats.summary.totalProductsSold}</dd>
                             </div>
-                            <div className="bg-gray-50 p-4 rounded-lg text-center">
-                                <dt className="text-sm font-medium text-gray-500">Günlük Ciro</dt>
-                                <dd className="mt-1 text-2xl font-semibold text-green-600">₺{stats.summary.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</dd>
+                            <div className="bg-green-50 p-4 rounded-lg text-center">
+                                <dt className="text-xs font-medium text-green-700">Günlük Ciro</dt>
+                                <dd className="mt-1 text-xl font-bold text-green-600">₺{stats.summary.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</dd>
+                            </div>
+                            <div className="bg-orange-50 p-4 rounded-lg text-center">
+                                <dt className="text-xs font-medium text-orange-700">Hammadde Maliyeti</dt>
+                                <dd className="mt-1 text-xl font-bold text-orange-600">₺{stats.summary.totalCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</dd>
+                            </div>
+                            <div className="bg-blue-50 p-4 rounded-lg text-center">
+                                <dt className="text-xs font-medium text-blue-700">Brüt Kâr</dt>
+                                <dd className={`mt-1 text-xl font-bold ${stats.summary.totalProfit >= 0 ? 'text-blue-600' : 'text-red-600'}`}>₺{stats.summary.totalProfit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</dd>
+                            </div>
+                            <div className="bg-purple-50 p-4 rounded-lg text-center">
+                                <dt className="text-xs font-medium text-purple-700">Kâr Marjı</dt>
+                                <dd className="mt-1 text-xl font-bold text-purple-600">%{stats.summary.profitMargin}</dd>
                             </div>
                         </div>
 
                         {/* Detailed Table */}
                         <div>
-                            <h4 className="text-base font-medium text-gray-900 mb-3">Ürün Bazlı Satış Detayı</h4>
+                            <h4 className="text-base font-medium text-gray-900 mb-3">Ürün Bazlı Satış & Karlılık Detayı</h4>
                             {stats.products.length > 0 ? (
-                                <div className="border rounded-lg overflow-hidden">
+                                <div className="border rounded-lg overflow-x-auto">
                                     <table className="min-w-full divide-y divide-gray-200">
                                         <thead className="bg-gray-50">
                                             <tr>
-                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ürün Adı</th>
-                                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Satış Adedi</th>
-                                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Toplam Tutar</th>
+                                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ürün Adı</th>
+                                                <th className="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Adet</th>
+                                                <th className="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ciro</th>
+                                                <th className="px-3 py-3 text-right text-xs font-medium text-orange-600 uppercase tracking-wider">Birim Maliyet</th>
+                                                <th className="px-3 py-3 text-right text-xs font-medium text-orange-600 uppercase tracking-wider">Top. Maliyet</th>
+                                                <th className="px-3 py-3 text-right text-xs font-medium text-blue-600 uppercase tracking-wider">Birim Kâr</th>
+                                                <th className="px-3 py-3 text-right text-xs font-medium text-blue-600 uppercase tracking-wider">Top. Kâr</th>
+                                                <th className="px-3 py-3 text-right text-xs font-medium text-purple-600 uppercase tracking-wider">Marj</th>
                                             </tr>
                                         </thead>
                                         <tbody className="bg-white divide-y divide-gray-200">
                                             {stats.products.map((product, idx) => (
                                                 <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{product.productName}</td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">{product.quantity}</td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">₺{product.revenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                                    <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{product.productName}</td>
+                                                    <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-500 text-right">{product.quantity}</td>
+                                                    <td className="px-3 py-3 whitespace-nowrap text-sm text-green-600 font-medium text-right">₺{product.revenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                                                    <td className="px-3 py-3 whitespace-nowrap text-sm text-orange-600 text-right">₺{product.unitCost.toFixed(2)}</td>
+                                                    <td className="px-3 py-3 whitespace-nowrap text-sm text-orange-600 text-right">₺{product.totalCost.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                                                    <td className={`px-3 py-3 whitespace-nowrap text-sm font-medium text-right ${product.unitProfit >= 0 ? 'text-blue-600' : 'text-red-600'}`}>₺{product.unitProfit.toFixed(2)}</td>
+                                                    <td className={`px-3 py-3 whitespace-nowrap text-sm font-bold text-right ${product.totalProfit >= 0 ? 'text-blue-600' : 'text-red-600'}`}>₺{product.totalProfit.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                                                    <td className="px-3 py-3 whitespace-nowrap text-right">
+                                                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold ${product.margin >= 70 ? 'bg-green-100 text-green-800' :
+                                                                product.margin >= 50 ? 'bg-blue-100 text-blue-800' :
+                                                                    product.margin >= 30 ? 'bg-yellow-100 text-yellow-800' :
+                                                                        'bg-red-100 text-red-800'
+                                                            }`}>
+                                                            %{product.margin}
+                                                        </span>
+                                                    </td>
                                                 </tr>
                                             ))}
                                         </tbody>
+                                        <tfoot className="bg-gray-100 font-bold">
+                                            <tr>
+                                                <td className="px-4 py-3 text-sm text-gray-900">TOPLAM</td>
+                                                <td className="px-3 py-3 text-sm text-gray-900 text-right">{stats.summary.totalProductsSold}</td>
+                                                <td className="px-3 py-3 text-sm text-green-700 text-right">₺{stats.summary.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                                                <td className="px-3 py-3 text-sm text-right"></td>
+                                                <td className="px-3 py-3 text-sm text-orange-700 text-right">₺{stats.summary.totalCost.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                                                <td className="px-3 py-3 text-sm text-right"></td>
+                                                <td className={`px-3 py-3 text-sm text-right ${stats.summary.totalProfit >= 0 ? 'text-blue-700' : 'text-red-700'}`}>₺{stats.summary.totalProfit.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                                                <td className="px-3 py-3 text-sm text-purple-700 text-right">%{stats.summary.profitMargin}</td>
+                                            </tr>
+                                        </tfoot>
                                     </table>
                                 </div>
                             ) : (
