@@ -23,6 +23,8 @@ interface DailyStats {
         totalCost: number;
         totalProfit: number;
         profitMargin: number;
+        orderRevenue: number;
+        staffRevenue: number;
     };
     products: ProductStat[];
 }
@@ -189,8 +191,14 @@ export default function DailySalesStats() {
                                 <dd className="text-xl font-bold text-gray-900">{filteredSummary?.totalProductsSold}</dd>
                             </div>
                             <div className="bg-green-50/50 p-4 rounded-xl border border-green-100 shadow-sm text-center">
-                                <dt className="text-[10px] font-bold text-green-600/70 uppercase tracking-widest mb-1">Filtreli Ciro</dt>
+                                <dt className="text-[10px] font-bold text-green-600/70 uppercase tracking-widest mb-1">Toplam Ciro</dt>
                                 <dd className="text-xl font-black text-green-600">₺{filteredSummary?.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</dd>
+                                {selectedCategory === 'all' && (
+                                    <div className="mt-1 flex justify-center gap-2 text-[10px] text-green-700 font-medium">
+                                        <span>🛒 ₺{stats.summary.orderRevenue.toLocaleString()}</span>
+                                        <span>☕ ₺{stats.summary.staffRevenue.toLocaleString()}</span>
+                                    </div>
+                                )}
                             </div>
                             <div className="bg-orange-50/50 p-4 rounded-xl border border-orange-100 shadow-sm text-center">
                                 <dt className="text-[10px] font-bold text-orange-600/70 uppercase tracking-widest mb-1">Hammadde Maliyeti</dt>
@@ -275,9 +283,9 @@ export default function DailySalesStats() {
                                             </td>
                                             <td className="px-6 py-4 text-right whitespace-nowrap">
                                                 <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-black shadow-sm ${product.margin >= 70 ? 'bg-green-100 text-green-700' :
-                                                        product.margin >= 50 ? 'bg-blue-100 text-blue-700' :
-                                                            product.margin >= 30 ? 'bg-yellow-100 text-yellow-700' :
-                                                                'bg-red-100 text-red-700'
+                                                    product.margin >= 50 ? 'bg-blue-100 text-blue-700' :
+                                                        product.margin >= 30 ? 'bg-yellow-100 text-yellow-700' :
+                                                            'bg-red-100 text-red-700'
                                                     }`}>
                                                     %{product.margin}
                                                 </span>

@@ -44,69 +44,70 @@ export async function GET(request: NextRequest) {
     const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
 
-    // Get total orders count
-    const totalOrders = await prisma.order.count();
+    // Get current month date range in TR time
+    const startOfMonth = new Date(Date.UTC(today.getFullYear(), today.getMonth(), 1, -3, 0, 0, 0));
+    const nextMonth = new Date(Date.UTC(today.getFullYear(), today.getMonth() + 1, 1, -3, 0, 0, 0));
 
-    // Get today's orders
+    // Get total orders count for the month
+    const totalOrders = await prisma.order.count({
+      where: {
+        createdAt: { gte: startOfMonth, lt: nextMonth },
+        status: { not: 'CANCELLED' },
+        isDeleted: false
+      }
+    });
+
+    // Get month's orders today count
     const todayOrders = await prisma.order.count({
       where: {
-        createdAt: {
-          gte: startOfDay,
-          lt: endOfDay
-        }
+        createdAt: { gte: startOfDay, lt: endOfDay },
+        status: { not: 'CANCELLED' },
+        isDeleted: false
       }
     });
 
-    // Get total users (all users are considered active since no isActive field exists)
-    const activeCustomers = await prisma.user.count();
-
-    // Calculate total revenue from payments
+    // Calculate month revenue from payments (matching accounting logic)
     const payments = await prisma.payment.aggregate({
       where: {
-        status: 'COMPLETED'
+        status: 'COMPLETED',
+        createdAt: { gte: startOfMonth, lt: nextMonth },
+        order: { isDeleted: false }
       },
-      _sum: {
-        amount: true
-      }
+      _sum: { amount: true }
     });
 
-    const totalRevenue = payments._sum.amount || 0;
+    // Add Staff Consumption Revenue
+    const staffConsumptions = await prisma.staffConsumption.findMany({
+      where: { createdAt: { gte: startOfMonth, lt: nextMonth } },
+      include: { items: true }
+    });
+    const staffRevenue = staffConsumptions.reduce((total, sc) =>
+      total + sc.items.reduce((scTotal, item) => scTotal + (item.staffPrice * item.quantity), 0), 0
+    );
 
-    // Get pending and completed orders
+    const totalRevenue = (payments._sum.amount || 0) + staffRevenue;
+
     const pendingOrders = await prisma.order.count({
-      where: {
-        status: 'PENDING'
-      }
+      where: { status: 'PENDING', isDeleted: false }
     });
 
     const completedOrders = await prisma.order.count({
-      where: {
-        status: 'COMPLETED'
-      }
+      where: { status: 'COMPLETED', isDeleted: false }
     });
 
     const lowStockCount = await (prisma as any).product.count({
-      where: {
-        stock: {
-          lte: 10
-        },
-        isActive: true
-      }
+      where: { stock: { lte: 10 }, isActive: true }
     });
 
     const lowIngredientCount = await (prisma as any).ingredient.count({
-      where: {
-        stock: {
-          lte: 100
-        }
-      }
+      where: { stock: { lte: 100 } }
     });
 
     const stats = {
       totalOrders,
       todayOrders,
-      totalRevenue,
-      activeCustomers,
+      totalRevenue: Math.round(totalRevenue),
+      activeCustomers: await prisma.user.count(),
       pendingOrders,
       completedOrders,
       lowStockCount,

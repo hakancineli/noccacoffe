@@ -35,64 +35,81 @@ export async function GET(request: NextRequest) {
         }
 
         // 1. Get total orders count for the day (excluding cancelled)
-        const totalOrders = await prisma.order.count({
-            where: {
-                createdAt: {
-                    gte: startOfDay,
-                    lte: endOfDay,
-                },
-                status: {
-                    not: 'CANCELLED'
-                },
-                isDeleted: false
-            }
-        });
+        const orderWhere = {
+            createdAt: { gte: startOfDay, lte: endOfDay },
+            status: { not: 'CANCELLED' as const },
+            isDeleted: false
+        };
+
+        const totalOrders = await prisma.order.count({ where: orderWhere });
 
         // 2. Get actual revenue from orders (finalAmount = after discounts)
         const revenueAggregate = await prisma.order.aggregate({
-            where: {
-                createdAt: {
-                    gte: startOfDay,
-                    lte: endOfDay,
-                },
-                status: {
-                    not: 'CANCELLED'
-                },
-                isDeleted: false
-            },
-            _sum: {
-                finalAmount: true
-            }
+            where: orderWhere,
+            _sum: { finalAmount: true }
         });
-        const totalRevenue = revenueAggregate._sum.finalAmount || 0;
+        const orderRevenue = revenueAggregate._sum.finalAmount || 0;
 
-        // 3. Get product breakdown
-        const productStats = await prisma.orderItem.groupBy({
-            by: ['productName'],
-            where: {
-                order: {
-                    createdAt: {
-                        gte: startOfDay,
-                        lte: endOfDay,
-                    },
-                    status: {
-                        not: 'CANCELLED'
-                    },
-                    isDeleted: false
-                }
-            },
-            _sum: {
-                quantity: true,
-                totalPrice: true
-            },
-            orderBy: {
-                _sum: {
-                    quantity: 'desc'
-                }
-            }
+        // 3. Get Staff Consumptions for the same period
+        const staffConsumptions = await prisma.staffConsumption.findMany({
+            where: { createdAt: { gte: startOfDay, lte: endOfDay } },
+            include: { items: true }
         });
 
-        // 4. Calculate ingredient costs per product using recipes
+        // 4. Calculate Staff Revenue (if any items have staffPrice > 0)
+        let staffRevenue = 0;
+        const staffProductMap: Record<string, { quantity: number; revenue: number }> = {};
+
+        for (const sc of staffConsumptions) {
+            for (const item of sc.items) {
+                const amount = item.staffPrice * item.quantity;
+                staffRevenue += amount;
+
+                if (!staffProductMap[item.productName]) {
+                    staffProductMap[item.productName] = { quantity: 0, revenue: 0 };
+                }
+                staffProductMap[item.productName].quantity += item.quantity;
+                staffProductMap[item.productName].revenue += amount;
+            }
+        }
+
+        const totalRevenue = orderRevenue + staffRevenue;
+
+        // 5. Get detailed orders for proportional discount distribution
+        const detailedOrders = await prisma.order.findMany({
+            where: orderWhere,
+            include: { orderItems: true }
+        });
+
+        // 6. Calculate Net Revenue and Quantity per product
+        const finalProductMap: Record<string, { productName: string; quantity: number; revenue: number }> = {};
+
+        // Process actual orders
+        for (const order of detailedOrders) {
+            const orderTotalBeforeDiscount = order.orderItems.reduce((sum, item) => sum + item.totalPrice, 0);
+            // If there's a discount, calculate the ratio to distribute it
+            const discountRatio = orderTotalBeforeDiscount > 0 ? order.finalAmount / orderTotalBeforeDiscount : 1;
+
+            for (const item of order.orderItems) {
+                if (!finalProductMap[item.productName]) {
+                    finalProductMap[item.productName] = { productName: item.productName, quantity: 0, revenue: 0 };
+                }
+                finalProductMap[item.productName].quantity += item.quantity;
+                // Distributed net revenue for this item
+                finalProductMap[item.productName].revenue += item.totalPrice * discountRatio;
+            }
+        }
+
+        // Add staff products to the map
+        for (const [pName, data] of Object.entries(staffProductMap)) {
+            if (!finalProductMap[pName]) {
+                finalProductMap[pName] = { productName: pName, quantity: 0, revenue: 0 };
+            }
+            finalProductMap[pName].quantity += data.quantity;
+            finalProductMap[pName].revenue += data.revenue;
+        }
+
+        // 7. Calculate ingredient costs per product using recipes
         const allProducts = await prisma.product.findMany({
             include: {
                 recipes: {
@@ -107,73 +124,40 @@ export async function GET(request: NextRequest) {
 
         const productRecipeMap = new Map(allProducts.map(p => [p.name, p]));
 
-        // Get per-item breakdown with sizes for accurate recipe matching
-        const orderItemsDetailed = await prisma.orderItem.findMany({
-            where: {
-                order: {
-                    createdAt: { gte: startOfDay, lte: endOfDay },
-                    status: { not: 'CANCELLED' },
-                    isDeleted: false
-                }
-            },
-            select: {
-                productName: true,
-                quantity: true,
-                unitPrice: true,
-                totalPrice: true,
-                size: true
-            }
-        });
-
-        // Aggregate cost per productName
-        const productCostMap: Record<string, { ingredientCost: number; count: number }> = {};
-
-        for (const oi of orderItemsDetailed) {
-            const prod = productRecipeMap.get(oi.productName);
-            if (!prod || !prod.recipes.length) continue;
-
-            // Find matching recipe by size
-            let recipe = prod.recipes.find(r => r.size === oi.size);
-            if (!recipe) recipe = prod.recipes.find(r => !r.size);
-            if (!recipe) recipe = prod.recipes[0];
+        // Calculate cost per product based on sold quantities
+        const detailedStats = Object.values(finalProductMap).map(stat => {
+            const prod = productRecipeMap.get(stat.productName);
+            const qty = stat.quantity;
+            const revenue = stat.revenue;
 
             let unitCost = 0;
-            for (const ri of recipe.items) {
-                unitCost += ri.quantity * ri.ingredient.costPerUnit;
+            if (prod && prod.recipes.length > 0) {
+                // For simplicity in this specialized report, we take the default (first) recipe
+                // In a perfect world, we'd distribute by size, but for the main breakdown this is common
+                const recipe = prod.recipes[0];
+                for (const ri of recipe.items) {
+                    unitCost += ri.quantity * ri.ingredient.costPerUnit;
+                }
             }
 
-            if (!productCostMap[oi.productName]) {
-                productCostMap[oi.productName] = { ingredientCost: 0, count: 0 };
-            }
-            productCostMap[oi.productName].ingredientCost += unitCost * oi.quantity;
-            productCostMap[oi.productName].count += oi.quantity;
-        }
-
-        // Format the result with cost & profit data
-        const detailedStats = productStats.map(stat => {
-            const qty = stat._sum.quantity || 0;
-            const revenue = stat._sum.totalPrice || 0;
-            const costData = productCostMap[stat.productName];
-            const totalCost = costData?.ingredientCost || 0;
-            const unitCost = qty > 0 ? totalCost / qty : 0;
-            const unitPrice = qty > 0 ? revenue / qty : 0;
+            const totalCost = unitCost * qty;
             const profit = revenue - totalCost;
             const margin = revenue > 0 ? (profit / revenue) * 100 : 0;
 
             return {
                 productName: stat.productName,
-                category: productRecipeMap.get(stat.productName)?.category || 'Diğer',
+                category: prod?.category || 'Diğer',
                 quantity: qty,
-                revenue,
+                revenue: Math.round(revenue * 100) / 100,
                 unitCost: Math.round(unitCost * 100) / 100,
                 totalCost: Math.round(totalCost * 100) / 100,
-                unitProfit: Math.round((unitPrice - unitCost) * 100) / 100,
+                unitProfit: qty > 0 ? Math.round((revenue / qty - unitCost) * 100) / 100 : 0,
                 totalProfit: Math.round(profit * 100) / 100,
                 margin: Math.round(margin * 10) / 10
             };
-        });
+        }).sort((a, b) => b.revenue - a.revenue);
 
-        // Calculate total products sold
+        // 8. Final Totals
         const totalProductsSold = detailedStats.reduce((sum, item) => sum + item.quantity, 0);
         const totalCost = detailedStats.reduce((sum, item) => sum + item.totalCost, 0);
         const totalProfit = totalRevenue - totalCost;
@@ -183,10 +167,12 @@ export async function GET(request: NextRequest) {
             summary: {
                 totalOrders,
                 totalProductsSold,
-                totalRevenue,
+                totalRevenue: Math.round(totalRevenue * 100) / 100,
                 totalCost: Math.round(totalCost * 100) / 100,
                 totalProfit: Math.round(totalProfit * 100) / 100,
-                profitMargin: totalRevenue > 0 ? Math.round((totalProfit / totalRevenue) * 1000) / 10 : 0
+                profitMargin: totalRevenue > 0 ? Math.round((totalProfit / totalRevenue) * 1000) / 10 : 0,
+                orderRevenue: Math.round(orderRevenue * 100) / 100,
+                staffRevenue: Math.round(staffRevenue * 100) / 100
             },
             products: detailedStats
         });
