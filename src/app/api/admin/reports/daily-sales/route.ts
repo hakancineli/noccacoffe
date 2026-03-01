@@ -162,6 +162,7 @@ export async function GET(request: NextRequest) {
 
             return {
                 productName: stat.productName,
+                category: productRecipeMap.get(stat.productName)?.category || 'Diğer',
                 quantity: qty,
                 revenue,
                 unitCost: Math.round(unitCost * 100) / 100,
