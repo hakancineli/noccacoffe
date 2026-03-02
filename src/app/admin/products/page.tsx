@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FaTrash } from 'react-icons/fa';
@@ -1245,6 +1245,8 @@ function RecipeModal({
   deleteRecipe: (recipeId: string) => void;
   updateIngredientUnit: (ingredientId: string, newUnit: string) => void;
 }) {
+  const modalRef = useRef<HTMLDivElement>(null);
+
   if (!isOpen || !product) return null;
 
   const handleSizeChange = (newSize: string) => {
@@ -1261,13 +1263,18 @@ function RecipeModal({
     } else {
       setRecipeFormData({
         size: newSize,
-        items: [] // Clear items or keep them if you want to copy? User request implies expectation of specific data. Let's clear to avoid confusion.
+        items: []
       });
+    }
+
+    // Scroll back to top to show the edit form
+    if (modalRef.current) {
+      modalRef.current.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+    <div ref={modalRef} className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto scroll-smooth">
       <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full p-6 my-8">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold">
@@ -1283,12 +1290,15 @@ function RecipeModal({
         </div>
 
         <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Boyut (Opsiyonel)</label>
+          <div className="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
+            <label className="block text-xs font-black text-indigo-600 mb-1 uppercase tracking-widest leading-none">
+              Düzenlenecek Boyutu Seçin
+            </label>
+            <p className="text-[10px] text-indigo-400 mb-2 font-medium">Reçetesini eklemek veya güncellemek istediğiniz boyutu buradan seçebilirsiniz.</p>
             <select
               value={recipeFormData.size}
               onChange={(e) => handleSizeChange(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
+              className="w-full px-4 py-3 border-2 border-indigo-200 rounded-lg focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-600 transition font-bold text-gray-700 bg-white"
             >
               <option value="">Standart / Tek Boyut</option>
               {product.prices && Array.isArray(product.prices) ? (
@@ -1433,17 +1443,25 @@ function RecipeModal({
                           }, 0).toFixed(2)}
                         </span>
                       </div>
-                      <button
-                        onClick={() => {
-                          if (confirm('Bu reçeteyi silmek istediğinize emin misiniz?')) {
-                            deleteRecipe(recipe.id);
-                          }
-                        }}
-                        className="text-red-400 hover:text-red-600 transition p-1 hover:bg-red-50 rounded"
-                        title="Reçeteyi Sil"
-                      >
-                        🗑️
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleSizeChange(recipe.size || '')}
+                          className="text-indigo-600 hover:text-indigo-800 text-[10px] font-black uppercase tracking-widest bg-white px-2 py-1 rounded border border-indigo-100 hover:border-indigo-300 transition"
+                        >
+                          Düzenle ✏️
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (confirm('Bu reçeteyi silmek istediğinize emin misiniz?')) {
+                              deleteRecipe(recipe.id);
+                            }
+                          }}
+                          className="text-red-400 hover:text-red-600 transition p-1 hover:bg-red-50 rounded"
+                          title="Reçeteyi Sil"
+                        >
+                          🗑️
+                        </button>
+                      </div>
                     </div>
 
                     <table className="min-w-full divide-y divide-gray-100">
