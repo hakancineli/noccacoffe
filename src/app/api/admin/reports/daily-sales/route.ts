@@ -81,20 +81,24 @@ export async function GET(request: NextRequest) {
             include: { orderItems: true }
         });
 
-        // 6. Get all product recipes for cost calculation
-        const allProducts = await prisma.product.findMany({
-            include: {
-                recipes: {
-                    include: {
-                        items: {
-                            include: { ingredient: true }
+        // 6. Get all product recipes AND all ingredients separately to ensure price sync
+        const [allProducts, allIngredients] = await Promise.all([
+            prisma.product.findMany({
+                include: {
+                    recipes: {
+                        include: {
+                            items: {
+                                include: { ingredient: true }
+                            }
                         }
                     }
                 }
-            }
-        });
+            }),
+            prisma.ingredient.findMany()
+        ]);
 
         const productRecipeMap = new Map(allProducts.map(p => [p.name, p]));
+        const ingredientMap = new Map(allIngredients.map(ing => [ing.name, ing]));
 
         // 7. Calculate Net Revenue, Quantity and ACTUAL Cost per product/size
         const productStatsMap: Record<string, {
@@ -166,7 +170,7 @@ export async function GET(request: NextRequest) {
                                 else if (sz === 'M') bn = 'Karton Bardak: Medium (12oz)';
                                 else bn = 'Karton Bardak: Small (8oz)';
                             }
-                            const cIng = allProducts.flatMap(p => p.recipes.flatMap(r => r.items.map(i => i.ingredient))).find(ing => ing.name === bn);
+                            const cIng = ingredientMap.get(bn);
                             if (cIng) unitCost += cIng.costPerUnit;
                         }
                     }
@@ -232,7 +236,7 @@ export async function GET(request: NextRequest) {
                                 else if (sz === 'M') bn = 'Karton Bardak: Medium (12oz)';
                                 else bn = 'Karton Bardak: Small (8oz)';
                             }
-                            const cIng = allProducts.flatMap(p => p.recipes.flatMap(r => r.items.map(i => i.ingredient))).find(ing => ing.name === bn);
+                            const cIng = ingredientMap.get(bn);
                             if (cIng) unitCost += cIng.costPerUnit;
                         }
                     }
