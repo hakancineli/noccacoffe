@@ -29,20 +29,20 @@ export default function CampaignSection() {
                         <div className="space-y-4 mb-8">
                             <div className="flex items-center text-lg font-medium text-gray-700">
                                 <span className="text-2xl mr-3">🎉</span>
-                                6. Kahve Hediye!
+                                Günün 2. Kahvesi %50 İndirimli!
                             </div>
                             <div className="flex items-center text-lg font-medium text-gray-700">
                                 <span className="text-2xl mr-3">☕</span>
-                                5 kahve alana 6. kahve ücretsiz
+                                İlk kahveden 1 saat sonra...
                             </div>
                             <div className="flex items-center text-lg font-medium text-gray-700">
-                                <span className="text-2xl mr-3">🍰</span>
-                                5. kahve + tatlı %20 indirim
+                                <span className="text-2xl mr-3">🎁</span>
+                                2. içeceğiniz %50 indirimli!
                             </div>
                         </div>
 
                         <p className="text-sm text-gray-500 mb-8 italic">
-                            Kampanya 31 Aralık 2025 tarihine kadar geçerlidir.
+                            Kampanya 31 Aralık 2026 tarihine kadar geçerlidir.
                         </p>
 
                         <div>

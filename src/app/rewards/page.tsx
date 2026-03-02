@@ -71,10 +71,10 @@ export default function RewardsPage() {
                     Özel Kampanya
                   </h2>
                   <div className="space-y-4 text-lg text-gray-700 mb-6">
-                    <p>🎉 <span className="font-semibold">6. Kahve Hediye!</span></p>
-                    <p>☕ 5 kahve alana 6. kahve ücretsiz</p>
-                    <p>🍰 5. kahve + tatlı %20 indirim</p>
-                    <p className="text-sm text-gray-500 mt-2">Kampanya 31 Aralık 2025 tarihine kadar geçerlidir.</p>
+                    <p>🎉 <span className="font-semibold">Günün 2. Kahvesi %50 İndirimli!</span></p>
+                    <p>☕ İlk kahveden 1 saat sonra...</p>
+                    <p>🎁 2. içeceğiniz %50 indirimli!</p>
+                    <p className="text-sm text-gray-500 mt-2">Kampanya 31 Aralık 2026 tarihine kadar geçerlidir.</p>
                   </div>
                   <Link href="/menu" className="inline-block bg-nocca-light-green text-white px-8 py-3 rounded-full font-semibold hover:bg-nocca-green transition-colors text-center">
                     Hemen Sipariş Ver

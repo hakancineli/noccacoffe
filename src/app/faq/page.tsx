@@ -21,8 +21,8 @@ export default function FAQPage() {
             a: 'Kredi kartı, banka kartı ve mağaza teslimatlarımızda nakit ödeme seçeneklerini kabul ediyoruz.'
         },
         {
-            q: 'Kazanılan yıldızları nasıl kullanabilirim?',
-            a: 'Her 5 kahve alımınızda 1 adet ücretsiz kahve kazanırsınız. Kazandığınız hediye kahveleri bir sonraki siparişinizde "Ödüllerim" kısmından aktif ederek kullanabilirsiniz.'
+            q: 'Günün 2. Kahvesi indiriminden nasıl yararlanabilirim?',
+            a: 'Günün ilk içeceğini aldıktan 1 saat sonra, aynı gün içinde alacağınız 2. içeceğiniz %50 indirimli olur. Bu indirimden yararlanmak için ödeme sırasında telefon numaranızı veya PIN kodunuzu belirtmeniz yeterlidir.'
         },
         {
             q: 'Ürün iptal ve iade politikası nasıldır?',
