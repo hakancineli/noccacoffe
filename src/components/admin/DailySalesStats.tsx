@@ -12,6 +12,7 @@ interface ProductStat {
     unitProfit: number;
     totalProfit: number;
     margin: number;
+    markup: number;
 }
 
 interface DailyStats {
@@ -23,6 +24,7 @@ interface DailyStats {
         totalCost: number;
         totalProfit: number;
         profitMargin: number;
+        markup: number;
         orderRevenue: number;
         staffRevenue: number;
     };
@@ -99,7 +101,8 @@ export default function DailySalesStats() {
             totalRevenue: rev,
             totalCost: cost,
             totalProfit: profit,
-            profitMargin: rev > 0 ? Math.round((profit / rev) * 1000) / 10 : 0
+            profitMargin: rev > 0 ? Math.round((profit / rev) * 1000) / 10 : 0,
+            markup: cost > 0 ? Math.round((profit / cost) * 1000) / 10 : 0
         };
     }, [stats, selectedCategory]);
 
@@ -181,7 +184,7 @@ export default function DailySalesStats() {
                 {stats && !loading && (
                     <div className="space-y-6 animate-fade-in">
                         {/* Summary Cards */}
-                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
                             <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm text-center">
                                 <dt className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Toplam Sipariş</dt>
                                 <dd className="text-xl font-bold text-gray-900">{stats.summary.totalOrders}</dd>
@@ -211,8 +214,12 @@ export default function DailySalesStats() {
                                 </dd>
                             </div>
                             <div className="bg-purple-50/50 p-4 rounded-xl border border-purple-100 shadow-sm text-center">
-                                <dt className="text-[10px] font-bold text-purple-600/70 uppercase tracking-widest mb-1">Kâr Marjı</dt>
+                                <dt className="text-[10px] font-bold text-purple-600/70 uppercase tracking-widest mb-1">Kâr Marjı (%)</dt>
                                 <dd className="text-xl font-black text-purple-600">%{filteredSummary?.profitMargin}</dd>
+                            </div>
+                            <div className="bg-emerald-50/50 p-4 rounded-xl border border-emerald-100 shadow-sm text-center">
+                                <dt className="text-[10px] font-bold text-emerald-600/70 uppercase tracking-widest mb-1">Markup (%)</dt>
+                                <dd className="text-xl font-black text-emerald-600">%{filteredSummary?.markup}</dd>
                             </div>
                         </div>
 
@@ -247,7 +254,8 @@ export default function DailySalesStats() {
                                         <th className="px-4 py-4 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest">Ciro</th>
                                         <th className="px-4 py-4 text-right text-[10px] font-black text-orange-400 uppercase tracking-widest">Maliyet</th>
                                         <th className="px-4 py-4 text-right text-[10px] font-black text-blue-400 uppercase tracking-widest">Kâr</th>
-                                        <th className="px-6 py-4 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest">Marj</th>
+                                        <th className="px-4 py-4 text-right text-[10px] font-black text-purple-400 uppercase tracking-widest">Marj (%)</th>
+                                        <th className="px-6 py-4 text-right text-[10px] font-black text-emerald-400 uppercase tracking-widest">Markup (%)</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-50">
@@ -281,13 +289,22 @@ export default function DailySalesStats() {
                                                     </span>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4 text-right whitespace-nowrap">
-                                                <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-black shadow-sm ${product.margin >= 70 ? 'bg-green-100 text-green-700' :
-                                                    product.margin >= 50 ? 'bg-blue-100 text-blue-700' :
-                                                        product.margin >= 30 ? 'bg-yellow-100 text-yellow-700' :
-                                                            'bg-red-100 text-red-700'
+                                            <td className="px-4 py-4 text-right whitespace-nowrap">
+                                                <span className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-black ${product.margin >= 70 ? 'text-green-600' :
+                                                    product.margin >= 50 ? 'text-blue-600' :
+                                                        product.margin >= 30 ? 'text-yellow-600' :
+                                                            'text-red-600'
                                                     }`}>
                                                     %{product.margin}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 text-right whitespace-nowrap">
+                                                <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-black shadow-sm ${product.markup >= 150 ? 'bg-green-100 text-green-700' :
+                                                    product.markup >= 100 ? 'bg-blue-100 text-blue-700' :
+                                                        product.markup >= 50 ? 'bg-yellow-100 text-yellow-700' :
+                                                            'bg-red-100 text-red-700'
+                                                    }`}>
+                                                    %{product.markup}
                                                 </span>
                                             </td>
                                         </tr>
@@ -310,8 +327,11 @@ export default function DailySalesStats() {
                                         <td className={`px-4 py-4 text-right text-base font-black ${filteredSummary!.totalProfit >= 0 ? 'text-blue-700' : 'text-red-700'}`}>
                                             ₺{filteredSummary?.totalProfit.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                         </td>
-                                        <td className="px-6 py-4 text-right text-purple-700 font-black">
-                                            <span className="bg-purple-100 px-3 py-1 rounded-full">%{filteredSummary?.profitMargin}</span>
+                                        <td className="px-4 py-4 text-right text-purple-700 font-black">
+                                            <span className="text-xs">%{filteredSummary?.profitMargin}</span>
+                                        </td>
+                                        <td className="px-6 py-4 text-right text-emerald-700 font-black">
+                                            <span className="bg-emerald-100 px-3 py-1 rounded-full">%{filteredSummary?.markup}</span>
                                         </td>
                                     </tr>
                                 </tfoot>

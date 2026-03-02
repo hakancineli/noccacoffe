@@ -207,6 +207,7 @@ export async function GET(request: NextRequest) {
             const totalCost = stat.totalCost;
             const profit = revenue - totalCost;
             const margin = revenue > 0 ? (profit / revenue) * 100 : 0;
+            const markup = totalCost > 0 ? (profit / totalCost) * 100 : 0;
 
             return {
                 productName: stat.productName,
@@ -217,14 +218,15 @@ export async function GET(request: NextRequest) {
                 totalCost: Math.round(totalCost * 100) / 100,
                 unitProfit: stat.quantity > 0 ? Math.round((revenue / stat.quantity - totalCost / stat.quantity) * 100) / 100 : 0,
                 totalProfit: Math.round(profit * 100) / 100,
-                margin: Math.round(margin * 10) / 10
+                margin: Math.round(margin * 10) / 10,
+                markup: Math.round(markup * 10) / 10
             };
         }).sort((a, b) => b.revenue - a.revenue);
 
         // 8. Final Totals
         const totalProductsSold = detailedStats.reduce((sum, item) => sum + item.quantity, 0);
-        const totalCost = detailedStats.reduce((sum, item) => sum + item.totalCost, 0);
-        const totalProfit = totalRevenue - totalCost;
+        const totalCostSum = detailedStats.reduce((sum, item) => sum + item.totalCost, 0);
+        const totalProfitSum = totalRevenue - totalCostSum;
 
         return NextResponse.json({
             date: dateParam,
@@ -232,9 +234,10 @@ export async function GET(request: NextRequest) {
                 totalOrders,
                 totalProductsSold,
                 totalRevenue: Math.round(totalRevenue * 100) / 100,
-                totalCost: Math.round(totalCost * 100) / 100,
-                totalProfit: Math.round(totalProfit * 100) / 100,
-                profitMargin: totalRevenue > 0 ? Math.round((totalProfit / totalRevenue) * 1000) / 10 : 0,
+                totalCost: Math.round(totalCostSum * 100) / 100,
+                totalProfit: Math.round(totalProfitSum * 100) / 100,
+                profitMargin: totalRevenue > 0 ? Math.round((totalProfitSum / totalRevenue) * 1000) / 10 : 0,
+                markup: totalCostSum > 0 ? Math.round((totalProfitSum / totalCostSum) * 1000) / 10 : 0,
                 orderRevenue: Math.round(orderRevenue * 100) / 100,
                 staffRevenue: Math.round(staffRevenue * 100) / 100
             },
