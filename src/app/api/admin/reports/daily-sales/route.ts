@@ -147,8 +147,27 @@ export async function GET(request: NextRequest) {
 
                     let unitCost = 0;
                     if (recipe) {
+                        let hasCupInRecipe = false;
                         for (const ri of recipe.items) {
                             unitCost += ri.quantity * ri.ingredient.costPerUnit;
+                            if (ri.ingredient.name.toLowerCase().includes('bardak')) hasCupInRecipe = true;
+                        }
+
+                        if (!hasCupInRecipe && prod && !['Tatlılar', 'Tozlar', 'Kasa Önü'].includes(prod.category)) {
+                            const isCold = prod.category.toLowerCase().includes('soğuk') || prod.name.toLowerCase().includes('iced') || prod.name.toLowerCase().includes('cool');
+                            const sz = (item.size || 'M').toUpperCase().substring(0, 1);
+                            let bn = '';
+                            if (isCold) {
+                                if (sz === 'L') bn = 'Şeffaf Bardak: Large (16oz)';
+                                else if (sz === 'M') bn = 'Şeffaf Bardak: Medium (14oz)';
+                                else bn = 'Şeffaf Bardak: Small (12oz)';
+                            } else {
+                                if (sz === 'L') bn = 'Karton Bardak: Large (16oz)';
+                                else if (sz === 'M') bn = 'Karton Bardak: Medium (12oz)';
+                                else bn = 'Karton Bardak: Small (8oz)';
+                            }
+                            const cIng = allProducts.flatMap(p => p.recipes.flatMap(r => r.items.map(i => i.ingredient))).find(ing => ing.name === bn);
+                            if (cIng) unitCost += cIng.costPerUnit;
                         }
                     }
                     stats.totalCost += unitCost * item.quantity;
@@ -194,8 +213,27 @@ export async function GET(request: NextRequest) {
 
                     let unitCost = 0;
                     if (recipe) {
+                        let hasCupInRecipe = false;
                         for (const ri of recipe.items) {
                             unitCost += ri.quantity * ri.ingredient.costPerUnit;
+                            if (ri.ingredient.name.toLowerCase().includes('bardak')) hasCupInRecipe = true;
+                        }
+
+                        if (!hasCupInRecipe && prod && !['Tatlılar', 'Tozlar', 'Kasa Önü'].includes(prod.category)) {
+                            const isCold = prod.category.toLowerCase().includes('soğuk') || prod.name.toLowerCase().includes('iced') || prod.name.toLowerCase().includes('cool');
+                            const sz = (item.size || 'M').toUpperCase().substring(0, 1);
+                            let bn = '';
+                            if (isCold) {
+                                if (sz === 'L') bn = 'Şeffaf Bardak: Large (16oz)';
+                                else if (sz === 'M') bn = 'Şeffaf Bardak: Medium (14oz)';
+                                else bn = 'Şeffaf Bardak: Small (12oz)';
+                            } else {
+                                if (sz === 'L') bn = 'Karton Bardak: Large (16oz)';
+                                else if (sz === 'M') bn = 'Karton Bardak: Medium (12oz)';
+                                else bn = 'Karton Bardak: Small (8oz)';
+                            }
+                            const cIng = allProducts.flatMap(p => p.recipes.flatMap(r => r.items.map(i => i.ingredient))).find(ing => ing.name === bn);
+                            if (cIng) unitCost += cIng.costPerUnit;
                         }
                     }
                     stats.totalCost += unitCost * item.quantity;
