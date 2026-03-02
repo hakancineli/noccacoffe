@@ -81,35 +81,7 @@ export async function GET(request: NextRequest) {
             include: { orderItems: true }
         });
 
-        // 6. Calculate Net Revenue and Quantity per product
-        const finalProductMap: Record<string, { productName: string; quantity: number; revenue: number }> = {};
-
-        // Process actual orders
-        for (const order of detailedOrders) {
-            const orderTotalBeforeDiscount = order.orderItems.reduce((sum, item) => sum + item.totalPrice, 0);
-            // If there's a discount, calculate the ratio to distribute it
-            const discountRatio = orderTotalBeforeDiscount > 0 ? order.finalAmount / orderTotalBeforeDiscount : 1;
-
-            for (const item of order.orderItems) {
-                if (!finalProductMap[item.productName]) {
-                    finalProductMap[item.productName] = { productName: item.productName, quantity: 0, revenue: 0 };
-                }
-                finalProductMap[item.productName].quantity += item.quantity;
-                // Distributed net revenue for this item
-                finalProductMap[item.productName].revenue += item.totalPrice * discountRatio;
-            }
-        }
-
-        // Add staff products to the map
-        for (const [pName, data] of Object.entries(staffProductMap)) {
-            if (!finalProductMap[pName]) {
-                finalProductMap[pName] = { productName: pName, quantity: 0, revenue: 0 };
-            }
-            finalProductMap[pName].quantity += data.quantity;
-            finalProductMap[pName].revenue += data.revenue;
-        }
-
-        // 7. Calculate ingredient costs per product using recipes
+        // 6. Get all product recipes for cost calculation
         const allProducts = await prisma.product.findMany({
             include: {
                 recipes: {
@@ -124,34 +96,99 @@ export async function GET(request: NextRequest) {
 
         const productRecipeMap = new Map(allProducts.map(p => [p.name, p]));
 
-        // Calculate cost per product based on sold quantities
-        const detailedStats = Object.values(finalProductMap).map(stat => {
-            const prod = productRecipeMap.get(stat.productName);
-            const qty = stat.quantity;
-            const revenue = stat.revenue;
+        // 7. Calculate Net Revenue, Quantity and ACTUAL Cost per product/size
+        const productStatsMap: Record<string, {
+            productName: string;
+            category: string;
+            quantity: number;
+            revenue: number;
+            totalCost: number;
+        }> = {};
 
-            let unitCost = 0;
-            if (prod && prod.recipes.length > 0) {
-                // For simplicity in this specialized report, we take the default (first) recipe
-                // In a perfect world, we'd distribute by size, but for the main breakdown this is common
-                const recipe = prod.recipes[0];
-                for (const ri of recipe.items) {
-                    unitCost += ri.quantity * ri.ingredient.costPerUnit;
+        // Process actual orders with size detail
+        for (const order of detailedOrders) {
+            const orderTotalBeforeDiscount = order.orderItems.reduce((sum, item) => sum + item.totalPrice, 0);
+            const discountRatio = orderTotalBeforeDiscount > 0 ? order.finalAmount / orderTotalBeforeDiscount : 1;
+
+            for (const item of order.orderItems) {
+                const prod = productRecipeMap.get(item.productName);
+                if (!productStatsMap[item.productName]) {
+                    productStatsMap[item.productName] = {
+                        productName: item.productName,
+                        category: prod?.category || 'Diğer',
+                        quantity: 0,
+                        revenue: 0,
+                        totalCost: 0
+                    };
+                }
+
+                const stats = productStatsMap[item.productName];
+                stats.quantity += item.quantity;
+                stats.revenue += item.totalPrice * discountRatio;
+
+                // Accurate Cost Calculation by Size
+                if (prod && prod.recipes.length > 0) {
+                    let recipe = prod.recipes.find((r: any) => r.size === item.size);
+                    if (!recipe) recipe = prod.recipes.find((r: any) => !r.size || r.size === 'Standart');
+                    if (!recipe) recipe = prod.recipes[0];
+
+                    let unitCost = 0;
+                    for (const ri of recipe.items) {
+                        unitCost += ri.quantity * ri.ingredient.costPerUnit;
+                    }
+                    stats.totalCost += unitCost * item.quantity;
                 }
             }
+        }
 
-            const totalCost = unitCost * qty;
+        // Add staff products with size detail
+        for (const sc of staffConsumptions) {
+            for (const item of sc.items) {
+                const prod = productRecipeMap.get(item.productName);
+                if (!productStatsMap[item.productName]) {
+                    productStatsMap[item.productName] = {
+                        productName: item.productName,
+                        category: prod?.category || 'Diğer',
+                        quantity: 0,
+                        revenue: 0,
+                        totalCost: 0
+                    };
+                }
+
+                const stats = productStatsMap[item.productName];
+                stats.quantity += item.quantity;
+                stats.revenue += item.staffPrice * item.quantity;
+
+                // Accurate Cost Calculation by Size for Staff items
+                if (prod && prod.recipes.length > 0) {
+                    let recipe = prod.recipes.find((r: any) => r.size === item.size);
+                    if (!recipe) recipe = prod.recipes.find((r: any) => !r.size || r.size === 'Standart');
+                    if (!recipe) recipe = prod.recipes[0];
+
+                    let unitCost = 0;
+                    for (const ri of recipe.items) {
+                        unitCost += ri.quantity * ri.ingredient.costPerUnit;
+                    }
+                    stats.totalCost += unitCost * item.quantity;
+                }
+            }
+        }
+
+        // 7. Format the result
+        const detailedStats = Object.values(productStatsMap).map(stat => {
+            const revenue = stat.revenue;
+            const totalCost = stat.totalCost;
             const profit = revenue - totalCost;
             const margin = revenue > 0 ? (profit / revenue) * 100 : 0;
 
             return {
                 productName: stat.productName,
-                category: prod?.category || 'Diğer',
-                quantity: qty,
+                category: stat.category,
+                quantity: stat.quantity,
                 revenue: Math.round(revenue * 100) / 100,
-                unitCost: Math.round(unitCost * 100) / 100,
+                unitCost: stat.quantity > 0 ? Math.round((totalCost / stat.quantity) * 100) / 100 : 0,
                 totalCost: Math.round(totalCost * 100) / 100,
-                unitProfit: qty > 0 ? Math.round((revenue / qty - unitCost) * 100) / 100 : 0,
+                unitProfit: stat.quantity > 0 ? Math.round((revenue / stat.quantity - totalCost / stat.quantity) * 100) / 100 : 0,
                 totalProfit: Math.round(profit * 100) / 100,
                 margin: Math.round(margin * 10) / 10
             };
