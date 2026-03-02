@@ -126,15 +126,30 @@ export async function GET(request: NextRequest) {
                 stats.quantity += item.quantity;
                 stats.revenue += item.totalPrice * discountRatio;
 
-                // Accurate Cost Calculation by Size
+                // Accurate Cost Calculation by SMART Size Matching
                 if (prod && prod.recipes.length > 0) {
-                    let recipe = prod.recipes.find((r: any) => r.size === item.size);
-                    if (!recipe) recipe = prod.recipes.find((r: any) => !r.size || r.size === 'Standart');
-                    if (!recipe) recipe = prod.recipes[0];
+                    const findRecipe = (sizeStr: string | null) => {
+                        if (!sizeStr) return prod.recipes.find((r: any) => !r.size || r.size === 'Standart');
+
+                        const normalized = sizeStr.trim().toUpperCase();
+                        let r = prod.recipes.find((r: any) => r.size?.toUpperCase() === normalized);
+                        if (r) return r;
+
+                        if (normalized === 'L') r = prod.recipes.find((r: any) => r.size?.toUpperCase().includes('LARGE'));
+                        if (normalized === 'M') r = prod.recipes.find((r: any) => r.size?.toUpperCase().includes('MEDIUM'));
+                        if (normalized === 'S') r = prod.recipes.find((r: any) => r.size?.toUpperCase().includes('SMALL'));
+
+                        const defaultRecipe = prod.recipes.find((r: any) => !r.size || r.size === 'Standart') || prod.recipes[0];
+                        return r || defaultRecipe;
+                    }
+
+                    const recipe = findRecipe(item.size);
 
                     let unitCost = 0;
-                    for (const ri of recipe.items) {
-                        unitCost += ri.quantity * ri.ingredient.costPerUnit;
+                    if (recipe) {
+                        for (const ri of recipe.items) {
+                            unitCost += ri.quantity * ri.ingredient.costPerUnit;
+                        }
                     }
                     stats.totalCost += unitCost * item.quantity;
                 }
@@ -159,15 +174,29 @@ export async function GET(request: NextRequest) {
                 stats.quantity += item.quantity;
                 stats.revenue += item.staffPrice * item.quantity;
 
-                // Accurate Cost Calculation by Size for Staff items
+                // Accurate Cost Calculation by SMART Size Matching for Staff items
                 if (prod && prod.recipes.length > 0) {
-                    let recipe = prod.recipes.find((r: any) => r.size === item.size);
-                    if (!recipe) recipe = prod.recipes.find((r: any) => !r.size || r.size === 'Standart');
-                    if (!recipe) recipe = prod.recipes[0];
+                    const findRecipe = (sizeStr: string | null) => {
+                        if (!sizeStr) return prod.recipes.find((r: any) => !r.size || r.size === 'Standart');
+
+                        const normalized = sizeStr.trim().toUpperCase();
+                        let r = prod.recipes.find((r: any) => r.size?.toUpperCase() === normalized);
+                        if (r) return r;
+
+                        if (normalized === 'L') r = prod.recipes.find((r: any) => r.size?.toUpperCase().includes('LARGE'));
+                        if (normalized === 'M') r = prod.recipes.find((r: any) => r.size?.toUpperCase().includes('MEDIUM'));
+                        if (normalized === 'S') r = prod.recipes.find((r: any) => r.size?.toUpperCase().includes('SMALL'));
+
+                        return r || prod.recipes.find((r: any) => !r.size || r.size === 'Standart') || prod.recipes[0];
+                    }
+
+                    const recipe = findRecipe(item.size);
 
                     let unitCost = 0;
-                    for (const ri of recipe.items) {
-                        unitCost += ri.quantity * ri.ingredient.costPerUnit;
+                    if (recipe) {
+                        for (const ri of recipe.items) {
+                            unitCost += ri.quantity * ri.ingredient.costPerUnit;
+                        }
                     }
                     stats.totalCost += unitCost * item.quantity;
                 }
