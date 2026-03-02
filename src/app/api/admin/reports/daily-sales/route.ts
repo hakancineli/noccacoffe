@@ -100,16 +100,64 @@ export async function GET(request: NextRequest) {
         const productRecipeMap = new Map(allProducts.map(p => [p.name, p]));
         const ingredientMap = new Map(allIngredients.map(ing => [ing.name, ing]));
 
-        // 7. Calculate Net Revenue, Quantity and ACTUAL Cost per product/size
-        const productStatsMap: Record<string, {
-            productName: string;
-            category: string;
-            quantity: number;
-            revenue: number;
-            totalCost: number;
-        }> = {};
+        // 7. Helper: Calculate Unit Cost for a product with smart matching and auto-cup
+        const getUnitCost = (item: { productName: string, size?: string | null, isPorcelain?: boolean }) => {
+            const prod = productRecipeMap.get(item.productName);
+            if (!prod || !prod.recipes.length) return 0;
 
-        // Process actual orders with size detail
+            const findRecipe = (sizeStr: string | null) => {
+                if (!sizeStr) return prod.recipes.find((r: any) => !r.size || r.size === 'Standart' || r.size === 'Standart / Tek Boyut');
+
+                const normalized = sizeStr.trim().toUpperCase();
+                let r = prod.recipes.find((r: any) => r.size?.toUpperCase() === normalized);
+                if (r) return r;
+
+                if (normalized === 'L' || normalized === 'LARGE') r = prod.recipes.find((r: any) => r.size?.toUpperCase().includes('LARGE'));
+                if (normalized === 'M' || normalized === 'MEDIUM') r = prod.recipes.find((r: any) => r.size?.toUpperCase().includes('MEDIUM'));
+                if (normalized === 'S' || normalized === 'SMALL') r = prod.recipes.find((r: any) => r.size?.toUpperCase().includes('SMALL'));
+                if (normalized === 'XL' || normalized === 'X-LARGE') r = prod.recipes.find((r: any) => r.size?.toUpperCase().includes('XL') || r.size?.toUpperCase().includes('X-LARGE'));
+
+                if (r) return r;
+                r = prod.recipes.find((r: any) => r.size?.toUpperCase().startsWith(normalized.substring(0, 1)));
+                return r || prod.recipes.find((r: any) => !r.size || r.size === 'Standart' || r.size === 'Standart / Tek Boyut') || prod.recipes[0];
+            }
+
+            const recipe = findRecipe(item.size || null);
+            if (!recipe) return 0;
+
+            let cost = 0;
+            let hasCupInRecipe = false;
+            for (const ri of recipe.items) {
+                cost += ri.quantity * ri.ingredient.costPerUnit;
+                if (ri.ingredient.name.toLowerCase().includes('bardak')) hasCupInRecipe = true;
+            }
+
+            const cupFreeCategories = ['Tatlılar', 'Kasa Önü Ürünleri', 'Ekstralar', 'Tozlar', 'Püreler', 'Yan Ürünler', 'Kahve Çekirdekleri'];
+            if (!hasCupInRecipe && !item.isPorcelain && !cupFreeCategories.includes(prod.category)) {
+                const isCold = prod.category.toLowerCase().includes('soğuk') || prod.name.toLowerCase().includes('iced') || prod.name.toLowerCase().includes('cool');
+                const sz = (item.size || 'M').toUpperCase().substring(0, 1);
+                let cupName = '';
+
+                if (isCold) {
+                    if (sz === 'L') cupName = 'Şeffaf Bardak: Large (16oz)';
+                    else if (sz === 'M') cupName = 'Şeffaf Bardak: Medium (14oz)';
+                    else cupName = 'Şeffaf Bardak: Small (12oz)';
+                } else {
+                    if (sz === 'L') cupName = 'Karton Bardak: Large (16oz)';
+                    else if (sz === 'M') cupName = 'Karton Bardak: Medium (12oz)';
+                    else cupName = 'Karton Bardak: Small (8oz)';
+                }
+
+                const cupIng = ingredientMap.get(cupName);
+                if (cupIng) cost += cupIng.costPerUnit;
+            }
+
+            return cost;
+        };
+
+        // 8. Calculate Stats
+        const productStatsMap: Record<string, { productName: string; category: string; quantity: number; revenue: number; totalCost: number; }> = {};
+
         for (const order of detailedOrders) {
             const orderTotalBeforeDiscount = order.orderItems.reduce((sum, item) => sum + item.totalPrice, 0);
             const discountRatio = orderTotalBeforeDiscount > 0 ? order.finalAmount / orderTotalBeforeDiscount : 1;
@@ -129,57 +177,10 @@ export async function GET(request: NextRequest) {
                 const stats = productStatsMap[item.productName];
                 stats.quantity += item.quantity;
                 stats.revenue += item.totalPrice * discountRatio;
-
-                // Accurate Cost Calculation by SMART Size Matching
-                if (prod && prod.recipes.length > 0) {
-                    const findRecipe = (sizeStr: string | null) => {
-                        if (!sizeStr) return prod.recipes.find((r: any) => !r.size || r.size === 'Standart');
-
-                        const normalized = sizeStr.trim().toUpperCase();
-                        let r = prod.recipes.find((r: any) => r.size?.toUpperCase() === normalized);
-                        if (r) return r;
-
-                        if (normalized === 'L') r = prod.recipes.find((r: any) => r.size?.toUpperCase().includes('LARGE'));
-                        if (normalized === 'M') r = prod.recipes.find((r: any) => r.size?.toUpperCase().includes('MEDIUM'));
-                        if (normalized === 'S') r = prod.recipes.find((r: any) => r.size?.toUpperCase().includes('SMALL'));
-
-                        const defaultRecipe = prod.recipes.find((r: any) => !r.size || r.size === 'Standart') || prod.recipes[0];
-                        return r || defaultRecipe;
-                    }
-
-                    const recipe = findRecipe(item.size);
-
-                    let unitCost = 0;
-                    if (recipe) {
-                        let hasCupInRecipe = false;
-                        for (const ri of recipe.items) {
-                            unitCost += ri.quantity * ri.ingredient.costPerUnit;
-                            if (ri.ingredient.name.toLowerCase().includes('bardak')) hasCupInRecipe = true;
-                        }
-
-                        if (!hasCupInRecipe && prod && !['Tatlılar', 'Tozlar', 'Kasa Önü'].includes(prod.category)) {
-                            const isCold = prod.category.toLowerCase().includes('soğuk') || prod.name.toLowerCase().includes('iced') || prod.name.toLowerCase().includes('cool');
-                            const sz = (item.size || 'M').toUpperCase().substring(0, 1);
-                            let bn = '';
-                            if (isCold) {
-                                if (sz === 'L') bn = 'Şeffaf Bardak: Large (16oz)';
-                                else if (sz === 'M') bn = 'Şeffaf Bardak: Medium (14oz)';
-                                else bn = 'Şeffaf Bardak: Small (12oz)';
-                            } else {
-                                if (sz === 'L') bn = 'Karton Bardak: Large (16oz)';
-                                else if (sz === 'M') bn = 'Karton Bardak: Medium (12oz)';
-                                else bn = 'Karton Bardak: Small (8oz)';
-                            }
-                            const cIng = ingredientMap.get(bn);
-                            if (cIng) unitCost += cIng.costPerUnit;
-                        }
-                    }
-                    stats.totalCost += unitCost * item.quantity;
-                }
+                stats.totalCost += getUnitCost(item) * item.quantity;
             }
         }
 
-        // Add staff products with size detail
         for (const sc of staffConsumptions) {
             for (const item of sc.items) {
                 const prod = productRecipeMap.get(item.productName);
@@ -196,52 +197,7 @@ export async function GET(request: NextRequest) {
                 const stats = productStatsMap[item.productName];
                 stats.quantity += item.quantity;
                 stats.revenue += item.staffPrice * item.quantity;
-
-                // Accurate Cost Calculation by SMART Size Matching for Staff items
-                if (prod && prod.recipes.length > 0) {
-                    const findRecipe = (sizeStr: string | null) => {
-                        if (!sizeStr) return prod.recipes.find((r: any) => !r.size || r.size === 'Standart');
-
-                        const normalized = sizeStr.trim().toUpperCase();
-                        let r = prod.recipes.find((r: any) => r.size?.toUpperCase() === normalized);
-                        if (r) return r;
-
-                        if (normalized === 'L') r = prod.recipes.find((r: any) => r.size?.toUpperCase().includes('LARGE'));
-                        if (normalized === 'M') r = prod.recipes.find((r: any) => r.size?.toUpperCase().includes('MEDIUM'));
-                        if (normalized === 'S') r = prod.recipes.find((r: any) => r.size?.toUpperCase().includes('SMALL'));
-
-                        return r || prod.recipes.find((r: any) => !r.size || r.size === 'Standart') || prod.recipes[0];
-                    }
-
-                    const recipe = findRecipe(item.size);
-
-                    let unitCost = 0;
-                    if (recipe) {
-                        let hasCupInRecipe = false;
-                        for (const ri of recipe.items) {
-                            unitCost += ri.quantity * ri.ingredient.costPerUnit;
-                            if (ri.ingredient.name.toLowerCase().includes('bardak')) hasCupInRecipe = true;
-                        }
-
-                        if (!hasCupInRecipe && prod && !['Tatlılar', 'Tozlar', 'Kasa Önü'].includes(prod.category)) {
-                            const isCold = prod.category.toLowerCase().includes('soğuk') || prod.name.toLowerCase().includes('iced') || prod.name.toLowerCase().includes('cool');
-                            const sz = (item.size || 'M').toUpperCase().substring(0, 1);
-                            let bn = '';
-                            if (isCold) {
-                                if (sz === 'L') bn = 'Şeffaf Bardak: Large (16oz)';
-                                else if (sz === 'M') bn = 'Şeffaf Bardak: Medium (14oz)';
-                                else bn = 'Şeffaf Bardak: Small (12oz)';
-                            } else {
-                                if (sz === 'L') bn = 'Karton Bardak: Large (16oz)';
-                                else if (sz === 'M') bn = 'Karton Bardak: Medium (12oz)';
-                                else bn = 'Karton Bardak: Small (8oz)';
-                            }
-                            const cIng = ingredientMap.get(bn);
-                            if (cIng) unitCost += cIng.costPerUnit;
-                        }
-                    }
-                    stats.totalCost += unitCost * item.quantity;
-                }
+                stats.totalCost += getUnitCost(item) * item.quantity;
             }
         }
 
