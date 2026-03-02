@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { FaPlus, FaEdit, FaTrash, FaSearch, FaFileExcel } from 'react-icons/fa';
 import * as XLSX from 'xlsx';
 
@@ -31,6 +31,10 @@ export default function IngredientsPage() {
 
     const [activeCategory, setActiveCategory] = useState('Tümü');
     const [stockFilter, setStockFilter] = useState('Hepsi'); // Hepsi, Düşük Stok, Stokta Yok
+    const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' }>({
+        key: 'name',
+        direction: 'asc'
+    });
 
     useEffect(() => {
         fetchIngredients();
@@ -67,22 +71,69 @@ export default function IngredientsPage() {
         return 'Diğer';
     };
 
-    const filteredIngredients = ingredients.filter(ing => {
-        // Category Filter
-        if (activeCategory !== 'Tümü') {
-            const cat = getIngredientCategory(ing.name);
-            if (cat !== activeCategory) return false;
-        }
+    const filteredIngredients = useMemo(() => {
+        let result = [...ingredients].filter(ing => {
+            // Category Filter
+            if (activeCategory !== 'Tümü') {
+                const cat = getIngredientCategory(ing.name);
+                if (cat !== activeCategory) return false;
+            }
 
-        // Stock Filter
-        if (stockFilter === 'Düşük Stok') {
-            if (ing.stock >= 100) return false;
-        } else if (stockFilter === 'Stokta Yok') {
-            if (ing.stock > 0) return false;
-        }
+            // Stock Filter
+            if (stockFilter === 'Düşük Stok') {
+                if (ing.stock >= 100) return false;
+            } else if (stockFilter === 'Stokta Yok') {
+                if (ing.stock > 0) return false;
+            }
 
-        return true;
-    });
+            return true;
+        });
+
+        // Sorting
+        result.sort((a, b) => {
+            let aVal: any;
+            let bVal: any;
+
+            switch (sortConfig.key) {
+                case 'name':
+                    aVal = a.name.toLocaleLowerCase('tr');
+                    bVal = b.name.toLocaleLowerCase('tr');
+                    break;
+                case 'category':
+                    aVal = getIngredientCategory(a.name).toLocaleLowerCase('tr');
+                    bVal = getIngredientCategory(b.name).toLocaleLowerCase('tr');
+                    break;
+                case 'stock':
+                    aVal = a.stock;
+                    bVal = b.stock;
+                    break;
+                case 'cost':
+                    aVal = a.costPerUnit;
+                    bVal = b.costPerUnit;
+                    break;
+                case 'total':
+                    aVal = a.stock * a.costPerUnit;
+                    bVal = b.stock * b.costPerUnit;
+                    break;
+                default:
+                    return 0;
+            }
+
+            if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
+            if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
+            return 0;
+        });
+
+        return result;
+    }, [ingredients, activeCategory, stockFilter, sortConfig]);
+
+    const requestSort = (key: string) => {
+        let direction: 'asc' | 'desc' = 'asc';
+        if (sortConfig.key === key && sortConfig.direction === 'asc') {
+            direction = 'desc';
+        }
+        setSortConfig({ key, direction });
+    };
 
     const fetchIngredients = async () => {
         try {
@@ -169,7 +220,8 @@ export default function IngredientsPage() {
     };
 
     const handleExportToExcel = () => {
-        const excelData = ingredients.map(ing => ({
+        // Excel as requested should match the current filtered and sorted view
+        const excelData = filteredIngredients.map(ing => ({
             'Hammadde Adı': ing.name,
             'Kategori': getIngredientCategory(ing.name),
             'Birim': ing.unit,
@@ -274,11 +326,27 @@ export default function IngredientsPage() {
                         <select
                             value={stockFilter}
                             onChange={(e) => setStockFilter(e.target.value)}
-                            className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none"
+                            className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none bg-white font-medium"
                         >
                             <option value="Hepsi">Tüm Stok Durumları</option>
                             <option value="Düşük Stok">Düşük Stok (&lt;100)</option>
                             <option value="Stokta Yok">Stokta Yok</option>
+                        </select>
+                        <select
+                            value={`${sortConfig.key}-${sortConfig.direction}`}
+                            onChange={(e) => {
+                                const [key, direction] = e.target.value.split('-');
+                                setSortConfig({ key, direction: direction as 'asc' | 'desc' });
+                            }}
+                            className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none bg-white font-medium"
+                        >
+                            <option value="name-asc">A-Z (İsim)</option>
+                            <option value="name-desc">Z-A (İsim)</option>
+                            <option value="category-asc">Kategori (A-Z)</option>
+                            <option value="stock-desc">Stok (Azalan)</option>
+                            <option value="stock-asc">Stok (Artan)</option>
+                            <option value="cost-desc">Maliyet (Azalan)</option>
+                            <option value="total-desc">Toplam Değer (Azalan)</option>
                         </select>
                     </div>
 
@@ -303,12 +371,20 @@ export default function IngredientsPage() {
                     <table className="w-full">
                         <thead className="bg-gray-50 border-b">
                             <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Hammadde</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Birim</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Stok</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Birim Maliyet</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Toplam Değer</th>
-                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">İşlemler</th>
+                                <th onClick={() => requestSort('name')} className="px-6 py-3 text-left text-xs font-black text-gray-500 uppercase tracking-widest cursor-pointer hover:bg-gray-100 transition">
+                                    Hammadde {sortConfig.key === 'name' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-black text-gray-500 uppercase tracking-widest">Birim</th>
+                                <th onClick={() => requestSort('stock')} className="px-6 py-3 text-left text-xs font-black text-gray-500 uppercase tracking-widest cursor-pointer hover:bg-gray-100 transition">
+                                    Stok {sortConfig.key === 'stock' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                                </th>
+                                <th onClick={() => requestSort('cost')} className="px-6 py-3 text-left text-xs font-black text-gray-500 uppercase tracking-widest cursor-pointer hover:bg-gray-100 transition">
+                                    Birim Maliyet {sortConfig.key === 'cost' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                                </th>
+                                <th onClick={() => requestSort('total')} className="px-6 py-3 text-left text-xs font-black text-gray-500 uppercase tracking-widest cursor-pointer hover:bg-gray-100 transition">
+                                    Toplam Değer {sortConfig.key === 'total' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                                </th>
+                                <th className="px-6 py-3 text-right text-xs font-black text-gray-500 uppercase tracking-widest">İşlemler</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
