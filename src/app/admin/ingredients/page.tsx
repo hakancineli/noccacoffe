@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { FaPlus, FaEdit, FaTrash, FaSearch } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaSearch, FaFileExcel } from 'react-icons/fa';
+import * as XLSX from 'xlsx';
 
 interface Ingredient {
     id: string;
@@ -167,6 +168,38 @@ export default function IngredientsPage() {
         setEditingIngredient(null);
     };
 
+    const handleExportToExcel = () => {
+        const excelData = ingredients.map(ing => ({
+            'Hammadde Adı': ing.name,
+            'Kategori': getIngredientCategory(ing.name),
+            'Birim': ing.unit,
+            'Stok Miktarı': ing.stock,
+            'Birim Maliyet (₺)': ing.costPerUnit.toFixed(2),
+            'Toplam Değer (₺)': (ing.stock * ing.costPerUnit).toFixed(2),
+            'Son Güncelleme': new Date(ing.updatedAt).toLocaleDateString('tr-TR')
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(excelData);
+
+        // Col widths
+        const wscols = [
+            { wch: 35 }, // Name
+            { wch: 15 }, // Category
+            { wch: 10 }, // Unit
+            { wch: 15 }, // Stock
+            { wch: 18 }, // Unit Cost
+            { wch: 18 }, // Total Value
+            { wch: 15 }  // Date
+        ];
+        worksheet['!cols'] = wscols;
+
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Hammaddeler");
+
+        const fileName = `Nocca_Hammadde_Listesi_${new Date().toISOString().split('T')[0]}.xlsx`;
+        XLSX.writeFile(workbook, fileName);
+    };
+
     const totalInventoryValue = Array.isArray(ingredients) ? ingredients.reduce(
         (sum, ing) => sum + (ing.stock * ing.costPerUnit),
         0
@@ -181,12 +214,20 @@ export default function IngredientsPage() {
                         <h1 className="text-3xl font-bold text-gray-900">Hammadde Yönetimi</h1>
                         <p className="text-gray-600 mt-1">Stok takibi ve maliyet yönetimi</p>
                     </div>
-                    <button
-                        onClick={() => { resetForm(); setShowModal(true); }}
-                        className="bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition flex items-center gap-2"
-                    >
-                        <FaPlus /> Yeni Hammadde
-                    </button>
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={handleExportToExcel}
+                            className="bg-emerald-100 text-emerald-700 px-6 py-3 rounded-lg font-bold hover:bg-emerald-200 transition flex items-center gap-2 border border-emerald-200"
+                        >
+                            <FaFileExcel className="text-xl" /> Excel İndir
+                        </button>
+                        <button
+                            onClick={() => { resetForm(); setShowModal(true); }}
+                            className="bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition flex items-center gap-2"
+                        >
+                            <FaPlus /> Yeni Hammadde
+                        </button>
+                    </div>
                 </div>
 
                 {/* Stats Cards */}
