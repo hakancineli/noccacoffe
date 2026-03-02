@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FaTrash } from 'react-icons/fa';
+import * as XLSX from 'xlsx';
 
 interface Ingredient {
   id: string;
@@ -1520,6 +1521,62 @@ function RecipeBookletModal({
   // Group recipes by category
   const categories = Array.from(new Set(recipes.map(r => r.product.category))).sort();
 
+  const handleExportToExcel = () => {
+    const excelData: any[] = [];
+
+    // Add header row
+    excelData.push({
+      'Kategori': 'KATEGORİ',
+      'Ürün Adı': 'ÜRÜN ADI',
+      'Boyut': 'BOYUT',
+      'Hammadde': 'HAMMADDE',
+      'Miktar': 'MİKTAR',
+      'Birim': 'BİRİM',
+      'Maliyet (₺)': 'MALİYET (₺)'
+    });
+
+    categories.forEach(category => {
+      const categoryRecipes = recipes.filter(r => r.product.category === category)
+        .sort((a, b) => a.product.name.localeCompare(b.product.name));
+
+      categoryRecipes.forEach(recipe => {
+        recipe.items.forEach((item: any, idx: number) => {
+          excelData.push({
+            'Kategori': idx === 0 ? category : '',
+            'Ürün Adı': idx === 0 ? recipe.product.name : '',
+            'Boyut': idx === 0 ? (recipe.size || 'Standart') : '',
+            'Hammadde': item.ingredient?.name || '-',
+            'Miktar': item.quantity,
+            'Birim': item.ingredient?.unit || '',
+            'Maliyet (₺)': (item.quantity * (item.ingredient?.costPerUnit || 0)).toFixed(2)
+          });
+        });
+        // Blank row between recipes for readability
+        excelData.push({});
+      });
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(excelData, { skipHeader: true });
+
+    // Set column widths
+    const wscols = [
+      { wch: 20 }, // Category
+      { wch: 25 }, // Product Name
+      { wch: 15 }, // Size
+      { wch: 30 }, // Ingredient
+      { wch: 10 }, // Qty
+      { wch: 10 }, // Unit
+      { wch: 15 }  // Cost
+    ];
+    worksheet['!cols'] = wscols;
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Reçeteler");
+
+    const fileName = `Nocca_Coffee_Receteler_${new Date().toISOString().split('T')[0]}.xlsx`;
+    XLSX.writeFile(workbook, fileName);
+  };
+
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
       <div className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col overflow-hidden">
@@ -1536,10 +1593,10 @@ function RecipeBookletModal({
           </div>
           <div className="flex items-center gap-4">
             <button
-              onClick={() => window.print()}
-              className="bg-white/20 hover:bg-white/30 text-white px-4 py-1.5 rounded-lg text-sm font-black transition hidden sm:block"
+              onClick={handleExportToExcel}
+              className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-1.5 rounded-lg text-sm font-black transition flex items-center gap-2 shadow-lg"
             >
-              🖨️ Yazdır
+              <span>📊</span> Excel Olarak İndir
             </button>
             <button
               onClick={onClose}
