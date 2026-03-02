@@ -24,6 +24,11 @@ interface Recipe {
   productId: string;
   size: string | null;
   items: RecipeItem[];
+  product: {
+    id: string;
+    name: string;
+    category: string;
+  };
 }
 
 interface Product {
@@ -68,6 +73,23 @@ export default function ProductsManagement() {
 
   const [aiAnalysis, setAiAnalysis] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isBookletOpen, setIsBookletOpen] = useState(false);
+  const [allRecipes_Booklet, setAllRecipes_Booklet] = useState<Recipe[]>([]);
+  const [isBookletLoading, setIsBookletLoading] = useState(false);
+
+  const fetchAllRecipes_Booklet = async () => {
+    try {
+      setIsBookletLoading(true);
+      const res = await fetch('/api/admin/recipes');
+      if (res.ok) {
+        setAllRecipes_Booklet(await res.json());
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsBookletLoading(false);
+    }
+  };
 
   // Reset page when filters change
   useEffect(() => {
@@ -424,6 +446,16 @@ export default function ProductsManagement() {
                   <span className="mr-2 text-lg">🏆</span>
                 )}
                 En Çok Satanlar
+              </button>
+
+              <button
+                onClick={() => {
+                  fetchAllRecipes_Booklet();
+                  setIsBookletOpen(true);
+                }}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-bold flex items-center gap-2"
+              >
+                <span>📋</span> Reçete Kılavuzu
               </button>
 
               <button
@@ -798,9 +830,15 @@ export default function ProductsManagement() {
         deleteRecipe={deleteRecipe}
         updateIngredientUnit={updateIngredientUnit}
       />
-    </div >
-  );
 
+      <RecipeBookletModal
+        isOpen={isBookletOpen}
+        onClose={() => setIsBookletOpen(false)}
+        recipes={allRecipes_Booklet}
+        loading={isBookletLoading}
+      />
+    </div>
+  );
 }
 
 // Product Modal Component
@@ -1373,41 +1411,224 @@ function RecipeModal({
 
           {currentProductRecipes.length > 0 && (
             <div className="mt-8 pt-6 border-t border-gray-200">
-              <h3 className="font-bold text-gray-900 mb-4">Mevcut Reçeteler (Özet)</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-60 overflow-y-auto">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="font-bold text-gray-900 flex items-center gap-2">
+                  <span className="w-2 h-6 bg-green-500 rounded-full"></span>
+                  Kayıtlı Reçeteler (Detaylı Bilgi)
+                </h3>
+              </div>
+
+              <div className="space-y-6 max-h-[400px] overflow-y-auto pr-2">
                 {currentProductRecipes.map((recipe, rIndex) => (
-                  <div key={rIndex} className="bg-gray-50 p-4 rounded-lg border border-gray-200 text-sm">
-                    <div className="flex justify-between items-center mb-2 border-b border-gray-200 pb-1">
-                      <div className="font-bold text-green-700">
-                        {recipe.size ? `${recipe.size} Boy` : 'Standart Boy'}
+                  <div key={rIndex} className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+                    <div className="bg-gray-50/80 px-4 py-3 flex justify-between items-center border-b border-gray-100">
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm font-black text-green-700 bg-green-100 px-3 py-1 rounded-full uppercase">
+                          {recipe.size ? `${recipe.size}` : 'Standart Boy'}
+                        </span>
+                        <span className="text-xs font-bold text-gray-500 italic">
+                          Maliyet: ₺{recipe.items.reduce((sum, item) => {
+                            const ing = ingredients.find(i => i.id === item.ingredientId);
+                            return sum + (item.quantity * (ing?.costPerUnit || 0));
+                          }, 0).toFixed(2)}
+                        </span>
                       </div>
                       <button
-                        onClick={() => deleteRecipe(recipe.id)}
-                        className="text-red-500 hover:text-red-700 text-xs px-2 py-1 rounded hover:bg-red-50"
+                        onClick={() => {
+                          if (confirm('Bu reçeteyi silmek istediğinize emin misiniz?')) {
+                            deleteRecipe(recipe.id);
+                          }
+                        }}
+                        className="text-red-400 hover:text-red-600 transition p-1 hover:bg-red-50 rounded"
                         title="Reçeteyi Sil"
                       >
-                        Sil 🗑️
+                        🗑️
                       </button>
                     </div>
-                    <ul className="space-y-1">
-                      {recipe.items.map((item, iIndex) => {
-                        const ingName = ingredients.find(ing => ing.id === item.ingredientId)?.name || 'Bilinmeyen Hammadde';
-                        const ingUnit = ingredients.find(ing => ing.id === item.ingredientId)?.unit || '';
-                        return (
-                          <li key={iIndex} className="flex justify-between text-gray-600">
-                            <span>{ingName}</span>
-                            <span className="font-medium">{item.quantity} {ingUnit}</span>
-                          </li>
-                        );
-                      })}
-                    </ul>
+
+                    <table className="min-w-full divide-y divide-gray-100">
+                      <thead>
+                        <tr className="bg-white">
+                          <th className="px-4 py-2 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Hammadde</th>
+                          <th className="px-4 py-2 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest">Miktar</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-50">
+                        {recipe.items.map((item, iIndex) => {
+                          const ing = ingredients.find(ing => ing.id === item.ingredientId);
+                          const ingName = ing?.name || 'Bilinmeyen Hammadde';
+                          const ingUnit = ing?.unit || '';
+                          return (
+                            <tr key={iIndex} className="hover:bg-gray-50/50 transition duration-150">
+                              <td className="px-4 py-2 text-sm font-medium text-gray-700">{ingName}</td>
+                              <td className="px-4 py-2 text-sm text-right font-black text-gray-900 bg-gray-50/30">
+                                {item.quantity} <span className="text-[10px] font-bold text-gray-400">{ingUnit}</span>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
                   </div>
                 ))}
               </div>
+
+              <p className="mt-4 text-xs text-gray-400 italic text-center">
+                * Yukarıdaki tablo, barista ve personel eğitiminde reçete kılavuzu olarak kullanılabilir.
+              </p>
             </div>
           )}
         </div>
       </div>
-    </div >
+    </div>
+  );
+}
+
+// Recipe Booklet Modal Component for training and documentation
+function RecipeBookletModal({
+  isOpen,
+  onClose,
+  recipes,
+  loading
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  recipes: any[];
+  loading: boolean;
+}) {
+  if (!isOpen) return null;
+
+  // Group recipes by category
+  const categories = Array.from(new Set(recipes.map(r => r.product.category))).sort();
+
+  return (
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col overflow-hidden">
+        {/* Modal Header */}
+        <div className="bg-indigo-600 px-6 py-4 flex justify-between items-center text-white">
+          <div>
+            <h2 className="text-2xl font-black flex items-center gap-3">
+              <span className="bg-white/20 p-2 rounded-lg text-lg">📋</span>
+              Nocca Coffee Reçete Kitapçığı
+            </h2>
+            <p className="text-indigo-100 text-xs mt-1 font-bold opacity-80 uppercase tracking-widest">
+              Barista Eğitim ve Uygulama Rehberi
+            </p>
+          </div>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => window.print()}
+              className="bg-white/20 hover:bg-white/30 text-white px-4 py-1.5 rounded-lg text-sm font-black transition hidden sm:block"
+            >
+              🖨️ Yazdır
+            </button>
+            <button
+              onClick={onClose}
+              className="bg-black/20 hover:bg-black/30 p-2 rounded-full transition"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+
+        {/* Modal Content */}
+        <div className="flex-1 overflow-y-auto p-6 bg-gray-50">
+          {loading ? (
+            <div className="flex flex-col items-center justify-center h-64 gap-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-4 border-indigo-600 border-t-transparent"></div>
+              <p className="text-gray-500 font-bold italic">Reçeteler hazırlanıyor...</p>
+            </div>
+          ) : recipes.length === 0 ? (
+            <div className="text-center py-20 text-gray-500 font-bold bg-white rounded-xl border-2 border-dashed">
+              Henüz tanımlı reçete bulunmuyor.
+            </div>
+          ) : (
+            <div className="space-y-10">
+              {categories.map(category => {
+                const categoryRecipes = recipes.filter(r => r.product.category === category)
+                  .sort((a, b) => a.product.name.localeCompare(b.product.name));
+
+                // Group by product name since products can have multiple size recipes
+                const productGroups: { [key: string]: any[] } = {};
+                categoryRecipes.forEach(r => {
+                  if (!productGroups[r.product.name]) productGroups[r.product.name] = [];
+                  productGroups[r.product.name].push(r);
+                });
+
+                return (
+                  <div key={category} className="space-y-6">
+                    <div className="flex items-center gap-4">
+                      <h3 className="text-xl font-black text-indigo-900 uppercase tracking-tighter bg-indigo-50 px-4 py-1 rounded-lg border-l-4 border-indigo-500">
+                        {category}
+                      </h3>
+                      <div className="h-px flex-1 bg-indigo-100"></div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {Object.entries(productGroups).map(([name, productRecipes]) => (
+                        <div key={name} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden break-inside-avoid">
+                          <div className="bg-gray-800 px-4 py-2 flex justify-between items-center">
+                            <h4 className="text-sm font-black text-white">{name}</h4>
+                            <span className="text-[10px] bg-white/10 text-white/60 px-2 py-0.5 rounded uppercase font-bold">
+                              {productRecipes.length} Boyut
+                            </span>
+                          </div>
+
+                          <div className="p-0">
+                            {productRecipes.sort((a, b) => {
+                              // Priority: S < M < L < Standart
+                              const order = { 'S': 1, 'M': 2, 'L': 3, 'Small': 1, 'Medium': 2, 'Large': 3, 'Standart': 4 };
+                              const valA = (order as any)[a.size || 'Standart'] || 99;
+                              const valB = (order as any)[b.size || 'Standart'] || 99;
+                              return valA - valB;
+                            }).map((r, idx) => (
+                              <div key={idx} className={`${idx > 0 ? 'border-t-4 border-double border-gray-100' : ''} p-4`}>
+                                <div className="flex items-center justify-between mb-2">
+                                  <span className="text-[10px] font-black bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded uppercase tracking-widest border border-indigo-100">
+                                    {r.size || 'Standart'}
+                                  </span>
+                                  <span className="text-[10px] text-gray-400 font-bold italic">
+                                    Maliyet: ₺{r.items.reduce((sum: number, it: any) => sum + (it.quantity * (it.ingredient?.costPerUnit || 0)), 0).toFixed(2)}
+                                  </span>
+                                </div>
+
+                                <table className="w-full text-xs">
+                                  <thead>
+                                    <tr className="border-b border-gray-100">
+                                      <th className="text-left font-black text-gray-400 py-1 uppercase tracking-tighter">İçerik</th>
+                                      <th className="text-right font-black text-gray-400 py-1 uppercase tracking-tighter">Ölçü</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {r.items.map((it: any, iIdx: number) => (
+                                      <tr key={iIdx} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50">
+                                        <td className="py-2 font-medium text-gray-700">{it.ingredient?.name}</td>
+                                        <td className="py-2 text-right font-black text-indigo-600">
+                                          {it.quantity} <span className="text-[10px] font-bold text-gray-400 normal-case">{it.ingredient?.unit}</span>
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Modal Footer */}
+        <div className="bg-white border-t p-4 flex justify-between items-center text-xs text-gray-400 font-bold">
+          <span>Nocca Coffee © 2026</span>
+          <span>Hatalı reçete bildirimleri için lütfen yönetici ile iletişime geçiniz.</span>
+        </div>
+      </div>
+    </div>
   );
 }
