@@ -1274,22 +1274,23 @@ function RecipeModal({
   };
 
   return (
-    <div ref={modalRef} className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto scroll-smooth">
-      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full p-6 my-8">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold">
+    <div ref={modalRef} className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 overflow-y-auto pt-4 pb-20 px-4 scroll-smooth">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full mx-auto relative overflow-hidden">
+        <div className="sticky top-0 bg-white/80 backdrop-blur-md px-6 py-4 flex justify-between items-center border-b border-gray-100 z-10 shadow-sm">
+          <h2 className="text-xl font-black text-gray-900 flex items-center gap-2">
+            <span className="bg-green-100 text-green-700 p-2 rounded-lg text-sm">☕</span>
             {product.name} - Reçete Yönetimi
           </h2>
           <button
             type="button"
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100"
+            className="text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-100 transition"
           >
             ✕
           </button>
         </div>
 
-        <div className="space-y-4">
+        <div className="p-6 space-y-4">
           <div className="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
             <label className="block text-xs font-black text-indigo-600 mb-1 uppercase tracking-widest leading-none">
               Düzenlenecek Boyutu Seçin
