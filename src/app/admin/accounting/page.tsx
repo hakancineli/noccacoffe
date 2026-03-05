@@ -47,6 +47,14 @@ const translateCategory = (category: string): string => {
     return translations[category] || category;
 };
 
+// Currency formatting helper
+const formatCurrency = (amount: number) => {
+    return amount.toLocaleString('tr-TR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+};
+
 
 interface DayDetails {
     orders: {
@@ -408,7 +416,7 @@ function AccountingContent() {
                     <div className="flex justify-between items-start">
                         <div>
                             <p className="text-sm font-medium text-gray-500 mb-1">Toplam Gelir (Ay)</p>
-                            <h3 className="text-2xl font-bold text-gray-900">₺{stats.revenue.toLocaleString()}</h3>
+                            <h3 className="text-2xl font-bold text-gray-900">₺{formatCurrency(stats.revenue)}</h3>
                         </div>
                         <div className="p-3 bg-green-100 rounded-full text-green-600">
                             <FaArrowUp />
@@ -422,7 +430,7 @@ function AccountingContent() {
                         <div>
                             <p className="text-sm font-medium text-gray-500 mb-1">Net Nakit Akışı (Ay)</p>
                             <h3 className={`text-2xl font-bold ${stats.profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                ₺{stats.profit.toLocaleString()}
+                                ₺{formatCurrency(stats.profit)}
                             </h3>
                         </div>
                         <div className="p-3 bg-blue-100 rounded-full text-blue-600">
@@ -437,7 +445,7 @@ function AccountingContent() {
                             <div className="flex justify-between items-start">
                                 <div>
                                     <p className="text-sm font-medium text-gray-500 mb-1">Stoktaki Mal Değeri (Varlık)</p>
-                                    <h3 className="text-2xl font-bold text-gray-900">₺{stats.stockValue.toLocaleString()}</h3>
+                                    <h3 className="text-2xl font-bold text-gray-900">₺{formatCurrency(stats.stockValue)}</h3>
                                 </div>
                                 <div className="p-3 bg-orange-100 rounded-full text-orange-600">
                                     <span className="text-xl">📦</span>
@@ -449,8 +457,8 @@ function AccountingContent() {
                             <div className="flex justify-between items-start">
                                 <div>
                                     <p className="text-sm font-medium text-gray-500 mb-1">Stok Ayarlı Reel Kar</p>
-                                    <h3 className={`text-2xl font-bold ${stats.adjustedProfit! >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                        ₺{stats.adjustedProfit?.toLocaleString()}
+                                    <h3 className={`text-2xl font-bold ${(stats.adjustedProfit || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                        ₺{formatCurrency(stats.adjustedProfit || 0)}
                                     </h3>
                                 </div>
                                 <div className="p-3 bg-indigo-100 rounded-full text-indigo-600">
@@ -503,19 +511,19 @@ function AccountingContent() {
                                             {day.orderCount}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 text-right">
-                                            ₺{day.totalSales.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                            ₺{formatCurrency(day.totalSales)}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-green-600 text-right font-medium">
-                                            ₺{day.cashSales.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                            ₺{formatCurrency(day.cashSales)}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-600 text-right font-medium">
-                                            ₺{day.cardSales.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                            ₺{formatCurrency(day.cardSales)}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-red-600 text-right">
-                                            -₺{day.totalExpenses.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                            -₺{formatCurrency(day.totalExpenses)}
                                         </td>
                                         <td className={`px-6 py-4 whitespace-nowrap text-sm font-bold text-right ${day.netProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                            ₺{day.netProfit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                            ₺{formatCurrency(day.netProfit)}
                                         </td>
                                     </tr>
                                 ))
@@ -541,14 +549,14 @@ function AccountingContent() {
                         <div className="bg-white p-4 rounded-lg">
                             <p className="text-xs text-gray-500 font-medium mb-1">Bugün</p>
                             <p className="text-2xl font-bold text-purple-600">
-                                ₺{(todayStats?.totalSales ? todayStats.totalSales * 0.35 : 0).toFixed(2)}
+                                ₺{formatCurrency((todayStats?.totalSales ? todayStats.totalSales * 0.35 : 0))}
                             </p>
                             <p className="text-xs text-gray-500 mt-1">~35% maliyet oranı</p>
                         </div>
                         <div className="bg-white p-4 rounded-lg">
                             <p className="text-xs text-gray-500 font-medium mb-1">Bu Ay</p>
                             <p className="text-2xl font-bold text-purple-600">
-                                ₺{(stats.revenue * 0.35).toFixed(2)}
+                                ₺{formatCurrency(stats.revenue * 0.35)}
                             </p>
                             <p className="text-xs text-gray-500 mt-1">Tahmini hammadde maliyeti</p>
                         </div>
@@ -594,7 +602,7 @@ function AccountingContent() {
                                         ));
                                     })()}
                                 </Pie>
-                                <Tooltip formatter={(value: number) => `₺${value.toLocaleString()}`} />
+                                <Tooltip formatter={(value: number) => `₺${formatCurrency(value)}`} />
                             </PieChart>
                         </ResponsiveContainer>
                     )}
@@ -620,7 +628,7 @@ function AccountingContent() {
                                 />
                                 <YAxis tick={{ fontSize: 12 }} />
                                 <Tooltip
-                                    formatter={(value: number) => `₺${value.toLocaleString()}`}
+                                    formatter={(value: number) => `₺${formatCurrency(value)}`}
                                     labelFormatter={(label) => new Date(label).toLocaleDateString('tr-TR')}
                                 />
                                 <Legend />
@@ -662,7 +670,7 @@ function AccountingContent() {
                                 />
                                 <YAxis tick={{ fontSize: 12 }} />
                                 <Tooltip
-                                    formatter={(value: number) => `₺${value.toLocaleString()}`}
+                                    formatter={(value: number) => `₺${formatCurrency(value)}`}
                                     labelFormatter={(label) => new Date(label).toLocaleDateString('tr-TR')}
                                 />
                                 <Legend />
@@ -790,7 +798,7 @@ function AccountingContent() {
                         <div className="space-y-4">
                             <div className="p-4 bg-green-50 rounded-xl border border-green-100">
                                 <p className="text-xs text-green-600 font-bold uppercase tracking-wider mb-1">Bugünkü Ciro</p>
-                                <p className="text-2xl font-bold text-green-700">₺{todayStats?.totalSales.toLocaleString() || '0'}</p>
+                                <p className="text-2xl font-bold text-green-700">₺{formatCurrency(todayStats?.totalSales || 0)}</p>
                             </div>
                             <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
                                 <p className="text-xs text-blue-600 font-bold uppercase tracking-wider mb-1">Sipariş Sayısı</p>
@@ -848,7 +856,7 @@ function AccountingContent() {
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-bold text-right flex justify-end items-center space-x-4">
-                                                <span>-₺{expense.amount.toLocaleString()}</span>
+                                                <span>-₺{formatCurrency(expense.amount)}</span>
                                                 {userRole === 'MANAGER' && (
                                                     <button
                                                         onClick={() => handleDeleteExpense(expense.id)}
@@ -887,7 +895,7 @@ function AccountingContent() {
                                         <div className="text-center p-6 bg-gray-50 rounded-2xl border border-gray-100">
                                             <p className="text-gray-500 text-sm mb-2 font-medium uppercase tracking-wide">Toplam Günlük Ciro</p>
                                             <h3 className="text-5xl font-extrabold text-gray-900 tracking-tight">
-                                                ₺{todayStats.totalSales.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                ₺{formatCurrency(todayStats.totalSales)}
                                             </h3>
                                             <div className="flex justify-center mt-3">
                                                 <span className="bg-white px-3 py-1 rounded-full text-xs font-bold text-gray-600 shadow-sm border border-gray-100">
@@ -899,23 +907,23 @@ function AccountingContent() {
                                         <div className="grid grid-cols-2 gap-4">
                                             <div className="p-5 bg-green-50 rounded-2xl border border-green-100/50">
                                                 <p className="text-green-600 text-xs font-bold uppercase mb-2">Nakit (Kasa)</p>
-                                                <p className="text-2xl font-bold text-green-700">₺{todayStats.cashSales.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                                                <p className="text-2xl font-bold text-green-700">₺{formatCurrency(todayStats.cashSales)}</p>
                                             </div>
                                             <div className="p-5 bg-blue-50 rounded-2xl border border-blue-100/50">
                                                 <p className="text-blue-600 text-xs font-bold uppercase mb-2">Kredi Kartı</p>
-                                                <p className="text-2xl font-bold text-blue-700">₺{todayStats.cardSales.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                                                <p className="text-2xl font-bold text-blue-700">₺{formatCurrency(todayStats.cardSales)}</p>
                                             </div>
                                         </div>
 
                                         <div className="border-t-2 border-dashed border-gray-100 pt-6">
                                             <div className="flex justify-between items-center mb-3 text-sm">
                                                 <span className="text-gray-600">Günlük Giderler</span>
-                                                <span className="text-red-600 font-bold">-₺{todayStats.totalExpenses.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                                <span className="text-red-600 font-bold">-₺{formatCurrency(todayStats.totalExpenses)}</span>
                                             </div>
                                             <div className="flex justify-between items-center pt-3 border-t border-gray-100">
                                                 <span className="font-bold text-gray-900 text-lg">Net Kâr</span>
                                                 <span className={`font-bold text-2xl ${todayStats.netProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                                    {todayStats.netProfit >= 0 ? '+' : ''}₺{todayStats.netProfit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                    {todayStats.netProfit >= 0 ? '+' : ''}₺{formatCurrency(todayStats.netProfit)}
                                                 </span>
                                             </div>
                                         </div>
@@ -973,11 +981,11 @@ function AccountingContent() {
                                                 </h3>
                                                 <span className="text-green-600 font-bold">
                                                     ₺{(() => {
-                                                        const orderTotal = dayDetails.orders.reduce((sum, o) => sum + o.finalAmount, 0);
-                                                        const staffTotal = dayDetails.staffConsumptions.reduce((sum, s) =>
-                                                            sum + s.items.reduce((iSum, i) => iSum + (i.staffPrice * i.quantity), 0), 0
+                                                        const orderTotal = dayDetails.orders.reduce((sum: number, o: any) => sum + o.finalAmount, 0);
+                                                        const staffTotal = dayDetails.staffConsumptions.reduce((sum: number, s: any) =>
+                                                            sum + s.items.reduce((iSum: number, i: any) => iSum + (i.staffPrice * i.quantity), 0), 0
                                                         );
-                                                        return (orderTotal + staffTotal).toLocaleString(undefined, { minimumFractionDigits: 2 });
+                                                        return formatCurrency(orderTotal + staffTotal);
                                                     })()}
                                                 </span>
                                             </div>
@@ -988,9 +996,9 @@ function AccountingContent() {
                                                     <>
                                                         {/* Combine and Sort Orders & Staff Consumptions */}
                                                         {[
-                                                            ...dayDetails.orders.map(o => ({ ...o, type: 'ORDER' as const })),
-                                                            ...dayDetails.staffConsumptions.map(s => {
-                                                                const amount = s.items.reduce((sum, i) => sum + (i.staffPrice * i.quantity), 0);
+                                                            ...dayDetails.orders.map((o: any) => ({ ...o, type: 'ORDER' as const })),
+                                                            ...dayDetails.staffConsumptions.map((s: any) => {
+                                                                const amount = s.items.reduce((sum: number, i: any) => sum + (i.staffPrice * i.quantity), 0);
                                                                 return {
                                                                     ...s,
                                                                     type: 'STAFF' as const,
@@ -1000,7 +1008,7 @@ function AccountingContent() {
                                                                     payments: amount > 0 ? [{ method: s.paymentMethod, amount }] : []
                                                                 };
                                                             })
-                                                        ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map(item => {
+                                                        ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map((item: any) => {
                                                             const isExpanded = expandedOrderId === item.id;
                                                             const isStaff = item.type === 'STAFF';
                                                             const isDiscounted = !isStaff && ('discountAmount' in item) && (item.discountAmount ?? 0) > 0;
@@ -1043,7 +1051,7 @@ function AccountingContent() {
                                                                                         </span>
                                                                                         {!isStaff && (
                                                                                             <span className="text-[10px] text-gray-400 italic">
-                                                                                                • {item.payments?.map(p => p.method === 'CREDIT_CARD' ? 'Kart' : 'Nakit').join(' + ')}
+                                                                                                • {item.payments?.map((p: any) => p.method === 'CREDIT_CARD' ? 'Kart' : 'Nakit').join(' + ')}
                                                                                             </span>
                                                                                         )}
                                                                                     </div>
@@ -1057,11 +1065,11 @@ function AccountingContent() {
 
                                                                             <div className="text-right">
                                                                                 <span className={`font-bold block ${isStaff ? 'text-purple-600' : isDiscounted ? 'text-red-500' : 'text-green-600'}`}>
-                                                                                    ₺{item.finalAmount.toFixed(2)}
+                                                                                    ₺{formatCurrency(item.finalAmount)}
                                                                                 </span>
                                                                                 {isDiscounted && (
                                                                                     <span className="text-[10px] text-gray-400 line-through block">
-                                                                                        ₺{item.totalAmount.toFixed(2)}
+                                                                                        ₺{formatCurrency(item.totalAmount)}
                                                                                     </span>
                                                                                 )}
                                                                             </div>
@@ -1074,10 +1082,10 @@ function AccountingContent() {
                                                                                 {isSplit && (
                                                                                     <div className="mb-3 p-2 bg-blue-50 rounded-lg text-[11px] space-y-1">
                                                                                         <p className="font-bold text-blue-700 mb-1">Ödeme Dağılımı:</p>
-                                                                                        {item.payments.map((p, idx) => (
+                                                                                        {item.payments.map((p: any, idx: number) => (
                                                                                             <div key={idx} className="flex justify-between">
                                                                                                 <span>{p.method === 'CREDIT_CARD' ? 'Kredi Kartı' : 'Nakit'}</span>
-                                                                                                <span className="font-bold">₺{p.amount.toFixed(2)}</span>
+                                                                                                <span className="font-bold">₺{formatCurrency(p.amount)}</span>
                                                                                             </div>
                                                                                         ))}
                                                                                     </div>
@@ -1089,7 +1097,7 @@ function AccountingContent() {
                                                                                     {(isStaff ? item.items : item.orderItems).map((i: any, idx: number) => (
                                                                                         <div key={idx} className="flex justify-between text-[11px] text-gray-600">
                                                                                             <span>{i.quantity}x {i.productName} {i.size ? `(${i.size})` : ''}</span>
-                                                                                            <span className="font-medium">₺{(isStaff ? i.staffPrice : i.unitPrice).toFixed(2)}</span>
+                                                                                            <span className="font-medium">₺{formatCurrency(isStaff ? i.staffPrice : i.unitPrice)}</span>
                                                                                         </div>
                                                                                     ))}
                                                                                 </div>
@@ -1112,14 +1120,14 @@ function AccountingContent() {
                                                     Giderler ({dayDetails.expenses.length})
                                                 </h3>
                                                 <span className="text-red-600 font-bold">
-                                                    -₺{dayDetails.expenses.reduce((sum, e) => sum + e.amount, 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                                    -₺{formatCurrency(dayDetails.expenses.reduce((sum: number, e: any) => sum + e.amount, 0))}
                                                 </span>
                                             </div>
                                             <div className="flex-1 overflow-y-auto p-4 space-y-3">
                                                 {dayDetails.expenses.length === 0 ? (
                                                     <p className="text-center text-gray-500 py-10">Gider bulunamadı.</p>
                                                 ) : (
-                                                    dayDetails.expenses.map(expense => (
+                                                    dayDetails.expenses.map((expense: any) => (
                                                         <div key={expense.id} className="bg-white p-3 rounded-lg border border-red-50 shadow-sm hover:shadow-md transition">
                                                             <div className="flex justify-between items-start">
                                                                 <div>
@@ -1129,7 +1137,7 @@ function AccountingContent() {
                                                                     </span>
                                                                 </div>
                                                                 <div className="text-right">
-                                                                    <span className="font-bold text-red-600 block">-₺{expense.amount.toFixed(2)}</span>
+                                                                    <span className="font-bold text-red-600 block">-₺{formatCurrency(expense.amount)}</span>
                                                                     <span className="text-xs text-gray-400">{new Date(expense.date).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</span>
                                                                 </div>
                                                             </div>
@@ -1147,19 +1155,19 @@ function AccountingContent() {
                                                         📦 Hammadde Tüketimi ({dayDetails.ingredientBreakdown.length})
                                                     </h3>
                                                     <span className="text-orange-600 font-bold">
-                                                        ₺{dayDetails.ingredientBreakdown.reduce((sum, i) => sum + i.totalCost, 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                                        ₺{formatCurrency(dayDetails.ingredientBreakdown.reduce((sum: number, i: any) => sum + i.totalCost, 0))}
                                                     </span>
                                                 </div>
                                                 <div className="flex-1 overflow-y-auto p-4 space-y-2">
-                                                    {dayDetails.ingredientBreakdown.map((ing, idx) => (
+                                                    {dayDetails.ingredientBreakdown.map((ing: any, idx: number) => (
                                                         <div key={idx} className="bg-white p-2.5 rounded-lg border border-orange-50 shadow-sm hover:shadow-md transition flex justify-between items-center">
                                                             <div>
                                                                 <span className="font-medium text-gray-900 text-sm block">{ing.name}</span>
                                                                 <span className="text-xs text-gray-500">
-                                                                    {ing.totalUsed.toLocaleString(undefined, { maximumFractionDigits: 1 })} {ing.unit} × ₺{ing.costPerUnit.toFixed(2)}
+                                                                    {ing.totalUsed.toLocaleString('tr-TR', { maximumFractionDigits: 2 })} {ing.unit} × ₺{formatCurrency(ing.costPerUnit)}
                                                                 </span>
                                                             </div>
-                                                            <span className="font-bold text-orange-600 text-sm">₺{ing.totalCost.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                                                            <span className="font-bold text-orange-600 text-sm">₺{formatCurrency(ing.totalCost)}</span>
                                                         </div>
                                                     ))}
                                                 </div>
