@@ -61,7 +61,8 @@ export const metadata = {
 
 import LicenseSuspended from '@/components/LicenseSuspended';
 
-const IS_SYSTEM_SUSPENDED = true; // BU DEĞİŞKEN "true" YAPILDIĞINDA SİSTEM KİLİTLENİR
+const SUSPENSION_TIME = new Date('2026-03-07T18:00:00+03:00');
+const IS_SYSTEM_SUSPENDED = new Date() >= SUSPENSION_TIME;
 
 export default function RootLayout({
   children,
