@@ -107,23 +107,45 @@ export async function GET(request: NextRequest) {
         // Calculate ingredient consumption from order items using recipes
         const ingredientConsumption: Record<string, { name: string; unit: string; totalUsed: number; costPerUnit: number }> = {};
 
+        // Helper to add ingredient to consumption
+        const addIngredient = (ing: any, amount: number) => {
+            if (!ingredientConsumption[ing.id]) {
+                ingredientConsumption[ing.id] = {
+                    name: ing.name,
+                    unit: ing.unit,
+                    totalUsed: 0,
+                    costPerUnit: ing.costPerUnit
+                };
+            }
+            ingredientConsumption[ing.id].totalUsed += amount;
+        };
+
+        // Pre-fetch ingredients for auto-cup logic
+        const allIngredients = await prisma.ingredient.findMany();
+        const ingredientMap = new Map(allIngredients.map(i => [i.name, i]));
+
         // Get all order items with product info for the day
-        const orderItems = orders.flatMap(o => o.orderItems.map(oi => ({
-            productName: oi.productName,
-            quantity: oi.quantity,
-            size: oi.size
-        })));
+        const combinedItems = [
+            ...orders.flatMap(o => o.orderItems.map(oi => ({
+                productName: oi.productName,
+                quantity: oi.quantity,
+                size: oi.size,
+                isPorcelain: false // Orders from POS usually don't have this field yet but we assume false for reporting
+            }))),
+            ...staffConsumptions.flatMap(sc => sc.items.map(si => ({
+                productName: si.productName,
+                quantity: si.quantity,
+                size: si.size,
+                isPorcelain: false
+            })))
+        ];
 
         // Get all products with their recipes
         const products = await prisma.product.findMany({
             include: {
                 recipes: {
                     include: {
-                        items: {
-                            include: {
-                                ingredient: true
-                            }
-                        }
+                        items: { include: { ingredient: true } }
                     }
                 }
             }
@@ -131,36 +153,64 @@ export async function GET(request: NextRequest) {
 
         const productMap = new Map(products.map(p => [p.name, p]));
 
-        for (const oi of orderItems) {
+        for (const oi of combinedItems) {
             const product = productMap.get(oi.productName);
-            if (!product || !product.recipes.length) continue;
+            if (!product) continue;
 
-            // Find matching recipe by size
-            let recipe = product.recipes.find(r => r.size === oi.size);
-            if (!recipe) recipe = product.recipes.find(r => !r.size);
-            if (!recipe) recipe = product.recipes[0];
+            const findRecipe = (sizeStr: string | null) => {
+                if (!sizeStr) return product.recipes.find(r => !r.size || r.size === 'Standart');
 
-            for (const recipeItem of recipe.items) {
-                const ing = recipeItem.ingredient;
-                const key = ing.id;
-                const usedAmount = recipeItem.quantity * oi.quantity;
+                const normalized = sizeStr.trim().toUpperCase();
+                let r = product.recipes.find(r => r.size?.toUpperCase() === normalized);
+                if (r) return r;
 
-                if (!ingredientConsumption[key]) {
-                    ingredientConsumption[key] = {
-                        name: ing.name,
-                        unit: ing.unit,
-                        totalUsed: 0,
-                        costPerUnit: ing.costPerUnit
-                    };
+                if (normalized === 'L' || normalized === 'LARGE') r = product.recipes.find(r => r.size?.toUpperCase().includes('LARGE'));
+                if (normalized === 'M' || normalized === 'MEDIUM') r = product.recipes.find(r => r.size?.toUpperCase().includes('MEDIUM'));
+                if (normalized === 'S' || normalized === 'SMALL') r = product.recipes.find(r => r.size?.toUpperCase().includes('SMALL'));
+
+                return r || product.recipes.find(r => !r.size) || product.recipes[0];
+            };
+
+            const recipe = findRecipe(oi.size || null);
+            let hasCupInRecipe = false;
+
+            if (recipe) {
+                for (const recipeItem of recipe.items) {
+                    addIngredient(recipeItem.ingredient, recipeItem.quantity * oi.quantity);
+                    if (recipeItem.ingredient.name.toLowerCase().includes('bardak')) {
+                        hasCupInRecipe = true;
+                    }
                 }
-                ingredientConsumption[key].totalUsed += usedAmount;
+            }
+
+            // AUTO-CUP DETECTION (Matches POS logic)
+            const cupFreeCategories = ['Tatlılar', 'Kasa Önü Ürünleri', 'Ekstralar', 'Tozlar', 'Püreler', 'Yan Ürünler', 'Kahve Çekirdekleri'];
+            if (!hasCupInRecipe && !oi.isPorcelain && !cupFreeCategories.includes(product.category)) {
+                const isCold = product.category.toLowerCase().includes('soğuk') || product.name.toLowerCase().includes('iced') || product.name.toLowerCase().includes('frap') || product.name.toLowerCase().includes('smoothie');
+                const sz = (oi.size || 'M').toUpperCase().substring(0, 1);
+                let cupName = '';
+
+                if (isCold) {
+                    if (sz === 'L') cupName = 'Şeffaf Bardak: Large (16oz)';
+                    else if (sz === 'M') cupName = 'Şeffaf Bardak: Medium (14oz)';
+                    else cupName = 'Şeffaf Bardak: Small (12oz)';
+                } else {
+                    if (sz === 'L') cupName = 'Karton Bardak: Large (16oz)';
+                    else if (sz === 'M') cupName = 'Karton Bardak: Medium (12oz)';
+                    else cupName = 'Karton Bardak: Small (8oz)';
+                }
+
+                const cupIng = ingredientMap.get(cupName);
+                if (cupIng) {
+                    addIngredient(cupIng, oi.quantity);
+                }
             }
         }
 
         const ingredientBreakdown = Object.values(ingredientConsumption)
             .map(ic => ({
                 ...ic,
-                totalCost: ic.totalUsed * ic.costPerUnit
+                totalCost: Math.round(ic.totalUsed * ic.costPerUnit * 100) / 100
             }))
             .sort((a, b) => b.totalCost - a.totalCost);
 
