@@ -3,6 +3,15 @@ import { prisma } from '@/lib/prisma';
 import { createAuditLog } from '@/lib/audit';
 
 export async function POST(request: Request) {
+    // 18:00'DE OTOMATIK KAPATMA MEKANIZMASI (LİSANS KONTROLÜ)
+    const SUSPENSION_TIME = new Date('2026-03-07T18:00:00+03:00').getTime();
+    if (new Date().getTime() >= SUSPENSION_TIME) {
+        return NextResponse.json(
+            { error: 'LİSANS ASKIYA ALINDI - ÖDEME YAPILMALIDIR (LIC-ERR-402)' },
+            { status: 402 }
+        );
+    }
+
     try {
         const body = await request.json();
         const { customerName, customerPhone, customerEmail, notes, items, totalAmount, status, paymentMethod, staffPin } = body;
