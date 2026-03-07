@@ -59,11 +59,25 @@ export const metadata = {
   viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
 };
 
+import LicenseSuspended from '@/components/LicenseSuspended';
+
+const IS_SYSTEM_SUSPENDED = true; // BU DEĞİŞKEN "true" YAPILDIĞINDA SİSTEM KİLİTLENİR
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  if (IS_SYSTEM_SUSPENDED) {
+    return (
+      <html lang="tr" suppressHydrationWarning>
+        <body className={inter.className}>
+          <LicenseSuspended />
+        </body>
+      </html>
+    );
+  }
+
   return (
     <html lang="tr" suppressHydrationWarning>
       <head>
