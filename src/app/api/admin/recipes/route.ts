@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { createAuditLog } from '@/lib/audit';
+
 
 // GET - Get recipes for a product or all recipes
 export async function GET(request: NextRequest) {
@@ -78,9 +80,38 @@ export async function POST(request: NextRequest) {
                         include: {
                             ingredient: true
                         }
-                    }
+                    },
+                    product: true
                 }
             });
+
+            // Log the update
+            try {
+                const cookieHeader = request.headers.get('cookie') || '';
+                const cookies = Object.fromEntries(cookieHeader.split('; ').map(c => c.split('=')));
+                const token = cookies['auth-token'];
+                let userEmail = 'Bilinmiyor';
+
+                if (token) {
+                    const jwt = require('jsonwebtoken');
+                    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret') as any;
+                    userEmail = decoded.email || 'Bilinmiyor';
+                }
+
+                await createAuditLog({
+                    action: 'RECIPE_UPDATED',
+                    entity: 'Recipe',
+                    entityId: existingRecipe.id,
+                    userEmail: userEmail,
+                    newData: {
+                        productName: recipe?.product?.name,
+                        size: recipe?.size || 'STANDART',
+                        itemCount: items.length
+                    }
+                });
+            } catch (err) {
+                console.error("Recipe audit log failed:", err);
+            }
         } else {
             // Create new recipe
             recipe = await prisma.recipe.create({
@@ -99,9 +130,38 @@ export async function POST(request: NextRequest) {
                         include: {
                             ingredient: true
                         }
-                    }
+                    },
+                    product: true
                 }
             });
+
+            // Log the creation
+            try {
+                const cookieHeader = request.headers.get('cookie') || '';
+                const cookies = Object.fromEntries(cookieHeader.split('; ').map(c => c.split('=')));
+                const token = cookies['auth-token'];
+                let userEmail = 'Bilinmiyor';
+
+                if (token) {
+                    const jwt = require('jsonwebtoken');
+                    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret') as any;
+                    userEmail = decoded.email || 'Bilinmiyor';
+                }
+
+                await createAuditLog({
+                    action: 'RECIPE_CREATED',
+                    entity: 'Recipe',
+                    entityId: recipe.id,
+                    userEmail: userEmail,
+                    newData: {
+                        productName: recipe?.product?.name,
+                        size: recipe?.size || 'STANDART',
+                        itemCount: items.length
+                    }
+                });
+            } catch (err) {
+                console.error("Recipe audit log failed:", err);
+            }
         }
 
         return NextResponse.json(recipe, { status: 201 });
@@ -148,9 +208,38 @@ export async function PUT(request: NextRequest) {
                     include: {
                         ingredient: true
                     }
-                }
+                },
+                product: true
             }
         });
+
+        // Log the direct PUT update
+        try {
+            const cookieHeader = request.headers.get('cookie') || '';
+            const cookies = Object.fromEntries(cookieHeader.split('; ').map(c => c.split('=')));
+            const token = cookies['auth-token'];
+            let userEmail = 'Bilinmiyor';
+
+            if (token) {
+                const jwt = require('jsonwebtoken');
+                const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret') as any;
+                userEmail = decoded.email || 'Bilinmiyor';
+            }
+
+            await createAuditLog({
+                action: 'RECIPE_PUT_UPDATED',
+                entity: 'Recipe',
+                entityId: recipe.id,
+                userEmail: userEmail,
+                newData: {
+                    productName: recipe?.product?.name,
+                    size: recipe?.size || 'STANDART',
+                    itemCount: items.length
+                }
+            });
+        } catch (err) {
+            console.error("Recipe audit log failed:", err);
+        }
 
         return NextResponse.json(recipe);
     } catch (error) {
@@ -175,9 +264,38 @@ export async function DELETE(request: NextRequest) {
             );
         }
 
+        const productRecipe = await prisma.recipe.findUnique({ where: { id }, include: { product: true } });
+
         await prisma.recipe.delete({
             where: { id }
         });
+
+        // Log the deletion
+        try {
+            const cookieHeader = request.headers.get('cookie') || '';
+            const cookies = Object.fromEntries(cookieHeader.split('; ').map(c => c.split('=')));
+            const token = cookies['auth-token'];
+            let userEmail = 'Bilinmiyor';
+
+            if (token) {
+                const jwt = require('jsonwebtoken');
+                const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret') as any;
+                userEmail = decoded.email || 'Bilinmiyor';
+            }
+
+            await createAuditLog({
+                action: 'RECIPE_DELETED',
+                entity: 'Recipe',
+                entityId: id,
+                userEmail: userEmail,
+                newData: {
+                    productName: productRecipe?.product?.name,
+                    size: productRecipe?.size || 'STANDART'
+                }
+            });
+        } catch (err) {
+            console.error("Recipe audit log failed:", err);
+        }
 
         return NextResponse.json({ success: true });
     } catch (error) {
