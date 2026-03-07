@@ -59,42 +59,13 @@ export const metadata = {
   viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
 };
 
-import LicenseSuspended from '@/components/LicenseSuspended';
-
-// 18:00'DE OTOMATIK KAPATMA MEKANIZMASI
-const SUSPENSION_TIME = new Date('2026-03-07T18:00:00+03:00').getTime();
+import SuspensionWrapper from '@/components/SuspensionWrapper';
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // İstemci tarafında saati kontrol et (Sunucu saatiyle çakışmaması için)
-  const [isSuspended, setIsSuspended] = React.useState(false);
-
-  React.useEffect(() => {
-    const checkSuspension = () => {
-      const now = new Date().getTime();
-      if (now >= SUSPENSION_TIME) {
-        setIsSuspended(true);
-      }
-    };
-
-    checkSuspension();
-    const interval = setInterval(checkSuspension, 60000); // Dakikada bir kontrol et
-    return () => clearInterval(interval);
-  }, []);
-
-  if (isSuspended) {
-    return (
-      <html lang="tr" suppressHydrationWarning>
-        <body className={inter.className}>
-          <LicenseSuspended />
-        </body>
-      </html>
-    );
-  }
-
   return (
     <html lang="tr" suppressHydrationWarning>
       <head>
@@ -118,9 +89,11 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <div className="min-h-screen bg-white">
-          <Providers>
-            {children}
-          </Providers>
+          <SuspensionWrapper>
+            <Providers>
+              {children}
+            </Providers>
+          </SuspensionWrapper>
         </div>
       </body>
     </html>
