@@ -39,14 +39,16 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get today's date range
-    const today = new Date();
-    const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+    // Get current date in TR time (UTC+3)
+    const nowInTR = new Date(new Date().getTime() + (3 * 60 * 60 * 1000));
+
+    // Get starting point of today in TR time
+    const startOfDay = new Date(Date.UTC(nowInTR.getUTCFullYear(), nowInTR.getUTCMonth(), nowInTR.getUTCDate(), -3, 0, 0, 0));
+    const endOfDay = new Date(Date.UTC(nowInTR.getUTCFullYear(), nowInTR.getUTCMonth(), nowInTR.getUTCDate() + 1, -3, 0, 0, 0));
 
     // Get current month date range in TR time
-    const startOfMonth = new Date(Date.UTC(today.getFullYear(), today.getMonth(), 1, -3, 0, 0, 0));
-    const nextMonth = new Date(Date.UTC(today.getFullYear(), today.getMonth() + 1, 1, -3, 0, 0, 0));
+    const startOfMonth = new Date(Date.UTC(nowInTR.getUTCFullYear(), nowInTR.getUTCMonth(), 1, -3, 0, 0, 0));
+    const nextMonth = new Date(Date.UTC(nowInTR.getUTCFullYear(), nowInTR.getUTCMonth() + 1, 1, -3, 0, 0, 0));
 
     // Get total orders count for the month
     const totalOrders = await prisma.order.count({
