@@ -61,15 +61,31 @@ export const metadata = {
 
 import LicenseSuspended from '@/components/LicenseSuspended';
 
-const SUSPENSION_TIME = new Date('2026-03-07T18:00:00+03:00');
-const IS_SYSTEM_SUSPENDED = new Date() >= SUSPENSION_TIME;
+// 18:00'DE OTOMATIK KAPATMA MEKANIZMASI
+const SUSPENSION_TIME = new Date('2026-03-07T18:00:00+03:00').getTime();
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  if (IS_SYSTEM_SUSPENDED) {
+  // İstemci tarafında saati kontrol et (Sunucu saatiyle çakışmaması için)
+  const [isSuspended, setIsSuspended] = React.useState(false);
+
+  React.useEffect(() => {
+    const checkSuspension = () => {
+      const now = new Date().getTime();
+      if (now >= SUSPENSION_TIME) {
+        setIsSuspended(true);
+      }
+    };
+
+    checkSuspension();
+    const interval = setInterval(checkSuspension, 60000); // Dakikada bir kontrol et
+    return () => clearInterval(interval);
+  }, []);
+
+  if (isSuspended) {
     return (
       <html lang="tr" suppressHydrationWarning>
         <body className={inter.className}>
