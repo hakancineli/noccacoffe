@@ -175,7 +175,9 @@ export async function POST(request: Request) {
 
             // Use size directly as it matches DB ('S', 'M', 'L', 'Standart' or null)
             let normalizedSize = item.size;
-
+            if (normalizedSize === 'S') normalizedSize = 'Small';
+            if (normalizedSize === 'M') normalizedSize = 'Medium';
+            if (normalizedSize === 'L') normalizedSize = 'Large';
             // Find matching recipe in memory
             let recipe = productInDb.recipes.find(r => r.size === normalizedSize);
 
@@ -306,7 +308,9 @@ export async function POST(request: Request) {
 
             // Use size directly
             let normalizedSize = item.size;
-
+            if (normalizedSize === 'S') normalizedSize = 'Small';
+            if (normalizedSize === 'M') normalizedSize = 'Medium';
+            if (normalizedSize === 'L') normalizedSize = 'Large';
             // Improved Recipe Lookup Logic (Sync with Validation Phase)
             let recipe = productInDb.recipes.find(r => r.size === normalizedSize);
 
